@@ -1,0 +1,82 @@
+﻿<Window x:Class="HR_Application.StatWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HR_Application"
+        mc:Ignorable="d"
+        Height="450" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0">
+            <TextBlock FontWeight="ExtraBold" Text="الاحصائيات" HorizontalAlignment="Center" Foreground="Black" VerticalAlignment="Center" FontSize="18"/>
+
+        </StackPanel>
+
+        <DataGrid AutoGenerateColumns="False" Grid.Row="1" FlowDirection="RightToLeft" Name="data_grid">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn  SortMemberPath="BranchName">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock FlowDirection="RightToLeft" Text="{Binding name, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="100" SortMemberPath="Balance">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding value, UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+    <Window.Resources>
+
+        <!-- Define the style for the DataGrid header -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="Gray"/>
+            <!-- Background color -->
+            <Setter Property="Foreground" Value="White"/>
+            <!-- Text color -->
+            <Setter Property="FontWeight" Value="Bold"/>
+            <!-- Bold text -->
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <!-- Center align text -->
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <!-- Center align text vertically -->
+            <Setter Property="Padding" Value="5"/>
+            <!-- Padding around text -->
+            <Setter Property="BorderBrush" Value="White"/>
+            <!-- Border color -->
+            <Setter Property="BorderThickness" Value="1"/>
+            <!-- Border thickness -->
+        </Style>
+
+        <Style TargetType="DataGridRowHeader">
+            <Setter Property="Background" Value="Gray"/>
+            <!-- Background color -->
+            <Setter Property="Foreground" Value="White"/>
+            <!-- Text color -->
+            <Setter Property="FontWeight" Value="Bold"/>
+            <!-- Bold text -->
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <!-- Center align text -->
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <!-- Center align text vertically -->
+            <Setter Property="Padding" Value="5"/>
+            <!-- Padding around text -->
+            <Setter Property="BorderBrush" Value="White"/>
+            <!-- Border color -->
+            <Setter Property="BorderThickness" Value="1"/>
+            <!-- Border thickness -->
+        </Style>
+    </Window.Resources>
+</Window>

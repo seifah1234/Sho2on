@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="HR_Application.UserControls.WindowButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Name="windowButton"
+             >
+    <Border MouseEnter="btn_mouseEnter" MouseLeave="btn_mouseLeave" Name="btn_border" MouseLeftButtonDown="Border_MouseLeftButtonDown" CornerRadius="8" Background="#ffffff" Cursor="Hand">
+        <TextBlock x:Name="btn_txt" FontWeight="Bold" Text="{Binding ElementName=windowButton, Path=Label}" FlowDirection="RightToLeft" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black"/>
+            
+
+        </Border>
+</UserControl>

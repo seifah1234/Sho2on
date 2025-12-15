@@ -1,0 +1,157 @@
+﻿<Window x:Class="HR_Application.Views.Settings.NetworkSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="إعدادات الشبكة والتخزين" Height="450" Width="600"
+        WindowStartupLocation="CenterScreen"
+        FlowDirection="RightToLeft"
+        Background="WhiteSmoke">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- العنوان -->
+        <Border Grid.Row="0" Background="#2c3e50" Padding="10" CornerRadius="5" Margin="0,0,0,10">
+            <TextBlock Text="إعدادات تخزين الملفات" Foreground="White" 
+                       FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- المحتوى -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- قسم المسار الشبكي -->
+                <GroupBox Header="المسار الشبكي المركزي" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="مسار السيرفر المركزي:" 
+                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="networkPathTextBox" Grid.Column="0"
+                                     FlowDirection="LeftToRight"
+                                     Text="\\SERVER\HR_Documents" Width="300"
+                                     ToolTip="أدخل المسار الشبكي للسيرفر المركزي"/>
+
+                            <Button x:Name="testNetworkBtn" Grid.Column="1" 
+                                    Content="اختبار الاتصال" Margin="5,0,0,0"
+                                    Click="testNetworkBtn_Click"/>
+                        </Grid>
+
+                        <TextBlock x:Name="networkStatusText" Margin="0,5,0,0"
+                                   FontSize="11" TextWrapping="Wrap"/>
+
+                        <!-- خيارات سريعة -->
+                        <WrapPanel Margin="0,10,0,0">
+                            <Button x:Name="btnLocalIP" Content="استخدام IP المحلي" 
+                                    Click="btnLocalIP_Click" Margin="0,0,5,5"
+                                    ToolTip="استخدام IP الجهاز الحالي"/>
+                            <Button x:Name="btnServerName" Content="استخدام اسم السيرفر" 
+                                    Click="btnServerName_Click" Margin="0,0,5,5"
+                                    ToolTip="استخدام \\SERVER\HR_Documents"/>
+                            <Button x:Name="btnLocalPath" Content="مسار محلي" 
+                                    Click="btnLocalPath_Click"
+                                    ToolTip="استخدام مجلد محلي"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- قسم اختبار الاتصال -->
+                <GroupBox Header="اختبار الاتصال" Margin="0,0,0,10">
+                    <StackPanel>
+                        <Button x:Name="pingTestBtn" Content="اختبار Ping للسيرفر" 
+                                Click="pingTestBtn_Click" Margin="0,0,0,5"/>
+
+                        <Button x:Name="shareTestBtn" Content="اختبار مشاركة المجلد" 
+                                Click="shareTestBtn_Click" Margin="0,0,0,5"/>
+
+                        <Button x:Name="permissionTestBtn" Content="اختبار الصلاحيات" 
+                                Click="permissionTestBtn_Click"/>
+
+                        <Border x:Name="testResultsBorder" Margin="0,10,0,0" 
+                                Background="#f8f9fa" Padding="10" CornerRadius="5"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="testResultsText" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- قسم الإحصائيات -->
+                <GroupBox Header="إحصائيات التخزين" Margin="0,0,0,10">
+                    <StackPanel>
+                        <Button x:Name="loadStatsBtn" Content="تحميل الإحصائيات" 
+                                Click="loadStatsBtn_Click" Margin="0,0,0,5"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="المسار الحالي:" Grid.Column="0" 
+                                       FontWeight="SemiBold" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="currentPathText" Grid.Column="1" 
+                                       TextWrapping="Wrap"/>
+                        </Grid>
+
+                        <Grid Margin="0,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="المساحة المتاحة:" Grid.Column="0" 
+                                       FontWeight="SemiBold" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="freeSpaceText" Grid.Column="1"/>
+                        </Grid>
+
+                        <Grid Margin="0,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="حالة الاتصال:" Grid.Column="0" 
+                                       FontWeight="SemiBold" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="connectionStatusText" Grid.Column="1"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- قسم التهيئة -->
+                <GroupBox Header="تهيئة النظام" Margin="0,0,0,10">
+                    <StackPanel>
+                        <Button x:Name="initFoldersBtn" Content="إنشاء المجلدات الهيكلية" 
+                                Click="initFoldersBtn_Click" Margin="0,0,0,5"
+                                ToolTip="إنشاء جميع المجلدات المطلوبة"/>
+
+                        <Button x:Name="migrateFilesBtn" Content="نقل الملفات الحالية" 
+                                Click="migrateFilesBtn_Click"
+                                ToolTip="نقل الملفات من المسار المحلي إلى المسار المركزي"/>
+                    </StackPanel>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- أزرار التحكم -->
+        <Border Grid.Row="2" Background="#ecf0f1" Padding="10" CornerRadius="5" Margin="0,10,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="saveBtn" Content="حفظ الإعدادات" 
+                        Click="saveBtn_Click" Background="#27ae60" 
+                        Foreground="White" Padding="15,5" Margin="0,0,10,0"/>
+
+                <Button x:Name="cancelBtn" Content="إلغاء" 
+                        Click="cancelBtn_Click" Background="#95a5a6" 
+                        Foreground="White" Padding="15,5"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

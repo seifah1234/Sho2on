@@ -1,0 +1,218 @@
+﻿using Sho2on.Database;
+using Sho2on.Database.Models;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+
+namespace HR_Application
+{
+    /// <summary>
+    /// Interaction logic for AddHoliType.xaml
+    /// </summary>
+    public partial class AddHoliType : Window
+    {
+        public AddHoliType()
+        {
+            InitializeComponent();
+            
+            LoadData();
+        }
+
+        private void LoadData()
+        {
+
+            try
+            {
+                name_box.Clear();
+
+                using(var db = new AppDbContext(App.ConnectionString))
+                {
+                    var holidayTypes = db.HolidayTypes.ToList();
+                    list.ItemsSource = holidayTypes.ToList();
+                }
+                
+                
+            }
+            catch (Exception e)
+            {
+                System.Windows.MessageBox.Show(e.Message);
+            }
+
+        }
+
+        private void Exit_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Close();
+        }
+
+        private void B_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
+            if (e.ClickCount == 2)
+            {
+                if (this.WindowState == WindowState.Maximized)
+                {
+                    this.WindowState = WindowState.Normal;
+                }
+                else
+                {
+                    this.WindowState = WindowState.Maximized;
+                }
+            }
+        }
+
+
+        private void save_Btn(object sender, EventArgs e)
+        {
+
+            try
+            {
+                SqlConnection con = new SqlConnection(App.ConnectionString);
+
+                con.Open();
+                string name = name_box.Text;
+                using (var db = new AppDbContext(App.ConnectionString))
+                {
+                    var existingHolidayType = db.HolidayTypes.FirstOrDefault(ht => ht.Name == name);
+                    if (existingHolidayType != null)
+                    {
+                        System.Windows.MessageBox.Show("نوع الاجازة موجود مسبقاً", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    var holidayType = new HolidayType
+                    {
+                        Name = name
+                    };
+                    db.HolidayTypes.Add(holidayType);
+                    db.SaveChanges();
+
+                }
+                System.Windows.MessageBox.Show("تم اضافة نوع الاجازة", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LoadData();
+
+            }
+            catch
+            {
+                System.Windows.MessageBox.Show("حدث خطأ", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            }
+        }
+
+        private void exit_Btn(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void delete_Btn(object sender, EventArgs e)
+        {
+            if (list.SelectedItem is not HolidayType selectedHolidayType)
+            {
+                System.Windows.MessageBox.Show("لم يتم اختيار نوع الاجازة", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                try
+                {
+                    using (var db = new AppDbContext(App.ConnectionString))
+                    {
+                        
+                            db.HolidayTypes.Remove(selectedHolidayType);
+                            db.SaveChanges();
+                        
+                    }
+                    System.Windows.MessageBox.Show("تم حذف نوع الاجازة", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadData();
+                }
+                catch
+                {
+                    System.Windows.MessageBox.Show("حدث خطأ", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void edit_Btn(object sender, EventArgs e)
+        {
+
+            try
+            {
+                if (list.SelectedItem is HolidayType holidayType)
+                {
+                    
+                    string name = name_box.Text;
+                    holidayType.Name = name;
+                    using (var db = new AppDbContext(App.ConnectionString))
+                    {
+                        db.HolidayTypes.Update(holidayType);
+                        db.SaveChanges();
+                    }
+
+                    System.Windows.MessageBox.Show("تم تعديل نوع الاجازة", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadData();
+                }
+                else
+                {
+                    System.Windows.MessageBox.Show("لم تختار اي نوع اجازة", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+            }
+            catch
+            {
+                System.Windows.MessageBox.Show("حدث خطأ", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void list_SelectedIndexChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (list.SelectedItem is HolidayType holidayType)
+            {
+                string query = "SELECT * FROM t_holidayType";
+                SqlConnection con = new SqlConnection(App.ConnectionString);
+
+               
+                name_box.Text = holidayType.Name;
+                            
+                
+
+            }
+        }
+
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void Min_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void Max_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+            else
+            {
+
+                this.WindowState = WindowState.Maximized;
+            }
+        }
+    }
+}

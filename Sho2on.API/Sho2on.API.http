@@ -1,0 +1,6 @@
+@Sho2on.API_HostAddress = http://localhost:5194
+
+GET {{Sho2on.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

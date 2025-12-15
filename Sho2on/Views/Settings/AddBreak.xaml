@@ -1,0 +1,149 @@
+﻿<Window x:Class="HR_Application.AddBreak"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:uc="clr-namespace:HR_Application.UserControls"
+        xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Height="500" Width="700" MinHeight="500" MinWidth="700"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent">
+
+    <Window.Resources>
+        <!-- تدرج لوني للخلفية الرئيسية -->
+        <LinearGradientBrush x:Key="MainBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#E3F2FD" Offset="0"/>
+            <GradientStop Color="#BBDEFB" Offset="1"/>
+        </LinearGradientBrush>
+        <!-- تدرج للسيده بار -->
+        <LinearGradientBrush x:Key="SidebarBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#263238" Offset="0"/>
+            <GradientStop Color="#37474F" Offset="1"/>
+        </LinearGradientBrush>
+        <!-- تأثير ظل -->
+        <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
+    </Window.Resources>
+
+    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- العنوان المحسن -->
+            <TextBlock Text="بيانات الراحة" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center" 
+                       FontSize="20" 
+                       FontWeight="Bold" 
+                       Foreground="#1976D2" 
+                         
+                       Grid.ColumnSpan="2"/>
+
+            <!-- الجانب الأيمن: نموذج الإدخال -->
+            <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{StaticResource HeaderBackground}"  >
+                <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" Width="280">
+                    <!-- Time Picker للوقت من -->
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                        <Controls:TimePicker x:Name="FromTimePicker" 
+                                             Margin="0 10 0 0" 
+                                             Width="200" 
+                                             SelectedTimeFormat="Short"
+                                             Culture="en-US" 
+                                             Foreground="Black" 
+                                             Background="Transparent" 
+                                             BorderThickness="1"/>
+                    </StackPanel>
+
+                    <!-- Time Picker للوقت إلى -->
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                        <Controls:TimePicker x:Name="ToTimePicker" 
+                                             Margin="0 10 0 0" 
+                                             Width="200" 
+                                             Culture="en-US" 
+                                             Foreground="Black" 
+                                             SelectedTimeFormat="Short"
+                                             Background="Transparent" 
+                                             BorderThickness="1"/>
+                    </StackPanel>
+
+                    <!-- أزرار التعديل والحفظ -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
+                        <Button Height="45" Width="110" BorderThickness="2" BorderBrush="White" Background="Transparent" Margin="5" Click="edit_Btn">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Foreground="White" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="تعديل" Foreground="White" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button Height="45" Width="110" Margin="5" BorderThickness="2" BorderBrush="White" Background="Transparent" Click="save_Btn">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Foreground="White" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="White" Text="حفظ" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- أزرار الخروج والحذف -->
+                    <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button BorderThickness="2" BorderBrush="White" Background="Transparent" Width="110" Margin="5" Height="45" Click="exit_Btn">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Foreground="White" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="White" Text="خروج" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button BorderThickness="2" BorderBrush="White" Background="Transparent" Width="110" Margin="5" Height="45" Click="delete_Btn">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Foreground="White" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="White" Text="حذف" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- الجانب الأيسر: قائمة الراحات -->
+            <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Background="#FFFFFF" Opacity="0.95"   Margin="20">
+                <ListView FlowDirection="LeftToRight" 
+                          Margin="10" 
+                          x:Name="list" 
+                          DisplayMemberPath="Name"
+                          Background="Transparent" 
+                          BorderBrush="#1976D2" 
+                          BorderThickness="1">
+                    <!-- تحسين مظهر العناصر في ListView -->
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding" Value="10"/>
+                            <Setter Property="FontSize" Value="14"/>
+                            <Setter Property="Foreground" Value="#424242"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                    <Setter Property="Foreground" Value="#1976D2"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

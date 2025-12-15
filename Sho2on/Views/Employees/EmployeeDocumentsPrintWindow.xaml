@@ -1,0 +1,122 @@
+﻿<Window x:Class="HR_Application.Views.EmployeeDocumentsPrintWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="مستندات الموظف للتوقيع" Height="600" Width="900"
+        FlowDirection="RightToLeft"
+        WindowStartupLocation="CenterScreen"
+        Background="WhiteSmoke">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2c3e50" Padding="15" CornerRadius="5" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="المستندات المطلوبة للتوقيع" 
+                               Foreground="White" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock x:Name="employeeInfoText" Foreground="#ecf0f1" 
+                               FontSize="12" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="selectAllBtn" Content="تحديد الكل" 
+                            Click="selectAllBtn_Click" Background="#27ae60" 
+                            Foreground="White" Margin="5,0" Padding="10,5"/>
+                    <Button x:Name="deselectAllBtn" Content="إلغاء التحديد" 
+                            Click="deselectAllBtn_Click" Background="#e74c3c" 
+                            Foreground="White" Margin="5,0" Padding="10,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Documents List -->
+        <Border Grid.Row="1" Background="White" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+            <DataGrid x:Name="documentsGrid" AutoGenerateColumns="False"
+                      SelectionMode="Single" IsReadOnly="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="30">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                          VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="المعرف" Binding="{Binding Document.Id}" Width="60"/>
+                    <DataGridTextColumn Header="العنوان" Binding="{Binding Document.Title}" Width="200"/>
+                    <DataGridTextColumn Header="التصنيف" Binding="{Binding CategoryName}" Width="120"/>
+                    <DataGridTextColumn Header="الوصف" Binding="{Binding Document.Description}" Width="250"/>
+                    <DataGridTextColumn Header="الحجم" Binding="{Binding FileSizeFormatted}" Width="80"/>
+                    <DataGridTextColumn Header="تاريخ الرفع" Binding="{Binding Document.UploadDate}" Width="100"/>
+                    <DataGridTemplateColumn Header="معاينة" Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="معاينة" Click="PreviewDocument_Click" 
+                                        Tag="{Binding Document.Id}" Padding="5,2"
+                                        Background="#3498db" Foreground="White"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Print Options -->
+        <GroupBox Grid.Row="2" Header="خيارات الطباعة" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <CheckBox x:Name="includeHeaderCheck" Content="تضمين رأس الصفحة" 
+                              IsChecked="True" Margin="0,0,15,0"/>
+                    <CheckBox x:Name="includeFooterCheck" Content="تضمين تذييل الصفحة" 
+                              IsChecked="True" Margin="0,0,15,0"/>
+                    <CheckBox x:Name="includeSignatureLineCheck" Content="تضمين سطر التوقيع" 
+                              IsChecked="True"/>
+                </StackPanel>
+
+                <ComboBox Grid.Column="1" x:Name="printFormatCombo" Width="150" 
+                          Margin="10,0" SelectedIndex="0">
+                    <ComboBoxItem Content="طباعة فردية"/>
+                    <ComboBoxItem Content="طباعة مجمعة"/>
+                </ComboBox>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button x:Name="previewBtn" Content="معاينة قبل الطباعة" 
+                            Click="previewBtn_Click" Background="#f39c12" 
+                            Foreground="White" Margin="0,0,10,0" Padding="10,5"/>
+                    <Button x:Name="printBtn" Content="طباعة" 
+                            Click="printBtn_Click" Background="#27ae60" 
+                            Foreground="White" Padding="15,5"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left">
+            <Button x:Name="downloadSelectedBtn" Content="تحميل المحدد" 
+                    Click="downloadSelectedBtn_Click" Background="#2980b9" 
+                    Foreground="White" Margin="0,0,10,0" Padding="10,5"/>
+            <Button x:Name="uploadSignedBtn" Content="رفع المستندات الموقعة" 
+                    Click="uploadSignedBtn_Click" Background="#8e44ad" 
+                    Foreground="White" Margin="0,0,10,0" Padding="10,5"/>
+            <Button x:Name="closeBtn" Content="إغلاق" 
+                    Click="closeBtn_Click" Padding="10,5"/>
+        </StackPanel>
+    </Grid>
+</Window>

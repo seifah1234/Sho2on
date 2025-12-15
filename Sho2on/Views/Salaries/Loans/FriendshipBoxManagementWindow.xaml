@@ -1,0 +1,218 @@
+﻿<Window x:Class="HR_Application.Views.FriendshipBoxManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="إدارة صندوق الزمالة المشترك" 
+        FlowDirection="RightToLeft"
+        Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- العنوان -->
+        <Border Grid.Row="0" Background="#1976D2" Padding="15">
+            <TextBlock Text="إدارة صندوق الزمالة المشترك" 
+                       Foreground="White" 
+                       FontSize="18" 
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- محتوى النافذة -->
+        <TabControl Grid.Row="1" Margin="10">
+            <!-- تبويب معلومات الصندوق -->
+            <TabItem Header="معلومات الصندوق">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- إحصائيات الصندوق -->
+                    <GroupBox Grid.Row="0" Header="إحصائيات الصندوق" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="10">
+                                <TextBlock Text="الرصيد الحالي:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtCurrentBalance" FontSize="16" Foreground="Green" Margin="0,5,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="10">
+                                <TextBlock Text="إجمالي الإيداعات:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtTotalDeposits" Margin="0,5,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Margin="10">
+                                <TextBlock Text="إجمالي السلف:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtTotalLoans" Margin="0,5,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="3" Margin="10">
+                                <TextBlock Text="إجمالي السداد:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtTotalRepayments" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- إحصائيات شهرية -->
+                    <GroupBox Grid.Row="1" Header="إحصائيات الشهر الحالي" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="10">
+                                <TextBlock Text="الإيداعات الشهرية:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtMonthlyDeposits" Foreground="Blue" Margin="0,5,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="10">
+                                <TextBlock Text="السلف الشهرية:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtMonthlyLoans" Foreground="Red" Margin="0,5,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Margin="10">
+                                <TextBlock Text="صافي الشهر:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtMonthlyNet" Margin="0,5,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="3" Margin="10">
+                                <TextBlock Text="عدد الحركات:" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtMonthlyTransactions" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- إعدادات الصندوق -->
+                    <GroupBox Grid.Row="2" Header="إعدادات الصندوق" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="نسبة الخصم من الراتب (%):" 
+                                       VerticalAlignment="Center" Margin="10"/>
+
+                            <TextBox Grid.Column="1" x:Name="txtDeductionPercentage" 
+                                     Width="100" Height="30" VerticalAlignment="Center"
+                                     Text="2.0"/>
+
+                            <Button Grid.Column="2" x:Name="btnUpdatePercentage" 
+                                    Content="تحديث النسبة" Width="120" Height="30"
+                                    Click="BtnUpdatePercentage_Click"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- إجراءات الصندوق -->
+                    <GroupBox Grid.Row="3" Header="إجراءات سريعة">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                            <Button x:Name="btnRefresh" Content="تحديث البيانات" 
+                                    Background="#2196F3" Foreground="White"
+                                    Click="BtnRefresh_Click"/>
+
+                            <Button x:Name="btnAddManualDeposit" Content="إضافة إيداع يدوي" 
+                                    Background="#4CAF50" Foreground="White"
+                                    Click="BtnAddManualDeposit_Click"/>
+
+                            <Button x:Name="btnAddManualWithdrawal" Content="إضافة سحب يدوي" 
+                                    Background="#FF9800" Foreground="White"
+                                    Click="BtnAddManualWithdrawal_Click"/>
+
+                            <Button x:Name="btnViewAllTransactions" Content="عرض جميع الحركات" 
+                                    Background="#9C27B0" Foreground="White"
+                                    Click="BtnViewAllTransactions_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <!-- تبويب حركات الصندوق -->
+            <TabItem Header="حركات الصندوق">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- فلاتر الحركات -->
+                    <Border Grid.Row="0" Background="#F5F5F5" Padding="10">
+                        <StackPanel Orientation="Horizontal">
+                            <DatePicker x:Name="dpFromDate" Width="120" Margin="5"/>
+                            <DatePicker x:Name="dpToDate" Width="120" Margin="5"/>
+                            <ComboBox x:Name="cmbTransactionType" Width="120" Margin="5">
+                                <ComboBoxItem Content="الكل"/>
+                                <ComboBoxItem Content="إيداع"/>
+                                <ComboBoxItem Content="سحب"/>
+                                <ComboBoxItem Content="سداد"/>
+                            </ComboBox>
+                            <Button Content="تصفية" Width="80" Margin="5" Click="BtnFilterTransactions_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- جدول الحركات -->
+                    <DataGrid Grid.Row="1" x:Name="dgTransactions" AutoGenerateColumns="False" Margin="5">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="التاريخ" Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                            <DataGridTextColumn Header="النوع" Binding="{Binding TransactionType}" Width="80"/>
+                            <DataGridTextColumn Header="الموظف" Binding="{Binding User.FullName}" Width="150"/>
+                            <DataGridTextColumn Header="المبلغ" Binding="{Binding Amount, StringFormat=N2}" Width="100"/>
+                            <DataGridTextColumn Header="الرصيد قبل" Binding="{Binding BalanceBefore, StringFormat=N2}" Width="100"/>
+                            <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding BalanceAfter, StringFormat=N2}" Width="100"/>
+                            <DataGridTextColumn Header="الوصف" Binding="{Binding Description}" Width="200"/>
+                            <DataGridTextColumn Header="ملاحظات" Binding="{Binding Notes}" Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- تبويب تقارير الصندوق -->
+            <TabItem Header="تقارير">
+                <StackPanel Margin="20">
+                    <Button x:Name="btnGenerateMonthlyReport" Content="تقرير شهري" 
+                            Height="40" Margin="0,10" Click="BtnGenerateMonthlyReport_Click"/>
+
+                    <Button x:Name="btnGenerateYearlyReport" Content="تقرير سنوي" 
+                            Height="40" Margin="0,10" Click="BtnGenerateYearlyReport_Click"/>
+
+                    <Button x:Name="btnExportToExcel" Content="تصدير إلى Excel" 
+                            Height="40" Margin="0,10" Click="BtnExportToExcel_Click"/>
+
+                    <Button x:Name="btnPrintBalanceSheet" Content="طباعة كشف الرصيد"  
+                            Height="40" Margin="0,10" Click="BtnPrintBalanceSheet_Click"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <!-- الأزرار السفلية -->
+        <Border Grid.Row="2" Background="#F5F5F5" Padding="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="btnClose" Content="إغلاق" Width="100" Click="BtnClose_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

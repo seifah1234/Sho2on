@@ -1,0 +1,103 @@
+﻿<Window x:Class="HR_Application.DataEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:uc="clr-namespace:HR_Application.UserControls"
+        xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Height="600" Width="600" MinHeight="450" MinWidth="600" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True" Background="Transparent">
+    <Grid>
+        <Border CornerRadius="5" Background="#ffffff">
+            <Grid>
+                
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="200"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="تعديل البيانات" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5,0,0" FontSize="16" FontWeight="SemiBold" Foreground="#4880ff" Height="22" Width="83" Grid.ColumnSpan="2"/>
+                <Icon:PackIconMaterial Kind="Laptop" Margin="20,12,0,0" Width="14" Height="14" Foreground="#ff9d00"/>
+                <Icon:PackIconMaterial Kind="Laptop" Margin="17,16,0,0" Width="14" Height="14" Foreground="#4880ff"/>
+
+
+                <!-- Top Menu -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Margin="185,-3,0,3">
+                    <Button Style="{StaticResource menubutton}" Click="Min_Click">
+                        <Icon:PackIconMaterial Kind="WindowMinimize" Width="14" Height="14" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{StaticResource menubutton}" Click="Max_Click">
+                        <Icon:PackIconMaterial Kind="WindowMaximize" Width="14" Height="14"/>
+                    </Button>
+                    <Button Style="{StaticResource menubutton}" Click="Exit_Click">
+                        <Icon:PackIconMaterial Kind="ExitToApp" Width="14" Height="14"/>
+                    </Button>
+                </StackPanel>
+
+
+                <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="#4880ff">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Margin="10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="job_box" Width="100" Height="35"/>
+                            <uc:CustomField x:Name="name_box" Label="اسم الموظف : " Margin="10"/>
+                            <uc:CustomField x:Name="code_box" Label="كود الموظف : " Margin="10"/>
+                            
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+                            
+                            
+
+
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
+                                <DatePicker Name="to_picker" Width="100" FlowDirection="RightToLeft"/>
+                                <Label Content="الى : " FlowDirection="RightToLeft" Foreground="#ffffff"/>
+                            </StackPanel>
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
+                                <DatePicker Name="from_picker" Width="100" FlowDirection="RightToLeft"/>
+                                <Label Content="من : " FlowDirection="RightToLeft" Foreground="#ffffff"/>
+                            </StackPanel>
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
+                                <ComboBox x:Name="monthComboBox" Height="30" Width="100" FlowDirection="RightToLeft"/>
+                                <Label Content="الشهر : " FlowDirection="RightToLeft" Foreground="#ffffff"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                            
+                            <Button Width="100" IsDefault="True" x:Name="excel_btn" Content="اكسيل" Background="#ffffff" Foreground="#4880ff" Padding="10" Margin="5" Click="excel_btn_Click"/>
+                            <Button Width="100" IsDefault="True" x:Name="save_btn" Content="حفظ" Background="#ffffff" Foreground="#4880ff" Padding="10" Margin="5" Click="save_btn_Click"/>
+                            <Button Width="100" x:Name="edit_btn" Content="تعديل" Background="#ffffff" Foreground="#4880ff" Padding="10" Margin="5" Click="edit_btn_Click"/>
+                            <Button Width="100" IsDefault="True" x:Name="data_load_btn" Content="عرض البيانات" Background="#ffffff" Foreground="#4880ff" Padding="10" Margin="5" Click="data_load_btn_Click"/>
+
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <DataGrid AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" Grid.Row="2" x:Name="list">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="م" Width="30" Binding="{Binding rowNumber}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="التاريخ" Width="80" Binding="{Binding date}"/>
+                        <DataGridTemplateColumn CanUserSort="False" Header="تعديل التاريخ">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding dateEdit, StringFormat=HH:mm:ss}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding dateEdit, StringFormat=dd/MM/yyyy HH:mm:ss, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn CanUserSort="False" Header="الحالة" Width="120" IsReadOnly="True" Binding="{Binding status}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="الاجراءات" Width="120" IsReadOnly="True" Binding="{Binding procedures}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="الفرع" Width="120" IsReadOnly="True" Binding="{Binding branch}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="اليوم" Width="120" IsReadOnly="True" Binding="{Binding day}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="المستخدم" Width="120" IsReadOnly="True" Binding="{Binding user}"/>
+                    </DataGrid.Columns>
+
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

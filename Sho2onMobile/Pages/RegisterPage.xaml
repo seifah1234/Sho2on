@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Sho2onMobile.Pages.RegisterPage"
+             Title="إنشاء حساب جديد">
+
+    <Grid BackgroundColor="#F8F9FA">
+        <ScrollView>
+            <VerticalStackLayout Padding="30" Spacing="25">
+
+                <!-- Header Section -->
+                <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                    <!-- Icon or Logo -->
+                    <Border Stroke="#4A6FA5"
+                            StrokeThickness="2"
+                            StrokeShape="RoundRectangle 40,40,40,40"
+                            BackgroundColor="#E8F4FD"
+                            WidthRequest="80"
+                            HeightRequest="80"
+                            HorizontalOptions="Center">
+                        <Label Text="📝" 
+                               FontSize="40"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+
+                    <!-- Title -->
+                    <Label Text="إنشاء حساب جديد" 
+                           FontSize="28" 
+                           TextColor="#2C3E50"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+
+                    <!-- Subtitle -->
+                    <Label Text="املأ البيانات لإنشاء حسابك" 
+                           FontSize="16" 
+                           TextColor="#7F8C8D"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <!-- Registration Form Card -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20,20,20,20"
+                        BackgroundColor="White"
+                        Padding="25">
+
+                    <VerticalStackLayout Spacing="20">
+
+                        <!-- National ID / Code Field -->
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout FlowDirection="RightToLeft">
+                                <Label Text="الكود" 
+                                       FontSize="14" 
+                                       
+                                       TextColor="#4A6FA5"
+                                       FontAttributes="Bold"/>
+                                <Label Text="*" 
+                                       FontSize="14" 
+                                       TextColor="#E74C3C"/>
+                            </HorizontalStackLayout>
+
+                            <Border Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10,10,10,10"
+                                    HeightRequest="50">
+                                <Entry x:Name="nationalIdField" 
+                                       Placeholder="أدخل الكود" 
+                                       FlowDirection="RightToLeft"
+                                       TextColor="#2C3E50"
+                                       FontSize="16"
+                                       Keyboard="Numeric"
+                                       ClearButtonVisibility="WhileEditing"
+                                       Margin="15,0"/>
+                            </Border>
+
+                            <!-- Validation Message -->
+                            <Label x:Name="nationalIdValidation" 
+                                   Text="" 
+                                   FontSize="12" 
+                                   TextColor="#E74C3C"
+                                   IsVisible="False"/>
+                        </VerticalStackLayout>
+
+                        <!-- Password Field -->
+                        <VerticalStackLayout Spacing="8" FlowDirection="RightToLeft">
+                            <HorizontalStackLayout>
+                                <Label Text="كلمة المرور" 
+                                       FontSize="14" 
+                                       TextColor="#4A6FA5"
+                                       FontAttributes="Bold"/>
+                                <Label Text="*" 
+                                       FontSize="14" 
+                                       TextColor="#E74C3C"/>
+                            </HorizontalStackLayout>
+
+                            <Border Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10,10,10,10"
+                                    HeightRequest="50">
+                                <Entry x:Name="passwordField" 
+                                       Placeholder="أنشئ كلمة مرور قوية" 
+                                       FlowDirection="RightToLeft"
+                                       IsPassword="True"
+                                       TextColor="#2C3E50"
+                                       FontSize="16"
+                                       ClearButtonVisibility="WhileEditing"
+                                       Margin="15,0">
+                                </Entry>
+                            </Border>
+
+                            <!-- Password Strength Indicator -->
+                            <VerticalStackLayout Spacing="5" IsVisible="False" x:Name="passwordStrengthContainer">
+                                <Label Text="قوة كلمة المرور:" 
+                                       FontSize="12" 
+                                       TextColor="#7F8C8D"/>
+
+                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="5" HeightRequest="4">
+                                    <BoxView x:Name="strengthBar1" 
+                                             Grid.Column="0" 
+                                             Color="#E74C3C" 
+                                             CornerRadius="2"/>
+                                    <BoxView x:Name="strengthBar2" 
+                                             Grid.Column="1" 
+                                             Color="#F39C12" 
+                                             CornerRadius="2"/>
+                                    <BoxView x:Name="strengthBar3" 
+                                             Grid.Column="2" 
+                                             Color="#F1C40F" 
+                                             CornerRadius="2"/>
+                                    <BoxView x:Name="strengthBar4" 
+                                             Grid.Column="3" 
+                                             Color="#27AE60" 
+                                             CornerRadius="2"/>
+                                </Grid>
+
+                                <Label x:Name="passwordStrengthLabel" 
+                                       Text="ضعيفة" 
+                                       FontSize="12" 
+                                       TextColor="#E74C3C"/>
+                            </VerticalStackLayout>
+
+                            <!-- Password Requirements -->
+                            <VerticalStackLayout Spacing="3" Margin="5,0,0,0">
+                                <Label Text="متطلبات كلمة المرور:" 
+                                       FontSize="12" 
+                                       TextColor="#7F8C8D"/>
+                                <Label Text="• 8 أحرف على الأقل" 
+                                       FontSize="11" 
+                                       TextColor="#95A5A6"/>
+                                <Label Text="• تحتوي على أرقام وحروف" 
+                                       FontSize="11" 
+                                       TextColor="#95A5A6"/>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- Confirm Password Field -->
+                        <VerticalStackLayout Spacing="8" FlowDirection="RightToLeft">
+                            <HorizontalStackLayout>
+                                <Label Text="تأكيد كلمة المرور" 
+                                       FontSize="14" 
+                                       TextColor="#4A6FA5"
+                                       FontAttributes="Bold"/>
+                                <Label Text="*" 
+                                       FontSize="14" 
+                                       TextColor="#E74C3C"/>
+                            </HorizontalStackLayout>
+
+                            <Border Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10,10,10,10"
+                                    HeightRequest="50">
+                                <Entry x:Name="confirmPasswordField" 
+                                       Placeholder="أعد إدخال كلمة المرور" 
+                                       FlowDirection="RightToLeft"
+                                       IsPassword="True"
+                                       TextColor="#2C3E50"
+                                       FontSize="16"
+                                       ClearButtonVisibility="WhileEditing"
+                                       Margin="15,0"/>
+                            </Border>
+
+                            <!-- Validation Message -->
+                            <Label x:Name="confirmPasswordValidation" 
+                                   Text="" 
+                                   FontSize="12" 
+                                   TextColor="#E74C3C"
+                                   IsVisible="False"/>
+                        </VerticalStackLayout>
+
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Register Button -->
+                <Button Text="إنشاء الحساب" 
+                        Clicked="Register_Clicked" 
+                        CornerRadius="10"
+                        HeightRequest="55"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        BackgroundColor="#4A6FA5">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup Name="CommonStates1">
+                            <VisualState Name="Normal1">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#4A6FA5"/>
+                                    <Setter Property="Scale" Value="1"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Pressed1">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#3A5A90"/>
+                                    <Setter Property="Scale" Value="0.98"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Button>
+
+                <!-- Already have account -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10,10,10,10"
+                        BackgroundColor="White"
+                        Padding="15">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                        <Label Text="لديك حساب بالفعل؟" 
+                               TextColor="#2C3E50"
+                               FontSize="14"
+                               VerticalOptions="Center"/>
+                        <Button Text="تسجيل الدخول" 
+                                Clicked="Button_Clicked"
+                                TextColor="#4A6FA5"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                Padding="0">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="TextColor" Value="#4A6FA5"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Property="TextColor" Value="#3A5A90"/>
+                                            <Setter Property="Scale" Value="0.95"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Button>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Progress Steps (Optional) -->
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="5" HorizontalOptions="Center">
+                    <BoxView Grid.Column="0" 
+                             Color="#4A6FA5" 
+                             HeightRequest="4"
+                             CornerRadius="2"/>
+                    <BoxView Grid.Column="1" 
+                             Color="#E0E0E0" 
+                             HeightRequest="4"
+                             CornerRadius="2"/>
+                    <BoxView Grid.Column="2" 
+                             Color="#E0E0E0" 
+                             HeightRequest="4"
+                             CornerRadius="2"/>
+                    <BoxView Grid.Column="3" 
+                             Color="#E0E0E0" 
+                             HeightRequest="4"
+                             CornerRadius="2"/>
+
+                    <Label Text="1" 
+                           Grid.Column="0"
+                           TextColor="White"
+                           FontSize="10"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Grid>
+
+                <!-- Footer -->
+                <Label Text="سيتم التحقق من بياناتك قبل تفعيل الحساب" 
+                       FontSize="12" 
+                       TextColor="#95A5A6"
+                       HorizontalOptions="Center"
+                       TextDecorations="Underline"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>

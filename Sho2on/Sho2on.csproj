@@ -1,0 +1,296 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <RootNamespace>HR_Application</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>assets\favicon1.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Card.xaml.cs" />
+    <Compile Remove="ClockPicker.xaml.cs" />
+    <Compile Remove="CustomField.xaml.cs" />
+    <Compile Remove="DataEdit - Copy.xaml.cs" />
+    <Compile Remove="MenuButton.xaml.cs" />
+    <Compile Remove="Report1.xaml.cs" />
+    <Compile Remove="Textfield.xaml.cs" />
+    <Compile Remove="WeekPicker.xaml.cs" />
+    <Compile Remove="WindowButton.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="assets\favicon.ico" />
+    <None Remove="assets\fonts\Mada.ttf" />
+    <None Remove="assets\images\addPhoto.png" />
+    <None Remove="assets\images\avatar.jpg" />
+    <None Remove="assets\images\Back.gif" />
+    <None Remove="assets\images\Back.jfif" />
+    <None Remove="assets\images\BackBlack.gif" />
+    <None Remove="assets\images\Background.gif" />
+    <None Remove="assets\images\calendar.png" />
+    <None Remove="assets\images\close.png" />
+    <None Remove="assets\images\employee.png" />
+    <None Remove="assets\images\employee1.png" />
+    <None Remove="assets\images\excel.gif" />
+    <None Remove="assets\images\excel.jpg" />
+    <None Remove="assets\images\excel.png" />
+    <None Remove="assets\images\excel1.gif" />
+    <None Remove="assets\images\exit.gif" />
+    <None Remove="assets\images\exit.png" />
+    <None Remove="assets\images\Fingerprint.png" />
+    <None Remove="assets\images\fingerprint1.png" />
+    <None Remove="assets\images\icon.gif" />
+    <None Remove="assets\images\loading.png" />
+    <None Remove="assets\images\loadingbar.gif" />
+    <None Remove="assets\images\logo.jfif" />
+    <None Remove="assets\images\logo.png" />
+    <None Remove="assets\images\logo_yh.png" />
+    <None Remove="assets\images\maxi.png" />
+    <None Remove="assets\images\menu.png" />
+    <None Remove="assets\images\mini.png" />
+    <None Remove="assets\images\new.gif" />
+    <None Remove="assets\images\print.gif" />
+    <None Remove="assets\images\removePhoto.png" />
+    <None Remove="assets\images\report.png" />
+    <None Remove="assets\images\report1.png" />
+    <None Remove="assets\images\salary.png" />
+    <None Remove="assets\images\search.gif" />
+    <None Remove="assets\images\setting.png" />
+    <None Remove="assets\images\Settings.png" />
+    <None Remove="assets\images\sidebar.jpg" />
+    <None Remove="assets\images\sideimages.jfif" />
+    <None Remove="assets\images\SideLeft.gif" />
+    <None Remove="assets\images\SideRight.gif" />
+    <None Remove="assets\images\Top.gif" />
+    <None Remove="assets\images\wating.gif" />
+    <None Remove="assets\logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="DataEdit - Copy.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <COMReference Include="ZKFPEngXControl">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>4</VersionMajor>
+      <Guid>d95cb779-00cb-4b49-97b9-9f0b61cab3c1</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\fonts\Mada.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\addPhoto.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\Back.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\favicon1.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+	
+
+  <ItemGroup>
+    <PackageReference Include="AdoNetCore.AseClient" Version="0.19.2" />
+<PackageReference Include="ClosedXML" Version="0.105.0" />
+<PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
+    <PackageReference Include="EPPlus" Version="7.2.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.1" />
+    <PackageReference Include="FastReport.OpenSource" Version="2024.2.14" />
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.10" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="5.0.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
+    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004" />
+    <PackageReference Include="PDFium.x86.v8-xfa" Version="4194.0.0" />
+    <PackageReference Include="PdfiumViewer" Version="2.13.0" />
+    <PackageReference Include="PdfiumViewer.Native.x86_64.v8-xfa" Version="2018.4.8.256" />
+    <PackageReference Include="PDFsharp" Version="6.2.3" />
+    <PackageReference Include="PDFsharp-WPF" Version="6.2.3" />
+    <PackageReference Include="Polly" Version="8.6.5" />
+    <PackageReference Include="Syncfusion.SfTextInputLayout.WPF" Version="26.2.14" />
+    <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+    <PackageReference Include="Xceed.Words.NET" Version="3.0.24152.1219" />
+    <PackageReference Include="zkemDll" Version="1.0.0" />
+    <PackageReference Include="ZKemkeeper" Version="1.0.2" />
+  </ItemGroup>
+	
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sho2on.Database\Sho2on.Database.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.ReportViewer.Common">
+      <HintPath>bin\Debug\net8.0-windows\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel">
+      <HintPath>bin\Debug\net8.0-windows\Microsoft.ReportViewer.ProcessingObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms">
+      <HintPath>bin\Debug\net8.0-windows7.0\Microsoft.ReportViewer.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>bin\Debug\net8.0-windows\System.Windows.Forms.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\images\Back.jfif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\BackBlack.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\Background.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\calendar.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\close.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\employee.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\employee1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\excel.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\excel.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\excel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\excel1.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\exit.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\exit.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\Fingerprint.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\fingerprint1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\icon.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\loading.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\loadingbar.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\maxi.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\menu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\mini.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\new.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\avatar.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\print.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\removePhoto.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\report.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\report1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\salary.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\search.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\setting.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\Settings.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\sidebar.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\sideimages.jfif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\SideLeft.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\SideRight.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\Top.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\wating.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="Scripts\script.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

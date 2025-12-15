@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+<!-- النص "OR" كبير وجريء في الوسط -->
+<text x="228" y="250" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">OR</text>
+
+<!-- إضافة تأثير ظل للنص ليبدو أكثر جاذبية -->
+<text x="228" y="250" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#000000" fill-opacity="0.3" text-anchor="middle" dominant-baseline="middle" transform="translate(5,5)">OR</text>
+<text x="228" y="250" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">OR</text>
+
+<!-- إضافة عناصر إضافية مثل دوائر للديكور -->
+<circle cx="100" cy="100" r="30" fill="#ffffff" fill-opacity="0.2" />
+<circle cx="356" cy="100" r="30" fill="#ffffff" fill-opacity="0.2" />
+<circle cx="100" cy="356" r="30" fill="#ffffff" fill-opacity="0.2" />
+<circle cx="356" cy="356" r="30" fill="#ffffff" fill-opacity="0.2" />
+</svg>

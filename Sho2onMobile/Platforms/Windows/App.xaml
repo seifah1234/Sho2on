@@ -1,0 +1,8 @@
+﻿<maui:MauiWinUIApplication
+    x:Class="Sho2onMobile.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui"
+    xmlns:local="using:Sho2onMobile.WinUI">
+
+</maui:MauiWinUIApplication>

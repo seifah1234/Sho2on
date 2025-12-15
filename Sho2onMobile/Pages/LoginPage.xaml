@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Sho2onMobile.Pages.LoginPage"
+             Title="">
+
+        <ScrollView>
+            <VerticalStackLayout Padding="30" Spacing="25">
+
+                <!-- Header -->
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <BoxView HeightRequest="4" WidthRequest="60" 
+                             Color="#4A6FA5" HorizontalOptions="Center"/>
+                    <Label Text="تسجيل الدخول" 
+                           FontSize="28" 
+                           TextColor="#2C3E50"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                    <Label Text="مرحباً بعودتك" 
+                           FontSize="16" 
+                           TextColor="#7F8C8D"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <!-- Login Form Card -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 15,15,15,15"
+                        BackgroundColor="White"
+                        Padding="25">
+
+                    <VerticalStackLayout Spacing="20">
+
+                        <!-- ID Field -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="الكود" 
+                                   FontSize="14" 
+                                   TextColor="#4A6FA5"
+                                   FlowDirection="RightToLeft"
+                                   FontAttributes="Bold"/>
+                            <Border Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10,10,10,10"
+                                    HeightRequest="50">
+                                <Entry x:Name="idField" 
+                                       Placeholder="أدخل الكود" 
+                                       FlowDirection="RightToLeft"
+                                       TextColor="#2C3E50"
+                                       FontSize="16"
+                                       Margin="15,0"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Password Field -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="كلمة المرور" 
+                                   FontSize="14" 
+                                   FlowDirection="RightToLeft"
+                                   TextColor="#4A6FA5"
+                                   FontAttributes="Bold"/>
+                            <Border Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10,10,10,10"
+                                    HeightRequest="50">
+                                <Entry x:Name="passwordField" 
+                                       Placeholder="أدخل كلمة المرور" 
+                                       IsPassword="True" 
+                                       FlowDirection="RightToLeft"
+                                       TextColor="#2C3E50"
+                                       FontSize="16"
+                                       Margin="15,0"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Remember Me Option -->
+                        <HorizontalStackLayout HorizontalOptions="Start" IsVisible="Collapse">
+                            <CheckBox Color="#4A6FA5" 
+                                      VerticalOptions="Center"/>
+                            <Label Text="تذكرني" 
+                                   TextColor="#7F8C8D"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   Margin="10,0,0,0"/>
+                        </HorizontalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Login Button -->
+                <Button Text="تسجيل الدخول" 
+                        Clicked="Login_Clicked" 
+                        CornerRadius="10"
+                        HeightRequest="55"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        BackgroundColor="#4A6FA5">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup Name="CommonStates1">
+                            <VisualState Name="Normal1">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#4A6FA5"/>
+                                    <Setter Property="Scale" Value="1"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Pressed1">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#3A5A90"/>
+                                    <Setter Property="Scale" Value="0.98"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Button>
+
+                <!-- Register Section -->
+                <Border Stroke="#D1E7F5"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12,12,12,12"
+                        BackgroundColor="#E8F4FD"
+                        Padding="20">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                        <Label Text="ليس لديك حساب؟" 
+                               TextColor="#2C3E50"
+                               FontSize="14"
+                               VerticalOptions="Center"/>
+                        <Button Text="إنشاء حساب جديد" 
+                                Clicked="GoRegister_Clicked"
+                                TextColor="#4A6FA5"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                Padding="0">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="TextColor" Value="#4A6FA5"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Property="TextColor" Value="#3A5A90"/>
+                                            <Setter Property="Scale" Value="0.95"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Button>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Decorative Elements -->
+                <Grid HorizontalOptions="Center" HeightRequest="1">
+                    <BoxView Color="#E0E0E0" WidthRequest="100"/>
+                </Grid>
+
+                <!-- Footer Note -->
+                <Label Text="جميع الحقوق محفوظة © 2024" 
+                       FontSize="12" 
+                       TextColor="#95A5A6"
+                       HorizontalOptions="Center"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        
+
+</ContentPage>

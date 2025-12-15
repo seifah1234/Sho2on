@@ -1,0 +1,139 @@
+﻿<Window x:Class="HR_Application.Views.BulkSalaryPaymentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        FlowDirection="RightToLeft"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HR_Application.Views"
+        mc:Ignorable="d"
+        Title="صرف المرتبات الجماعي" 
+        Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent">
+
+    <Window.Resources>
+        <LinearGradientBrush x:Key="MainBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#E3F2FD" Offset="0"/>
+            <GradientStop Color="#BBDEFB" Offset="1"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Border CornerRadius="10" Background="{StaticResource MainBackgroundBrush}" Margin="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- العنوان -->
+            <Border Grid.Row="0" Background="#1976D2" CornerRadius="10,10,0,0" Padding="10">
+                <TextBlock Text="صرف المرتبات الجماعي" 
+                           Foreground="White" 
+                           FontSize="18" 
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"/>
+            </Border>
+
+            <!-- الفلاتر وضبط الإعدادات -->
+            <Border Grid.Row="1" Background="#F5F5F5" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- الفلاتر الأساسية -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                        <Label Content="الشهر:" VerticalAlignment="Center" Margin="5"/>
+                        <ComboBox x:Name="cmbMonth" Width="120" Height="30" Margin="5"/>
+                        <Label Content="السنة:" VerticalAlignment="Center" Margin="5"/>
+                        <ComboBox x:Name="cmbYear" Width="100" Height="30" Margin="5"/>
+                        <Button x:Name="btnLoadEmployees" Content="تحميل الموظفين" Width="120" Height="30" Margin="5" Click="BtnLoadEmployees_Click"/>
+                    </StackPanel>
+
+                    <!-- خيارات الصرف -->
+                    <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                        <CheckBox x:Name="chkIncludeAll" Content="تضمين الجميع" Style="{StaticResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="chkAutoCalculate" Content="حساب تلقائي" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="chkIncludeFriendshipBox" Content="تضمين صندوق الزمالة" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                    </StackPanel>
+
+                    <!-- إعدادات صندوق الزمالة -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="4">
+                        <Label Content="نسبة صندوق الزمالة (%):" VerticalAlignment="Center" Margin="5"/>
+                        <TextBox x:Name="txtFriendshipBoxPercentage" Width="80" Height="30" Margin="5" Text="2"/>
+                        <Button x:Name="btnApplyPercentage" Content="تطبيق النسبة" Width="120" Height="30" Margin="5" Click="BtnApplyPercentage_Click"/>
+                        <Button x:Name="btnCalculateAll" Content="حساب الكل" Width="100" Height="30" Margin="5" Click="BtnCalculateAll_Click"/>
+                        <Button x:Name="btnSelectAll" Content="تحديد الكل" Width="100" Height="30" Margin="5" Click="BtnSelectAll_Click"/>
+                        <Button x:Name="btnDeselectAll" Content="إلغاء التحديد" Width="100" Height="30" Margin="5" Click="BtnDeselectAll_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- جدول الموظفين -->
+            <DataGrid Grid.Row="2" x:Name="dgEmployees" Margin="10" AutoGenerateColumns="False"
+                      CanUserAddRows="False" CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="40">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="الكود" Binding="{Binding Code}" Width="80"/>
+                    <DataGridTextColumn Header="الاسم" Binding="{Binding Name}" Width="150"/>
+                    <DataGridTextColumn Header="الفرع" Binding="{Binding Branch}" Width="100"/>
+                    <DataGridTextColumn Header="الراتب الأساسي" Binding="{Binding BasicSalary, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="الإضافات" Binding="{Binding Additions, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="الاستقطاعات" Binding="{Binding Deductions, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="صندوق الزمالة" Binding="{Binding FriendshipBoxAmount, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="السلف" Binding="{Binding LoanDeduction, StringFormat=N2}" Width="80"/>
+                    <DataGridTextColumn Header="صافي الراتب" Binding="{Binding NetSalary, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="حالة الصرف" Binding="{Binding PaymentStatus}" Width="100"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- ملخص وأزرار التنفيذ -->
+            <Border Grid.Row="3" Background="#F5F5F5" CornerRadius="0,0,10,10" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- الملخص -->
+                    <StackPanel Grid.Column="0" Orientation="Vertical">
+                        <TextBlock x:Name="txtSummary" FontWeight="Bold" FontSize="12"/>
+                        <TextBlock x:Name="txtFriendshipBoxSummary" FontWeight="Bold" FontSize="12" Foreground="#1976D2"/>
+                    </StackPanel>
+
+                    <!-- أزرار التنفيذ -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="btnPreview" Content="معاينة" Width="100" Height="35" Margin="5" 
+                                Background="#FF9800" Foreground="White" FontWeight="Bold" Click="BtnPreview_Click"/>
+                        <Button x:Name="btnPaySelected" Content="صرف المحددين" Width="120" Height="35" Margin="5"
+                                Background="#4CAF50" Foreground="White" FontWeight="Bold" Click="BtnPaySelected_Click"/>
+                        <Button x:Name="btnPayAll" Content="صرف الكل" Width="100" Height="35" Margin="5"
+                                Background="#2196F3" Foreground="White" FontWeight="Bold" Click="BtnPayAll_Click"/>
+                        <Button x:Name="btnExport" Content="تصدير Excel" Width="120" Height="35" Margin="5"
+                                Background="#9C27B0" Foreground="White" FontWeight="Bold" Click="BtnExport_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

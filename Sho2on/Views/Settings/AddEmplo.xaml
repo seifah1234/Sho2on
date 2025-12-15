@@ -1,0 +1,549 @@
+﻿<Window x:Class="HR_Application.AddEmplo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:uc="clr-namespace:HR_Application.UserControls"             
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        WindowStyle="SingleBorderWindow"
+        xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Height="750" Width="1150" MinHeight="750" MinWidth="1050"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
+        WindowState="Maximized"
+        FlowDirection="RightToLeft">
+
+    <Window.Resources>
+        <!-- الألوان والتدرجات -->
+        <LinearGradientBrush x:Key="MainBackground" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#f8f9fa" Offset="0"/>
+            <GradientStop Color="#e9ecef" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="HeaderBackground" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#2E86AB" Offset="0"/>
+            <GradientStop Color="#4A90E2" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- الأنماط -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0 0 0 2"/>
+            <Setter Property="Foreground" Value="#2c3e50"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <ControlTemplate.Resources>
+                            <Storyboard x:Key="CW-Inline-input-example">
+                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="textBlock">
+                                    <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="-6.667">
+                                        <EasingDoubleKeyFrame.EasingFunction>
+                                            <QuinticEase EasingMode="EaseInOut"/>
+                                        </EasingDoubleKeyFrame.EasingFunction>
+                                    </EasingDoubleKeyFrame>
+                                </DoubleAnimationUsingKeyFrames>
+                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="textBlock">
+                                    <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="-30.733">
+                                        <EasingDoubleKeyFrame.EasingFunction>
+                                            <QuinticEase EasingMode="EaseInOut"/>
+                                        </EasingDoubleKeyFrame.EasingFunction>
+                                    </EasingDoubleKeyFrame>
+                                </DoubleAnimationUsingKeyFrames>
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="textBlock">
+                                    <EasingColorKeyFrame KeyTime="0:0:0.6" Value="#2c3e50"/>
+                                </ColorAnimationUsingKeyFrames>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.FontWeight)" Storyboard.TargetName="textBlock">
+                                    <DiscreteObjectKeyFrame KeyTime="0:0:0.3">
+                                        <DiscreteObjectKeyFrame.Value>
+                                            <FontWeight>Bold</FontWeight>
+                                        </DiscreteObjectKeyFrame.Value>
+                                    </DiscreteObjectKeyFrame>
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </ControlTemplate.Resources>
+
+                        <Grid>
+
+                            <Border x:Name="border" Grid.Row="1" CornerRadius="2"
+                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" 
+                Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                <ScrollViewer x:Name="PART_ContentHost" Focusable="false" 
+                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                            </Border>
+
+                            <TextBlock x:Name="textBlock" Text="{TemplateBinding Tag}"
+                       VerticalAlignment="Center" Margin="8,0" Cursor="IBeam"
+                       Foreground="Gray" RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
+
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Opacity" TargetName="border" Value="0.56"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="Black"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="Black"/>
+                            </Trigger>
+
+                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="{x:Static sys:String.Empty}">
+                                <DataTrigger.EnterActions>
+
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard Storyboard="{StaticResource CW-Inline-input-example}" />
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#4A90E2"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#2E86AB"/>
+                    <Setter Property="Background" Value="#F8F9FA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ModernDatePicker" TargetType="DatePicker">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0 0 0 2"/>
+            <Setter Property="Foreground" Value="#2c3e50"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="38"/>
+        </Style>
+
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#2E86AB"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Background" Value="#2E86AB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="5"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#267199"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+
+    <Border CornerRadius="15" Background="{StaticResource MainBackground}" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="3" Color="Black" Opacity="0.1"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="70"/>
+            </Grid.RowDefinitions>
+
+            <!-- الهيدر -->
+            <Border Grid.Row="0" Background="{StaticResource HeaderBackground}" CornerRadius="15,15,0,0">
+                <Grid>
+                    <TextBlock Text="بيانات الموظف" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               FontSize="20" 
+                               FontWeight="Bold" 
+                               Foreground="White"/>
+
+                    <Button x:Name="btnClose" Content="✕" 
+                            HorizontalAlignment="Left" 
+                            VerticalAlignment="Center"
+                            Width="30" Height="30" Margin="15,0" 
+                            Background="Transparent" 
+                            BorderThickness="0" 
+                            Foreground="White" 
+                            FontSize="14" 
+                            Click="Exit_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- المحتوى الرئيسي -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- الجانب الأيسر - الصورة والمعلومات الأساسية -->
+                    <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                        <!-- صورة الموظف -->
+                        <Border Background="White" CornerRadius="10" Padding="10" Margin="0,0,0,20">
+                            <StackPanel>
+                                <Border Width="200" Height="200" 
+                                        Background="#F8F9FA" 
+                                        HorizontalAlignment="Center"
+                                        BorderThickness="2" 
+                                        BorderBrush="#E0E0E0">
+                                    <Image x:Name="EmployeeImage" 
+                                           Stretch="Uniform"
+                                           
+                                           Source="pack://application:,,,/assets/images/avatar.jpg"/>
+                                </Border>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+                                    <Button x:Name="addImage" Click="addImage_Click" 
+                                            Background="#4CAF50" 
+                                            BorderThickness="0" 
+                                            Width="35" Height="35">
+                                        <Icon:PackIconMaterial Kind="Camera" Foreground="White" Width="18" Height="18"/>
+                                    </Button>
+
+                                    <Button x:Name="removeImage" Click="removeImage_Click" 
+                                            Background="#F44336" 
+                                            BorderThickness="0" 
+                                            Width="35" Height="35" 
+                                            Margin="10,0,0,0"
+                                            Visibility="Collapsed">
+                                        <Icon:PackIconMaterial Kind="Delete" Foreground="White" Width="18" Height="18"/>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- الإعفاءات -->
+                        <Border Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="الإعفاءات" Style="{StaticResource SectionHeader}"/>
+
+                                <CheckBox x:Name="OV1_box" Content="معفي من إضافي بعد اوقات العمل" 
+                                          Margin="0,5" Foreground="#424242"/>
+                                <CheckBox Visibility="Collapsed" x:Name="OV_box" Content="معفي من إضافي قبل اوقات العمل" 
+                                          Margin="0,5" Foreground="#424242"/>
+                                <CheckBox x:Name="late_box" Content="معفي من تأخير" 
+                                          Margin="0,5" Foreground="#424242"/>
+                                <CheckBox x:Name="absent_box" Content="معفي من غياب" 
+                                          Margin="0,5" Foreground="#424242"/>
+                                <CheckBox Visibility="Collapsed" x:Name="early_end" Content="معفي من خروج مبكر" 
+                                          Margin="0,5" Foreground="#424242"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- البلاك ليست -->
+                        <Border Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,15">
+                            <StackPanel>
+                                <CheckBox x:Name="archive_check" Content="غير نشط" Visibility="Collapsed"
+                                          Margin="0,5" Foreground="#424242"/>
+                                <CheckBox x:Name="blacklist_check" Content="القائمة السوداء" 
+                                          Margin="0,5" Foreground="#424242" Checked="blacklist_check_Checked" Unchecked="blacklist_check_Unchecked"/>
+                                <TextBox x:Name="blacklist_notes_box" Tag="سبب الإضافة للقائمة السوداء" 
+                                         Style="{StaticResource ModernTextBox}" 
+                                         Margin="0,10,0,0"
+                                         Height="80" 
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Background="White" CornerRadius="10" Padding="15">
+                            <StackPanel>
+                                <Button Style="{StaticResource ActionButton}" Click="OpenArchive_Click" Background="#2196F3" Margin="0,0,0,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Icon:PackIconMaterial Kind="File" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                        <TextBlock Text="الارشيف" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource ActionButton}" Click="OpenEvaluation_Click" Background="#2196F3">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Icon:PackIconMaterial Kind="Star" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                        <TextBlock Text="تقيمات" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- الجانب الأيمن - النموذج -->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- المعلومات الشخصية -->
+                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="0" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="المعلومات الشخصية" Style="{StaticResource SectionHeader}"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <TextBox x:Name="emplo_code_box" Tag="كود الموظف" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                        <TextBox x:Name="emplo_name_box" Tag="الاسم بالكامل" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                        <TextBox x:Name="emplo_card_box" Tag="الرقم القومي" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="10,0,10,0">
+                                        <TextBox x:Name="emplo_tele_box" Tag="رقم الهاتف" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                        <TextBox x:Name="emplo_email_box" Tag="البريد الإلكتروني" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                        <TextBox x:Name="emplo_address_box" Tag="العنوان" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                        <Label Content="تاريخ الميلاد" Foreground="#424242" Margin="0,25,0,0"/>
+                                        <DatePicker x:Name="birth_date_picker" Style="{StaticResource ModernDatePicker}"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+                                            <RadioButton x:Name="male_box" Content="ذكر" GroupName="Gender" Margin="0,0,10,0"/>
+                                            <RadioButton x:Name="female_box" Content="أنثى" GroupName="Gender"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- المعلومات الوظيفية -->
+                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="1" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="المعلومات الوظيفية" Style="{StaticResource SectionHeader}"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <Label Content="الفرع" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="branch_box" Margin="0,0,0,10"/>
+                                        <Label Content="الإدارة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="depart_box" Margin="0,0,0,10"/>
+                                        <Label Content="الوظيفة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="job_box" SelectionChanged="job_box_SelectionChanged"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="10,0,10,0">
+                                        <Label Content="القطاع" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="degree_box"  Margin="0,0,0,10"/>
+                                        <Label Content="نظام العمل" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="job_type_box" Margin="0,0,0,10"/>
+                                        <Label Content="الإجازة الأسبوعية" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="week_holi_box"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="10,0,0,0">
+
+                                        <Label Content="المدير" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="manager_box" DisplayMemberPath="FullName" SelectedValuePath="Id" Margin="0,0,0,10"/>
+                                        <Label Content="تاريخ بدء العمل" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <DatePicker x:Name="emplo_date_picker" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
+                                        <Label Content="تاريخ انتهاء العمل" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <DatePicker x:Name="end_date_picker" Style="{StaticResource ModernDatePicker}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- معلومات الدوام -->
+                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="2" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="معلومات الدوام" Style="{StaticResource SectionHeader}"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <Label Content="الوردية" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="shift_box" SelectionChanged="shift_changed" Margin="0,0,0,10"/>
+                                     </StackPanel>
+
+                                    <StackPanel  Grid.Column="1" Margin="10,0,10,0">
+                                        <Label Content="ساعات العمل" Foreground="#424242" Margin="0,0,0,0"/>
+                                        <TextBox x:Name="work_hours_box" Style="{StaticResource ModernTextBox}" IsReadOnly="True"/>
+                                    </StackPanel>
+
+                                    <StackPanel Visibility="Collapsed" Grid.Column="1" Margin="10,0,10,0">
+                                        <Label Content="الراحة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="break_box" Margin="0,0,0,10"/>
+
+                                        <TextBox Visibility="Collapsed" x:Name="holiday_balance_box" Tag="رصيد الإجازات" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="10,0,0,0" Orientation="Horizontal">
+                                        <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                                            <CheckBox x:Name="user_check" Content="مستخدم" Margin="0,0,10,0"/>
+                                            <CheckBox x:Name="inDuty_check" Content="في الخدمة" Margin="0,0,10,0"/>
+                                            <CheckBox x:Name="employee_check" Content="تحت التوظيف"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                                            <CheckBox x:Name="userMobile_check" Content="مستخدم اندرويد" Margin="0,0,10,0" IsChecked="False"/>
+                                            <CheckBox x:Name="insured_check" Content="مؤمن عليه"/>
+                                            <CheckBox x:Name="training_check" Content="تحت التدريب" Margin="0,0,10,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Vertical">
+
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- معلومات القيادة (تظهر فقط إذا كانت الوظيفة سائق) -->
+                        <Border x:Name="driving_section" Background="White" CornerRadius="10" Padding="20" Grid.Row="3" Margin="0,0,0,15" Visibility="Collapsed">
+                            <StackPanel>
+                                <TextBlock Text="معلومات القيادة" Style="{StaticResource SectionHeader}"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+
+
+                                    <StackPanel Grid.Column="0" Margin="10,0,10,0" Orientation="Horizontal">
+                                        <StackPanel Margin="10">
+                                        <Label Content="انتهاء رخصة القيادة" Foreground="#424242" Margin="0,0,0,5"/>
+                                            
+                                        <DatePicker Width="200" x:Name="driver_license_expiration" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="10">
+                                        <Label Content="انتهاء رخصة المركبة" Foreground="#424242" Margin="0,0,0,5"/>
+                                            <DatePicker Width="200" x:Name="vehicle_license_expiration" Style="{StaticResource ModernDatePicker}"/>
+                                            
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- المعلومات الإضافية -->
+                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="4">
+                            <StackPanel>
+                                <TextBlock Text="معلومات إضافية" Style="{StaticResource SectionHeader}"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <TextBox x:Name="ssn_box" Tag="الرقم التأميني" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                        <TextBox x:Name="health_insurance_box" Tag="رقم التأمين الصحي" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                        <TextBox x:Name="army_certificate_box" Tag="رقم الشهادة العسكرية" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <Label Content="انتهاء البطاقة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <DatePicker x:Name="national_id_expiration" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
+                                        <Label Content="انتهاء الشهادة العسكرية" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <DatePicker x:Name="army_certificate_expiration" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- الأزرار -->
+            <Border Grid.Row="2" Background="{StaticResource HeaderBackground}" CornerRadius="0,0,15,15">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button x:Name="saveBtn" Style="{StaticResource ActionButton}" Click="Save_Click" Background="#4CAF50">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Visibility="Collapsed" Name="editBtn" Style="{StaticResource ActionButton}" Click="edit_btn_Click" Background="#FF9800">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="Pencil" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Text="تعديل" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource ActionButton}" Click="Delete_Click" Background="#F44336">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button IsDefault="True" Style="{StaticResource ActionButton}" Click="search_btn_Click" Background="#2196F3">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Text="بحث" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource ActionButton}" Click="clear_btn_Click" Background="Gray">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Text="جديد" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+
+                    <StackPanel Orientation="Horizontal" Name="employeesControlPanel" Visibility="Collapsed">
+                        
+                        <Button Style="{StaticResource ActionButton}" Click="next_btn_Click" Background="Orange">
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="SkipNext" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="التالي" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+
+                        <TextBlock Name="currentIndexTxt" Text="0 / 0" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
+
+                        <Button Style="{StaticResource ActionButton}" Click="prev_btn_Click" Background="Orange">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="السابق" VerticalAlignment="Center"/>
+                                <Icon:PackIconMaterial Kind="SkipPrevious" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

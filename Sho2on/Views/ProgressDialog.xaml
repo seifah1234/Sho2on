@@ -1,0 +1,55 @@
+﻿<Window x:Class="HR_Application.Views.ProgressDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="جاري الاستيراد..." 
+        Height="200" Width="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="SingleBorderWindow">
+
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- محتوى التحميل -->
+        <StackPanel Grid.Row="0" 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center">
+
+            <!-- مؤشر التحميل -->
+            <ProgressBar x:Name="progressBar" 
+                        Height="20" 
+                        Width="300" 
+                        IsIndeterminate="True"
+                        Margin="0,0,0,20"/>
+
+            <!-- رسالة الحالة -->
+            <TextBlock x:Name="statusText" 
+                      Text="جاري استيراد بيانات الموظفين..." 
+                      FontSize="14" 
+                      HorizontalAlignment="Center"
+                      TextWrapping="Wrap"/>
+
+            <!-- التفاصيل -->
+            <TextBlock x:Name="detailsText" 
+                      Text="" 
+                      FontSize="12" 
+                      Foreground="Gray"
+                      HorizontalAlignment="Center"
+                      Margin="0,10,0,0"
+                      TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- زر الإلغاء -->
+        <Button Grid.Row="1" 
+                x:Name="btnCancel" 
+                Content="إلغاء" 
+                Width="80" 
+                Height="30" 
+                Margin="0,10,0,20"
+                HorizontalAlignment="Center"
+                Click="BtnCancel_Click"/>
+    </Grid>
+</Window>

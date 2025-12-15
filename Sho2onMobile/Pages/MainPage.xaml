@@ -1,0 +1,332 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Sho2onMobile.Pages.MainPage"
+             Title="الصفحة الرئيسية">
+
+    <Grid BackgroundColor="#F8F9FA">
+        <ScrollView>
+            <VerticalStackLayout Spacing="30" Padding="20">
+
+                <!-- Header Section -->
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <!-- Welcome Message -->
+                    <Label Text="مرحباً بك" 
+                           FontSize="24" 
+                           TextColor="#2C3E50"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+
+                    <!-- Date and Time -->
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label x:Name="dateLabel" 
+                               Text="الاثنين، ١ يناير ٢٠٢٤" 
+                               FontSize="16" 
+                               
+                               TextColor="#4A6FA5"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="timeLabel" IsVisible="Collapse"
+                               Text="١٠:٣٠ صباحاً" 
+                               FontSize="18" 
+                               TextColor="#2C3E50"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+
+                    <!-- Status Indicator -->
+                    <Border Stroke="#D1E7F5" IsVisible="Collapse"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20,20,20,20"
+                            BackgroundColor="#E8F4FD"
+                            Padding="15,8"
+                            HorizontalOptions="Center">
+                        <Label x:Name="statusLabel" 
+                               Text="حالة الحضور: غير مسجل" 
+                               FontSize="14" 
+                               TextColor="#4A6FA5"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Main Action Card -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20,20,20,20"
+                        BackgroundColor="White"
+                        Padding="25">
+
+                    <VerticalStackLayout Spacing="20" HorizontalOptions="Center">
+
+                        <!-- Action Title -->
+                        <Label Text="سجل حضورك" 
+                               FontSize="18" 
+                               TextColor="#2C3E50"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+
+                        <!-- Fingerprint Button -->
+                        <Border Stroke="#4A6FA5"
+                                StrokeThickness="2"
+                                StrokeShape="RoundRectangle 100,100,100,100"
+                                BackgroundColor="White"
+                                WidthRequest="120"
+                                HeightRequest="120"
+                                HorizontalOptions="Center">
+                            <Button x:Name="fingerprintBtn"
+                                    Text="👆"
+                                    FontSize="40"
+                                    BackgroundColor="Transparent"
+                                    BorderWidth="0"
+                                    Clicked="OnFingerprintClicked"
+                                    HeightRequest="120"
+                                    WidthRequest="120"
+                                    CornerRadius="60">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup Name="CommonStates4">
+                                        <VisualState Name="Normal4">
+                                            <VisualState.Setters>
+                                                <Setter Property="Scale" Value="1"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState Name="Pressed4">
+                                            <VisualState.Setters>
+                                                <Setter Property="Scale" Value="0.95"/>
+                                                <Setter Property="Opacity" Value="0.8"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Button>
+                        </Border>
+
+                        <Label Text="اضغط للبصمة" 
+                               FontSize="14" 
+                               TextColor="#7F8C8D"
+                               HorizontalOptions="Center"/>
+
+                        <!-- Attendance Actions (Initially Collapsed) -->
+                        <VerticalStackLayout x:Name="attendanceActions"
+                                             Spacing="15"
+                                             IsVisible="False"
+                                             HorizontalOptions="Fill">
+
+                            <!-- Separator -->
+                            <BoxView Color="#E0E0E0" HeightRequest="1"/>
+
+                            <!-- Actions Title -->
+                            <Label Text="اختر الإجراء:" 
+                                   FontSize="16" 
+                                   TextColor="#2C3E50"
+                                   FontAttributes="Bold"/>
+
+                            <!-- Buttons Grid -->
+                            <Grid ColumnDefinitions="*,*" 
+                                  ColumnSpacing="15"
+                                  RowSpacing="15">
+
+                                <!-- Check In Button -->
+                                <Border Grid.Column="0"
+                                        Stroke="#27AE60"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10,10,10,10"
+                                        BackgroundColor="#E8F8EF">
+                                    <Button Text="حضور"
+                                            Clicked="DoCheckIn"
+                                            BackgroundColor="Transparent"
+                                            WidthRequest="100"
+                                            BorderWidth="0"
+                                            HeightRequest="60"
+                                            TextColor="#27AE60"
+                                            FontSize="16"
+                                            FontAttributes="Bold">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup Name="CommonStates3">
+                                                <VisualState Name="Normal3">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="Transparent"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState Name="Pressed3">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="#D5F0E1"/>
+                                                        <Setter Property="Scale" Value="0.98"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Button>
+                                </Border>
+
+                                <!-- Check Out Button -->
+                                <Border Grid.Column="1"
+                                        Stroke="#E74C3C"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10,10,10,10"
+                                        BackgroundColor="#FDEDEC">
+                                    <Button Text="انصراف"
+                                            Clicked="DoCheckOut"
+                                            BackgroundColor="Transparent"
+                                            BorderWidth="0"
+                                            HeightRequest="60"
+                                            WidthRequest="100"
+                                            TextColor="#E74C3C"
+                                            FontSize="16"
+                                            FontAttributes="Bold">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup Name="CommonStates2">
+                                                <VisualState Name="Normal2">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="Transparent"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState Name="Pressed2">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="#FADBD8"/>
+                                                        <Setter Property="Scale" Value="0.98"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Button>
+                                </Border>
+
+                            </Grid>
+
+                            <!-- Cancel Button -->
+                            <Button Text="إلغاء"
+                                    Clicked="OnCancelAttendance"
+                                    BackgroundColor="Transparent"
+                                    BorderWidth="0"
+                                    TextColor="#7F8C8D"
+                                    FontSize="14"
+                                    HorizontalOptions="Center">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup Name="CommonStates1">
+                                        <VisualState Name="Normal1">
+                                            <VisualState.Setters>
+                                                <Setter Property="TextColor" Value="#7F8C8D"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState Name="Pressed1">
+                                            <VisualState.Setters>
+                                                <Setter Property="TextColor" Value="#2C3E50"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Button>
+
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Today's Summary -->
+                <Border Stroke="#E0E0E0"
+                        IsVisible="Collapse"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 15,15,15,15"
+                        BackgroundColor="White"
+                        Padding="20">
+
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="ملخص اليوم" 
+                               FontSize="16" 
+                               TextColor="#2C3E50"
+                               FontAttributes="Bold"/>
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="*,*" RowSpacing="10">
+
+                            <!-- Check In Time -->
+                            <VerticalStackLayout Grid.Column="0" Grid.Row="0" Spacing="5">
+                                <Label Text="وقت الحضور" 
+                                       FontSize="12" 
+                                       TextColor="#7F8C8D"/>
+                                <Label x:Name="checkInTimeLabel" 
+                                       Text="--:--" 
+                                       FontSize="14" 
+                                       TextColor="#27AE60"
+                                       FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+
+                            <!-- Check Out Time -->
+                            <VerticalStackLayout Grid.Column="1" Grid.Row="0" Spacing="5">
+                                <Label Text="وقت الانصراف" 
+                                       FontSize="12" 
+                                       TextColor="#7F8C8D"/>
+                                <Label x:Name="checkOutTimeLabel" 
+                                       Text="--:--" 
+                                       FontSize="14" 
+                                       TextColor="#E74C3C"
+                                       FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+
+                            <!-- Work Hours -->
+                            <VerticalStackLayout Grid.Column="0" Grid.Row="1" Spacing="5">
+                                <Label Text="ساعات العمل" 
+                                       FontSize="12" 
+                                       TextColor="#7F8C8D"/>
+                                <Label x:Name="workHoursLabel" 
+                                       Text="0 ساعة" 
+                                       FontSize="14" 
+                                       TextColor="#4A6FA5"
+                                       FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+
+                            <!-- Status -->
+                            <VerticalStackLayout Grid.Column="1" Grid.Row="1" Spacing="5">
+                                <Label Text="الحالة" 
+                                       FontSize="12" 
+                                       TextColor="#7F8C8D"/>
+                                <Label x:Name="todayStatusLabel" 
+                                       Text="لم يسجل بعد" 
+                                       FontSize="14" 
+                                       TextColor="#F39C12"
+                                       FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Logout Button -->
+                <Border Stroke="#FDEDEC"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10,10,10,10"
+                        BackgroundColor="#FDEDEC"
+                        Padding="15">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                        <Label Text="🚪" 
+                               FontSize="16"
+                               VerticalOptions="Center"/>
+                        <Button Text="تسجيل خروج" 
+                                Clicked="Logout"
+                                TextColor="#E74C3C"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                FontSize="16"
+                                FontAttributes="Bold">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="TextColor" Value="#E74C3C"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Property="TextColor" Value="#C0392B"/>
+                                            <Setter Property="Scale" Value="0.95"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Button>
+                    </HorizontalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>
