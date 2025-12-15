@@ -337,7 +337,7 @@ VerticalAlignment="Center"/>
                                 </Button>
 
                                 <StackPanel HorizontalAlignment="Center" Name="SalaryPanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Click="AddMainSalary" IsEnabled="{Binding AddMainSalaryP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="ادارة ماليات"/>
+                                    <Button Click="AddMainSalary" IsEnabled="{Binding AddMainSalaryP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="ادارة ماليات موظف"/>
                                     <Separator Margin="15" Background="#FFFFFF"/>
                                     <Button Click="SalaryReport" IsEnabled="{Binding SalaryReportP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft">
                                         <TextBlock Text="تقرير المرتبات" FontSize="14"/>

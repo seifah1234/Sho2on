@@ -107,8 +107,8 @@ namespace HR_Application
         public bool UserPermissionP => UserPerm.Contains("صلاحيات المستخدم");
         public bool BranchPermissionP => UserPerm.Contains("صلاحيات الفروع");
         public bool Backup => UserPerm.Contains("Backup");
-        public bool AddMainSalaryP => UserPerm.Contains("اضافة المرتب");
-        public bool SalaryP => UserPerm.Contains("ادارة ماليات");
+        public bool AddMainSalaryP => UserPerm.Contains("ادارة ماليات موظف");
+        public bool SalaryP => UserPerm.Contains("الاجور والمرتبات");
         public bool AddDeductionsP => UserPerm.Contains("استحقاقت و استقطاعات");
         public bool SalaryReportP => UserPerm.Contains("تقرير المرتبات");
         public bool ArchiveP => UserPerm.Contains("الارشيف");
