@@ -14,14 +14,14 @@
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="8" ShadowDepth="3" Color="Gray"/>
         <!-- نمط للـ CheckBox -->
         <Style x:Key="DayCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#424242"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="10"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
-            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
@@ -51,7 +51,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Background="{StaticResource BackgroundBrush}" CornerRadius="15"  >
+    <Border Background="{StaticResource SecondaryColor}" CornerRadius="15"  >
         <Grid Margin="10">
             <!-- تنظيم الأيام في Grid ليبدو أكثر تناسقًا -->
             <Grid.RowDefinitions>

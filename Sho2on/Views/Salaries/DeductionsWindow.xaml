@@ -65,8 +65,8 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -105,7 +105,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -118,12 +118,12 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
                     <Image Name="GIFTop" Source="pack://application:,,,/assets/images/Top.gif" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="10">
@@ -135,13 +135,13 @@
                                     <Button Style="{StaticResource ActionButtonStyle}" Name="save_btn" Click="save_btn_Click" Margin="10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                            <TextBlock Text="حفظ" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="بحث" VerticalAlignment="Center"/>
+                                            <TextBlock Text="بحث" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <StackPanel Margin="5" Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Center">

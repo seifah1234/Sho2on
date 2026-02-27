@@ -55,7 +55,7 @@
 
         <!-- نمط RadioButton -->
         <Style x:Key="ModernRadioButton" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#2c3e50"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="10,5"/>
@@ -75,8 +75,8 @@
 
         <!-- نمط الأزرار -->
         <Style x:Key="ActionButton" TargetType="Button">
-            <Setter Property="Background" Value="#2E86AB"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="Width" Value="120"/>
@@ -101,7 +101,7 @@
         </Style>
 
         <Style x:Key="NavigationButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
-            <Setter Property="Background" Value="#FF9800"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="Width" Value="80"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -112,7 +112,7 @@
 
         <!-- نمط العنوان -->
         <Style x:Key="SectionHeader" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#2E86AB"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="0,10,0,5"/>
@@ -133,14 +133,14 @@
             </Grid.RowDefinitions>
 
             <!-- الهيدر -->
-            <Border Grid.Row="0" Background="{StaticResource HeaderBackground}" CornerRadius="15,15,0,0">
+            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="15,15,0,0">
                 <Grid>
                     <TextBlock Text="إدارة المرتبات" 
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center" 
                                FontSize="20" 
                                FontWeight="Bold" 
-                               Foreground="White"/>
+                               Foreground="{StaticResource ThirdColor}"/>
                 </Grid>
             </Border>
 
@@ -154,7 +154,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- قسم البحث -->
-                    <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="0" Margin="0,0,0,15">
+                    <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Row="0" Margin="0,0,0,15">
                         <StackPanel>
                             <TextBlock Text="بحث عن الموظف" Style="{StaticResource SectionHeader}"/>
 
@@ -176,7 +176,7 @@
                                     </Button>
 
                                     <TextBlock x:Name="currentIndexTxt" Text="0 / 0" 
-                                               FontSize="14" Foreground="#2E86AB" 
+                                               FontSize="14" Foreground="{StaticResource PrimaryColor}" 
                                                VerticalAlignment="Center" Margin="10,0"
                                                FontWeight="Bold"/>
 
@@ -208,7 +208,7 @@
 
                                 <!-- أزرار البحث والحفظ -->
                                 <StackPanel VerticalAlignment="Bottom" Grid.Column="2" Orientation="Horizontal">
-                                    <Button Style="{StaticResource ActionButton}" Click="data_load_btn_Click" Background="#2196F3">
+                                    <Button Style="{StaticResource ActionButton}" Click="data_load_btn_Click" >
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                             <TextBlock Text="بحث" VerticalAlignment="Center"/>
@@ -222,7 +222,7 @@
                     </Border>
 
                     <!-- معلومات الموظف -->
-                    <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="1" Margin="0,0,0,15">
+                    <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Row="1" Margin="0,0,0,15">
                         <StackPanel>
                             <TextBlock x:Name="employeeInfoText" Text="معلومات الموظف" Style="{StaticResource SectionHeader}"/>
 
@@ -305,22 +305,25 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- نوع الراتب -->
-                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Column="0" Width="300" Margin="0,0,15,0">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Column="0" Width="300" Margin="0,0,15,0">
                             <StackPanel>
                                 <TextBlock Text="نوع الراتب" Style="{StaticResource SectionHeader}"/>
 
                                 <RadioButton x:Name="fixed_box" Content="راتب ثابت" 
                                              Style="{StaticResource ModernRadioButton}" 
                                              GroupName="SalaryType" 
+                                             Foreground="{StaticResource PrimaryColor}"
                                              Checked="fixed_Checked"/>
 
                                 <RadioButton x:Name="shift" Content="قيمة الساعة يومي" 
+                                             Foreground="{StaticResource PrimaryColor}"
                                              Style="{StaticResource ModernRadioButton}" 
                                              GroupName="SalaryType"
                                              Checked="shift_Checked"/>
 
                                 <RadioButton x:Name="hour" Content="قيمة الساعة شهري" 
                                              Style="{StaticResource ModernRadioButton}" 
+                                             Foreground="{StaticResource PrimaryColor}"
                                              GroupName="SalaryType"
                                              Checked="hour_Checked"/>
 
@@ -389,7 +392,7 @@
                         </Border>
 
                         <!-- المبالغ التفصيلية -->
-                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Column="1">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Column="1">
                             <StackPanel>
                                 <TextBlock Text="تفاصيل المرتب" Style="{StaticResource SectionHeader}"/>
 
@@ -499,7 +502,7 @@
                                 </Grid>
 
                                 <!-- الإجمالي -->
-                                <Border Background="#E3F2FD" CornerRadius="5" Padding="10" Margin="0,15,0,0">
+                                <Border Background="{StaticResource SecondaryColor}" CornerRadius="5" Padding="10" Margin="0,15,0,0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -526,7 +529,7 @@
             </ScrollViewer>
 
             <!-- الأزرار السفلية -->
-            <Border Grid.Row="2" Background="{StaticResource HeaderBackground}" CornerRadius="0,0,15,15">
+            <Border Grid.Row="2" Background="{StaticResource PrimaryColor}" CornerRadius="0,0,15,15">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Button Visibility="Collapsed" Style="{StaticResource ActionButton}" Click="CalculateTotal_Click" Background="#9C27B0">
                         <StackPanel Orientation="Horizontal">

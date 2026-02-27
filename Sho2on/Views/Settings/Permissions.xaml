@@ -29,8 +29,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -106,7 +106,7 @@
         </HierarchicalDataTemplate>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
@@ -121,11 +121,11 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                        Grid.Row="0"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 15 15" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 15 15" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -156,7 +156,7 @@
             </Border>
 
             <!-- TreeView المحسن -->
-            <Border Grid.Row="2" Margin="15,10,15,5" CornerRadius="10" Background="#FFFFFF"  >
+            <Border Grid.Row="2" Margin="15,10,15,5" CornerRadius="10"  >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -165,7 +165,7 @@
 
                     <TextBlock Text="قائمة الصلاحيات" Grid.Row="0"
                               HorizontalAlignment="Center" VerticalAlignment="Center"
-                              FontSize="16" FontWeight="Bold" Foreground="#2E86AB"
+                              FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}"
                               Margin="0,10,0,5"/>
 
                     <TreeView Grid.Row="1" Style="{StaticResource PermissionsTreeViewStyle}" 

@@ -26,9 +26,8 @@ namespace HR_Application.Views
             Clear();
         }
 
-        private void Clear()
+        private void ClearSalary()
         {
-            // مسح جميع الحقول
             salary_box.Text = "0";
             transmission_box.Text = "0";
             housing_box.Text = "0";
@@ -41,7 +40,13 @@ namespace HR_Application.Views
             depart_box.Text = "0";
             natural_box.Text = "0";
             comp_insurance_box.Text = "0";
-            
+        }
+
+        private void Clear()
+        {
+            // مسح جميع الحقول
+
+            ClearSalary();
 
             // مسح حقول الساعة
             hour_box.Text = "";
@@ -300,6 +305,7 @@ namespace HR_Application.Views
         {
             try
             {
+                ClearSalary();
                 // تحميل بيانات الرواتب
                 var salaries = await _context.Salaries
                     .Where(s => s.UserId == user.Id)
@@ -350,8 +356,8 @@ namespace HR_Application.Views
                     }
                 }
 
-                // تحديث معلومات الموظف
-                UpdateEmployeeInfo(user);
+                    // تحديث معلومات الموظف
+                    UpdateEmployeeInfo(user);
 
                 // حساب الإجمالي
                 CalculateTotalSalary();

@@ -10,13 +10,14 @@
         FlowDirection="RightToLeft"
         Height="650" Width="800"
         WindowStartupLocation="CenterOwner"
+        Background="{StaticResource SecondaryColor}"
         ResizeMode="NoResize">
 
     <Window.Resources>
         <!-- نمط البطاقات -->
         <Style x:Key="DetailCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="20"/>
@@ -25,7 +26,7 @@
 
         <!-- نمط التسميات -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#666666"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="0,0,0,3"/>
@@ -55,17 +56,17 @@
         </Grid.RowDefinitions>
 
         <!-- الهيدر -->
-        <Border Grid.Row="0" Background="#1976D2" Padding="20">
+        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" Padding="20">
             <StackPanel>
                 <TextBlock Text="تفاصيل طلب الإجازة" 
-                           Foreground="White" 
+                           Foreground="{StaticResource ThirdColor}" 
                            FontSize="20" 
                            FontWeight="Bold"
                            HorizontalAlignment="Center"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                     <TextBlock Text="رقم الطلب:" 
-                               Foreground="White" 
+                               Foreground="{StaticResource ThirdColor}" 
                                FontWeight="SemiBold"
                                Margin="0,0,5,0"/>
                     <TextBlock x:Name="txtRequestId" 
@@ -77,7 +78,7 @@
         </Border>
 
         <!-- المحتوى -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Background="Transparent" Padding="20">
             <StackPanel>
                 <!-- معلومات الموظف -->
                 <Border Style="{StaticResource DetailCardStyle}">
@@ -362,7 +363,7 @@
         </ScrollViewer>
 
         <!-- الأزرار -->
-        <Border Grid.Row="2" Background="White" Padding="15" BorderThickness="1,0,0,0" BorderBrush="#E0E0E0">
+        <Border Grid.Row="2" Padding="15" BorderThickness="1,0,0,0" Background="{StaticResource PrimaryColor}" BorderBrush="#E0E0E0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button x:Name="btnPrint" 
                         Width="120" Height="40" 
@@ -372,8 +373,8 @@
                         Click="btnPrint_Click"
                         Margin="0,0,10,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Icon:PackIconMaterial Kind="Printer" Width="18" Height="18" Margin="0,0,5,0"/>
-                        <TextBlock Text="طباعة"/>
+                        <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Printer" Width="18" Height="18" Margin="0,0,5,0"/>
+                        <TextBlock Text="طباعة" Foreground="{StaticResource ThirdColor}"/>
                     </StackPanel>
                 </Button>
 
@@ -384,8 +385,8 @@
                         FontSize="13" FontWeight="Bold"
                         Click="btnClose_Click">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Icon:PackIconMaterial Kind="Close" Width="18" Height="18" Margin="0,0,5,0"/>
-                        <TextBlock Text="إغلاق"/>
+                        <Icon:PackIconMaterial Kind="Close" Foreground="{StaticResource ThirdColor}" Width="18" Height="18" Margin="0,0,5,0"/>
+                        <TextBlock Text="إغلاق" Foreground="{StaticResource ThirdColor}"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

@@ -10,11 +10,6 @@
         WindowState="Maximized" WindowStartupLocation="CenterScreen" 
         Background="Transparent">
     <Window.Resources>
-        <!-- تدرج لوني للخلفية الرئيسية -->
-        <LinearGradientBrush x:Key="MainBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#E3F2FD" Offset="0"/>
-            <GradientStop Color="#BBDEFB" Offset="1"/>
-        </LinearGradientBrush>
         <!-- تأثير ظل -->
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
 
@@ -44,7 +39,7 @@
         <!-- تحسين أنماط الأزرار -->
         <Style x:Key="HoverButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -64,7 +59,7 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="#BBDEFB" 
+                                <Border Background="{StaticResource AccentColor}" 
                                     BorderThickness="1" BorderBrush="#FFFFFF"
                                     CornerRadius="10">
                                     <ContentPresenter HorizontalAlignment="Center" 
@@ -73,8 +68,8 @@
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
-                    <Setter Property="Background" Value="#BBDEFB"/>
-                    <Setter Property="Foreground" Value="#263238"/>
+                    <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                    <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Template">
@@ -98,7 +93,7 @@
 
         <!-- تحسين أنماط الأزرار النصية -->
         <Style x:Key="TextButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#FFFFFF"/>
@@ -125,7 +120,7 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="#BBDEFB" 
+                                <Border Background="{StaticResource AccentColor}" 
                 BorderThickness="0" BorderBrush="White"
                 CornerRadius="8">
                                     <ContentPresenter HorizontalAlignment="Center" 
@@ -134,7 +129,7 @@
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
-                    <Setter Property="Foreground" Value="#263238"/>
+                    <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
                     <Setter Property="FontSize" Value="15"/>
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="False">
@@ -151,7 +146,7 @@ VerticalAlignment="Center"/>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
-                    <Setter Property="Foreground" Value="#BBDEFB"/>
+                    <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
                     <Setter Property="FontSize" Value="14"/>
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
@@ -256,12 +251,12 @@ VerticalAlignment="Center"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid Name="dashboardControl" Grid.Column="1" Margin="5">
-                    <Image Margin="0 40 0 0" x:Name="GIFBack" Source="assets/images/Back.gif"/>
+                <Grid Background="Transparent" Name="dashboardControl" Grid.Column="1" Margin="5">
+                    <Image Visibility="Collapsed" Margin="0 40 0 0" x:Name="GIFBack" Source="assets/images/Back.gif"/>
                     
                 </Grid>
                 <Border Panel.ZIndex="1000" Grid.Column="0" x:Name="SideBar" HorizontalAlignment="Left" Width="230" CornerRadius="0 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                    <ScrollViewer VerticalScrollBarVisibility="Hidden" Margin="0 0 0 0" FlowDirection="RightToLeft">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0 0 0 0" FlowDirection="RightToLeft">
                         <DockPanel Margin="0 0 0 0">
                             <Button Visibility="Collapsed" Name="menu_btn" MouseLeave="menu_btn_MouseLeave" Click="menu_btn_Click" MouseEnter="menu_btn_MouseEnter" Width="35" Height="35" Style="{x:Null}" Background="Transparent" DockPanel.Dock="Top" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" Margin="10">
                                 <Icon:PackIconMaterial Kind="Menu" Foreground="#FFFFFF" Width="25" Height="25"/>
@@ -276,30 +271,30 @@ VerticalAlignment="Center"/>
                                 <Button IsEnabled="{Binding ReportP}" Name="reports_btn" Click="Panel_btn_Click" Style="{StaticResource HoverButtonStyle}" Cursor="Hand" Tag="ReportPanel" Height="60" Margin="0 0 0 10" BorderThickness="0" Background="Transparent">
                                     <StackPanel Width="180" Orientation="Horizontal">
                                         <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="ChartBar" Foreground="#FFFFFF" Width="45" Height="45"/>
+                                            <Icon:PackIconMaterial Kind="ChartBar"  Width="45" Height="45"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="التقارير" Margin="25 0 0 0" Foreground="#FFFFFF" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="التقارير" Margin="25 0 0 0"  FontSize="16" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
                                 <StackPanel HorizontalAlignment="Center" Name="ReportPanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Click="EmployeeDataOpen" IsEnabled="{Binding EmploDataP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="بيانات العاملين"/>
+                                    <Button Click="EmployeeDataOpen" IsEnabled="{Binding EmploDataP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="بيانات الموظفين"/>
                                     <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="EmployeeMonthOpen" IsEnabled="{Binding EmploMonthP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="شهري العاملين"/>
+                                    <Button Click="EmployeeMonthOpen" IsEnabled="{Binding EmploMonthP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="شهري الموظفين"/>
                                 </StackPanel>
 
                                 <!-- زر شئون العاملين مع أيقونة -->
                                 <Button IsEnabled="{Binding EmploP}" Click="Panel_btn_Click" Cursor="Hand" Tag="EmployeePanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
                                     <StackPanel Width="180" Orientation="Horizontal">
                                         <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="AccountGroup" Foreground="#FFFFFF" Width="45" Height="45"/>
+                                            <Icon:PackIconMaterial Kind="AccountGroup"  Width="45" Height="45"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="شئون العاملين" Margin="25 0 0 0" Foreground="#FFFFFF" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="شئون العاملين" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
                                 <StackPanel HorizontalAlignment="Center" Name="EmployeePanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Click="ErrandsOpen" IsEnabled="{Binding ErrandP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="الاجراءات"/>
+                                    <Button Tag="ErrandsPanel" Click="Errands_MouseLeftButtonDown" IsEnabled="{Binding ErrandP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="الاجراءات"/>
                                     <Separator Margin="15" Background="#FFFFFF"/>
                                     <Button Tag="HolidayManagementPanel" Click="HolidayManagement_MouseLeftButtonDown"  IsEnabled="{Binding HolidaysManagementP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="ادارة الاجازات"/>
                                     <Separator Margin="15" Background="#FFFFFF"/>
@@ -312,9 +307,9 @@ VerticalAlignment="Center"/>
                                 <Button IsEnabled="{Binding AttendanceP}" Click="Panel_btn_Click" Cursor="Hand" Tag="AttendancePanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
                                     <StackPanel Width="180" Orientation="Horizontal">
                                         <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="LocationEnter" Foreground="#FFFFFF" Width="45" Height="45"/>
+                                            <Icon:PackIconMaterial Kind="LocationEnter"  Width="45" Height="45"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="الحضور و الانصراف" Margin="25 0 0 0" Foreground="#FFFFFF" FontSize="13" VerticalAlignment="Center"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="الحضور و الانصراف" Margin="25 0 0 0" FontSize="13" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
@@ -330,9 +325,9 @@ VerticalAlignment="Center"/>
                                 <Button IsEnabled="{Binding SalaryP}" Click="Panel_btn_Click" Cursor="Hand" Tag="SalaryPanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
                                     <StackPanel Width="180" Orientation="Horizontal">
                                         <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="CashMultiple" Foreground="#FFFFFF" Width="45" Height="45"/>
+                                            <Icon:PackIconMaterial Kind="CashMultiple"  Width="45" Height="45"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="الاجور والمرتبات" Margin="25 0 0 0" Foreground="#FFFFFF" FontSize="14" VerticalAlignment="Center"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="الاجور والمرتبات" Margin="25 0 0 0" FontSize="14" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
@@ -366,9 +361,9 @@ Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" Flow
                                 <Button IsEnabled="{Binding MachineP}" Click="Panel_btn_Click" Cursor="Hand" Tag="FingerPrintsPanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
                                     <StackPanel Width="180" Orientation="Horizontal">
                                         <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="Fingerprint" Foreground="#FFFFFF" Width="45" Height="45"/>
+                                            <Icon:PackIconMaterial Kind="Fingerprint" Width="45" Height="45"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="FingerPrints" Margin="25 0 0 0" Foreground="#FFFFFF" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="FingerPrints" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
@@ -390,9 +385,9 @@ Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" Flow
                                 <Button IsEnabled="{Binding SettingsP}" Click="Panel_btn_Click" Cursor="Hand" Tag="SettingsPanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
                                     <StackPanel Width="180" Orientation="Horizontal">
                                         <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="5" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="Cog" Foreground="#FFFFFF" Width="45" Height="45"/>
+                                            <Icon:PackIconMaterial Kind="Cog"  Width="45" Height="45"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="Settings" Margin="25 0 0 0" Foreground="#FFFFFF" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="Settings" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
 
@@ -412,9 +407,9 @@ Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" Flow
                             <Button Name="logout_btn" Click="logout_btn_Click" Style="{StaticResource HoverButtonStyle}" Cursor="Hand" Height="60" DockPanel.Dock="Bottom" Margin="0 10 0 0" BorderThickness="0" Background="Transparent">
                                 <StackPanel Width="180" Orientation="Horizontal">
                                     <Border CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                        <Icon:PackIconMaterial Kind="Logout" Foreground="#FFFFFF" Width="45" Height="45"/>
+                                        <Icon:PackIconMaterial Kind="Logout" Width="45" Height="45"/>
                                     </Border>
-                                    <TextBlock HorizontalAlignment="Right" Text="Logout" Margin="25 0 0 0" Foreground="#FFFFFF" FontSize="16" VerticalAlignment="Center"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="Logout" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
 
@@ -556,6 +551,46 @@ Style="{StaticResource TextButtonStyle}"
                         </Border>
                     </Grid>
                 
+
+                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1" x:Name="ErrandsPanel" HorizontalAlignment="Right" Width="180">
+                        <Grid.RenderTransform>
+                            <TranslateTransform x:Name="DrawerTransform5" X="-250"/>
+                        </Grid.RenderTransform>
+                            <Border CornerRadius="20 20 20 20" Background="{StaticResource HeaderBackground}"  >
+                            <StackPanel Margin="10 20 10 0" Orientation="Vertical">
+                                    <Button 
+Style="{StaticResource TextButtonStyle}"
+                                            IsEnabled="{Binding ManageBalanceP}"
+        Click="ErrandsOpen">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Icon:PackIconMaterial Kind="AccountCash" Width="20" Height="20" Margin="0,0,10,0"/>
+                                            <TextBlock Text="المأموريات"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Separator Margin="20" Background="#FFFFFF"/>
+                                    <Button x:Name="btnPermissionRequests" IsEnabled="{Binding PermissionRequestsP}"
+                                            
+Style="{StaticResource TextButtonStyle}"
+        Click="btnPermissionRequests_Click">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Icon:PackIconMaterial Kind="AccountCash" Width="20" Height="20" Margin="0,0,10,0"/>
+                                            <TextBlock Text="طلبات الاذن"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Separator Margin="20" Background="#FFFFFF"/>
+                                <Button x:Name="btnPermissionNewRequest" IsEnabled="{Binding NewPermissionRequestP}"
+Style="{StaticResource TextButtonStyle}"
+                                            FontSize="14" FontWeight="Bold"
+         Click="btnPermissionNewRequest_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="Plus" Width="20" Height="20" Margin="0,0,10,0"/>
+                                        <TextBlock Text="طلب اذن"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                
                     <Grid FlowDirection="LeftToRight"  Grid.Column="1" Grid.Row="1" x:Name="LoanManagementPanel" HorizontalAlignment="Right" Width="180">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="DrawerTransform4" X="-250"/>
@@ -657,6 +692,18 @@ To="180" Duration="0:0:0.3" />
 
             <Storyboard x:Key="HideDrawer4">
                 <DoubleAnimation Storyboard.TargetName="DrawerTransform4" 
+Storyboard.TargetProperty="X"
+To="-250" Duration="0:0:0.3" />
+            </Storyboard>
+
+            <Storyboard x:Key="ShowDrawer5">
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform5" 
+Storyboard.TargetProperty="X"
+To="180" Duration="0:0:0.3" />
+            </Storyboard>
+
+            <Storyboard x:Key="HideDrawer5">
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform5" 
 Storyboard.TargetProperty="X"
 To="-250" Duration="0:0:0.3" />
             </Storyboard>

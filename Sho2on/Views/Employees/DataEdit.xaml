@@ -73,8 +73,8 @@
             <Setter Property="Height" Value="50"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -88,7 +88,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#1565C0"/>
+                    <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
                     <Setter Property="Background" Value="#0D47A1"/>
@@ -100,10 +100,9 @@
             <Setter Property="Height" Value="50"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
             <Setter Property="Foreground" Value="#424242"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -130,42 +129,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style x:Key="DataEditDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#FFFFFF"/>
-            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
-        </Style>
-        <!-- نمط لعناوين DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <!-- نمط لصفوف DataGrid -->
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="Foreground" Value="#1976D2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -179,12 +145,12 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
                     <Image Visibility="Collapsed" Name="GIFTop" Source="pack://application:,,,/assets/images/Top.gif" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" FlowDirection="RightToLeft" VerticalAlignment="Center">
@@ -194,11 +160,11 @@
                                 <StackPanel VerticalAlignment="Center">
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
                                         <DatePicker Width="150" Language="en-GB" Name="from_picker" FlowDirection="RightToLeft"/>
-                                        <Label Content="من :" FlowDirection="RightToLeft" Foreground="#FFFFFF" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                                        <Label Content="من :" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}" Margin="10 0 0 0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
                                         <DatePicker Width="150" Language="en-GB" Name="to_picker" FlowDirection="RightToLeft"/>
-                                        <Label Content="الى :" FlowDirection="RightToLeft" Foreground="#FFFFFF" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                                        <Label Content="الى :" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}" Margin="10 0 0 0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </StackPanel>
 
@@ -212,15 +178,15 @@
                                     </StackPanel>
                                     <StackPanel FlowDirection="RightToLeft" VerticalAlignment="Center" Orientation="Horizontal" Margin="0 0 10 0">
                                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Label VerticalAlignment="Center" Content="الفرع" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                            <Label VerticalAlignment="Center" Content="الفرع" Foreground="{StaticResource ThirdColor}" HorizontalAlignment="Center"/>
                                             <ComboBox FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                                         </StackPanel>
                                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Label VerticalAlignment="Center" Content="السنة" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                            <Label VerticalAlignment="Center" Content="السنة" Foreground="{StaticResource ThirdColor}" HorizontalAlignment="Center"/>
                                             <ComboBox FlowDirection="LeftToRight" Name="year_box" Margin="5 0 0 0"/>
                                         </StackPanel>
                                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Label VerticalAlignment="Center" Content="الشهر" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                            <Label VerticalAlignment="Center" Content="الشهر" Foreground="{StaticResource ThirdColor}" HorizontalAlignment="Center"/>
                                             <ComboBox FlowDirection="LeftToRight" Name="month_box" Margin="5 0 0 0"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -233,13 +199,13 @@
                             <Button Style="{StaticResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Eye" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="عرض البيانات" VerticalAlignment="Center"/>
+                                    <TextBlock Text="عرض البيانات" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource ActionButtonStyle}" x:Name="save_btn" Click="save_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                    <TextBlock Text="حفظ" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -249,45 +215,45 @@
                             <Button Style="{StaticResource ActionButtonStyle}" x:Name="add_btn" Click="add_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="إضافة" VerticalAlignment="Center"/>
+                                    <TextBlock Text="إضافة" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource ActionButtonStyle}" x:Name="get_btn" Click="get_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Download" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="سحب" VerticalAlignment="Center"/>
+                                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="سحب" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
 
                         <!-- الأزرار الثانوية -->
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="20 0">
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10 0">
                             <Button Style="{StaticResource ActionButtonStyle}" Background="#D32F2F" x:Name="delete_btn" Click="exit_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Foreground="{StaticResource ThirdColor}" Margin="0 0 5 0"/>
                                     <TextBlock Text="حذف" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource ActionButtonStyle}" Background="#D32F2F" x:Name="deleteDuplicate_btn" Click="deleteDuplicate_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="DeleteSweep" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <Icon:PackIconMaterial Kind="DeleteSweep" Foreground="{StaticResource ThirdColor}" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                     <TextBlock Text="حذف المكرر" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
 
                         <!-- الأزرار الأخيرة -->
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10 0">
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 0">
                             <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="Excel" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Foreground="{StaticResource SecondaryColor}" Margin="0 0 5 0"/>
+                                    <TextBlock Text="Excel" Foreground="{StaticResource SecondaryColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="night_btn" Click="night_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="WeatherNight" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="وردية مسائية" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Kind="WeatherNight" Foreground="{StaticResource SecondaryColor}" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="وردية مسائية" Foreground="{StaticResource SecondaryColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -321,20 +287,20 @@
             </Grid>
 
             <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Background="#FFFFFF" Opacity="0.95"   Margin="20">
-                <DataGrid Style="{StaticResource DataEditDataGridStyle}" LoadingRow="list_LoadingRow" KeyDown="list_KeyDown" SelectionUnit="FullRow" Visibility="Visible" FlowDirection="RightToLeft" AutoGenerateColumns="False" Name="list" Margin="10">
+            <Border Grid.Row="2" Opacity="0.95" Margin="20">
+                <DataGrid LoadingRow="list_LoadingRow" KeyDown="list_KeyDown" SelectionUnit="FullRow" Visibility="Visible" FlowDirection="RightToLeft" AutoGenerateColumns="False" Name="list" Margin="10">
                     <DataGrid.Columns>
                         <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="50" Header="م" Binding="{Binding rowNumber}"/>
                         <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="130" Header="التاريخ" Binding="{Binding date}"/>
                         <DataGridTemplateColumn CanUserSort="False" CanUserResize="False" Header="تعديل التاريخ" Width="130">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding dateEdit, StringFormat=HH:mm:ss}" />
+                                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="{Binding dateEdit, StringFormat=HH:mm:ss}" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
-                                    <TextBox Height="25" Margin="0" Width="130" Text="{Binding dateEdit, StringFormat=dd/MM/yyyy HH:mm:ss, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBox Height="25" Foreground="{StaticResource PrimaryColor}" Margin="0" Width="130" Text="{Binding dateEdit, StringFormat=dd/MM/yyyy HH:mm:ss, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
                         </DataGridTemplateColumn>

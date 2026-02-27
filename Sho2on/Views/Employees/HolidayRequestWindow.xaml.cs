@@ -23,13 +23,13 @@ namespace HR_Application.Views
         private List<LeaveType> _leaveTypes = new List<LeaveType>();
         private List<JobTitle> _jobTitles = new List<JobTitle>();
         private List<User> _managers = new List<User>();
+        private List<User> _users = new List<User>();
 
         public HolidayRequestWindow(string employeeCode = null)
         {
             InitializeComponent();
             InitializeEvents();
-            LoadJobTitlesForFilter();
-            LoadLeaveTypes();
+            LoadData();
 
             if (!string.IsNullOrEmpty(employeeCode))
             {
@@ -38,49 +38,46 @@ namespace HR_Application.Views
             }
         }
 
-        public HolidayRequestWindow()
-        {
-            InitializeComponent();
-            InitializeEvents();
-            LoadJobTitlesForFilter();
-            LoadLeaveTypes();
-        }
-
-        private void LoadJobTitlesForFilter()
+        private async void LoadData()
         {
             try
             {
-                _jobTitles = _context.JobTitles
+
+                _users = await _context.Users
+                    .Include(u => u.Department)
+                    .Include(u => u.Branch)
+                    .Include(u => u.JobTitle)
+                    .Include(u => u.Manager)
+                    .ToListAsync();
+
+
+                _jobTitles = await _context.JobTitles
                     .OrderBy(j => j.Name)
-                    .ToList();
+                    .ToListAsync();
 
                 cmbFilterByJobTitle.ItemsSource = _jobTitles;
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"خطأ في تحميل المسميات الوظيفية: {ex.Message}", "خطأ",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
 
-
-        private void LoadLeaveTypes()
-        {
-            try
-            {
-                _leaveTypes = _context.LeaveTypes
+                _leaveTypes = await _context.LeaveTypes
                     .Where(lt => lt.IsActive)
                     .OrderBy(lt => lt.Name)
-                    .ToList();
+                    .ToListAsync();
 
                 // تحديث RadioButtons بناءً على أنواع الإجازات
                 UpdateLeaveTypeRadioButtons();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل أنواع الإجازات: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"خطأ في تحميل البيانات: {ex.Message}", "خطأ",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public HolidayRequestWindow()
+        {
+            InitializeComponent();
+            InitializeEvents();
+            LoadData();
         }
 
         private async Task LoadManagers(int? jobTitleId = null)
@@ -102,7 +99,11 @@ namespace HR_Application.Views
                     .ToListAsync();
 
                 // الآن بدلاً من ComboBox، سنستخدم زر لفتح نافذة الاختيار
-                btnSelectManager.Content = _managers.Count > 0 ? "اختر الموافق على الإجازة" : "لا يوجد مديرين متاحين";
+                if (_managers.Count == 0 && _selectedManager == null)
+                {
+                    btnSelectManager.Content = "لا يوجد مديرين متاحين";
+
+                }
                 btnSelectManager.IsEnabled = _managers.Count > 0;
 
                 // تحديث قسم الموافقة
@@ -290,16 +291,11 @@ namespace HR_Application.Views
             try
             {
                 // تحميل جميع الموظفين
-                var allUsers = await _context.Users
-                    .Include(u => u.Department)
-                    .Include(u => u.Branch)
-                    .Include(u => u.JobTitle)
-                    .OrderBy(u => u.FullName)
-                    .Where(u => u.FullName.StartsWith(employeeName_box.Text) || u.Id.ToString() == employeeCode_box.Text)
-                    .ToListAsync();
+                var allUsers = _users.Where(u => u.FullName.StartsWith(employeeName_box.Text) || u.Id.ToString() == employeeCode_box.Text)
+                    .ToList();
 
                 // فتح نافذة اختيار الموظف
-                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "اختر الموظف لطلب الإجازة");
+                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "اختر الموظف لطلب الإجازة", employeeCode_box.Text);
                 employeeSelectionWindow.Owner = this;
 
                 if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
@@ -310,6 +306,13 @@ namespace HR_Application.Views
                     _user = selectedEmployee;
                     employeeCode_box.Text = selectedEmployee.Id.ToString();
                     employeeName_box.Text = selectedEmployee.FullName;
+
+                    if (_user.Manager != null)
+                    {
+                        _selectedManager = _user.Manager;
+
+                        UpdateSelectedManagerDisplay(_selectedManager);
+                    }
 
                     DisplayEmployeeInfo(selectedEmployee);
 
@@ -815,6 +818,47 @@ namespace HR_Application.Views
         {
             _context?.Dispose();
             base.OnClosed(e);
+        }
+
+        private async void employeeCode_box_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Tab || e.Key == System.Windows.Input.Key.Enter)
+            {
+                string code = employeeCode_box.Text;
+                if (!string.IsNullOrEmpty(code))
+                {
+                    var selectedEmployee = _users.FirstOrDefault(u => u.Code == code);
+                    if (selectedEmployee != null)
+                    {
+                        _employeeId = selectedEmployee.Id;
+                        _user = selectedEmployee;
+                        employeeCode_box.Text = selectedEmployee.Id.ToString();
+                        employeeName_box.Text = selectedEmployee.FullName;
+                        if (_user.Manager != null)
+                        {
+
+                            // حفظ المدير المختار
+                            _selectedManager = _user.Manager;
+
+                            // تحديث الواجهة
+                            UpdateSelectedManagerDisplay(_selectedManager);
+                        }
+
+                        DisplayEmployeeInfo(selectedEmployee);
+
+                        // تحميل المديرين
+                        await LoadManagers();
+
+                        await UpdateLeaveBalanceDisplay(_employeeId, _selectedLeaveTypeId);
+
+                        leaveBalanceSection.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        MessageBox.Show("لم يتم العثور ع الموظف", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
         }
     }
 

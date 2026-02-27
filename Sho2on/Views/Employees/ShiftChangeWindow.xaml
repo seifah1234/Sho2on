@@ -37,7 +37,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -50,17 +50,16 @@
                        VerticalAlignment="Center" 
                        FontSize="18" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
-                    <Image Source="pack://application:,,,/assets/images/sidebar.jpg" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Vertical" FlowDirection="RightToLeft">
-                        <TextBlock VerticalAlignment="Center" Text="الوردية" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
-                        <ComboBox Style="{StaticResource ComboBoxStyle}" KeyDown="shift_box_KeyDown" IsEditable="True" Name="shift_box" Margin="5" TabIndex="2"/>
+                        <TextBlock VerticalAlignment="Center" Text="الوردية" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
+                        <ComboBox KeyDown="shift_box_KeyDown" IsEditable="True" Name="shift_box" Margin="5" TabIndex="2"/>
                     </StackPanel>
                 </Grid>
             </Border>

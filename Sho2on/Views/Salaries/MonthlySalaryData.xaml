@@ -96,8 +96,8 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#424242"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="BorderBrush" Value="#1976D2"/>
             <Setter Property="Template">
@@ -120,42 +120,9 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style x:Key="MonthlySalaryDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#FFFFFF"/>
-            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
-        </Style>
-        <!-- نمط لعناوين DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <!-- نمط لصفوف DataGrid -->
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="Foreground" Value="#1976D2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -169,21 +136,21 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Background="{StaticResource TopSectionBrush}" FlowDirection="RightToLeft" Grid.Row="1" CornerRadius="0 0 20 20"  >
+            <Border Background="{StaticResource PrimaryColor}" FlowDirection="RightToLeft" Grid.Row="1" CornerRadius="0 0 20 20"  >
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <!-- الفلاتر اليسرى -->
                     <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="0 0 10 0">
                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Label Content="السنة" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                            <Label Content="السنة" Foreground="{StaticResource ThirdColor}" HorizontalAlignment="Center"/>
                             <ComboBox FlowDirection="LeftToRight" Name="year_box" Margin="5 0 0 0"/>
                         </StackPanel>
                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Label Content="الشهر" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                            <Label Content="الشهر" Foreground="{StaticResource ThirdColor}" HorizontalAlignment="Center"/>
                             <ComboBox FlowDirection="LeftToRight" Name="month_box" Margin="5 0 0 0"/>
                         </StackPanel>
                     </StackPanel>
@@ -193,13 +160,13 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBox Width="150" Tag="كود الموظف" VerticalAlignment="Bottom" FlowDirection="RightToLeft" Name="code_box" Margin="5"/>
                             <StackPanel Margin="5" Orientation="Vertical" HorizontalAlignment="Center">
-                                <Label VerticalAlignment="Center" Content="الفرع" Foreground="#FFFFFF" />
+                                <Label VerticalAlignment="Center" Content="الفرع" Foreground="{StaticResource ThirdColor}" />
                                 <ComboBox Width="200" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
                             <ComboBox FlowDirection="RightToLeft" DisplayMemberPath="Name" SelectedValuePath="Code" Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
-                            <Label Foreground="White" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                            <Label Foreground="{StaticResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
                         </StackPanel>
                         <TextBox Visibility="Collapsed" Style="{StaticResource InputFieldStyle}" Tag="اسم الموظف" FlowDirection="RightToLeft" Name="name_box" Margin="5"/>
                     </StackPanel>
@@ -239,8 +206,8 @@
             </Border>
 
             <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Background="#FFFFFF" Opacity="0.95"   Margin="20">
-                <DataGrid Style="{StaticResource MonthlySalaryDataGridStyle}" LoadingRow="AttendanceDataGrid_LoadingRow" AutoGenerateColumns="False" Name="dataGrid" Margin="10" FlowDirection="RightToLeft">
+            <Border Grid.Row="2"  Opacity="0.95"   Margin="20">
+                <DataGrid LoadingRow="AttendanceDataGrid_LoadingRow" AutoGenerateColumns="False" Name="dataGrid" Margin="10" FlowDirection="RightToLeft">
                     <DataGrid.Columns>
                         <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="اليوم" Binding="{Binding Day}" Width="80"/>
                         <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="Holiday" Binding="{Binding isHoliday}" Width="80" Visibility="Hidden"/>

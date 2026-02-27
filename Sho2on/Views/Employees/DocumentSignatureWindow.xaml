@@ -15,8 +15,8 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2c3e50" Padding="10" CornerRadius="5" Margin="0,0,0,10">
-            <TextBlock Text="توقيع الوثيقة" Foreground="White" FontSize="16" FontWeight="Bold" 
+        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" Padding="10" CornerRadius="5" Margin="0,0,0,10">
+            <TextBlock Text="توقيع الوثيقة" Foreground="{StaticResource ThirdColor}" FontSize="16" FontWeight="Bold" 
                        HorizontalAlignment="Center"/>
         </Border>
 
@@ -30,18 +30,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="الوثيقة:" FontWeight="Bold" Margin="0,0,10,0"/>
-                <TextBlock Grid.Column="1" x:Name="txtDocumentTitle" FontWeight="Bold" Foreground="#2c3e50"/>
+                <TextBlock Grid.Column="0" Text="الوثيقة:" FontWeight="Bold" Margin="0,0,10,0" Foreground="{StaticResource PrimaryColor}"/>
+                <TextBlock Grid.Column="1" x:Name="txtDocumentTitle" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}"/>
 
-                <TextBlock Grid.Column="2" Text="الموظف:" FontWeight="Bold" Margin="20,0,10,0"/>
-                <TextBlock Grid.Column="3" x:Name="txtEmployeeName" Foreground="#2c3e50"/>
+                <TextBlock Grid.Column="2" Text="الموظف:" FontWeight="Bold" Margin="20,0,10,0" Foreground="{StaticResource PrimaryColor}"/>
+                <TextBlock Grid.Column="3" x:Name="txtEmployeeName" Foreground="{StaticResource PrimaryColor}"/>
             </Grid>
         </Border>
 
         <!-- Signature Form -->
         <Border Grid.Row="2" Background="White" CornerRadius="5" Padding="15">
             <StackPanel>
-                <TextBlock Text="رفع الوثيقة الموقعة:" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock Text="رفع الوثيقة الموقعة:" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                     <Button x:Name="browseSignedFileBtn" Content="اختر الملف الموقع" 
@@ -50,7 +50,7 @@
                                Foreground="Gray" FontSize="12"/>
                 </StackPanel>
 
-                <TextBlock Text="ملاحظات:" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBlock Text="ملاحظات:" Foreground="{StaticResource PrimaryColor}" FontWeight="Bold" Margin="0,0,0,5"/>
                 <TextBox x:Name="txtNotes" Height="80" TextWrapping="Wrap" AcceptsReturn="True"
                          VerticalScrollBarVisibility="Auto" Margin="0,0,0,15"/>
 
@@ -62,7 +62,7 @@
         <!-- Buttons -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
             <Button x:Name="signBtn" Content="توقيع" Click="signBtn_Click" 
-                    Width="100" Height="35" Background="#27ae60" Foreground="White" Margin="5"/>
+                    Width="100" Height="35" Background="{StaticResource AccentColor}" Foreground="White" Margin="5"/>
             <Button x:Name="cancelBtn" Content="إلغاء" Click="cancelBtn_Click" 
                     Width="100" Height="35" Background="#95a5a6" Foreground="White" Margin="5"/>
         </StackPanel>

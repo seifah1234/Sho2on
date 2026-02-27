@@ -21,6 +21,7 @@ namespace HR_Application
 
         private int _type = 1; // 1: إضافي, 0: تأخير
         private int _currentTab = 0; // 0: دقائق, 1: مالية
+        int type;
 
         public AddLate()
         {
@@ -32,6 +33,20 @@ namespace HR_Application
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadData();
+
+            delay_repeat.Text = Properties.Settings.Default.LateRepeat.ToString();
+            delay_value.Text = Properties.Settings.Default.LateValue.ToString();
+
+            if (Properties.Settings.Default.LateType.ToString() == "1")
+            {
+                moneyBtn.IsChecked = true;
+                minuteBtn.IsChecked = false;
+            }
+            else
+            {
+                minuteBtn.IsChecked = true;
+                moneyBtn.IsChecked = false;
+            }
         }
 
         private async Task LoadData()
@@ -369,5 +384,27 @@ namespace HR_Application
         private void Exit_Click(object sender, RoutedEventArgs e) { }
         private void Min_Click(object sender, RoutedEventArgs e) { }
         private void Max_Click(object sender, RoutedEventArgs e) { }
+
+        private void save_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+            Properties.Settings.Default.LateType = type;
+            Properties.Settings.Default.LateValue = decimal.Parse(delay_value.Text);
+            Properties.Settings.Default.LateRepeat = int.Parse(delay_repeat.Text);
+            Properties.Settings.Default.Save();
+            System.Windows.MessageBox.Show("Settings saved successfully!");
+
+        }
+
+
+        private void minuteBtn_Checked(object sender, RoutedEventArgs e)
+        {
+            type = 0;
+        }
+
+        private void moneyBtn_Checked(object sender, RoutedEventArgs e)
+        {
+            type = 1;
+        }
     }
 }

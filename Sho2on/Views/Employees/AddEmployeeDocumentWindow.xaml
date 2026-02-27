@@ -15,8 +15,8 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2c3e50" Padding="10" CornerRadius="5" Margin="0,0,0,10">
-            <TextBlock Text="إضافة وثيقة للموظف" Foreground="White" FontSize="16" FontWeight="Bold" 
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" Padding="10" CornerRadius="5" Margin="0,0,0,10">
+            <TextBlock Text="إضافة وثيقة للموظف" Foreground="{StaticResource ThirdColor}" FontSize="16" FontWeight="Bold" 
                        HorizontalAlignment="Center"/>
         </Border>
 
@@ -34,7 +34,7 @@
 
                 <!-- Title -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
-                    <TextBlock Text="عنوان الوثيقة:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
+                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="عنوان الوثيقة:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
                     <TextBox x:Name="titleTextBox" Width="300" Height="35" Padding="5"
                              FontSize="14" VerticalContentAlignment="Center"
                              ToolTip="أدخل عنواناً واضحاً للوثيقة"/>
@@ -42,7 +42,7 @@
 
                 <!-- Document Type -->
                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,15">
-                    <TextBlock Text="نوع الوثيقة:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
+                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="نوع الوثيقة:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
                     <ComboBox x:Name="documentTypeComboBox" Width="300" Height="35"
                               FontSize="14" VerticalContentAlignment="Center"
                               ToolTip="اختر نوع الوثيقة المناسب"/>
@@ -50,22 +50,22 @@
 
                 <!-- File Selection -->
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,15">
-                    <TextBlock Text="الملف:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
+                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="الملف:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
                     <StackPanel Width="300">
                         <Button x:Name="browseBtn" Content="📁 اختر الملف" 
                                 Click="browseBtn_Click" Width="120" Height="30"
-                                Background="#3498db" Foreground="White" 
+                                Background="{StaticResource PrimaryColor}"
                                 HorizontalAlignment="Left"
                                 ToolTip="اختر ملف من جهازك"/>
-                        <TextBlock x:Name="selectedFileText" TextWrapping="Wrap" 
-                                   FontSize="12" Foreground="Gray" Margin="0,5,0,0"
+                        <TextBlock Foreground="{StaticResource PrimaryColor}" x:Name="selectedFileText" TextWrapping="Wrap" 
+                                   FontSize="12" Margin="0,5,0,0"
                                    Text="لم يتم اختيار ملف"/>
                     </StackPanel>
                 </StackPanel>
 
                 <!-- Expiry Date -->
                 <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,15">
-                    <TextBlock Text="تاريخ الانتهاء:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
+                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="تاريخ الانتهاء:" FontWeight="Bold" Width="120" VerticalAlignment="Center"/>
                     <DatePicker x:Name="expiryDatePicker" Width="150" Height="40"
                                 FontSize="14" VerticalContentAlignment="Center"
                                 ToolTip="اختر تاريخ انتهاء الصلاحية (اختياري)"/>
@@ -73,7 +73,7 @@
 
                 <!-- Description -->
                 <StackPanel Grid.Row="4" Margin="0,0,0,15">
-                    <TextBlock Text="الوصف:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="الوصف:" FontWeight="Bold" Margin="0,0,0,5"/>
                     <TextBox x:Name="descriptionTextBox" Height="80" Width="300"
                              TextWrapping="Wrap" AcceptsReturn="True"
                              VerticalScrollBarVisibility="Auto"
@@ -83,7 +83,7 @@
 
                 <!-- Supported Files Info -->
                 <StackPanel Grid.Row="5">
-                    <TextBlock Text="الملفات المدعومة:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    <TextBlock Foreground="{StaticResource PrimaryColor}" Text="الملفات المدعومة:" FontWeight="SemiBold" Margin="0,0,0,5"/>
                     <TextBlock Text="📷 الصور: JPG, JPEG, PNG, BMP, GIF, TIFF" 
                                FontSize="11" Foreground="Gray" Margin="0,2,0,0"/>
                     <TextBlock Text="📄 المستندات: DOC, DOCX, XLS, XLSX, PPT, PPTX" 

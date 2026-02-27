@@ -59,7 +59,7 @@
         </Style>
 
         <Style x:Key="CloseButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#95a5a6"/>
+            <Setter Property="Background" Value="DarkRed"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15,8"/>
@@ -91,7 +91,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0"
+        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}"
                 Padding="20" CornerRadius="10" Margin="0,0,0,15">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -100,8 +100,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="📝" FontSize="24" Margin="0,0,15,0"/>
-                    <TextBlock Text="توقيع الوثائق" Foreground="Black" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="📝" FontSize="24" Margin="0,0,15,0" Foreground="{StaticResource ThirdColor}"/>
+                    <TextBlock Text="توقيع الوثائق" Foreground="{StaticResource ThirdColor}" FontSize="18" FontWeight="SemiBold"/>
                 </StackPanel>
 
                 <Button Grid.Column="1" Content="✕" 
@@ -125,10 +125,10 @@
                 </Grid.RowDefinitions>
 
                 <!-- List Header -->
-                <Border Grid.Row="0" Background="#f8f9fa" CornerRadius="10,10,0,0" 
+                <Border Grid.Row="0" Background="{StaticResource SecondaryColor}" CornerRadius="10,10,0,0" 
                         Padding="15" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
                     <TextBlock Text="الوثائق المتاحة للتوقيع" FontWeight="SemiBold" 
-                               Foreground="#2c3e50" FontSize="14"/>
+                               Foreground="{StaticResource PrimaryColor}" FontSize="14"/>
                 </Border>
 
                 <!-- Documents List -->
@@ -148,7 +148,7 @@
                                             <TextBlock Text="{Binding Title}" 
                                                        FontWeight="SemiBold" 
                                                        FontSize="14"
-                                                       Foreground="#2c3e50"
+                                                       Foreground="{StaticResource PrimaryColor}"
                                                        Margin="0,0,0,5"/>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
@@ -198,7 +198,7 @@
 
                 <!-- Empty State -->
                 <Border Grid.Row="1" x:Name="emptyState" 
-                        Background="White" 
+                        Background="{StaticResource SecondaryColor}" 
                         Visibility="Collapsed">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" 
                                 Orientation="Vertical" Margin="20">
@@ -217,7 +217,7 @@
         </Border>
 
         <!-- Status & Actions -->
-        <Border Grid.Row="2" Background="White" CornerRadius="0,0,10,10" 
+        <Border Grid.Row="2" Background="{StaticResource SecondaryColor}" CornerRadius="0,0,10,10" 
                 Padding="15" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -229,7 +229,7 @@
                 <TextBlock Grid.Column="0" x:Name="statusText" 
                            Text="جاري تحميل الوثائق..." 
                            FontSize="12" 
-                           Foreground="#7f8c8d"
+                           Foreground="{StaticResource PrimaryColor}"
                            VerticalAlignment="Center"/>
 
                 <!-- Close Button -->

@@ -24,7 +24,7 @@
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="350"/>
@@ -42,12 +42,12 @@
                        VerticalAlignment="Center" 
                        FontSize="20" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- الجانب الأيمن: نموذج الإدخال -->
-            <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{DynamicResource SidebarBrush}"  >
+            <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{DynamicResource PrimaryColor}"  >
                
                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" Width="280">
                     <!-- حقل الاسم -->
@@ -60,7 +60,6 @@
                              HorizontalAlignment="Center" 
                              FontSize="14" 
                              Padding="10" 
-                             BorderBrush="#1976D2" 
                              BorderThickness="2"/>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -77,36 +76,36 @@
               Content="مدير" 
               Margin="20" 
               HorizontalAlignment="Right" 
-              Foreground="White" 
+              Foreground="{StaticResource ThirdColor}" 
               FontSize="14"/>
                     </StackPanel>
 
 
                     <!-- أزرار التعديل والحفظ -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
-                        <Button BorderThickness="2" BorderBrush="White" Background="Transparent" Width="110" Margin="5" Height="45" Click="clearBtn_Click" x:Name="clearBtn">
+                        <Button BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Width="110" Margin="5" Height="45" Click="clearBtn_Click" x:Name="clearBtn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="NewBox" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="White" Text="جديد" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="NewBox" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="جديد" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
 
-                        <Button Height="45" Name="editBtn" Visibility="Collapsed" Width="110" BorderThickness="2" BorderBrush="White" Background="Transparent" Margin="5" Click="edit_Btn">
+                        <Button Height="45" Name="editBtn" Visibility="Collapsed" Width="110" BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Margin="5" Click="edit_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="تعديل" Foreground="White" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="تعديل" Foreground="{StaticResource ThirdColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        
-                        <Button Height="45" Name="saveBtn" Width="110" Margin="5" BorderThickness="2" BorderBrush="White" Background="Transparent" Click="save_Btn">
+
+                        <Button Height="45" Name="saveBtn" Width="110" Margin="5" BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Click="save_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" >
-                                    <Icon:PackIconMaterial Foreground="White" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="White" Text="حفظ" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="حفظ" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -114,21 +113,21 @@
 
                     <!-- أزرار الخروج والحذف -->
                     <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                        
 
-                        <Button BorderThickness="2" BorderBrush="White" Background="Transparent" Width="110" Margin="5" Height="45" Click="exit_Btn">
+
+                        <Button BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Width="110" Margin="5" Height="45" Click="exit_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="White" Text="خروج" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="خروج" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button BorderThickness="2" BorderBrush="White" Background="Transparent"  Width="110" Margin="5" Height="45" Click="delete_Btn">
+                        <Button BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent"  Width="110" Margin="5" Height="45" Click="delete_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="White" Text="حذف" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="حذف" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -138,7 +137,7 @@
             </Border>
 
             <!-- الجانب الأيسر: قائمة الوظائف -->
-            <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Background="#FFFFFF" Opacity="0.95"   Margin="20">
+            <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0"  Opacity="0.95"   Margin="20">
                 <ListView x:Name="list" 
           FlowDirection="RightToLeft"
           SelectionChanged="list_SelectionChanged"

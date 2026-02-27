@@ -60,8 +60,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -88,42 +88,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style x:Key="BenefitsDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#FFFFFF"/>
-            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
-        </Style>
-        <!-- نمط لعناوين DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <!-- نمط لصفوف DataGrid -->
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="Foreground" Value="#1976D2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -137,12 +104,12 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
                     <Image Visibility="Collapsed" Name="GIFTop" Source="pack://application:,,,/assets/images/Top.gif" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" FlowDirection="RightToLeft" VerticalAlignment="Center">
@@ -191,7 +158,7 @@
                             <Button Style="{StaticResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Eye" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="عرض البيانات" VerticalAlignment="Center"/>
+                                    <TextBlock Text="عرض البيانات" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
                             <Button Visibility="Collapsed" Style="{StaticResource ActionButtonStyle}" x:Name="save_btn" Click="save_btn_Click" Margin="5">
@@ -203,7 +170,7 @@
                             <Button Visibility="Collapsed" Style="{StaticResource ActionButtonStyle}" Background="#D32F2F" x:Name="delete_btn" Click="delete_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                    <TextBlock Text="حذف" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -213,7 +180,7 @@
                             <Button Style="{StaticResource ActionButtonStyle}" x:Name="add_btn" Click="add_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="إضافة" VerticalAlignment="Center"/>
+                                    <TextBlock Text="إضافة" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
                             <Button Visibility="Collapsed" Margin="5" VerticalAlignment="Center" Cursor="Hand" x:Name="excel_btn" Height="45" Width="70" Background="Transparent" BorderThickness="0" Click="excel_btn_Click">
@@ -250,8 +217,8 @@
             </Grid>
 
             <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Background="#FFFFFF" Opacity="0.95"   Margin="20">
-                <DataGrid Style="{StaticResource BenefitsDataGridStyle}" SelectionUnit="FullRow" Visibility="Visible" FlowDirection="RightToLeft" AutoGenerateColumns="False" Name="list" Margin="10">
+            <Border Grid.Row="2"  Opacity="0.95"   Margin="20">
+                <DataGrid SelectionUnit="FullRow" Visibility="Visible" FlowDirection="RightToLeft" AutoGenerateColumns="False" Name="list" Margin="10">
                     <DataGrid.Columns>
                         <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="0.5*" Header="م" Binding="{Binding RowNumber}"/>
                         <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="*" Header="التاريخ" Binding="{Binding Date}"/>

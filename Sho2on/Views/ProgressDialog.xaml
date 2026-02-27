@@ -7,7 +7,7 @@
         ResizeMode="NoResize"
         WindowStyle="SingleBorderWindow">
 
-    <Grid Background="White">
+    <Grid Background="{StaticResource SecondaryColor}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -30,6 +30,7 @@
                       Text="جاري استيراد بيانات الموظفين..." 
                       FontSize="14" 
                       HorizontalAlignment="Center"
+                       Foreground="{StaticResource PrimaryColor}"
                       TextWrapping="Wrap"/>
 
             <!-- التفاصيل -->

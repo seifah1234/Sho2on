@@ -7,7 +7,7 @@
         Width="1400"
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
-        Background="WhiteSmoke"
+        Background="{StaticResource SecondaryColor}"
         WindowState="Maximized"
         FontFamily="Segoe UI">
 
@@ -20,7 +20,7 @@
         </Style>
 
         <Style x:Key="SectionStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
@@ -32,14 +32,14 @@
         </Style>
 
         <Style x:Key="TabSectionStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
 
         <Style x:Key="TabHeaderStyle" TargetType="Border">
-            <Setter Property="Background" Value="#3498db"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="CornerRadius" Value="4,4,0,0"/>
             <Setter Property="Padding" Value="10"/>
         </Style>
@@ -139,8 +139,8 @@
         <!-- Employee Info -->
         <Border Grid.Row="0" Style="{StaticResource SectionStyle}">
             <StackPanel Orientation="Horizontal">
-                <Border Background="#f8f9fa" CornerRadius="8" VerticalAlignment="Center" Padding="10" Margin="0,0,15,0">
-                    <TextBlock Text="👤" FontSize="16" VerticalAlignment="Center"/>
+                <Border Background="{StaticResource ThirdColor}" CornerRadius="8" VerticalAlignment="Center" Padding="10" Margin="0,0,15,0">
+                    <TextBlock Text="👤" FontSize="16" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="10" VerticalAlignment="Center">
                     <TextBlock x:Name="txtEmployeeName" 
@@ -201,7 +201,7 @@
                             <TextBlock Text="التقييم الإداري" 
                                        FontSize="14" 
                                        FontWeight="SemiBold" 
-                                       Foreground="White"
+                                       Foreground="{StaticResource ThirdColor}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -215,7 +215,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- Add New Administrative Criteria -->
-                            <Border Grid.Row="0" Background="#f8f9fa" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBox x:Name="txtNewAdministrativeCriteria" 
@@ -348,7 +348,7 @@
                             <TextBlock Text="التقييم الفني" 
                                        FontSize="14" 
                                        FontWeight="SemiBold" 
-                                       Foreground="White"
+                                       Foreground="{StaticResource ThirdColor}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -362,7 +362,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- Add New Technical Criteria -->
-                            <Border Grid.Row="0" Background="#f8f9fa" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBox x:Name="txtNewTechnicalCriteria" 
@@ -482,7 +482,7 @@
         </Grid>
 
         <!-- Summary Section -->
-        <Border Grid.Row="3" Style="{StaticResource SectionStyle}" Margin="0,10,0,0">
+        <Border Grid.Row="3"  Margin="0,10,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

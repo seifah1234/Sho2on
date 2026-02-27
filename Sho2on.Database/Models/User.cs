@@ -144,6 +144,7 @@ namespace Sho2on.Database.Models
         public ICollection<Loan>? Loans { get; internal set; }
         public ICollection<Loan>? ApprovedLoans { get; internal set; }
         public ICollection<SalaryPayment>? SalaryPayments { get; internal set; }
+        public ICollection<EmployeePermission>? EmployeePermissions { get; internal set; }
 
         public ICollection<User>? MyEmployees { get; internal set; }
     }

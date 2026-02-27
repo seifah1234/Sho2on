@@ -7,6 +7,7 @@
         Title="سبب الرفض" 
         FlowDirection="RightToLeft"
         Height="300" Width="400"
+        Background="{StaticResource SecondaryColor}"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
 
@@ -18,12 +19,14 @@
         </Grid.RowDefinitions>
 
         <TextBlock Text="الرجاء إدخال سبب رفض طلب الإجازة:" 
+                   Foreground="{StaticResource PrimaryColor}"
                    FontWeight="Bold" Margin="0,0,0,10"/>
 
         <TextBox x:Name="txtReason" 
                  Grid.Row="1"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
+                 BorderBrush="{StaticResource PrimaryColor}"
                  VerticalScrollBarVisibility="Auto"
                  MinHeight="80"
                  MaxHeight="200"/>

@@ -14,10 +14,6 @@
             <GradientStop Color="#BBDEFB" Offset="1"/>
         </LinearGradientBrush>
         <!-- تدرج للقسم العلوي -->
-        <LinearGradientBrush x:Key="TopSectionBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#263238" Offset="0"/>
-            <GradientStop Color="#37474F" Offset="1"/>
-        </LinearGradientBrush>
         <!-- تأثير ظل -->
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
         <!-- نمط للـ ComboBox -->
@@ -36,8 +32,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#424242"/>
+            <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="BorderBrush" Value="#1976D2"/>
             <Setter Property="Template">
@@ -60,42 +56,9 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style x:Key="EmployeeMonthReportDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#FFFFFF"/>
-            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
-        </Style>
-        <!-- نمط لعناوين DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <!-- نمط لصفوف DataGrid -->
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="Foreground" Value="#1976D2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -104,37 +67,36 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="الموظفين شهري" 
+            <TextBlock Text="شهري الموظفين" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
-                    <Image Source="pack://application:,,,/assets/images/sidebar.jpg" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
                         <!-- الأزرار -->
                         <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="0 0 10 0">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="Excel" VerticalAlignment="Center"/>
+                                <TextBlock Text="Excel" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="print_btn" Click="print_btn_Click" Margin="0 0 10 0">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Printer" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="طباعة" VerticalAlignment="Center"/>
+                                <TextBlock Text="طباعة" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{StaticResource SecondaryButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="0 0 30 0">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Eye" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="عرض البيانات" VerticalAlignment="Center"/>
+                                <TextBlock Text="عرض البيانات" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -156,8 +118,8 @@
             </Border>
 
             <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Background="#FFFFFF" Opacity="0.95"   Margin="20">
-                <DataGrid Style="{StaticResource EmployeeMonthReportDataGridStyle}" AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="dataGrid">
+            <Border Grid.Row="2" Opacity="0.95"   Margin="20">
+                <DataGrid AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="dataGrid">
                     <DataGrid.Columns>
                         <DataGridTextColumn CanUserSort="False" Header="الكود" Width="120" IsReadOnly="True" Binding="{Binding dataTotal.Code}"/>
                         <DataGridTextColumn CanUserSort="False" Header="الاسم" Width="120" IsReadOnly="True" Binding="{Binding dataTotal.Name}"/>

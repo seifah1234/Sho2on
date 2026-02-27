@@ -53,12 +53,30 @@ namespace HR_Application.Views.Employees.Holidays
                 if (cmbLeaveType.Items.Count > 0)
                     cmbLeaveType.SelectedIndex = 0;
 
+                List<StatusType> statuses = new List<StatusType>
+                {
+                    new StatusType{Name = "جميع الحالات" , Code = -1},
+                    new StatusType{Name = "مسودة" , Code = 0},
+                    new StatusType{Name = "قيد الانتظار" , Code = 1},
+                    new StatusType{Name = "موافق عليه" , Code = 2},
+                    new StatusType{Name = "مرفوض" , Code = 3},
+                    new StatusType{Name = "ملغى" , Code = 4},
+                };
+
+                cmbStatus.ItemsSource = statuses;
+
                 await LoadLeaves();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"خطأ في تحميل البيانات: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public class StatusType
+        {
+            public string Name { get; set; }
+            public int Code { get; set; }
         }
 
         private async System.Threading.Tasks.Task LoadLeaves()
@@ -72,9 +90,9 @@ namespace HR_Application.Views.Employees.Holidays
                     .AsQueryable();
 
                 // تطبيق الفلاتر
-                if (int.TryParse(txtEmployeeId.Text, out int employeeId) && employeeId > 0)
+                if (!string.IsNullOrEmpty(txtEmployeeId.Text))
                 {
-                    query = query.Where(l => l.UserId == employeeId);
+                    query = query.Where(l => l.User.Code == txtEmployeeId.Text);
                 }
 
                 if (cmbLeaveType.SelectedItem is ComboBoxItem selectedLeaveType &&
@@ -85,18 +103,17 @@ namespace HR_Application.Views.Employees.Holidays
 
                 if (dpFromDate.SelectedDate.HasValue)
                 {
-                    query = query.Where(l => l.StartDate >= dpFromDate.SelectedDate.Value);
+                    query = query.Where(l => l.StartDate.Date >= dpFromDate.SelectedDate.Value);
                 }
 
                 if (dpToDate.SelectedDate.HasValue)
                 {
-                    query = query.Where(l => l.EndDate <= dpToDate.SelectedDate.Value);
+                    query = query.Where(l => l.EndDate.Date <= dpToDate.SelectedDate.Value);
                 }
 
-                if (cmbStatus.SelectedItem is ComboBoxItem selectedStatus &&
-                    selectedStatus.Tag is int status && status >= 0)
+                if (cmbStatus.SelectedItem is StatusType selectedStatus && selectedStatus.Code >= 0)
                 {
-                    query = query.Where(l => l.Status == status);
+                    query = query.Where(l => l.Status == selectedStatus.Code);
                 }
 
                 // تنفيذ الاستعلام

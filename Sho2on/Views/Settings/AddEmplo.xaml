@@ -133,7 +133,7 @@
         </Style>
 
         <Style x:Key="SectionHeader" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#2E86AB"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="0,10,0,5"/>
@@ -170,14 +170,14 @@
             </Grid.RowDefinitions>
 
             <!-- الهيدر -->
-            <Border Grid.Row="0" Background="{StaticResource HeaderBackground}" CornerRadius="15,15,0,0">
+            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="15,15,0,0">
                 <Grid>
                     <TextBlock Text="بيانات الموظف" 
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center" 
                                FontSize="20" 
                                FontWeight="Bold" 
-                               Foreground="White"/>
+                               Foreground="{StaticResource ThirdColor}"/>
 
                     <Button x:Name="btnClose" Content="✕" 
                             HorizontalAlignment="Left" 
@@ -202,7 +202,7 @@
                     <!-- الجانب الأيسر - الصورة والمعلومات الأساسية -->
                     <StackPanel Grid.Column="0" Margin="0,0,20,0">
                         <!-- صورة الموظف -->
-                        <Border Background="White" CornerRadius="10" Padding="10" Margin="0,0,0,20">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="10" Margin="0,0,0,20">
                             <StackPanel>
                                 <Border Width="200" Height="200" 
                                         Background="#F8F9FA" 
@@ -236,30 +236,30 @@
                         </Border>
 
                         <!-- الإعفاءات -->
-                        <Border Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,15">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="15" Margin="0,0,0,15">
                             <StackPanel>
                                 <TextBlock Text="الإعفاءات" Style="{StaticResource SectionHeader}"/>
 
                                 <CheckBox x:Name="OV1_box" Content="معفي من إضافي بعد اوقات العمل" 
-                                          Margin="0,5" Foreground="#424242"/>
+                                          Margin="0,5" Foreground="{StaticResource PrimaryColor}"/>
                                 <CheckBox Visibility="Collapsed" x:Name="OV_box" Content="معفي من إضافي قبل اوقات العمل" 
-                                          Margin="0,5" Foreground="#424242"/>
+                                          Margin="0,5" Foreground="{StaticResource PrimaryColor}"/>
                                 <CheckBox x:Name="late_box" Content="معفي من تأخير" 
-                                          Margin="0,5" Foreground="#424242"/>
+                                          Margin="0,5" Foreground="{StaticResource PrimaryColor}"/>
                                 <CheckBox x:Name="absent_box" Content="معفي من غياب" 
-                                          Margin="0,5" Foreground="#424242"/>
+                                          Margin="0,5" Foreground="{StaticResource PrimaryColor}"/>
                                 <CheckBox Visibility="Collapsed" x:Name="early_end" Content="معفي من خروج مبكر" 
-                                          Margin="0,5" Foreground="#424242"/>
+                                          Margin="0,5" Foreground="{StaticResource PrimaryColor}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- البلاك ليست -->
-                        <Border Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,15">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="15" Margin="0,0,0,15">
                             <StackPanel>
                                 <CheckBox x:Name="archive_check" Content="غير نشط" Visibility="Collapsed"
-                                          Margin="0,5" Foreground="#424242"/>
+                                          Margin="0,5" Foreground="{StaticResource PrimaryColor}"/>
                                 <CheckBox x:Name="blacklist_check" Content="القائمة السوداء" 
-                                          Margin="0,5" Foreground="#424242" Checked="blacklist_check_Checked" Unchecked="blacklist_check_Unchecked"/>
+                                          Margin="0,5" Foreground="{StaticResource PrimaryColor}" Checked="blacklist_check_Checked" Unchecked="blacklist_check_Unchecked"/>
                                 <TextBox x:Name="blacklist_notes_box" Tag="سبب الإضافة للقائمة السوداء" 
                                          Style="{StaticResource ModernTextBox}" 
                                          Margin="0,10,0,0"
@@ -270,8 +270,8 @@
                                          Visibility="Collapsed"/>
                             </StackPanel>
                         </Border>
-                        
-                        <Border Background="White" CornerRadius="10" Padding="15">
+
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="15">
                             <StackPanel>
                                 <Button Style="{StaticResource ActionButton}" Click="OpenArchive_Click" Background="#2196F3" Margin="0,0,0,10">
                                     <StackPanel Orientation="Horizontal">
@@ -300,7 +300,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- المعلومات الشخصية -->
-                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="0" Margin="0,0,0,15">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Row="0" Margin="0,0,0,15">
                             <StackPanel>
                                 <TextBlock Text="المعلومات الشخصية" Style="{StaticResource SectionHeader}"/>
 
@@ -324,7 +324,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" Margin="10,0,0,0">
-                                        <Label Content="تاريخ الميلاد" Foreground="#424242" Margin="0,25,0,0"/>
+                                        <Label Content="تاريخ الميلاد" Foreground="{StaticResource PrimaryColor}" Margin="0,25,0,0"/>
                                         <DatePicker x:Name="birth_date_picker" Style="{StaticResource ModernDatePicker}"/>
                                         <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
                                             <RadioButton x:Name="male_box" Content="ذكر" GroupName="Gender" Margin="0,0,10,0"/>
@@ -336,7 +336,7 @@
                         </Border>
 
                         <!-- المعلومات الوظيفية -->
-                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="1" Margin="0,0,0,15">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Row="1" Margin="0,0,0,15">
                             <StackPanel>
                                 <TextBlock Text="المعلومات الوظيفية" Style="{StaticResource SectionHeader}"/>
 
@@ -348,30 +348,30 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                        <Label Content="الفرع" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="الفرع" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="branch_box" Margin="0,0,0,10"/>
-                                        <Label Content="الإدارة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="الإدارة" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="depart_box" Margin="0,0,0,10"/>
-                                        <Label Content="الوظيفة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="الوظيفة" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="job_box" SelectionChanged="job_box_SelectionChanged"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,10,0">
-                                        <Label Content="القطاع" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="القطاع" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="degree_box"  Margin="0,0,0,10"/>
-                                        <Label Content="نظام العمل" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="نظام العمل" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="job_type_box" Margin="0,0,0,10"/>
-                                        <Label Content="الإجازة الأسبوعية" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="الإجازة الأسبوعية" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="week_holi_box"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" Margin="10,0,0,0">
 
-                                        <Label Content="المدير" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="المدير" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="manager_box" DisplayMemberPath="FullName" SelectedValuePath="Id" Margin="0,0,0,10"/>
-                                        <Label Content="تاريخ بدء العمل" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="تاريخ بدء العمل" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <DatePicker x:Name="emplo_date_picker" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
-                                        <Label Content="تاريخ انتهاء العمل" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="تاريخ انتهاء العمل" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <DatePicker x:Name="end_date_picker" Style="{StaticResource ModernDatePicker}"/>
                                     </StackPanel>
                                 </Grid>
@@ -379,7 +379,7 @@
                         </Border>
 
                         <!-- معلومات الدوام -->
-                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="2" Margin="0,0,0,15">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Row="2" Margin="0,0,0,15">
                             <StackPanel>
                                 <TextBlock Text="معلومات الدوام" Style="{StaticResource SectionHeader}"/>
 
@@ -391,17 +391,17 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                        <Label Content="الوردية" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="الوردية" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="shift_box" SelectionChanged="shift_changed" Margin="0,0,0,10"/>
                                      </StackPanel>
 
                                     <StackPanel  Grid.Column="1" Margin="10,0,10,0">
-                                        <Label Content="ساعات العمل" Foreground="#424242" Margin="0,0,0,0"/>
+                                        <Label Content="ساعات العمل" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,0"/>
                                         <TextBox x:Name="work_hours_box" Style="{StaticResource ModernTextBox}" IsReadOnly="True"/>
                                     </StackPanel>
 
                                     <StackPanel Visibility="Collapsed" Grid.Column="1" Margin="10,0,10,0">
-                                        <Label Content="الراحة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="الراحة" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <ComboBox x:Name="break_box" Margin="0,0,0,10"/>
 
                                         <TextBox Visibility="Collapsed" x:Name="holiday_balance_box" Tag="رصيد الإجازات" Style="{StaticResource ModernTextBox}" Margin="0,25,0,0"/>
@@ -427,7 +427,7 @@
                         </Border>
 
                         <!-- معلومات القيادة (تظهر فقط إذا كانت الوظيفة سائق) -->
-                        <Border x:Name="driving_section" Background="White" CornerRadius="10" Padding="20" Grid.Row="3" Margin="0,0,0,15" Visibility="Collapsed">
+                        <Border x:Name="driving_section" Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Row="3" Margin="0,0,0,15" Visibility="Collapsed">
                             <StackPanel>
                                 <TextBlock Text="معلومات القيادة" Style="{StaticResource SectionHeader}"/>
 
@@ -440,12 +440,12 @@
 
                                     <StackPanel Grid.Column="0" Margin="10,0,10,0" Orientation="Horizontal">
                                         <StackPanel Margin="10">
-                                        <Label Content="انتهاء رخصة القيادة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="انتهاء رخصة القيادة" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                             
                                         <DatePicker Width="200" x:Name="driver_license_expiration" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
                                         </StackPanel>
                                         <StackPanel Margin="10">
-                                        <Label Content="انتهاء رخصة المركبة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="انتهاء رخصة المركبة" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                             <DatePicker Width="200" x:Name="vehicle_license_expiration" Style="{StaticResource ModernDatePicker}"/>
                                             
                                         </StackPanel>
@@ -455,7 +455,7 @@
                         </Border>
 
                         <!-- المعلومات الإضافية -->
-                        <Border Background="White" CornerRadius="10" Padding="20" Grid.Row="4">
+                        <Border Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="20" Grid.Row="4">
                             <StackPanel>
                                 <TextBlock Text="معلومات إضافية" Style="{StaticResource SectionHeader}"/>
 
@@ -472,9 +472,9 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <Label Content="انتهاء البطاقة" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="انتهاء البطاقة" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <DatePicker x:Name="national_id_expiration" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
-                                        <Label Content="انتهاء الشهادة العسكرية" Foreground="#424242" Margin="0,0,0,5"/>
+                                        <Label Content="انتهاء الشهادة العسكرية" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,5"/>
                                         <DatePicker x:Name="army_certificate_expiration" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
                                     </StackPanel>
                                 </Grid>
@@ -485,7 +485,7 @@
             </ScrollViewer>
 
             <!-- الأزرار -->
-            <Border Grid.Row="2" Background="{StaticResource HeaderBackground}" CornerRadius="0,0,15,15">
+            <Border Grid.Row="2" Background="{StaticResource PrimaryColor}" CornerRadius="0,0,15,15">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Button x:Name="saveBtn" Style="{StaticResource ActionButton}" Click="Save_Click" Background="#4CAF50">
                         <StackPanel Orientation="Horizontal">

@@ -60,7 +60,7 @@
             <Setter Property="BorderBrush" Value="#FFFFFF"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -68,7 +68,7 @@
         </Style>
         <!-- نمط للـ RadioButton -->
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="5"/>
@@ -79,8 +79,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -103,7 +103,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -111,30 +111,26 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="إجراءات" 
+            <TextBlock Text="المأموؤيات" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
                     <Image Visibility="Collapsed" Name="GIFTop" Source="pack://application:,,,/assets/images/sidebar.jpg" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Vertical" FlowDirection="RightToLeft">
-                        <!-- RadioButtons -->
-                        <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Center">
-                            <RadioButton Style="{StaticResource RadioButtonStyle}" IsChecked="True" x:Name="errand_check" FlowDirection="LeftToRight" Content="مأمورية"/>
-                            <RadioButton Style="{StaticResource RadioButtonStyle}" Checked="permission_check_Checked" Unchecked="permission_check_Unchecked" x:Name="permission_check" FlowDirection="LeftToRight" Content="إذن"/>
-                        </StackPanel>
+                      
 
                         <!-- TextBoxes للكود والاسم -->
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5" HorizontalAlignment="Center">
                             <StackPanel Margin="5" Orientation="Vertical" FlowDirection="RightToLeft" HorizontalAlignment="Center">
-                                <Label VerticalAlignment="Center" Content="الفرع" Foreground="#FFFFFF" HorizontalAlignment="Left"/>
+                                <Label VerticalAlignment="Center" Content="الفرع" Foreground="{StaticResource ThirdColor}" HorizontalAlignment="Left"/>
                                 <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                             </StackPanel>
                             <TextBox VerticalAlignment="Bottom" Tag="كود الموظف" KeyDown="CodeBox_KeyDown" Name="code_box" Margin="5" TabIndex="2"/>
@@ -143,14 +139,20 @@
 
                         <!-- DateTimePickers -->
                         <StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center" Text="من :" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                            <TextBlock VerticalAlignment="Center" Text="من :" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                             <xctk:DateTimePicker ValueChanged="from_dateTimePicker_ValueChanged" Name="from_dateTimePicker" Width="170" HorizontalContentAlignment="Center" Format="Custom" FlowDirection="LeftToRight" 
                                                  TimePickerVisibility="Visible" 
-                                                 Watermark="Select date and time..." FormatString="dd/MM/yyyy HH:mm" Margin="5"/>
-                            <TextBlock VerticalAlignment="Center" Margin="10 0 0 0" Text="الى :" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                                 Background="Transparent"
+                                                 Foreground="{StaticResource ThirdColor}"
+                                                 BorderBrush="{StaticResource ThirdColor}"
+                                                  FormatString="dd/MM/yyyy HH:mm" Margin="5"/>
+                            <TextBlock VerticalAlignment="Center" Margin="10 0 0 0" Text="الى :" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                             <xctk:DateTimePicker ValueChanged="to_dateTimePicker_ValueChanged" Name="to_dateTimePicker" Width="170" HorizontalContentAlignment="Center" Format="Custom" FlowDirection="LeftToRight" 
                                                  TimePickerVisibility="Visible" 
-                                                 Watermark="Select date and time..." FormatString="dd/MM/yyyy HH:mm" Margin="5"/>
+                                                 Background="Transparent"
+                                                 Foreground="{StaticResource ThirdColor}"
+                                                 BorderBrush="{StaticResource ThirdColor}"
+                                                  FormatString="dd/MM/yyyy HH:mm" Margin="5"/>
                         </StackPanel>
 
                         <!-- TextBoxes للبيان والقيمة -->
@@ -163,7 +165,7 @@
                         <Button Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Center" x:Name="save_btn" Click="save_month_btn_Click" Margin="20">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="إضافة" VerticalAlignment="Center"/>
+                                <TextBlock Text="إضافة" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

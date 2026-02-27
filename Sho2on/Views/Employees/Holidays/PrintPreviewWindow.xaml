@@ -9,12 +9,12 @@
 
     <DockPanel>
         <!-- شريط الأدوات -->
-        <ToolBarTray DockPanel.Dock="Top" Background="WhiteSmoke">
-            <ToolBar>
-                <Button x:Name="btnPrint" Content="🖨️ طباعة" 
+        <ToolBarTray DockPanel.Dock="Top" Background="{StaticResource PrimaryColor}">
+            <ToolBar Background="Transparent">
+                <Button x:Name="btnPrint" Background="{StaticResource PrimaryColor}" Content="🖨️ طباعة" 
                         Click="btnPrint_Click" Padding="10,5" Margin="5"/>
                 <Separator/>
-                <Button x:Name="btnClose" Content="❌ إغلاق" 
+                <Button x:Name="btnClose" Background="{StaticResource PrimaryColor}" Content="❌ إغلاق" 
                         Click="btnClose_Click" Padding="10,5" Margin="5"/>
             </ToolBar>
         </ToolBarTray>

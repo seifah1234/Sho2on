@@ -10,16 +10,7 @@
         Title="بيانات العاملين">
 
     <Window.Resources>
-        <!-- تدرج لوني للخلفية الرئيسية -->
-        <LinearGradientBrush x:Key="MainBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#E3F2FD" Offset="0"/>
-            <GradientStop Color="#BBDEFB" Offset="1"/>
-        </LinearGradientBrush>
         <!-- تدرج للقسم العلوي -->
-        <LinearGradientBrush x:Key="TopSectionBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#263238" Offset="0"/>
-            <GradientStop Color="#37474F" Offset="1"/>
-        </LinearGradientBrush>
         <!-- تأثير ظل -->
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
         <!-- نمط للحقول -->
@@ -71,8 +62,8 @@
             <Setter Property="Height" Value="50"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Style.Triggers>
@@ -92,7 +83,7 @@
         <!-- نمط للـ DataGrid -->
         <Style x:Key="EmployeeDataGridStyle" TargetType="DataGrid">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="RowBackground" Value="#FFFFFF"/>
             <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
@@ -112,21 +103,11 @@
             <Setter Property="HeadersVisibility" Value="Column"/>
         </Style>
         <!-- نمط لعناوين DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
+        
         <!-- نمط لصفوف DataGrid -->
         <Style x:Key="EmployeeRowStyle" TargetType="DataGridRow">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -159,12 +140,11 @@
                        VerticalAlignment="Center" 
                        FontSize="14" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
-                         
+                         Foreground="{StaticResource PrimaryColor}"
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="10">
@@ -177,36 +157,36 @@
                                     <TextBox VerticalAlignment="Bottom" Name="holiday_balance_box" Tag="رصيد الاجازات" FlowDirection="RightToLeft" Margin="0 0 0 0"/>
 
                                     <StackPanel Orientation="Horizontal" Margin="5 0">
-                                        <Label VerticalAlignment="Center" Content="تاريخ الميلاد" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                        <Label VerticalAlignment="Center" Content="تاريخ الميلاد" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                         <DatePicker Width="120" Name="birth_picker" FlowDirection="RightToLeft" />
                                     </StackPanel>
                                 </StackPanel>
 
                                 <!-- DatePickers للتعيين -->
                                     <StackPanel Orientation="Horizontal">
-                                    <GroupBox Foreground="White" Header="انتهاء" Margin="5">
+                                    <GroupBox BorderBrush="{StaticResource ThirdColor}" Foreground="{StaticResource ThirdColor}" Header="انتهاء" Margin="5">
 
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
                                             <StackPanel>
-                                            <Label Content="التعيين من" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="التعيين من" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                             <DatePicker Width="120"  Name="from_picker" FlowDirection="RightToLeft" Margin="5"/>
                                             </StackPanel>
                                             <StackPanel>
-                                            <Label Content="الى" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="الى" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                             <DatePicker Width="120" Name="to_picker" FlowDirection="RightToLeft" Margin="5"/>
                                                 
                                             </StackPanel>
                                         </StackPanel>
                                     </GroupBox>
                                     <!-- DatePickers للانتهاء -->
-                                    <GroupBox Foreground="White" Header="انتهاء" Margin="5">
+                                    <GroupBox BorderBrush="{StaticResource ThirdColor}" Foreground="{StaticResource ThirdColor}" Header="انتهاء" Margin="5">
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
                                             <StackPanel>
-                                            <Label Content="من" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="من" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                             <DatePicker Width="120" Name="end_from_picker" FlowDirection="RightToLeft" Margin="5"/>
                                             </StackPanel>
                                             <StackPanel>
-                                            <Label Content="الى" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="الى" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                             <DatePicker Width="120" Name="end_to_picker" FlowDirection="RightToLeft" Margin="5"/>
                                                 
                                             </StackPanel>
@@ -218,20 +198,20 @@
                                     <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="10" HorizontalAlignment="Right">
                                         <StackPanel Orientation="Horizontal">
                                             <StackPanel>
-                                                <Label Content="الفرع" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="الفرع" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                                 <ComboBox x:Name="branchComboBox"  FlowDirection="RightToLeft" Margin="5"/>
                                             </StackPanel>
                                             <StackPanel>
-                                                <Label Content="الوظيفة" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="الوظيفة" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                                 <ComboBox x:Name="jobComboBox"  FlowDirection="RightToLeft" Margin="5"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Vertical">
-                                                <Label Content="في الخدمة" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="في الخدمة" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                                 <ComboBox x:Name="inDutyComboBox" FlowDirection="RightToLeft" Margin="5"/>
                                             </StackPanel>
                                             <StackPanel Orientation="Vertical">
-                                                <Label Content="مؤمن عليه" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                                <Label Content="مؤمن عليه" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                                 <ComboBox x:Name="insuredComboBox"  FlowDirection="RightToLeft" Margin="5"/>
                                             </StackPanel>
 
@@ -244,19 +224,20 @@
                                     <Button Style="{StaticResource ActionButtonStyle}" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="5" ToolTip="بحث في بيانات الموظفين">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="بحث" VerticalAlignment="Center"/>
+                                            <TextBlock Text="بحث" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource ActionButtonStyle}" x:Name="clear_btn" Click="clear_btn_Click" Margin="5" ToolTip="مسح جميع الفلاتر">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="جديد" VerticalAlignment="Center"/>
+
+                                            <TextBlock Text="جديد" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource ActionButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="5" ToolTip="تصدير البيانات إلى Excel">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="Excel" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Excel" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -268,7 +249,7 @@
             </Border>
 
             <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Margin="20" Background="#FFFFFF" Opacity="0.95" CornerRadius="10"  >
+            <Border Grid.Row="2" Margin="20" BorderBrush="{StaticResource AccentColor}" BorderThickness="2" Opacity="0.95" CornerRadius="10"  >
                 <DataGrid x:Name="list"
                           Style="{StaticResource EmployeeDataGridStyle}"
                           AutoGenerateColumns="False"
@@ -347,7 +328,7 @@
             </Border>
 
             <!-- Footer مع العدد الإجمالي -->
-            <Border Grid.Row="3" Background="#1976D2" CornerRadius="0,0,15,15">
+            <Border Grid.Row="3" Background="{StaticResource PrimaryColor}" CornerRadius="0,0,15,15">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -356,15 +337,14 @@
 
                     <TextBlock Grid.Column="0" 
                                Text="معلومات: اضغط مرتين على الصف لفتح بيانات الموظف للتعديل"
-                               Foreground="White"
                                FontSize="11"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
                                Margin="10,0"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10,0">
-                        <TextBlock Text="العدد الإجمالي: " Foreground="White" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="txtTotalCount" Text="0" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="العدد الإجمالي: " VerticalAlignment="Center"/>
+                        <TextBlock x:Name="txtTotalCount" Text="0"  FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>

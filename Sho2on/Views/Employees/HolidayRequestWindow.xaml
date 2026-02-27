@@ -145,8 +145,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#424242"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="BorderBrush" Value="#1976D2"/>
             <Setter Property="Template">
@@ -171,7 +171,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -184,12 +184,12 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
                     <ScrollViewer>
                      <StackPanel Orientation="Vertical" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="20">
@@ -197,7 +197,7 @@
                         <GroupBox Style="{StaticResource GroupBoxStyle}" Header="بيانات الموظف" Margin="10">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <TextBox Name="employeeCode_box" Tag="كود الموظف" 
+                                            <TextBox Name="employeeCode_box" Tag="كود الموظف" KeyDown="employeeCode_box_KeyDown"
              FlowDirection="RightToLeft" Margin="10" Width="120"/>
                                         <TextBox Width="250" Name="employeeName_box" Tag="اسم الموظف" 
              FlowDirection="RightToLeft" Margin="10" />
@@ -209,7 +209,7 @@
             Margin="10">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Icon:PackIconMaterial Kind="AccountSearch" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                                    <TextBlock Text="اختر الموظف" VerticalAlignment="Center"/>
+                                                <TextBlock Text="اختر الموظف" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                                                 </StackPanel>
                                             </Button>
 
@@ -219,7 +219,7 @@
                     Click="btnManageBalance_Click" 
                     Margin="10" Background="#673AB7">
                                         <StackPanel Orientation="Horizontal">
-                                            <Icon:PackIconMaterial Kind="AccountCash" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                <Icon:PackIconMaterial Kind="AccountCash" VerticalAlignment="Center" Foreground="{StaticResource ThirdColor}" Margin="0 0 5 0"/>
                                             <TextBlock Text="إدارة الرصيد" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
@@ -264,7 +264,7 @@
                 Margin="0,0,0,10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="AccountTie" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="اختر الموافق على الإجازة" VerticalAlignment="Center"/>
+                                            <TextBlock Text="اختر الموافق على الإجازة" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
                                         </StackPanel>
                                     </Button>
 
@@ -395,7 +395,7 @@
 
                                             <Button Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Center" Background="#4CAF50" Name="submit_btn" Click="submit_btn_Click" Margin="15">
                                         <StackPanel Orientation="Horizontal">
-                                            <Icon:PackIconMaterial Kind="Send" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                <Icon:PackIconMaterial Kind="Send" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="{StaticResource ThirdColor}"/>
                                             <TextBlock Text="تقديم الطلب" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
@@ -407,7 +407,7 @@
                                     </Button>
                                             <Button Style="{StaticResource ActionButtonStyle}" Background="#F44336" Name="cancel_btn" Click="cancel_btn_Click" Margin="15">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Icon:PackIconMaterial Kind="Cancel" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Cancel" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                                     <TextBlock Text="إلغاء" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Button>

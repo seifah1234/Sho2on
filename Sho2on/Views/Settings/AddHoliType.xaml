@@ -24,7 +24,7 @@ Height="450" Width="600" MinHeight="450" MinWidth="600" WindowStartupLocation="C
      VerticalAlignment="Center" 
      FontSize="20" 
      FontWeight="Bold" 
-     Foreground="#1976D2" 
+     Foreground="{StaticResource PrimaryColor}" 
           
      Grid.ColumnSpan="2"/>
 
@@ -35,38 +35,38 @@ Height="450" Width="600" MinHeight="450" MinWidth="600" WindowStartupLocation="C
 
 
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="White" Height="45"  Width="110" Margin="5" Click="edit_Btn">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{StaticResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="edit_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="White" Text="تعديل" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="تعديل" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="White" Height="45"  Width="110" Margin="5" Click="save_Btn">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{StaticResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="save_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حفظ" Foreground="White" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="حفظ" Foreground="{StaticResource ThirdColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
                         </StackPanel>
                         <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="White" Width="110" Margin="5" Height="45" Click="exit_Btn">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{StaticResource ThirdColor}" Width="110" Margin="5" Height="45" Click="exit_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="White" Text="خروج" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="خروج" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
 
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="White"  Width="110" Margin="5" Height="45" Click="delete_Btn">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{StaticResource ThirdColor}"  Width="110" Margin="5" Height="45" Click="delete_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="White" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="White" Text="حذف" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="حذف" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -74,7 +74,7 @@ Height="450" Width="600" MinHeight="450" MinWidth="600" WindowStartupLocation="C
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Background="#FFFFFF" Opacity="0.95"   Margin="20">
+                <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Opacity="0.95"   Margin="20">
 
                     <ListView x:Name="list" 
 FlowDirection="RightToLeft"

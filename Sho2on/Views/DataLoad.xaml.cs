@@ -1,14 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Drawing;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
@@ -22,7 +25,7 @@ namespace HR_Application
         private readonly AppDbContext _context;
         private List<MachineViewModel> _machines = new List<MachineViewModel>();
         private MachineViewModel _selectedMachine;
-
+        private List<FingerPrint> fingerPrints = new List<FingerPrint>();
         public DataLoad()
         {
             InitializeComponent();
@@ -377,6 +380,7 @@ namespace HR_Application
         {
             try
             {
+                fingerPrints.Clear();
                 // الحصول على البيانات من الجدول المؤقت machineData للفرع المحدد
                 var machineDataList = await _context.MachineData
                     .Include(md => md.Branch)
@@ -420,6 +424,7 @@ namespace HR_Application
                             };
 
                             await _context.FingerPrints.AddAsync(fingerPrint);
+                            fingerPrints.Add(fingerPrint);
                             recordsInserted++;
                         }
                         else
@@ -456,7 +461,7 @@ namespace HR_Application
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show($"خطأ في إدخال البيانات: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"خطأ في إدخال البيانات: {ex.InnerException.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
         }
@@ -468,6 +473,7 @@ namespace HR_Application
 
             return machine?.Id;
         }
+
 
     }
 }

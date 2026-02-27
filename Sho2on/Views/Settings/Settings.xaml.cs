@@ -23,7 +23,6 @@ namespace HR_Application
     {
 
         private string connectionString = App.ConnectionString;
-        int type;
 
         public Settings()
         {
@@ -41,20 +40,9 @@ namespace HR_Application
                  month_data = $"اعدادات بداية الشهر الحالية : {Properties.Settings.Default.StartOfMonth} و نهايته : {Properties.Settings.Default.EndOfMonth}";
                 begin_month.Text = Properties.Settings.Default.StartOfMonth.ToString();
                 end_month.Text = Properties.Settings.Default.EndOfMonth.ToString();
-                delay_repeat.Text = Properties.Settings.Default.LateRepeat.ToString();
-                delay_value.Text = Properties.Settings.Default.LateValue.ToString();
                 month_detail_txt.FlowDirection = System.Windows.FlowDirection.RightToLeft;
                 month_detail_txt.Content = month_data;
-                if(Properties.Settings.Default.LateType.ToString() == "1")
-                {
-                    moneyBtn.IsChecked = true;
-                    minuteBtn.IsChecked = false;
-                }
-                else
-                {
-                    minuteBtn.IsChecked = true;
-                    moneyBtn.IsChecked = false;
-                }
+                
             }
             catch (Exception e)
             {
@@ -111,30 +99,18 @@ namespace HR_Application
             {
                 Properties.Settings.Default.StartOfMonth = Convert.ToInt32(begin_month.Text);
                 Properties.Settings.Default.EndOfMonth = Convert.ToInt32(end_month.Text);
-            }
-                string month_data = $"اعدادات بداية الشهر الحالية : {Properties.Settings.Default.StartOfMonth} و نهايته : {Properties.Settings.Default.EndOfMonth}";
-
-                month_detail_txt.FlowDirection = System.Windows.FlowDirection.RightToLeft;
-                month_detail_txt.Content = month_data;
-
-                Properties.Settings.Default.LateType = type;
-                Properties.Settings.Default.LateValue = decimal.Parse(delay_value.Text);
-                Properties.Settings.Default.LateRepeat = int.Parse(delay_repeat.Text);
                 Properties.Settings.Default.Save();
+            }
+            string month_data = $"اعدادات بداية الشهر الحالية : {Properties.Settings.Default.StartOfMonth} و نهايته : {Properties.Settings.Default.EndOfMonth}";
 
-                System.Windows.MessageBox.Show("Settings saved successfully!");
+            month_detail_txt.FlowDirection = System.Windows.FlowDirection.RightToLeft;
+            month_detail_txt.Content = month_data;
+
+
+            System.Windows.MessageBox.Show("Settings saved successfully!");
                 
             
         }
 
-        private void minuteBtn_Checked(object sender, RoutedEventArgs e)
-        {
-            type = 0;
-        }
-
-        private void moneyBtn_Checked(object sender, RoutedEventArgs e)
-        {
-            type = 1;
-        }
     }
 }

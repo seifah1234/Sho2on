@@ -11,12 +11,12 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
 
-    <Border Background="#F5F5F5" Padding="20">
+    <Border Background="{StaticResource SecondaryColor}" Padding="20">
         <StackPanel>
             <TextBlock Text="اختر خيار الطباعة:" 
                        FontSize="16" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2"
+                       Foreground="{StaticResource PrimaryColor}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,20"/>
 
@@ -26,7 +26,7 @@
                         Click="btnPrint_Click"
                         Height="50" 
                         Margin="0,0,0,10"
-                        Background="#2196F3"
+                        Background="{StaticResource PrimaryColor}"
                         BorderThickness="0"
                         BorderBrush="Transparent">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

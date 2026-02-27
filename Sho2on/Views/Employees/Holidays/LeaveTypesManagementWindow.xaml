@@ -8,6 +8,7 @@
         Title="إدارة أنواع الإجازات" 
         Height="600" Width="800"
         FlowDirection="RightToLeft"
+        Background="{StaticResource SecondaryColor}"
         WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
@@ -55,10 +56,31 @@
                 <DataGridTextColumn Header="الكود" Binding="{Binding Id}" Width="80"/>
                 <DataGridTextColumn Header="النوع" Binding="{Binding Name}" Width="150"/>
                 <DataGridTextColumn Header="الرصيد الافتراضي" Binding="{Binding DefaultBalance}" Width="120"/>
-                <DataGridCheckBoxColumn Header="يخصم من الرصيد" Binding="{Binding DeductFromBalance}" Width="120"/>
-                <DataGridCheckBoxColumn Header="يتطلب موافقة" Binding="{Binding RequiresApproval}" Width="120"/>
+                <DataGridCheckBoxColumn Header="يخصم من الرصيد" Binding="{Binding DeductFromBalance}" Width="120">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Header="يتطلب موافقة" Binding="{Binding RequiresApproval}" Width="120">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
                 <DataGridTextColumn Header="أقصى مدة متتالية" Binding="{Binding MaxConsecutiveDays}" Width="120"/>
-                <DataGridCheckBoxColumn Header="نشط" Binding="{Binding IsActive}" Width="80"/>
+                <DataGridCheckBoxColumn Header="نشط" Binding="{Binding IsActive}" Width="80">
+                    <DataGridCheckBoxColumn.ElementStyle>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridCheckBoxColumn.ElementStyle>
+                </DataGridCheckBoxColumn>
 
                 <DataGridTemplateColumn Header="الإجراءات" Width="150">
                     <DataGridTemplateColumn.CellTemplate>

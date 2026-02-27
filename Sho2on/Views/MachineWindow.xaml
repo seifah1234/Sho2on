@@ -51,9 +51,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -72,42 +72,9 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style x:Key="MachinesDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#FFFFFF"/>
-            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
-        </Style>
-        <!-- نمط لعناوين DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <!-- نمط لصفوف DataGrid -->
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="Foreground" Value="#1976D2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -125,12 +92,12 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- الجانب الأيمن: نموذج الإدخال -->
-            <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{StaticResource SidebarBrush}"  >
+            <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{StaticResource PrimaryColor}"  >
                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" Width="280">
                     <!-- ComboBox للفرع -->
                     <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0 15 0 0">
@@ -188,8 +155,8 @@
             </Border>
 
             <!-- الجانب الأيسر: DataGrid -->
-            <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Background="#FFFFFF" Opacity="0.95"   Margin="20">
-                <DataGrid Style="{StaticResource MachinesDataGridStyle}" SelectionChanged="list_Changed" AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="list">
+            <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Opacity="0.95"   Margin="20">
+                <DataGrid SelectionChanged="list_Changed" AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="list">
                     <DataGrid.Columns>
                         <DataGridTextColumn IsReadOnly="True" Header="م" Width="30" Binding="{Binding RowNumber}"/>
                         <DataGridTextColumn IsReadOnly="True" Header="كود الفرع" Width="80" Binding="{Binding Code}"/>

@@ -108,15 +108,7 @@ namespace HR_Application
 
         private void save_month_btn_Click(object sender, RoutedEventArgs e)
         {
-            int type = 0;
-            if (errand_check.IsChecked == true)
-            {
-                type = 1;
-            }
-            else if (permission_check.IsChecked == true)
-            {
-                type = 2;
-            }
+            int type = 1;
 
             if (!string.IsNullOrEmpty(code_box.Text))
             {

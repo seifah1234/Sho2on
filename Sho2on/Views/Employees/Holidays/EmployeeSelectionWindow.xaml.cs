@@ -14,7 +14,9 @@ namespace HR_Application.Views.Employees.Holidays
         public string WindowTitle { get; set; } = "اختر موظف";
         public string SelectButtonText { get; set; } = "اختيار";
 
-        public EmployeeSelectionWindow(List<User> users, bool showManagersOnly = false, string title = "اختر موظف")
+        public string? _searchCode;
+
+        public EmployeeSelectionWindow(List<User> users, bool showManagersOnly = false, string title = "اختر موظف", string? searchCode = null)
         {
             InitializeComponent();
 
@@ -22,6 +24,9 @@ namespace HR_Application.Views.Employees.Holidays
             Title = title;
             txtTitle.Text = title;
             btnSelect.Content = SelectButtonText;
+            _searchCode = searchCode;
+
+            
 
             // فلترة المستخدمين إذا طُلب المديرين فقط
             if (showManagersOnly)
@@ -63,7 +68,7 @@ namespace HR_Application.Views.Employees.Holidays
             string searchText = txtSearch.Text.ToLower();
 
             return user.FullName.ToLower().Contains(searchText) ||
-                   user.Id.ToString().Contains(searchText) ||
+                   user.Code.ToString().StartsWith(searchText) ||
                    (user.JobTitle?.Name ?? "").ToLower().Contains(searchText) ||
                    (user.Department?.Name ?? "").ToLower().Contains(searchText);
         }
@@ -98,6 +103,14 @@ namespace HR_Application.Views.Employees.Holidays
             if (dgEmployees.SelectedItem != null)
             {
                 btnSelect_Click(sender, e);
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (_searchCode != null)
+            {
+                txtSearch.Text = _searchCode;
             }
         }
     }

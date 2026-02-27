@@ -310,6 +310,7 @@ namespace Sho2on.Database
         public DbSet<FriendshipBox> FriendshipBoxes { get; set; }
 
         public DbSet<FriendshipBoxTransaction> FriendshipBoxTransactions { get; set; }
+        public DbSet<EmployeePermission> EmployeePermissions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -409,6 +410,12 @@ namespace Sho2on.Database
             modelBuilder.Entity<Attendance>()
                 .HasOne(ur => ur.User)
                 .WithMany(u => u.Attendances)
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EmployeePermission>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.EmployeePermissions)
                 .HasForeignKey(ur => ur.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 

@@ -1,17 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Polly;
+using Polly.Retry;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using Syncfusion.Windows.Shared;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfAnimatedGif;
-using Polly;
-using Polly.Retry;
-using System.Net.Sockets;
-using System.Data.SqlClient;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using MessageBox = System.Windows.MessageBox;
@@ -240,11 +242,24 @@ namespace HR_Application
             OpenMainWindow();
         }
 
+         public static string ComputeSHA256(string input)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
+
         private async Task ProcessUserLoginAsync(string username, string password)
         {
             // Get user from DB
+            var passwordHash = password;
+
             var user = await _context.Users
-                .Where(u => u.Username == username && u.PasswordHash == password)
+                .Include(u => u.JobTitle)
+                .Where(u => u.Username == username && u.PasswordHash == passwordHash)
                 .FirstOrDefaultAsync();
 
             if (user == null)

@@ -63,10 +63,10 @@
             <Setter Property="Height" Value="50"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#424242"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -87,42 +87,9 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style x:Key="SalaryReportDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#FFFFFF"/>
-            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
-        </Style>
-        <!-- نمط لعناوين DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <!-- نمط لصفوف DataGrid -->
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="Foreground" Value="#1976D2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -136,14 +103,13 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource TopSectionBrush}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
                 <Grid>
-                    <Image Name="GIFTop" Source="pack://application:,,,/assets/images/Top.gif" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="10">
                         <StackPanel VerticalAlignment="Center" Orientation="Vertical" FlowDirection="LeftToRight">
                             <!-- الصف الأول: الأزرار والحقول -->
@@ -172,23 +138,23 @@
                             <!-- الصف الثاني: الفلاتر -->
                             <StackPanel Margin="0 5 0 10" Orientation="Horizontal" HorizontalAlignment="Center">
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الوظيفة" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                    <Label Content="الوظيفة" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                     <ComboBox x:Name="jobComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الإدارة" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                    <Label Content="الإدارة" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                     <ComboBox x:Name="departComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الفرع" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                    <Label Content="الفرع" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                     <ComboBox x:Name="branchComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الشهر" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                    <Label Content="الشهر" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                     <ComboBox  x:Name="monthComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="السنة" FlowDirection="RightToLeft" Foreground="#FFFFFF"/>
+                                    <Label Content="السنة" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
                                     <ComboBox x:Name="yearComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                             </StackPanel>
@@ -198,8 +164,8 @@
             </Border>
 
             <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Background="#FFFFFF" Opacity="0.95"   Margin="20">
-                <DataGrid Style="{StaticResource SalaryReportDataGridStyle}" ItemsSource="{Binding employeeSalaryList}" AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="list">
+            <Border Grid.Row="2"  Opacity="0.95"   Margin="20">
+                <DataGrid  ItemsSource="{Binding employeeSalaryList}" AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="list">
                     <DataGrid.Columns>
                         <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الكود" Width="120" Binding="{Binding Code}"/>
                         <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الاسم" Width="120" Binding="{Binding Name}"/>

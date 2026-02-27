@@ -7,6 +7,8 @@
         FlowDirection="RightToLeft"
         Title="تقرير رصيد الإجازات" 
         Height="800" Width="1200"
+        WindowState="Maximized"
+        Background="{StaticResource SecondaryColor}"
         WindowStartupLocation="CenterOwner">
 
     <Grid Margin="10">
@@ -19,34 +21,34 @@
 
         <!-- العنوان -->
         <TextBlock Grid.Row="0" Text="تقرير رصيد الإجازات" 
-                   FontSize="18" FontWeight="Bold" 
+                   FontSize="18" Foreground="{StaticResource PrimaryColor}" FontWeight="Bold" 
                    HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
         <!-- الفلاتر -->
-        <Border Grid.Row="1" Background="#F5F5F5" Padding="10" CornerRadius="5" Margin="0,0,0,10">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+        <Border Grid.Row="1" Background="{StaticResource PrimaryColor}" Padding="10" CornerRadius="5" Margin="0,0,0,10">
+            <StackPanel HorizontalAlignment="Center">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="كود الموظف" Margin="0,0,0,5"/>
-                    <TextBox x:Name="txtEmployeeId" Width="120" Height="30"/>
+                    <TextBlock Text="كود الموظف" Margin="0,0,0,5" Foreground="{StaticResource ThirdColor}"/>
+                    <TextBox x:Name="txtEmployeeId" Width="120" Height="30" Foreground="{StaticResource ThirdColor}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="اسم الموظف" Margin="0,0,0,5"/>
+                    <TextBlock Text="اسم الموظف" Margin="0,0,0,5" Foreground="{StaticResource ThirdColor}"/>
                     <TextBox x:Name="txtEmployeeName" Width="200" Height="30"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="الإدارة" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="cmbDepartment" Width="150" Height="30"/>
+                <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="5">
+                    <TextBlock Text="الإدارة" Margin="0,0,0,5" Foreground="{StaticResource ThirdColor}"/>
+                    <ComboBox x:Name="cmbDepartment" Width="150" VerticalAlignment="Bottom" Height="30"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Margin="5" VerticalAlignment="Bottom">
                     <Button x:Name="btnSearch" Content="بحث" Width="80" Height="30" Click="btnSearch_Click" Background="#007ACC" Foreground="White"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Vertical" Margin="5" VerticalAlignment="Bottom">
-                    <Button x:Name="btnShowAll" Content="عرض الكل" Width="80" Height="30" Click="btnShowAll_Click" Background="#28A745" Foreground="White"/>
-                </StackPanel>
+            </StackPanel>
+                <Label Name="statusTxt" Content="يتم تحميل البيانات..." Foreground="{DynamicResource ThirdColor}" HorizontalAlignment="Center" FontSize="14" Visibility="Collapsed"/>
             </StackPanel>
         </Border>
 

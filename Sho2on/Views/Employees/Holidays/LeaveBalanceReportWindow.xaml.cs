@@ -35,7 +35,6 @@ namespace HR_Application.Views.Employees.Holidays
 
 
             LoadDepartments();
-            LoadReport();
         }
 
         public ObservableCollection<EmployeeLeaveBalanceReport> ReportData
@@ -86,6 +85,7 @@ namespace HR_Application.Views.Employees.Holidays
         {
             try
             {
+                statusTxt.Visibility = Visibility.Visible;
                 var query = _context.Users
                     .Include(u => u.Department)
                     .Where(u => u.InDuty)
@@ -121,10 +121,10 @@ namespace HR_Application.Views.Employees.Holidays
                     };
 
                     // الحصول على جميع أنواع الإجازات النشطة
-                    var leaveTypes = _context.LeaveTypes
+                    var leaveTypes = await _context.LeaveTypes
                         .Where(lt => lt.IsActive)
                         .OrderBy(lt => lt.Name)
-                        .ToList();
+                        .ToListAsync();
 
                     foreach (var leaveType in leaveTypes)
                     {
@@ -149,10 +149,15 @@ namespace HR_Application.Views.Employees.Holidays
 
                 // إظهار إحصائية
                 ShowStatistics();
+                
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"خطأ في تحميل التقرير: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                statusTxt.Visibility = Visibility.Collapsed;
             }
         }
 

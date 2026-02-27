@@ -38,9 +38,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -61,7 +61,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="350"/>
@@ -79,7 +79,7 @@
                        VerticalAlignment="Center" 
                        FontSize="20" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
@@ -127,7 +127,7 @@
             </Border>
 
             <!-- الجانب الأيسر: قائمة الإجازات -->
-            <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Background="#FFFFFF" Opacity="0.95"   Margin="20">
+            <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0"  Opacity="0.95"   Margin="20">
                 <ListView FlowDirection="RightToLeft" 
                           SelectionChanged="list_SelectionChanged" 
                           Margin="10" 

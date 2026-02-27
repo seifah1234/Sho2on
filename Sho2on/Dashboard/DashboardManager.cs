@@ -15,6 +15,7 @@ namespace HR_Application.Dashboard
         {
             var currentUser = App.CurrentUser;
             var userPermissions = App.userPermissions ?? new List<string>();
+            return new AdminDashboard();
 
             // تحديد نوع Dashboard حسب الصلاحيات
             if (IsAdmin(currentUser, userPermissions))

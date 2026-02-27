@@ -171,7 +171,9 @@ namespace HR_Application
                 // تحديث كلمة المرور إذا تم إدخالها
                 if (!string.IsNullOrEmpty(pass_box.Password))
                 {
-                    user.PasswordHash = pass_box.Password;
+                    var passwordHash = pass_box.Password;
+
+                    user.PasswordHash = passwordHash;
                 }
 
                 // تحديث كلمة المرور إذا تم إدخالها

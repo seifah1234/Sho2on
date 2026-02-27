@@ -21,6 +21,34 @@
         </LinearGradientBrush>
         <!-- تأثير ظل -->
 
+
+        <Style x:Key="SaveButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="160"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1565C0"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#0D47A1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <!-- نمط للأزرار -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="110"/>
@@ -28,9 +56,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -51,7 +79,7 @@
         </Style>
         <!-- نمط للـ RadioButton -->
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
@@ -61,38 +89,14 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-        </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1976D2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#424242"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="Foreground" Value="#1976D2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F5F5"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -105,7 +109,7 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="#1976D2" 
+                       Foreground="{StaticResource PrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
@@ -131,7 +135,7 @@
 
                                 <!-- Time Picker للوقت من -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                                     <TextBox x:Name="FromTimePicker" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -140,7 +144,7 @@
 
                                 <!-- Time Picker للوقت إلى -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                                     <TextBox x:Name="ToTimePicker" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -161,7 +165,7 @@
 
                                 <!-- حقل القيمة المالية -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="عدد الدقائق" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="عدد الدقائق" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                                     <TextBox Style="{StaticResource InputFieldStyle}" x:Name="ValueMoneyTextBox" Tag="عدد الدقائق"/>
                                 </StackPanel>
 
@@ -200,7 +204,7 @@
                         </Border>
 
                         <!-- الجانب الأيسر: DataGrid -->
-                        <DataGrid AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding Lates}" FlowDirection="RightToLeft" Margin="20" Grid.Column="0" x:Name="list" Background="Transparent" BorderBrush="#1976D2" BorderThickness="1">
+                        <DataGrid AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding Lates}" FlowDirection="RightToLeft" Margin="20" Grid.Column="0" x:Name="list" Background="Transparent" BorderThickness="1">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="النوع" Binding="{Binding TypeName}"/>
                                 <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Hidden"/>
@@ -232,7 +236,7 @@
 
                                 <!-- Time Picker للوقت من -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                                     <TextBox x:Name="FromTimePickerMoney" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -241,7 +245,7 @@
 
                                 <!-- Time Picker للوقت إلى -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                                     <TextBox x:Name="ToTimePickerMoney" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -262,7 +266,7 @@
 
                                 <!-- حقل القيمة المالية -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="القيمة" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="القيمة" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
                                     <TextBox Style="{StaticResource InputFieldStyle}" x:Name="ValueMoneyMoneyTextBox" Tag="القيمة"/>
                                 </StackPanel>
 
@@ -310,6 +314,37 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
+                </TabItem>
+
+                <TabItem Header="الاعدادات">
+                    <Border CornerRadius="20" Margin="10" Background="{StaticResource PrimaryColor}"  >
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <!-- RadioButtons -->
+                            <GroupBox Foreground="{StaticResource ThirdColor}" Header="اعدادات حساب التأخير و الاضافي" Margin="5">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+                                    <RadioButton Style="{StaticResource RadioButtonStyle}" Content="قيمة دقائق" Name="minuteBtn" IsChecked="True" Checked="minuteBtn_Checked"/>
+                                    <RadioButton Style="{StaticResource RadioButtonStyle}" Content="قيمة مالية" Name="moneyBtn" Checked="moneyBtn_Checked"/>
+                                </StackPanel>
+
+                            </GroupBox>
+
+                            <GroupBox Margin="5" Foreground="{StaticResource ThirdColor}" Header="تكرار التأخير">
+
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+                                    <TextBox Tag="عدد التكرار" x:Name="delay_repeat" Margin="10"/>
+                                    <TextBox Tag="قيمة التأخير" x:Name="delay_value" Margin="10"/>
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- زر الحفظ -->
+                            <Button Style="{StaticResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_btn" Click="save_btn_Click" Margin="20">
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
                 </TabItem>
             </TabControl>
         </Grid>

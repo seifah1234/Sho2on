@@ -23,7 +23,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="10" Background="{StaticResource MainBackgroundBrush}" Margin="10">
+    <Border CornerRadius="10" Background="{StaticResource SecondaryColor}" Margin="10">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -33,16 +33,16 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان -->
-            <Border Grid.Row="0" Background="#1976D2" CornerRadius="10,10,0,0" Padding="10">
+            <Border Grid.Row="0" Background="{StaticResource SecondaryColor}" CornerRadius="10,10,0,0" Padding="10">
                 <TextBlock Text="صرف المرتبات الجماعي" 
-                           Foreground="White" 
+                           Foreground="{StaticResource PrimaryColor}" 
                            FontSize="18" 
                            FontWeight="Bold"
                            HorizontalAlignment="Center"/>
             </Border>
 
             <!-- الفلاتر وضبط الإعدادات -->
-            <Border Grid.Row="1" Background="#F5F5F5" Padding="10">
+            <Border Grid.Row="1" Background="{StaticResource PrimaryColor}" Padding="10">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -108,7 +108,7 @@
             </DataGrid>
 
             <!-- ملخص وأزرار التنفيذ -->
-            <Border Grid.Row="3" Background="#F5F5F5" CornerRadius="0,0,10,10" Padding="10">
+            <Border Grid.Row="3" Background="{StaticResource PrimaryColor}" CornerRadius="0,0,10,10" Padding="10">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

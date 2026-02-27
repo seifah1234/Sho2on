@@ -442,10 +442,10 @@ namespace HR_Application
                         ClockOff = (data.statusNo == "0") ? Convert.ToDateTime(data.dateEdit) : (DateTime?)null,
                         BranchIn = branchI.ToString(),
                         BranchOff = branchI.ToString(),
-                        AllowLate = 0,
-                        AllowEndJob = 0,
-                        AllowOVA = 0,
-                        AllowOVB = 0
+                        AllowLate = user.ExemptLate,
+                        AllowEndJob = user.ExemptEarlyLeave,
+                        AllowOVA = user.ExemptOvertime,
+                        AllowOVB = user.ExemptEarlyEnter
                     };
 
                     if (record.ClockIn != null)
@@ -559,7 +559,7 @@ namespace HR_Application
                         if (attendanceRecord.ClockOff.TimeOfDay > attendanceRecord.ClockIn.TimeOfDay)
                             attendance.TotalWorkHours = attendanceRecord.ClockOff.TimeOfDay - attendanceRecord.ClockIn.TimeOfDay;
                         else
-                            attendance.TotalWorkHours = 24 - attendanceRecord.ClockIn.TimeOfDay + attendanceRecord.ClockOff.TimeOfDay;
+                            attendance.TotalWorkHours = TimeSpan.FromHours(24) - attendanceRecord.ClockIn.TimeOfDay + attendanceRecord.ClockOff.TimeOfDay;
 
                         // Calculate total work hours
                     }
@@ -580,7 +580,7 @@ namespace HR_Application
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.InnerException.Message);
+                MessageBox.Show(e.Message);
             }
         }
 

@@ -3,6 +3,7 @@ using HR_Application.Dashboard;
 using HR_Application.Helpers;
 using HR_Application.Services;
 using HR_Application.Views;
+using HR_Application.Views.Employees;
 using HR_Application.Views.Employees.Holidays;
 using HR_Application.Views.Salaries;
 using HR_Application.Views.Settings;
@@ -36,6 +37,7 @@ namespace HR_Application
         private bool _isMachineVisible;
         private bool _isPersonnelVisible;
         private bool _isHolidayManagementVisible;
+        private bool _isErrandsVisible;
         private bool _isLoanManagementVisible;
         private readonly Sho2on.Database.AppDbContext _context = new Sho2on.Database.AppDbContext(App.ConnectionString);
         private List<string> UserPerm = App.userPermissions;
@@ -1001,7 +1003,7 @@ namespace HR_Application
 
 
         // Hide other panels except the current one
-        private void HideOtherPanels(StackPanel excludeGroup, StackPanel[] panels)
+        private void HideOtherPanels(StackPanel? excludeGroup, StackPanel[] panels)
         {
             foreach (var group in panels)
             {
@@ -1036,9 +1038,9 @@ namespace HR_Application
             isVisible = !isVisible;
         }
 
-        private void HideOtherDrawers(Grid grid)
+        private void HideOtherDrawers(Grid? grid = null)
         {
-            var hideStoryboards = new[] { "HideDrawer1","HideDrawer4","HideDrawer3", "HideDrawer2", "HideDrawer" };
+            var hideStoryboards = new[] { "HideDrawer1","HideDrawer4","HideDrawer3", "HideDrawer2", "HideDrawer5", "HideDrawer" };
             foreach (var storyboardName in hideStoryboards)
             {
                 var storyboard = (Storyboard)grid.Resources[storyboardName];
@@ -1077,9 +1079,10 @@ namespace HR_Application
             }
             else
             {
-                // Hide other panels and expand the selected one
                 HideOtherPanels(currentlyVisibleGroup, panels);
+
                 currentlyVisibleGroup.Visibility = Visibility.Visible;
+                // Hide other panels and expand the selected one
                 var expandStoryboard = (Storyboard)FindResource("ExpandAnimation");
                 currentlyVisibleGroup.BeginStoryboard(expandStoryboard);
             }
@@ -1090,6 +1093,9 @@ namespace HR_Application
         // Button click event handlers
         private void Panel_btn_Click(object sender, RoutedEventArgs e)
         {
+            var grid = Content as Grid;
+
+            HideOtherDrawers(grid);
             StackPanel[] panels = { ReportPanel, EmployeePanel, FingerPrintsPanel, SettingsPanel, SalaryPanel, AttendancePanel };
             ToggleGroup_Click(sender, panels);
 
@@ -1114,6 +1120,11 @@ namespace HR_Application
         {
 
             HandleDrawerAnimation("ShowDrawer3", "HideDrawer3", ref _isHolidayManagementVisible);
+        }
+        private void Errands_MouseLeftButtonDown(object sender, RoutedEventArgs e)
+        {
+
+            HandleDrawerAnimation("ShowDrawer5", "HideDrawer5", ref _isErrandsVisible);
         }
         private void LoanManagementOpen(object sender, RoutedEventArgs e)
         {
@@ -1391,6 +1402,17 @@ namespace HR_Application
             DashboardManager dashboardManager = new DashboardManager();
             dashboardControl.Children.Add(dashboardManager.GetDashboardWindow());
             
+            
+        }
+
+        private void btnPermissionRequests_Click(object sender, RoutedEventArgs e)
+        {
+            new PermissionManagementWindow().Show();
+        }
+
+        private void btnPermissionNewRequest_Click(object sender, RoutedEventArgs e)
+        {
+            new PermissionRequestWindow().Show();
         }
     }
 }
