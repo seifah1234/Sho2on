@@ -3,709 +3,790 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:uc="clr-namespace:HR_Application.UserControls"
+        xmlns:themes="clr-namespace:HR_Application.UserControls"
         Height="800" Width="800" MinHeight="400" MinWidth="800"
         Title="OR HR" WindowStyle="ThreeDBorderWindow"
+        xmlns:local="clr-namespace:HR_Application"
         Loaded="Window_Loaded"
         FlowDirection="RightToLeft"
-        WindowState="Maximized" WindowStartupLocation="CenterScreen" 
+        WindowState="Maximized" WindowStartupLocation="CenterScreen"
         Background="Transparent">
+
     <Window.Resources>
-        <!-- تأثير ظل -->
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
+        <DropShadowEffect x:Key="GlowEffect"   BlurRadius="12" ShadowDepth="0" Color="#00BCD4" Opacity="0.7"/>
+        <DropShadowEffect x:Key="CardShadow"   BlurRadius="20" ShadowDepth="0" Color="#000000" Opacity="0.4"/>
 
-        <!-- تحديث الـ Storyboards للانيميشن -->
+        <!-- Storyboards — logic unchanged -->
         <Storyboard x:Key="ExpandAnimation">
-            <DoubleAnimation Storyboard.TargetProperty="Height"
-                    From="0" To="100"
-                    Duration="0:0:0.4"
-                    FillBehavior="Stop"/>
-            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                    From="0" To="1"
-                    Duration="0:0:0.4"
-                    FillBehavior="Stop"/>
+            <DoubleAnimation Storyboard.TargetProperty="Height" From="0" To="100" Duration="0:0:0.4" FillBehavior="Stop"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" FillBehavior="Stop"/>
         </Storyboard>
-
         <Storyboard x:Key="CollapseAnimation">
-            <DoubleAnimation Storyboard.TargetProperty="Height"
-                    From="100" To="0"
-                    Duration="0:0:0.4"
-                    FillBehavior="Stop"/>
-            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                    From="1" To="0"
-                    Duration="0:0:0.4"
-                    FillBehavior="Stop"/>
+            <DoubleAnimation Storyboard.TargetProperty="Height" From="100" To="0" Duration="0:0:0.4" FillBehavior="Stop"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.4" FillBehavior="Stop"/>
         </Storyboard>
 
-        <!-- تحسين أنماط الأزرار -->
+        <!-- ═══ HoverButtonStyle — main nav items ═══ -->
         <Style x:Key="HoverButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
-            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Background"     Value="Transparent"/>
+            <Setter Property="Foreground"     Value="{DynamicResource TextMenuColor}"/>
+            <Setter Property="Padding"        Value="10,5"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"         Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                          VerticalAlignment="Center"/>
+                        <Border x:Name="RootBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="0"
+                                CornerRadius="14"
+                                Padding="4">
+                            <Grid>
+                                <Rectangle x:Name="AccentStripe"
+                                           Width="4" HorizontalAlignment="Left"
+                                           RadiusX="2" RadiusY="2"
+                                           Fill="Transparent"
+                                           Margin="0,8,0,8"/>
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Margin="8,0,0,0"/>
+                            </Grid>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="Background"
+                                        Value="{DynamicResource AccentColor}"/>
+                                <Setter TargetName="AccentStripe" Property="Fill"
+                                        Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{StaticResource AccentColor}" 
-                                    BorderThickness="1" BorderBrush="#FFFFFF"
-                                    CornerRadius="10">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-                              VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Background" Value="{StaticResource AccentColor}"/>
-                    <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
-                </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="DimGray" 
-                BorderThickness="1" BorderBrush="White"
-                CornerRadius="10">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-          VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="Black"/>
-                    <Setter Property="FontSize" Value="12"/>
-                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Opacity" Value="0.4"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- تحسين أنماط الأزرار النصية -->
-        <Style x:Key="TextButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Width" Value="140"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                          VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{StaticResource AccentColor}" 
-                BorderThickness="0" BorderBrush="White"
-                CornerRadius="8">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-          VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
-                    <Setter Property="FontSize" Value="15"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="False">
-                    <Setter Property="Padding" Value="5"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="Transparent" 
-      BorderThickness="1" BorderBrush="White"
-      CornerRadius="8">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
-                    <Setter Property="FontSize" Value="14"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="DimGray" 
-      BorderThickness="1" BorderBrush="White"
-      CornerRadius="8">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="Black"/>
-                    <Setter Property="FontSize" Value="12"/>
-                    <Setter Property="Margin" Value="5"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- تحسين أنماط الأزرار الفرعية -->
+        <!-- ═══ TextSubButtonStyle ═══ -->
         <Style x:Key="TextSubButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#263238"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background"      Value="{DynamicResource InputBackground}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource TextSecondaryColor}"/>
+            <Setter Property="Padding"         Value="10,5"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="Width" Value="140"/>
-            <Setter Property="Height" Value="45"/>
+            <Setter Property="Width"           Value="145"/>
+            <Setter Property="Height"          Value="42"/>
+            <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                            CornerRadius="10"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                          VerticalAlignment="Center"/>
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="12"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{DynamicResource SurfaceLightColor}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{DynamicResource AccentColor}"/>
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource SecondaryColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="#BBDEFB" CornerRadius="10"
-      BorderThickness="0" BorderBrush="White">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
-                    <Setter Property="FontSize" Value="15"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="False">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="#FFFFFF" CornerRadius="10"
-      BorderThickness="0" BorderBrush="White">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="#263238"/>
-                    <Setter Property="FontSize" Value="14"/>
-                </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="Black"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="DimGray" CornerRadius="10"
-      BorderThickness="1" BorderBrush="White">
-                                    <ContentPresenter HorizontalAlignment="Center" 
-VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="FontSize" Value="13"/>
-                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Opacity" Value="0.35"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- ═══ Drawer panel shared style ═══ -->
+        <Style x:Key="DrawerPanelBorder" TargetType="Border">
+            <Setter Property="CornerRadius"    Value="16"/>
+            <Setter Property="Background"      Value="{DynamicResource SurfaceColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource AccentColor}"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" Color="#000000" Opacity="0.35"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
-       <Border Background="{StaticResource MainBackgroundBrush}" CornerRadius="0 0 20 20"  >
-        <Grid>
+        <!-- ════ Window background (theme-aware) ════ -->
+        <Border CornerRadius="0 0 20 20" Background="{DynamicResource MainBackgroundBrush}"/>
+
+        <!-- ════ Main layout ════ -->
+        <Border CornerRadius="0 0 20 20" Background="{DynamicResource MainBackgroundBrush}">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid Background="Transparent" Name="dashboardControl" Grid.Column="1" Margin="5">
-                    <Image Visibility="Collapsed" Margin="0 40 0 0" x:Name="GIFBack" Source="assets/images/Back.gif"/>
+
+                <!-- Dashboard content area -->
+                <Grid Grid.Column="1" Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <!-- Theme toggle button -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+                            <Button HorizontalAlignment="Right"
+            Margin="2"
+            Style="{DynamicResource HoverButtonStyle}"
+                                    Name="DashboardDisplay"
+            Click="DashboardDisplay_Click">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="{DynamicResource SurfaceLightColor}" CornerRadius="12" 
+            Height="50"
+                                    Width="50">
+
+                                        <Icon:PackIconMaterial
+                                       Kind="ViewDashboardOutline"
+                                       Width="20" Height="20"
+                                       Foreground="{DynamicResource AccentColor}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                            </Button>
+                            <Button HorizontalAlignment="Right"
+        Margin="2"
+        Style="{DynamicResource HoverButtonStyle}"
+        Click="ThemeToggle_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="{DynamicResource SurfaceLightColor}" x:Name="ThemeIconBorder" CornerRadius="12" 
+            Height="50"
+                                    Width="50">
+
+                                    <Icon:PackIconMaterial x:Name="ThemeModeIcon"
+                                   Kind="WeatherSunny"
+                                   Width="20" Height="20"
+                                   Foreground="{DynamicResource AccentColor}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Button>
+                            
+                        </StackPanel>
+
+                    </Grid>
                     
+                    <Image Margin="20" Grid.Row="1"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Stretch="Uniform"
+                            x:Name="GIFBack" Source="/assets/images/Back.gif"/>
+                    <Grid Background="Transparent" Grid.Row="1" Name="dashboardControl" Visibility="Collapsed">
+                    </Grid>
                 </Grid>
-                <Border Panel.ZIndex="1000" Grid.Column="0" x:Name="SideBar" HorizontalAlignment="Left" Width="230" CornerRadius="0 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0 0 0 0" FlowDirection="RightToLeft">
-                        <DockPanel Margin="0 0 0 0">
-                            <Button Visibility="Collapsed" Name="menu_btn" MouseLeave="menu_btn_MouseLeave" Click="menu_btn_Click" MouseEnter="menu_btn_MouseEnter" Width="35" Height="35" Style="{x:Null}" Background="Transparent" DockPanel.Dock="Top" HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" Margin="10">
+
+                <!-- ════════════════ Sidebar ════════════════ -->
+                <Border Panel.ZIndex="1000"
+                        Grid.Column="0"
+                        x:Name="SideBar"
+                        HorizontalAlignment="Left"
+                        Width="240"
+                        CornerRadius="0 24 24 0"
+                        Background="{DynamicResource SidebarBrush}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="30" ShadowDepth="0" Color="#000000" Opacity="0.5"/>
+                    </Border.Effect>
+                    <!-- Accent edge line -->
+                    <Border.BorderBrush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="Transparent" Offset="0"/>
+                            <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.BorderBrush>
+                    <Border.BorderThickness>0,0,1,0</Border.BorderThickness>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0" FlowDirection="RightToLeft">
+                        <DockPanel Margin="0">
+
+                            <!-- Hidden menu button — unchanged -->
+                            <Button Visibility="Collapsed"
+                                    Name="menu_btn"
+                                    MouseLeave="menu_btn_MouseLeave"
+                                    Click="menu_btn_Click"
+                                    MouseEnter="menu_btn_MouseEnter"
+                                    Width="35" Height="35"
+                                    Style="{x:Null}"
+                                    Background="Transparent"
+                                    DockPanel.Dock="Top"
+                                    HorizontalAlignment="Left"
+                                    BorderThickness="0"
+                                    VerticalAlignment="Top"
+                                    Margin="10">
                                 <Icon:PackIconMaterial Kind="Menu" Foreground="#FFFFFF" Width="25" Height="25"/>
                             </Button>
 
-                            <Border HorizontalAlignment="Center" DockPanel.Dock="Top" CornerRadius="100" Background="#FFFFFF" Width="80" Height="75" Margin="0 25 0 0">
-                                <Image Name="GIFIcon" Stretch="Fill" Height="75" Width="70" Source="assets/images/icon.gif"/>
-                            </Border>
+                            <!-- Logo / Avatar -->
+                            <StackPanel DockPanel.Dock="Top" Margin="0,32,0,24" HorizontalAlignment="Center">
+                                <Border HorizontalAlignment="Center"
+                                        CornerRadius="50" Width="86" Height="86"
+                                        BorderThickness="2">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00BCD4" Offset="0"/>
+                                            <GradientStop Color="#0D47A1" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="16" ShadowDepth="0" Color="#00BCD4" Opacity="0.45"/>
+                                    </Border.Effect>
+                                    <Border CornerRadius="50" Background="{DynamicResource AccentColor}" Margin="3">
+                                        <Image Name="GIFIcon" Stretch="Fill" Height="72" Width="68"
+                                               Source="assets/images/icon.gif"
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Border>
+                                </Border>
 
-                            <StackPanel Margin="0 10 0 0" DockPanel.Dock="Top" Orientation="Vertical">
-                                <!-- زر التقارير مع أيقونة -->
-                                <Button IsEnabled="{Binding ReportP}" Name="reports_btn" Click="Panel_btn_Click" Style="{StaticResource HoverButtonStyle}" Cursor="Hand" Tag="ReportPanel" Height="60" Margin="0 0 0 10" BorderThickness="0" Background="Transparent">
-                                    <StackPanel Width="180" Orientation="Horizontal">
-                                        <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="ChartBar"  Width="45" Height="45"/>
+                                <!-- Badge -->
+                                <Border HorizontalAlignment="Center" Margin="0,10,0,0"
+                                        CornerRadius="20" Padding="14,4"
+                                        Background="{DynamicResource SurfaceLightColor}"
+                                        BorderThickness="1">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#00BCD4" Offset="0"/>
+                                            <GradientStop Color="#0D47A1" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <TextBlock Text="نظام الموارد البشرية"
+                                               Foreground="{DynamicResource ThirdColor}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Separator -->
+                            <Rectangle DockPanel.Dock="Top" Height="1" Margin="20,0,20,16" Opacity="0.2">
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="Transparent" Offset="0"/>
+                                        <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <!-- ════ Nav items ════ -->
+                            <StackPanel Margin="8,0,8,0" DockPanel.Dock="Top" Orientation="Vertical">
+
+                                <TextBlock Text="القائمة الرئيسية"
+                                           Foreground="{DynamicResource MutedColor}"
+                                           FontSize="10" FontWeight="Bold"
+                                           Margin="16,0,16,8"
+                                           HorizontalAlignment="Right"/>
+
+                                <!-- Reports -->
+                                <Button Visibility="{Binding ReportP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=ReportP}"
+                                        Name="reports_btn" Click="Panel_btn_Click"
+                                        Style="{DynamicResource HoverButtonStyle}"
+                                        Tag="ReportPanel" Height="58" Margin="4,2,4,2">
+                                    <StackPanel Width="192" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Width="40" Height="40" Margin="4,0,0,0"
+                                                Background="{DynamicResource SurfaceLightColor}">
+                                            <Icon:PackIconMaterial Kind="ChartBar" Width="20" Height="20"
+                                                                   Foreground="{DynamicResource AccentColor}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="التقارير" Margin="25 0 0 0"  FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock Text="التقارير" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
-
-                                <StackPanel HorizontalAlignment="Center" Name="ReportPanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Click="EmployeeDataOpen" IsEnabled="{Binding EmploDataP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="بيانات الموظفين"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="EmployeeMonthOpen" IsEnabled="{Binding EmploMonthP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="شهري الموظفين"/>
+                                <StackPanel HorizontalAlignment="Center" Name="ReportPanel" Visibility="Collapsed"
+                                            Margin="12,4,12,8" Orientation="Vertical">
+                                    <Button Margin="3" Click="EmployeeDataOpen"
+                                            Visibility="{Binding EmploDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploDataP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="بيانات الموظفين" Foreground="{DynamicResource SecondaryColor}"/>
+                                    <Button Margin="3" Click="EmployeeMonthOpen"
+                                            Visibility="{Binding EmploMonthP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploMonthP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="شهري الموظفين"/>
                                 </StackPanel>
 
-                                <!-- زر شئون العاملين مع أيقونة -->
-                                <Button IsEnabled="{Binding EmploP}" Click="Panel_btn_Click" Cursor="Hand" Tag="EmployeePanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
-                                    <StackPanel Width="180" Orientation="Horizontal">
-                                        <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="AccountGroup"  Width="45" Height="45"/>
+                                <!-- Employee Affairs -->
+                                <Button Visibility="{Binding EmploP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploP}"
+                                        Click="Panel_btn_Click" Tag="EmployeePanel"
+                                        Style="{DynamicResource HoverButtonStyle}" Height="58" Margin="4,2,4,2">
+                                    <StackPanel Width="192" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Width="40" Height="40" Margin="4,0,0,0"
+                                                Background="{DynamicResource SurfaceLightColor}">
+                                            <Icon:PackIconMaterial Kind="AccountGroup" Width="20" Height="20"
+                                                                   Foreground="{DynamicResource AccentColor}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="شئون العاملين" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock Text="شئون العاملين" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
-
-                                <StackPanel HorizontalAlignment="Center" Name="EmployeePanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Tag="ErrandsPanel" Click="Errands_MouseLeftButtonDown" IsEnabled="{Binding ErrandP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="الاجراءات"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Tag="HolidayManagementPanel" Click="HolidayManagement_MouseLeftButtonDown"  IsEnabled="{Binding HolidaysManagementP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="ادارة الاجازات"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="AddEmploOpen" IsEnabled="{Binding AddEmploP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="ادارة موظف"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button x:Name="uploadEmployeesBtn" Click="uploadEmployeesBtn_Click" IsEnabled="{Binding uploadEmployeesP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="رفع ملف الموظفين"/>
+                                <StackPanel HorizontalAlignment="Center" Name="EmployeePanel" Visibility="Collapsed"
+                                            Margin="12,4,12,8" Orientation="Vertical">
+                                    <Button Margin="3" Tag="ErrandsPanel" Click="Errands_MouseLeftButtonDown"
+                                            Visibility="{Binding ErrandP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=ErrandP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="الاجراءات"/>
+                                    <Button Margin="3" Tag="HolidayManagementPanel" Click="HolidayManagement_MouseLeftButtonDown"
+                                            Visibility="{Binding HolidaysManagementP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=HolidaysManagementP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="ادارة الاجازات"/>
+                                    <Button Margin="3" Click="AddEmploOpen"
+                                            Visibility="{Binding AddEmploP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddEmploP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="ادارة موظف"/>
+                                    <Button Margin="3" Width="140" Content="تقييم موظف"
+                                            Click="OpenEvaluation_Click" FlowDirection="RightToLeft"
+                                            Visibility="{Binding EmpEvalP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmpEvalP}"/>
+                                    <Button Margin="3" x:Name="uploadEmployeesBtn" Click="uploadEmployeesBtn_Click"
+                                            Visibility="{Binding uploadEmployeesP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=uploadEmployeesP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="رفع ملف الموظفين"/>
                                 </StackPanel>
 
-                                <!-- زر شئون العاملين مع أيقونة -->
-                                <Button IsEnabled="{Binding AttendanceP}" Click="Panel_btn_Click" Cursor="Hand" Tag="AttendancePanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
-                                    <StackPanel Width="180" Orientation="Horizontal">
-                                        <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="LocationEnter"  Width="45" Height="45"/>
+                                <!-- Attendance -->
+                                <Button Visibility="{Binding AttendanceP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AttendanceP}"
+                                        Click="Panel_btn_Click" Tag="AttendancePanel"
+                                        Style="{DynamicResource HoverButtonStyle}" Height="58" Margin="4,2,4,2">
+                                    <StackPanel Width="192" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Width="40" Height="40" Margin="4,0,0,0"
+                                                Background="{DynamicResource SurfaceLightColor}">
+                                            <Icon:PackIconMaterial Kind="LocationEnter" Width="20" Height="20"
+                                                                   Foreground="{DynamicResource AccentColor}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="الحضور و الانصراف" Margin="25 0 0 0" FontSize="13" VerticalAlignment="Center"/>
+                                        <TextBlock Text="الحضور و الانصراف" Margin="12,0,0,0" FontSize="13" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
-
-                                <StackPanel HorizontalAlignment="Center" Name="AttendancePanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Click="DataEditOpen" IsEnabled="{Binding DataEditP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="مراجعة الحركات"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="AddAttendOpen" IsEnabled="{Binding ManualP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="Manual"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="MonthlyDataOpen" IsEnabled="{Binding MonthlyP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="الحركات الشهرية"/>
+                                <StackPanel HorizontalAlignment="Center" Name="AttendancePanel" Visibility="Collapsed"
+                                            Margin="12,4,12,8" Orientation="Vertical">
+                                    <Button Margin="3" Click="DataEditOpen"
+                                            Visibility="{Binding DataEditP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=DataEditP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="مراجعة الحركات"/>
+                                    <Button Margin="3" Click="AddAttendOpen"
+                                            Visibility="{Binding ManualP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=ManualP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="Manual"/>
+                                    <Button Margin="3" Click="MonthlyDataOpen"
+                                            Visibility="{Binding MonthlyP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=MonthlyP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="الحركات الشهرية"/>
                                 </StackPanel>
 
-                                <!-- زر المرتبات مع أيقونة -->
-                                <Button IsEnabled="{Binding SalaryP}" Click="Panel_btn_Click" Cursor="Hand" Tag="SalaryPanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
-                                    <StackPanel Width="180" Orientation="Horizontal">
-                                        <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="CashMultiple"  Width="45" Height="45"/>
+                                <!-- Salary -->
+                                <Button Visibility="{Binding SalaryP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=SalaryP}"
+                                        Click="Panel_btn_Click" Tag="SalaryPanel"
+                                        Style="{DynamicResource HoverButtonStyle}" Height="58" Margin="4,2,4,2">
+                                    <StackPanel Width="192" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Width="40" Height="40" Margin="4,0,0,0"
+                                                Background="{DynamicResource SurfaceLightColor}">
+                                            <Icon:PackIconMaterial Kind="CashMultiple" Width="20" Height="20"
+                                                                   Foreground="{DynamicResource AccentColor}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="الاجور والمرتبات" Margin="25 0 0 0" FontSize="14" VerticalAlignment="Center"/>
+                                        <TextBlock Text="الاجور والمرتبات" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
-
-                                <StackPanel HorizontalAlignment="Center" Name="SalaryPanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Click="AddMainSalary" IsEnabled="{Binding AddMainSalaryP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="ادارة ماليات موظف"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="SalaryReport" IsEnabled="{Binding SalaryReportP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft">
+                                <StackPanel HorizontalAlignment="Center" Name="SalaryPanel" Visibility="Collapsed"
+                                            Margin="12,4,12,8" Orientation="Vertical">
+                                    <Button Margin="3" Click="AddMainSalary"
+                                            Visibility="{Binding AddMainSalaryP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddMainSalaryP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="ادارة ماليات موظف"/>
+                                    <Button Margin="3" Click="SalaryReport"
+                                            Visibility="{Binding SalaryReportP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=SalaryReportP}"
+                                            Width="140" FlowDirection="RightToLeft">
                                         <TextBlock Text="تقرير المرتبات" FontSize="14"/>
                                     </Button>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="AddDeductions" IsEnabled="{Binding AddDeductionsP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" FontSize="12">
-                                        <TextBlock Text="استحقاقات و استقطاعت" Foreground="#FFFFFF" FontSize="14" FontWeight="Normal"/>
+                                    <Button Margin="3" Click="EmployeeSalaryDataOpen"
+                                            Visibility="{Binding EmploSalaryDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploSalaryDataP}"
+                                            Width="140" FlowDirection="RightToLeft" FontSize="12">
+                                        <TextBlock Text="بيانات و مرتبات الموظفين" FontSize="13" FontWeight="Normal"/>
                                     </Button>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button x:Name="btnImportCommissions" 
-        IsEnabled="{Binding UploadCommessionsP}"
-        Click="btnImportCommissions_Click"
-Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" FontSize="12">
-                                        <TextBlock Text="رفع العمولات" Foreground="#FFFFFF" FontSize="14" FontWeight="Normal"/>
-
+                                    <Button Margin="3" Click="AddDeductions"
+                                            Visibility="{Binding AddDeductionsP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddDeductionsP}"
+                                            Width="140" FlowDirection="RightToLeft" FontSize="12">
+                                        <TextBlock Text="استحقاقات و استقطاعت" FontSize="13" FontWeight="Normal"/>
                                     </Button>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="MonthlySalaryDataOpen" IsEnabled="{Binding MonthlyP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="البيانات الشهرية"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="BulkSalaryPaymentOpen" IsEnabled="{Binding BulkSalaryPaymentP}"  Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="صرف المرتبات الجماعي"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="LoanManagementOpen" Tag="LoanManagementPanel" IsEnabled="{Binding LoanManagementP}"  Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="ادارة السلف"/>
+                                    <Button Margin="3" x:Name="btnImportCommissions"
+                                            Visibility="{Binding UploadCommessionsP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=UploadCommessionsP}"
+                                            Click="btnImportCommissions_Click"
+                                            Width="140" FlowDirection="RightToLeft" FontSize="12">
+                                        <TextBlock Text="رفع العمولات" FontSize="13" FontWeight="Normal"/>
+                                    </Button>
+                                    <Button Margin="3" Click="MonthlySalaryDataOpen"
+                                            Visibility="{Binding MonthlyP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=MonthlyP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="البيانات الشهرية"/>
+                                    <Button Margin="3" Click="BulkSalaryPaymentOpen"
+                                            Visibility="{Binding BulkSalaryPaymentP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=BulkSalaryPaymentP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="صرف المرتبات الجماعي"/>
+                                    <Button Margin="3" Click="LoanManagementOpen" Tag="LoanManagementPanel"
+                                            Visibility="{Binding LoanManagementP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=LoanManagementP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="ادارة السلف"/>
                                 </StackPanel>
 
-                                <!-- زر FingerPrints مع أيقونة -->
-                                <Button IsEnabled="{Binding MachineP}" Click="Panel_btn_Click" Cursor="Hand" Tag="FingerPrintsPanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
-                                    <StackPanel Width="180" Orientation="Horizontal">
-                                        <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="Fingerprint" Width="45" Height="45"/>
+                                <!-- FingerPrints -->
+                                <Button Visibility="{Binding MachineP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=MachineP}"
+                                        Click="Panel_btn_Click" Tag="FingerPrintsPanel"
+                                        Style="{DynamicResource HoverButtonStyle}" Height="58" Margin="4,2,4,2">
+                                    <StackPanel Width="192" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Width="40" Height="40" Margin="4,0,0,0"
+                                                Background="{DynamicResource SurfaceLightColor}">
+                                            <Icon:PackIconMaterial Kind="Fingerprint" Width="20" Height="20"
+                                                                   Foreground="{DynamicResource AccentColor}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="FingerPrints" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock Text="FingerPrints" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
-
-                                <StackPanel HorizontalAlignment="Center" Name="FingerPrintsPanel" Visibility="Collapsed" Margin="20 10 20 10" Orientation="Vertical">
-                                    <Button Click="AddMachineOpen" IsEnabled="{Binding AddMachineP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="Add"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="GetDataClicked" IsEnabled="{Binding GetDataP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft">
-                                        <TextBlock Text="Upload Fingerprint" FontSize="14"/>
+                                <StackPanel HorizontalAlignment="Center" Name="FingerPrintsPanel" Visibility="Collapsed"
+                                            Margin="12,4,12,8" Orientation="Vertical">
+                                    <Button Margin="3" Click="AddMachineOpen"
+                                            Visibility="{Binding AddMachineP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddMachineP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="Add"/>
+                                    <Button Margin="3" Click="GetDataClicked"
+                                            Visibility="{Binding GetDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=GetDataP}"
+                                            Width="140" FlowDirection="RightToLeft">
+                                        <TextBlock Text="Upload Fingerprint" FontSize="13"/>
                                     </Button>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="download_data_btn_ButtonClicked" IsEnabled="{Binding DownloadDataP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="Download Data"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="upload_data_btn_ButtonClicked" IsEnabled="{Binding UploadDataP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="Upload Data"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button Click="BtnGenerateTemplate_Click"  Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="Download Template"/>
+                                    <Button Margin="3" Click="download_data_btn_ButtonClicked"
+                                            Visibility="{Binding DownloadDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=DownloadDataP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="Download Data"/>
+                                    <Button Margin="3" Click="upload_data_btn_ButtonClicked"
+                                            Visibility="{Binding UploadDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=UploadDataP}"
+                                            Width="140" FlowDirection="RightToLeft" Content="Upload Data"/>
+                                    <Button Margin="3" Click="BtnGenerateTemplate_Click"
+                                            Width="140" FlowDirection="RightToLeft" Content="Download Template"/>
                                 </StackPanel>
 
-                                <!-- زر Settings مع أيقونة -->
-                                <Button IsEnabled="{Binding SettingsP}" Click="Panel_btn_Click" Cursor="Hand" Tag="SettingsPanel" Style="{StaticResource HoverButtonStyle}" Height="60" Margin="0 10 0 10" BorderThickness="0" Background="Transparent">
-                                    <StackPanel Width="180" Orientation="Horizontal">
-                                        <Border VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="5" BorderThickness="1">
-                                            <Icon:PackIconMaterial Kind="Cog"  Width="45" Height="45"/>
+                                <!-- Settings -->
+                                <Button Visibility="{Binding SettingsP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=SettingsP}"
+                                        Click="Panel_btn_Click" Tag="SettingsPanel"
+                                        Style="{DynamicResource HoverButtonStyle}" Height="58" Margin="4,2,4,2">
+                                    <StackPanel Width="192" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Width="40" Height="40" Margin="4,0,0,0"
+                                                Background="{DynamicResource SurfaceLightColor}">
+                                            <Icon:PackIconMaterial Kind="Cog" Width="20" Height="20"
+                                                                   Foreground="{DynamicResource AccentColor}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock HorizontalAlignment="Right" Text="Settings" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Settings" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
-
-                                <StackPanel HorizontalAlignment="Center" Name="SettingsPanel" Visibility="Collapsed" Margin="20 10 20 0" Orientation="Vertical">
-                                    <Button IsEnabled="{Binding AllDatasP}" Click="Datas_MouseLeftButtonDown" Tag="DatasPanel" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="اضافة البيانات"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button IsEnabled="{Binding AllPermissionP}" Click="Permission_MouseLeftButtonDown" Tag="PermissionsPanel" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="الصلاحيات"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button IsEnabled="{Binding Backup}" Click="Backup_Button_Click" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="Backup"/>
-                                    <Separator Margin="15" Background="#FFFFFF"/>
-                                    <Button IsEnabled="{Binding AllSettingsP}" Tag="MainSettingsPanel" Click="MainSettings_MouseLeftButtonDown" Style="{StaticResource TextButtonStyle}" Cursor="Hand" Foreground="#FFFFFF" FlowDirection="RightToLeft" Content="الاعدادات العامة"/>
+                                <StackPanel HorizontalAlignment="Center" Name="SettingsPanel" Visibility="Collapsed"
+                                            Margin="12,4,12,8" Orientation="Vertical">
+                                    <Button Margin="3"
+                                            Visibility="{Binding AllDatasP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AllDatasP}"
+                                            Click="Datas_MouseLeftButtonDown" Tag="DatasPanel"
+                                            Width="140" FlowDirection="RightToLeft" Content="اضافة البيانات"/>
+                                    <Button Margin="3"
+                                            Visibility="{Binding AllPermissionP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AllPermissionP}"
+                                            Click="Permission_MouseLeftButtonDown" Tag="PermissionsPanel"
+                                            Width="140" FlowDirection="RightToLeft" Content="الصلاحيات"/>
+                                    <Button Margin="3"
+                                            Visibility="{Binding Backup, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Backup}"
+                                            Click="Backup_Button_Click"
+                                            Width="140" FlowDirection="RightToLeft" Content="Backup"/>
+                                    <Button Margin="3"
+                                            Visibility="{Binding AllSettingsP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AllSettingsP}"
+                                            Tag="MainSettingsPanel" Click="MainSettings_MouseLeftButtonDown"
+                                            Width="140" FlowDirection="RightToLeft" Content="الاعدادات العامة"/>
                                 </StackPanel>
 
                             </StackPanel>
 
-                            <!-- زر Logout مع أيقونة -->
-                            <Button Name="logout_btn" Click="logout_btn_Click" Style="{StaticResource HoverButtonStyle}" Cursor="Hand" Height="60" DockPanel.Dock="Bottom" Margin="0 10 0 0" BorderThickness="0" Background="Transparent">
-                                <StackPanel Width="180" Orientation="Horizontal">
-                                    <Border CornerRadius="8" BorderBrush="#FFFFFF" Width="55" Height="55" Padding="2" BorderThickness="1">
-                                        <Icon:PackIconMaterial Kind="Logout" Width="45" Height="45"/>
-                                    </Border>
-                                    <TextBlock HorizontalAlignment="Right" Text="Logout" Margin="25 0 0 0" FontSize="16" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
+                            <!-- Separator before bottom actions -->
+                            <Rectangle DockPanel.Dock="Bottom" Height="1" Margin="20,12,20,0" Opacity="0.15">
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="Transparent" Offset="0"/>
+                                        <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <!-- ════ Bottom: Theme toggle + Logout ════ -->
+                            <StackPanel DockPanel.Dock="Bottom" Margin="8,8,8,16">
+
+                                
+                                <!-- Logout button -->
+                                <Button Name="logout_btn"
+                                        Click="logout_btn_Click"
+                                        Style="{DynamicResource HoverButtonStyle}"
+                                        Height="52" Margin="4,4,4,0">
+                                    <StackPanel Width="192" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Width="40" Height="40" Margin="4,0,0,0">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#1A0A0A" Offset="0"/>
+                                                    <GradientStop Color="#2D0A0A" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                            <Icon:PackIconMaterial Kind="Logout" Width="20" Height="20"
+                                                                   Foreground="#EF5350"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="Logout" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" Foreground="#EF9A9A"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
 
                         </DockPanel>
                     </ScrollViewer>
                 </Border>
 
-                <!-- السيده بار المحسن -->
-
-                <!-- المناطق المنسدلة المحسنة -->
+                <!-- ════════════════ Drawer Panels ════════════════ -->
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
                     <!-- DatasPanel -->
-                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1" x:Name="DatasPanel" HorizontalAlignment="Right" Width="180">
+                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1"
+                          x:Name="DatasPanel" HorizontalAlignment="Right" Width="185">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="DrawerTransform" X="-250"/>
                         </Grid.RenderTransform>
-                            <Border CornerRadius="20 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                            <StackPanel Margin="10 20 10 10" Orientation="Vertical">
-                                <Button Click="AddDepartOpen" IsEnabled="{Binding DepartP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="الادارات"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                <Button Click="AddJobOpen" IsEnabled="{Binding JobP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="الوظائف"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                <Button Click="AddJobDegreeOpen" IsEnabled="{Binding DegreeP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="القطاعات"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                <Button Click="AddShiftOpen" IsEnabled="{Binding ShiftP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="الورديات"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                <Button Visibility="Collapsed" Click="AddBreakOpen" IsEnabled="{Binding BreakP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="الراحات"/>
-                                <Button FontSize="12" Click="AddLateOpen" IsEnabled="{Binding LateP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="التأخير و الاضافي"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                <Button Click="AddHoliOpen" IsEnabled="{Binding WHP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="الاجازات الاسبوعية"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                <Button Click="AddHoliTypeOpen" IsEnabled="{Binding HTypeP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="أنواع الاجازات"/>
+                        <Border Style="{DynamicResource DrawerPanelBorder}">
+                            <StackPanel Margin="10,16,10,10" Orientation="Vertical">
+                                <TextBlock Text="البيانات" Foreground="{DynamicResource AccentColor}"
+                                           FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                <Button Margin="3" Click="AddDepartOpen"  IsEnabled="{Binding DepartP}"  Width="140" FlowDirection="RightToLeft" Content="الادارات"/>
+                                <Button Margin="3" Click="AddQualificationOpen"  IsEnabled="{Binding QualificationP}"  Width="140" FlowDirection="RightToLeft" Content="المؤهلات"/>
+                                <Button Margin="3" Click="AddJobOpen"     IsEnabled="{Binding JobP}"     Width="140" FlowDirection="RightToLeft" Content="الوظائف"/>
+                                <Button Margin="3" Click="AddJobDegreeOpen" IsEnabled="{Binding DegreeP}" Width="140" FlowDirection="RightToLeft" Content="القطاعات"/>
+                                <Button Margin="3" Click="AddShiftOpen"   IsEnabled="{Binding ShiftP}"   Width="140" FlowDirection="RightToLeft" Content="الورديات"/>
+                                <Button Margin="3" Visibility="Collapsed" Click="AddBreakOpen" IsEnabled="{Binding BreakP}" Width="140" FlowDirection="RightToLeft" Content="الراحات"/>
+                                <Button Margin="3" FontSize="12" Click="AddLateOpen" IsEnabled="{Binding LateP}" Width="140" FlowDirection="RightToLeft" Content="التأخير و الاضافي"/>
+                                <Button Margin="3" Click="AddHoliOpen"    IsEnabled="{Binding WHP}"      Width="140" FlowDirection="RightToLeft" Content="الاجازات الاسبوعية"/>
+                                <Button Margin="3" Click="AddHoliTypeOpen" IsEnabled="{Binding HTypeP}"  Width="140" FlowDirection="RightToLeft" Content="أنواع الاجازات"/>
                             </StackPanel>
                         </Border>
                     </Grid>
 
                     <!-- PermissionsPanel -->
-                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1" x:Name="PermissionsPanel" HorizontalAlignment="Right" Width="180">
+                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1"
+                          x:Name="PermissionsPanel" HorizontalAlignment="Right" Width="185">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="DrawerTransform1" X="-250"/>
                         </Grid.RenderTransform>
-                            <Border CornerRadius="20 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                            <StackPanel Margin="10 20 10 0" Orientation="Vertical">
-                                    <Button Click="PermissionsOpen" IsEnabled="{Binding PermissionP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="صلاحيات البرنامج"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button Click="UserPermissionsOpen" IsEnabled="{Binding UserPermissionP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="صلاحيات المستخدم"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button Click="BranchPermissionsOpen" IsEnabled="{Binding BranchPermissionP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="صلاحيات الفروع"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button Click="AddRoleOpen" IsEnabled="{Binding RoleP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="الجروبات"/>
+                        <Border Style="{DynamicResource DrawerPanelBorder}">
+                            <StackPanel Margin="10,16,10,10" Orientation="Vertical">
+                                <TextBlock Text="الصلاحيات" Foreground="{DynamicResource AccentColor}"
+                                           FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                <Button Margin="3" Click="PermissionsOpen"     IsEnabled="{Binding PermissionP}"   Width="140" FlowDirection="RightToLeft" Content="صلاحيات البرنامج"/>
+                                <Button Margin="3" Click="UserPermissionsOpen"  IsEnabled="{Binding UserPermissionP}" Width="140" FlowDirection="RightToLeft" Content="صلاحيات المستخدم"/>
+                                <Button Margin="3" Click="BranchPermissionsOpen" IsEnabled="{Binding BranchPermissionP}" Width="140" FlowDirection="RightToLeft" Content="صلاحيات الفروع"/>
+                                <Button Margin="3" Click="AddRoleOpen"         IsEnabled="{Binding RoleP}"         Width="140" FlowDirection="RightToLeft" Content="الجروبات"/>
                             </StackPanel>
                         </Border>
                     </Grid>
 
                     <!-- MainSettingsPanel -->
-                    
-                    <!-- MainSettingsPanel -->
-                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1" x:Name="MainSettingsPanel" HorizontalAlignment="Right" Width="180">
+                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1"
+                          x:Name="MainSettingsPanel" HorizontalAlignment="Right" Width="185">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="DrawerTransform2" X="-250"/>
                         </Grid.RenderTransform>
-                            <Border CornerRadius="20 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                            <StackPanel Margin="10 20 10 0" Orientation="Vertical">
-                                    <Button Click="SettingsOpen" IsEnabled="{Binding MonthSettingP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="اعدادات عامة"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button Click="ArchiveOpen" IsEnabled="{Binding ArchiveP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="الارشيف"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button Click="StorageOpen" IsEnabled="{Binding StorageP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="تخزين الملفات"/>
-                                <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button Click="AddBranchOpen" IsEnabled="{Binding BranchP}" Style="{StaticResource TextButtonStyle}" Cursor="Hand" FlowDirection="RightToLeft" Content="اضافة الفروع"/>
+                        <Border Style="{DynamicResource DrawerPanelBorder}">
+                            <StackPanel Margin="10,16,10,10" Orientation="Vertical">
+                                <TextBlock Text="الإعدادات" Foreground="{DynamicResource AccentColor}"
+                                           FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                <Button Margin="3" Click="SettingsOpen"   IsEnabled="{Binding MonthSettingP}" Width="140" FlowDirection="RightToLeft" Content="اعدادات عامة"/>
+                                <Button Margin="3" Click="ArchiveOpen"    IsEnabled="{Binding ArchiveP}"      Width="140" FlowDirection="RightToLeft" Content="الارشيف"/>
+                                <Button Margin="3" Click="StorageOpen"    IsEnabled="{Binding StorageP}"      Width="140" FlowDirection="RightToLeft" Content="تخزين الملفات"/>
+                                <Button Margin="3" Click="AddBranchOpen"  IsEnabled="{Binding BranchP}"       Width="140" FlowDirection="RightToLeft" Content="اضافة الفروع"/>
                             </StackPanel>
                         </Border>
                     </Grid>
 
-
-                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1" x:Name="HolidayManagementPanel" HorizontalAlignment="Right" Width="180">
+                    <!-- HolidayManagementPanel -->
+                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1"
+                          x:Name="HolidayManagementPanel" HorizontalAlignment="Right" Width="185">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="DrawerTransform3" X="-250"/>
                         </Grid.RenderTransform>
-                            <Border CornerRadius="20 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                            <StackPanel Margin="10 20 10 0" Orientation="Vertical">
-                                    <Button x:Name="btnManageBalance" 
-Style="{StaticResource TextButtonStyle}"
-                                            IsEnabled="{Binding ManageBalanceP}"
-        Click="btnManageBalance_Click">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="AccountCash" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="إدارة الرصيد"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button x:Name="btnHoliRequests" IsEnabled="{Binding HoliRequestsP}"
-                                            
-Style="{StaticResource TextButtonStyle}"
-        Click="HolidaysManagementOpen">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="AccountCash" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="طلبات الاجازة"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button x:Name="btnNewRequest" IsEnabled="{Binding NewRequestP}"
-Style="{StaticResource TextButtonStyle}"
-                                            FontSize="14" FontWeight="Bold"
-         Click="btnNewRequest_Click">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="Plus" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="طلب إجازة"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button x:Name="btnManageLeaveTypes" IsEnabled="{Binding ManageLeaveTypesP}"
-Style="{StaticResource TextButtonStyle}"
-                                            FontSize="14" FontWeight="Bold"
-        Click="btnManageLeaveTypes_Click"
-        >
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="FormatListBulleted" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="أنواع الإجازات"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                    <!-- تقرير رصيد الإجازات -->
-                                    <Button x:Name="btnBalanceReport" IsEnabled="{Binding BalanceReportP}"
-Style="{StaticResource TextButtonStyle}"
-                                            FontSize="14" FontWeight="Bold"
-        Click="btnBalanceReport_Click"
-        >
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="ChartBar" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="تقرير الرصيد"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
+                        <Border Style="{DynamicResource DrawerPanelBorder}">
+                            <StackPanel Margin="10,16,10,10" Orientation="Vertical">
+                                <TextBlock Text="ادارة الاجازات" Foreground="{DynamicResource AccentColor}"
+                                           FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                <Button Margin="3" x:Name="btnManageBalance" IsEnabled="{Binding ManageBalanceP}"
+                                        Width="140" Click="btnManageBalance_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="إدارة الرصيد"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" x:Name="btnHoliRequests" IsEnabled="{Binding HoliRequestsP}"
+                                        Width="140" Click="HolidaysManagementOpen">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="طلبات الاجازة"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" x:Name="btnNewRequest" IsEnabled="{Binding NewRequestP}"
+                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnNewRequest_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="Plus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="طلب إجازة"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" x:Name="btnManageLeaveTypes" IsEnabled="{Binding ManageLeaveTypesP}"
+                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnManageLeaveTypes_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="FormatListBulleted" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="أنواع الإجازات"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" x:Name="btnBalanceReport" IsEnabled="{Binding BalanceReportP}"
+                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnBalanceReport_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="ChartBar" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="تقرير الرصيد"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
                         </Border>
                     </Grid>
-                
 
-                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1" x:Name="ErrandsPanel" HorizontalAlignment="Right" Width="180">
+                    <!-- ErrandsPanel -->
+                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1"
+                          x:Name="ErrandsPanel" HorizontalAlignment="Right" Width="185">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="DrawerTransform5" X="-250"/>
                         </Grid.RenderTransform>
-                            <Border CornerRadius="20 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                            <StackPanel Margin="10 20 10 0" Orientation="Vertical">
-                                    <Button 
-Style="{StaticResource TextButtonStyle}"
-                                            IsEnabled="{Binding ManageBalanceP}"
-        Click="ErrandsOpen">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="AccountCash" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="المأموريات"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button x:Name="btnPermissionRequests" IsEnabled="{Binding PermissionRequestsP}"
-                                            
-Style="{StaticResource TextButtonStyle}"
-        Click="btnPermissionRequests_Click">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="AccountCash" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="طلبات الاذن"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                <Button x:Name="btnPermissionNewRequest" IsEnabled="{Binding NewPermissionRequestP}"
-Style="{StaticResource TextButtonStyle}"
-                                            FontSize="14" FontWeight="Bold"
-         Click="btnPermissionNewRequest_Click">
+                        <Border Style="{DynamicResource DrawerPanelBorder}">
+                            <StackPanel Margin="10,16,10,10" Orientation="Vertical">
+                                <TextBlock Text="الاجراءات" Foreground="{DynamicResource AccentColor}"
+                                           FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                <Button Margin="3" Width="140" IsEnabled="{Binding NewMissionP}" Click="ErrandsOpen">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Icon:PackIconMaterial Kind="Plus" Width="20" Height="20" Margin="0,0,10,0"/>
+                                        <Icon:PackIconMaterial Kind="Plus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="طلب مأمورية"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" Width="140" IsEnabled="{Binding ManageMissionP}" Click="ErrandsRequestsOpen">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="طلبات المأموريات"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" x:Name="btnPermissionRequests" IsEnabled="{Binding PermissionRequestsP}"
+                                        Width="140" Click="btnPermissionRequests_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="طلبات الاذن"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" x:Name="btnPermissionNewRequest" IsEnabled="{Binding NewPermissionRequestP}"
+                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnPermissionNewRequest_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="Plus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
                                         <TextBlock Text="طلب اذن"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
                         </Border>
                     </Grid>
-                
-                    <Grid FlowDirection="LeftToRight"  Grid.Column="1" Grid.Row="1" x:Name="LoanManagementPanel" HorizontalAlignment="Right" Width="180">
+
+                    <!-- LoanManagementPanel -->
+                    <Grid FlowDirection="LeftToRight" Grid.Column="1" Grid.Row="1"
+                          x:Name="LoanManagementPanel" HorizontalAlignment="Right" Width="185">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="DrawerTransform4" X="-250"/>
                         </Grid.RenderTransform>
-                            <Border CornerRadius="20 20 20 20" Background="{StaticResource HeaderBackground}"  >
-                            <StackPanel Margin="10 20 10 0" Orientation="Vertical">
-                                    <Button x:Name="btnLoanRequest" 
-Style="{StaticResource TextButtonStyle}"
-                                            IsEnabled="{Binding LoanRequestP}"
-        Click="btnLoanRequest_Click">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="CashMinus" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="طلب سلفة"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button x:Name="btnLoanApprove" IsEnabled="{Binding LoanApproveP}"
-                                            
-Style="{StaticResource TextButtonStyle}"
-        Click="btnLoanApprove_Click">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="CashCheck" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="الموافقة على السلفات" FontSize="11" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Separator Margin="20" Background="#FFFFFF"/>
-                                    <Button x:Name="btnFriendBoxReport" IsEnabled="{Binding FriendBoxReportP}"
-                                            
-Style="{StaticResource TextButtonStyle}"
-        Click="btnFriendBoxReport_Click">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Icon:PackIconMaterial Kind="CashCheck" Width="20" Height="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="كشف حساب ص الزمالة" FontSize="11" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
+                        <Border Style="{DynamicResource DrawerPanelBorder}">
+                            <StackPanel Margin="10,16,10,10" Orientation="Vertical">
+                                <TextBlock Text="ادارة السلف" Foreground="{DynamicResource AccentColor}"
+                                           FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                <Button Margin="3" x:Name="btnLoanRequest" IsEnabled="{Binding LoanRequestP}"
+                                        Width="140" Click="btnLoanRequest_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="CashMinus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="طلب سلفة"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="btnLoanApprove" IsEnabled="{Binding LoanApproveP}"
+                                        Width="140" Click="btnLoanApprove_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="CashCheck" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="الموافقة على السلفات" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Margin="3" x:Name="btnFriendBoxReport" IsEnabled="{Binding FriendBoxReportP}"
+                                        Width="140" Click="btnFriendBoxReport_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="CashCheck" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Text="كشف حساب ص الزمالة" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
                         </Border>
                     </Grid>
-                </Grid>
 
-               
-        </Grid>
-    </Border>
-        <!-- الـ Storyboards للانيميشن -->
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ════════════ Drawer Storyboards — all names & targets preserved ════════════ -->
         <Grid.Resources>
             <Storyboard x:Key="ShowDrawer">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform" 
-Storyboard.TargetProperty="X"
-To="180" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform"  Storyboard.TargetProperty="X" To="180" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="HideDrawer">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform" 
-Storyboard.TargetProperty="X"
-To="-250" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform"  Storyboard.TargetProperty="X" To="-250" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="ShowDrawer1">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform1" 
-Storyboard.TargetProperty="X"
-To="180" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform1" Storyboard.TargetProperty="X" To="180" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="HideDrawer1">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform1" 
-Storyboard.TargetProperty="X"
-To="-250" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform1" Storyboard.TargetProperty="X" To="-250" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="ShowDrawer2">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform2" 
-Storyboard.TargetProperty="X"
-To="180" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform2" Storyboard.TargetProperty="X" To="180" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="HideDrawer2">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform2" 
-Storyboard.TargetProperty="X"
-To="-250" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform2" Storyboard.TargetProperty="X" To="-250" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="ShowDrawer3">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform3" 
-Storyboard.TargetProperty="X"
-To="180" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform3" Storyboard.TargetProperty="X" To="180" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="HideDrawer3">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform3" 
-Storyboard.TargetProperty="X"
-To="-250" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform3" Storyboard.TargetProperty="X" To="-250" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="ShowDrawer4">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform4" 
-Storyboard.TargetProperty="X"
-To="180" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform4" Storyboard.TargetProperty="X" To="180" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="HideDrawer4">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform4" 
-Storyboard.TargetProperty="X"
-To="-250" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform4" Storyboard.TargetProperty="X" To="-250" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="ShowDrawer5">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform5" 
-Storyboard.TargetProperty="X"
-To="180" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform5" Storyboard.TargetProperty="X" To="180" Duration="0:0:0.3"/>
             </Storyboard>
-
             <Storyboard x:Key="HideDrawer5">
-                <DoubleAnimation Storyboard.TargetName="DrawerTransform5" 
-Storyboard.TargetProperty="X"
-To="-250" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetName="DrawerTransform5" Storyboard.TargetProperty="X" To="-250" Duration="0:0:0.3"/>
             </Storyboard>
         </Grid.Resources>
     </Grid>

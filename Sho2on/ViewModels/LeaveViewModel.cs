@@ -14,6 +14,9 @@ namespace HR_Application.ViewModels
         [DisplayName("اسم الموظف")]
         public string EmployeeName { get; set; }
 
+        [DisplayName("القائم عن العمل")]
+        public string? ReplacementUserName { get; set; }
+
         [DisplayName("نوع الإجازة")]
         public string LeaveTypeName { get; set; }
 

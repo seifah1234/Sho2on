@@ -78,7 +78,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Personal Info -->
-                <Border Grid.Row="0" Style="{StaticResource StatCard}">
+                <Border Grid.Row="0" Style="{DynamicResource StatCard}">
                     <Grid Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -122,7 +122,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- رصيد الإجازات -->
-                    <Border Grid.Column="0" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="0" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="🏖️" FontSize="20" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="LeaveBalance" Text="0" 
@@ -136,7 +136,7 @@
                     </Border>
 
                     <!-- الحضور الشهري -->
-                    <Border Grid.Column="1" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="1" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="✅" FontSize="20" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="MonthlyAttendance" Text="0%" 
@@ -150,7 +150,7 @@
                     </Border>
 
                     <!-- الراتب الأخير -->
-                    <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="2" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="💰" FontSize="20" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="LastSalary" Text="0" 
@@ -164,7 +164,7 @@
                     </Border>
 
                     <!-- ساعات العمل -->
-                    <Border Grid.Column="3" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="3" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="⏰" FontSize="20" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="WorkHours" Text="0" 
@@ -186,7 +186,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- الخدمات الذاتية -->
-                    <Border Grid.Column="0" Style="{StaticResource StatCard}" Margin="0,0,5,0">
+                    <Border Grid.Column="0" Style="{DynamicResource StatCard}" Margin="0,0,5,0">
                         <StackPanel Margin="10">
                             <TextBlock Text="🛠️ الخدمات الذاتية" 
                                      FontSize="16" FontWeight="Bold"
@@ -194,19 +194,19 @@
 
                             <WrapPanel>
                                 <Button Content="طلب إجازة" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenLeaveRequest"
                                         Margin="2"/>
                                 <Button Content="طلب سلفة" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenLoanRequest"
                                         Margin="2"/>
                                 <Button Content="بياناتي الشخصية" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyProfile"
                                         Margin="2"/>
                                 <Button Content="كشف المرتب" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenMySalary"
                                         Margin="2"/>
                             </WrapPanel>
@@ -214,7 +214,7 @@
                     </Border>
 
                     <!-- التقارير -->
-                    <Border Grid.Column="1" Style="{StaticResource StatCard}" Margin="5,0,0,0">
+                    <Border Grid.Column="1" Style="{DynamicResource StatCard}" Margin="5,0,0,0">
                         <StackPanel Margin="10">
                             <TextBlock Text="📊 تقاريري" 
                                      FontSize="16" FontWeight="Bold"
@@ -222,19 +222,19 @@
 
                             <WrapPanel>
                                 <Button Content="حضوري الشهري" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyAttendance"
                                         Margin="2"/>
                                 <Button Content="مستحقاتي" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyBenefits"
                                         Margin="2"/>
                                 <Button Content="سجلي الوظيفي" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyHistory"
                                         Margin="2"/>
                                 <Button Content="مستنداتي" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyDocuments"
                                         Margin="2"/>
                             </WrapPanel>

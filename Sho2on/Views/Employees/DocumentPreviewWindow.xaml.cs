@@ -1,24 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
-using PdfiumViewer;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using UglyToad.PdfPig;
+using UglyToad.PdfPig.Rendering.Skia;
+using UglyToad.PdfPig.Graphics.Colors;
+using SkiaSharp;
+using SkiaSharp.Views.WPF;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using MessageBox = System.Windows.MessageBox;
 using PrintDialog = System.Windows.Controls.PrintDialog;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using Brushes = System.Windows.Media.Brushes;
+using Application = System.Windows.Application;
+using FlowDirection = System.Windows.FlowDirection;
 
 namespace HR_Application.Views
 {
@@ -30,23 +34,42 @@ namespace HR_Application.Views
         private CompanyDocument _companyDocument;
         private EmployeeDocument _employeeDocument;
         private string _filePath;
-        private PdfDocument _pdfDocument;
-        private PdfViewer _pdfViewer;
+
+        // للمستندات النصية والصور
         private BitmapImage _imageDocument;
-        private string _tempFilePath;
+        private string _textContent;
+        private int _pdfPageCount = 0;
+        private int _currentPdfPage = 1;
+
+        // للمعاينة المؤقتة
+        private string _tempPdfImagesFolder;
 
         public DocumentPreviewWindow(int documentId, bool isEmployeeDocument = false)
         {
             InitializeComponent();
             _documentId = documentId;
             _isEmployeeDocument = isEmployeeDocument;
+
+            // إعداد أحداث الصفحات
+            SetupPdfNavigation();
+
             LoadDocument();
+        }
+
+        private void SetupPdfNavigation()
+        {
+            btnPrevPage.Click += (s, e) => ChangePdfPage(-1);
+            btnNextPage.Click += (s, e) => ChangePdfPage(1);
+            btnFirstPage.Click += (s, e) => GoToPdfPage(1);
+            btnLastPage.Click += (s, e) => GoToPdfPage(_pdfPageCount);
         }
 
         private async void LoadDocument()
         {
             try
             {
+                loadingIndicator.Visibility = Visibility.Visible;
+
                 if (_isEmployeeDocument)
                 {
                     _employeeDocument = await _context.EmployeeDocuments
@@ -54,16 +77,12 @@ namespace HR_Application.Views
 
                     if (_employeeDocument == null)
                     {
-                        MessageBox.Show("الوثيقة غير موجودة", "خطأ",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                        this.Close();
+                        ShowErrorAndClose("الوثيقة غير موجودة");
                         return;
                     }
 
                     Title = $"معاينة: {_employeeDocument.Title}";
                     txtTitle.Text = $"معاينة: {_employeeDocument.Title}";
-
-                    // البحث عن الملف في المسارات الممكنة
                     _filePath = FindDocumentFile(_employeeDocument);
                 }
                 else
@@ -73,106 +92,58 @@ namespace HR_Application.Views
 
                     if (_companyDocument == null)
                     {
-                        MessageBox.Show("الوثيقة غير موجودة", "خطأ",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                        this.Close();
+                        ShowErrorAndClose("الوثيقة غير موجودة");
                         return;
                     }
 
                     Title = $"معاينة: {_companyDocument.Title}";
                     txtTitle.Text = $"معاينة: {_companyDocument.Title}";
-
-                    // البحث عن الملف في المسارات الممكنة
                     _filePath = FindDocumentFile(_companyDocument);
                 }
 
                 if (string.IsNullOrEmpty(_filePath) || !File.Exists(_filePath))
                 {
-                    ShowMessage("الملف غير موجود على السيرفر");
-                    loadingIndicator.Visibility = Visibility.Collapsed;
+                    ShowFallbackMessage("الملف غير موجود على السيرفر");
                     return;
                 }
 
-                // تحميل الملف حسب نوعه
-                string fileExtension = _isEmployeeDocument ?
-                    _employeeDocument.FileType.ToLower() :
-                    _companyDocument.FileType.ToLower();
-
-                if (fileExtension == ".pdf")
-                {
-                    LoadPdfDocument();
-                }
-                else if (IsImageFile(fileExtension))
-                {
-                    LoadImageDocument();
-                }
-                else if (IsOfficeDocument(fileExtension))
-                {
-                    LoadOfficeDocument();
-                }
-                else if (fileExtension == ".txt")
-                {
-                    LoadTextDocument();
-                }
-                else
-                {
-                    ShowMessage($"نوع الملف غير مدعوم للمعاينة المباشرة: {fileExtension}\n\nيمكنك تحميل الملف وفتحه يدوياً");
-                }
-
-                loadingIndicator.Visibility = Visibility.Collapsed;
+                await LoadDocumentByTypeAsync();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل الوثيقة: {ex.Message}", "خطأ",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowFallbackMessage($"حدث خطأ: {ex.Message}");
+            }
+            finally
+            {
                 loadingIndicator.Visibility = Visibility.Collapsed;
             }
         }
 
-        private string FindDocumentFile(CompanyDocument document)
+        private async System.Threading.Tasks.Task LoadDocumentByTypeAsync()
         {
-            // قائمة المسارات الممكنة للبحث
-            string[] possiblePaths = {
-                document.FullPath,
-                document.FilePath,
-                Path.Combine(AppDbContext.CentralStoragePath, "CompanyDocuments", document.FileName),
-                Path.Combine(Directory.GetCurrentDirectory(), "CompanyDocuments", document.FileName)
-            };
+            string fileExtension = GetFileExtension().ToLower();
 
-            foreach (var path in possiblePaths)
+            if (fileExtension == ".pdf")
             {
-                if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                {
-                    return path;
-                }
+                await LoadPdfDocumentAsync();
             }
-
-            return null;
+            else if (IsImageFile(fileExtension))
+            {
+                LoadImageDocument();
+            }
+            else if (fileExtension == ".txt")
+            {
+                LoadTextDocument();
+            }
+            else
+            {
+                ShowFallbackMessage($"نوع الملف غير مدعوم للمعاينة المباشرة: {fileExtension}\n\nيمكنك تحميل الملف وفتحه يدوياً");
+            }
         }
 
-        private string FindDocumentFile(EmployeeDocument document)
+        private string GetFileExtension()
         {
-            // تحديد المجلد الفرعي بناءً على نوع الوثيقة
-            string subFolder = document.DocumentType == EmployeeDocumentType.SignedCompanyDocument ?
-                "SignedDocuments" : "EmployeeDocuments";
-
-            // قائمة المسارات الممكنة للبحث
-            string[] possiblePaths = {
-                document.FullPath,
-                document.StoragePath,
-                Path.Combine(AppDbContext.CentralStoragePath, subFolder, document.FileName),
-                Path.Combine(Directory.GetCurrentDirectory(), subFolder, document.FileName)
-            };
-
-            foreach (var path in possiblePaths)
-            {
-                if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                {
-                    return path;
-                }
-            }
-
-            return null;
+            return _isEmployeeDocument ? _employeeDocument.FileType : _companyDocument.FileType;
         }
 
         private bool IsImageFile(string extension)
@@ -181,31 +152,160 @@ namespace HR_Application.Views
             return imageExtensions.Contains(extension);
         }
 
-        private bool IsOfficeDocument(string extension)
+        private string FindDocumentFile(CompanyDocument document)
         {
-            string[] officeExtensions = { ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx" };
-            return officeExtensions.Contains(extension);
+            string[] possiblePaths = {
+                document.FullPath,
+                document.FilePath,
+                Path.Combine(AppDbContext.CentralStoragePath, "CompanyDocuments", document.FileName),
+                Path.Combine(Directory.GetCurrentDirectory(), "CompanyDocuments", document.FileName)
+            };
+
+            return possiblePaths.FirstOrDefault(File.Exists);
         }
 
-        private void LoadPdfDocument()
+        private string FindDocumentFile(EmployeeDocument document)
+        {
+            string subFolder = document.DocumentType == EmployeeDocumentType.SignedCompanyDocument ?
+                "SignedDocuments" : "EmployeeDocuments";
+
+            string[] possiblePaths = {
+                document.FullPath,
+                document.StoragePath,
+                Path.Combine(AppDbContext.CentralStoragePath, subFolder, document.FileName),
+                Path.Combine(Directory.GetCurrentDirectory(), subFolder, document.FileName)
+            };
+
+            return possiblePaths.FirstOrDefault(File.Exists);
+        }
+
+        #region PDF Methods
+
+        private async System.Threading.Tasks.Task LoadPdfDocumentAsync()
         {
             try
             {
-                _pdfDocument = PdfDocument.Load(_filePath);
-                InitializePdfViewer();
+                using (var document = PdfDocument.Open(_filePath))
+                {
+                    _pdfPageCount = document.NumberOfPages;
 
-                pdfHost.Visibility = Visibility.Visible;
-                imageViewer.Visibility = Visibility.Collapsed;
-                textViewer.Visibility = Visibility.Collapsed;
-                fallbackContainer.Visibility = Visibility.Collapsed;
+                    if (_pdfPageCount == 0)
+                    {
+                        ShowFallbackMessage("ملف PDF فارغ");
+                        return;
+                    }
 
-                UpdatePageInfo();
+                    // إضافة مصنع صفحات Skia (خطوة مهمة)
+                    document.AddSkiaPageFactory();
+
+                    // إنشاء مجلد مؤقت للصور
+                    _tempPdfImagesFolder = Path.Combine(Path.GetTempPath(), "PDFPreview_" + Guid.NewGuid().ToString());
+                    Directory.CreateDirectory(_tempPdfImagesFolder);
+
+                    // تحويل الصفحة الأولى
+                    await RenderPdfPageWithSkiaAsync(document, 1);
+
+                    pdfHost.Visibility = Visibility.Visible;
+                    imageViewer.Visibility = Visibility.Collapsed;
+                    textViewer.Visibility = Visibility.Collapsed;
+                    fallbackContainer.Visibility = Visibility.Collapsed;
+
+                    pdfNavigationPanel.Visibility = _pdfPageCount > 1 ? Visibility.Visible : Visibility.Collapsed;
+                    UpdatePdfPageInfo();
+                }
             }
             catch (Exception ex)
             {
-                ShowMessage($"خطأ في تحميل ملف PDF: {ex.Message}");
+                ShowFallbackMessage($"خطأ في تحميل ملف PDF: {ex.Message}");
             }
         }
+
+        private async System.Threading.Tasks.Task RenderPdfPageWithSkiaAsync(PdfDocument document, int pageNumber)
+        {
+            try
+            {
+                loadingIndicator.Visibility = Visibility.Visible;
+
+                var pageImagePath = Path.Combine(_tempPdfImagesFolder, $"page_{pageNumber}.png");
+
+                if (!File.Exists(pageImagePath))
+                {
+                    await System.Threading.Tasks.Task.Run(() =>
+                    {
+                        // استخدام PdfPig.Rendering.Skia للحصول على الصفحة كـ SKBitmap
+                        using (var bitmap = document.GetPageAsSKBitmap(pageNumber, scale: 2.0f))
+                        {
+                            using (var image = SKImage.FromBitmap(bitmap))
+                            using (var data = image.Encode(SKEncodedImageFormat.Png, 90))
+                            {
+                                using (var stream = File.OpenWrite(pageImagePath))
+                                {
+                                    data.SaveTo(stream);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // تحميل الصورة إلى واجهة WPF
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(pageImagePath);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.DecodePixelWidth = 1200;
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+
+                    pdfImageDisplay.Source = bitmap;
+                    _currentPdfPage = pageNumber;
+                    UpdatePdfPageInfo();
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في عرض الصفحة: {ex.Message}");
+            }
+            finally
+            {
+                loadingIndicator.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async void ChangePdfPage(int delta)
+        {
+            int newPage = _currentPdfPage + delta;
+            if (newPage >= 1 && newPage <= _pdfPageCount)
+            {
+                using (var document = PdfDocument.Open(_filePath))
+                {
+                    document.AddSkiaPageFactory();
+                    await RenderPdfPageWithSkiaAsync(document, newPage);
+                }
+            }
+        }
+
+        private async void GoToPdfPage(int pageNumber)
+        {
+            if (pageNumber >= 1 && pageNumber <= _pdfPageCount && pageNumber != _currentPdfPage)
+            {
+                using (var document = PdfDocument.Open(_filePath))
+                {
+                    document.AddSkiaPageFactory();
+                    await RenderPdfPageWithSkiaAsync(document, pageNumber);
+                }
+            }
+        }
+
+        private void UpdatePdfPageInfo()
+        {
+            txtPageInfo.Text = $"صفحة {_currentPdfPage} من {_pdfPageCount}";
+        }
+
+        #endregion
+
+        #region Image Methods
 
         private void LoadImageDocument()
         {
@@ -215,6 +315,7 @@ namespace HR_Application.Views
                 _imageDocument.BeginInit();
                 _imageDocument.UriSource = new Uri(_filePath);
                 _imageDocument.CacheOption = BitmapCacheOption.OnLoad;
+                _imageDocument.DecodePixelWidth = 1200;
                 _imageDocument.EndInit();
 
                 imageDisplay.Source = _imageDocument;
@@ -223,180 +324,70 @@ namespace HR_Application.Views
                 imageViewer.Visibility = Visibility.Visible;
                 textViewer.Visibility = Visibility.Collapsed;
                 fallbackContainer.Visibility = Visibility.Collapsed;
+                pdfNavigationPanel.Visibility = Visibility.Collapsed;
 
-                UpdatePageInfo();
+                txtPageInfo.Text = "صورة";
             }
             catch (Exception ex)
             {
-                ShowMessage($"خطأ في تحميل الصورة: {ex.Message}");
+                ShowFallbackMessage($"خطأ في تحميل الصورة: {ex.Message}");
             }
         }
+
+        #endregion
+
+        #region Text Methods
 
         private void LoadTextDocument()
         {
             try
             {
-                string text = File.ReadAllText(_filePath);
-                textContent.Text = text;
+                _textContent = File.ReadAllText(_filePath);
+                textContent.Text = _textContent;
 
                 pdfHost.Visibility = Visibility.Collapsed;
                 imageViewer.Visibility = Visibility.Collapsed;
                 textViewer.Visibility = Visibility.Visible;
                 fallbackContainer.Visibility = Visibility.Collapsed;
+                pdfNavigationPanel.Visibility = Visibility.Collapsed;
 
-                UpdatePageInfo();
+                txtPageInfo.Text = $"مستند نصي - {_textContent.Length} حرف";
             }
             catch (Exception ex)
             {
-                ShowMessage($"خطأ في تحميل الملف النصي: {ex.Message}");
+                ShowFallbackMessage($"خطأ في تحميل الملف النصي: {ex.Message}");
             }
         }
 
-        private void LoadOfficeDocument()
-        {
-            try
-            {
-                // محاولة تحويل ملفات Office إلى PDF للمعاينة والطباعة
-                string pdfPath = ConvertOfficeToPdf(_filePath);
-                if (File.Exists(pdfPath))
-                {
-                    _tempFilePath = pdfPath;
-                    _pdfDocument = PdfDocument.Load(pdfPath);
-                    InitializePdfViewer();
+        #endregion
 
-                    pdfHost.Visibility = Visibility.Visible;
-                    imageViewer.Visibility = Visibility.Collapsed;
-                    textViewer.Visibility = Visibility.Collapsed;
-                    fallbackContainer.Visibility = Visibility.Collapsed;
-
-                    UpdatePageInfo();
-                }
-                else
-                {
-                    string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
-                    string fileType = _isEmployeeDocument ? _employeeDocument.FileType : _companyDocument.FileType;
-
-                    ShowMessage($"للمعاينة الكاملة، يرجى فتح الملف باستخدام البرنامج المناسب\n\nالملف: {documentTitle}\nالنوع: {fileType}\n\nيمكنك تحميل الملف ومعاينته يدوياً");
-                }
-            }
-            catch (Exception ex)
-            {
-                string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
-                string fileType = _isEmployeeDocument ? _employeeDocument.FileType : _companyDocument.FileType;
-
-                ShowMessage($"للمعاينة الكاملة، يرجى فتح الملف باستخدام البرنامج المناسب\n\nالملف: {documentTitle}\nالنوع: {fileType}\n\nيمكنك تحميل الملف ومعاينته يدوياً");
-            }
-        }
-
-        private string ConvertOfficeToPdf(string officeFilePath)
-        {
-            // في بيئة إنتاجية، يمكنك استخدام مكتبات مثل:
-            // - Microsoft.Office.Interop (يتطلب تثبيت Office)
-            // - Spire.Doc / Spire.XLS (مكتبات مدفوعة)
-            // - LibreOffice (مجاني)
-
-            // حالياً نعيد نفس المسار (لا تحويل)
-            return officeFilePath;
-        }
-
-        private void InitializePdfViewer()
-        {
-            try
-            {
-                _pdfViewer = new PdfViewer();
-                _pdfViewer.Dock = System.Windows.Forms.DockStyle.Fill;
-                _pdfViewer.Document = _pdfDocument;
-                pdfHost.Child = _pdfViewer;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"فشل في تهيئة عارض PDF: {ex.Message}", ex);
-            }
-        }
-
-        private void ShowMessage(string message)
-        {
-            var textBlock = new TextBlock
-            {
-                Text = message,
-                FontSize = 14,
-                FontFamily = new System.Windows.Media.FontFamily("Arial"),
-                TextWrapping = TextWrapping.Wrap,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Foreground = System.Windows.Media.Brushes.Red,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(20)
-            };
-
-            fallbackContainer.Child = textBlock;
-            pdfHost.Visibility = Visibility.Collapsed;
-            imageViewer.Visibility = Visibility.Collapsed;
-            textViewer.Visibility = Visibility.Collapsed;
-            fallbackContainer.Visibility = Visibility.Visible;
-        }
-
-        private void UpdatePageInfo()
-        {
-            if (_pdfDocument != null)
-            {
-                txtPageInfo.Text = $"عدد الصفحات: {_pdfDocument.PageCount}";
-                txtPageInfo.Visibility = Visibility.Visible;
-            }
-            else if (_imageDocument != null)
-            {
-                txtPageInfo.Text = "صورة";
-                txtPageInfo.Visibility = Visibility.Visible;
-            }
-            else if (!string.IsNullOrEmpty(textContent.Text))
-            {
-                txtPageInfo.Text = $"مستند نصي - {textContent.Text.Length} حرف";
-                txtPageInfo.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                txtPageInfo.Visibility = Visibility.Collapsed;
-            }
-        }
+        #region Printing Methods
 
         private void printBtn_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if ((_companyDocument == null && _employeeDocument == null) || !File.Exists(_filePath)) return;
-
                 var printDialog = new PrintDialog();
                 if (printDialog.ShowDialog() == true)
                 {
-                    string fileExtension = _isEmployeeDocument ?
-                        _employeeDocument.FileType.ToLower() :
-                        _companyDocument.FileType.ToLower();
+                    string extension = GetFileExtension().ToLower();
 
-                    if (fileExtension == ".pdf")
+                    if (extension == ".pdf")
                     {
                         PrintPdfDocument(printDialog);
                     }
-                    else if (IsImageFile(fileExtension))
+                    else if (IsImageFile(extension))
                     {
                         PrintImageDocument(printDialog);
                     }
-                    else if (fileExtension == ".txt")
+                    else if (extension == ".txt")
                     {
                         PrintTextDocument(printDialog);
                     }
-                    else if (IsOfficeDocument(fileExtension))
-                    {
-                        PrintOfficeDocument(printDialog);
-                    }
                     else
                     {
-                        // محاولة الطباعة كملف عادي
-                        PrintGenericDocument(printDialog);
+                        PrintWithDefaultApp();
                     }
-
-                    string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
-                    MessageBox.Show($"تم إرسال الوثيقة '{documentTitle}' للطباعة", "نجاح",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -408,13 +399,43 @@ namespace HR_Application.Views
 
         private void PrintPdfDocument(PrintDialog printDialog)
         {
-            if (_pdfDocument == null) return;
-
-            // PdfiumViewer يدعم الطباعة مباشرة
-            using (var printDocument = _pdfDocument.CreatePrintDocument())
+            try
             {
-                printDocument.PrintController = new System.Drawing.Printing.StandardPrintController();
-                printDocument.Print();
+                using (var document = PdfDocument.Open(_filePath))
+                {
+                    document.AddSkiaPageFactory();
+
+                    for (int i = 1; i <= document.NumberOfPages; i++)
+                    {
+                        // تحويل الصفحة إلى SKBitmap
+                        using (var bitmap = document.GetPageAsSKBitmap(i, scale: 3.0f))
+                        {
+                            // تحويل SKBitmap إلى BitmapSource
+                            var info = new SKImageInfo(bitmap.Width, bitmap.Height);
+                            var skImage = SKImage.FromBitmap(bitmap);
+                            var bitmapSource = bitmap.ToWriteableBitmap();
+
+                            var visual = new DrawingVisual();
+                            using (var context = visual.RenderOpen())
+                            {
+                                context.DrawImage(bitmapSource, new Rect(0, 0,
+                                    printDialog.PrintableAreaWidth,
+                                    printDialog.PrintableAreaHeight));
+                            }
+
+                            printDialog.PrintVisual(visual, $"صفحة {i}");
+                        }
+                    }
+                }
+
+                string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
+                MessageBox.Show($"تم إرسال الوثيقة '{documentTitle}' للطباعة", "نجاح",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في طباعة PDF: {ex.Message}", "خطأ",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -422,90 +443,74 @@ namespace HR_Application.Views
         {
             if (_imageDocument == null) return;
 
-            var printCapabilities = printDialog.PrintQueue.GetPrintCapabilities(printDialog.PrintTicket);
-            var pageSize = new System.Windows.Size(printCapabilities.PageImageableArea.ExtentWidth,
-                                                 printCapabilities.PageImageableArea.ExtentHeight);
-
             var visual = new DrawingVisual();
             using (var context = visual.RenderOpen())
             {
-                var imageBrush = new System.Windows.Media.ImageBrush(_imageDocument);
-                context.DrawRectangle(imageBrush, null, new System.Windows.Rect(0, 0, pageSize.Width, pageSize.Height));
+                context.DrawImage(_imageDocument, new Rect(0, 0,
+                    printDialog.PrintableAreaWidth,
+                    printDialog.PrintableAreaHeight));
             }
 
             string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
             printDialog.PrintVisual(visual, documentTitle);
+
+            MessageBox.Show($"تم إرسال الوثيقة '{documentTitle}' للطباعة", "نجاح",
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void PrintTextDocument(PrintDialog printDialog)
         {
-            var flowDocument = new FlowDocument(new Paragraph(new Run(textContent.Text)))
+            var flowDocument = new FlowDocument(new Paragraph(new Run(_textContent)))
             {
                 FontFamily = new System.Windows.Media.FontFamily("Arial"),
                 FontSize = 12,
-                PagePadding = new Thickness(50)
+                PagePadding = new Thickness(50),
+                FlowDirection = FlowDirection.RightToLeft
             };
 
-            // إنشاء DocumentPaginator للطباعة
             IDocumentPaginatorSource paginatorSource = flowDocument;
             string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
             printDialog.PrintDocument(paginatorSource.DocumentPaginator, documentTitle);
+
+            MessageBox.Show($"تم إرسال الوثيقة '{documentTitle}' للطباعة", "نجاح",
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void PrintOfficeDocument(PrintDialog printDialog)
+        private void PrintWithDefaultApp()
         {
             try
             {
-                // محاولة الطباعة باستخدام البرنامج الافتراضي
-                ProcessStartInfo info = new ProcessStartInfo
-                {
-                    Verb = "print",
-                    FileName = _filePath,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                };
-
-                Process.Start(info);
-            }
-            catch (Exception ex)
-            {
-                string fileType = _isEmployeeDocument ? _employeeDocument.FileType : _companyDocument.FileType;
-                MessageBox.Show($"لا يمكن طباعة ملف {fileType} مباشرة. يرجى فتح الملف وطباعته يدوياً.\n\n{ex.Message}",
-                    "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
-        private void PrintGenericDocument(PrintDialog printDialog)
-        {
-            try
-            {
-                // محاولة فتح الملف بالبرنامج الافتراضي وطباعته
                 ProcessStartInfo info = new ProcessStartInfo
                 {
                     FileName = _filePath,
-                    UseShellExecute = true
+                    UseShellExecute = true,
+                    Verb = "print"
                 };
 
                 Process.Start(info);
 
-                MessageBox.Show("تم فتح الملف بالبرنامج الافتراضي. يرجى استخدام أمر الطباعة من داخل البرنامج.",
+                MessageBox.Show("تم فتح الملف بالبرنامج الافتراضي للطباعة",
                     "معلومات", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"لا يمكن طباعة هذا النوع من الملفات مباشرة. يرجى تحميل الملف وطباعته يدوياً.\n\n{ex.Message}",
+                MessageBox.Show($"لا يمكن طباعة هذا النوع من الملفات مباشرة: {ex.Message}",
                     "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
+        #endregion
+
+        #region Download Methods
 
         private void downloadBtn_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if ((_companyDocument == null && _employeeDocument == null) || !File.Exists(_filePath)) return;
+                if (!File.Exists(_filePath)) return;
 
                 string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
-                string fileType = _isEmployeeDocument ? _employeeDocument.FileType : _companyDocument.FileType;
+                string fileType = GetFileExtension();
 
                 var saveDialog = new SaveFileDialog
                 {
@@ -516,7 +521,7 @@ namespace HR_Application.Views
                 if (saveDialog.ShowDialog() == true)
                 {
                     File.Copy(_filePath, saveDialog.FileName, true);
-                    MessageBox.Show($"تم تحميل الوثيقة من:\n{_filePath}", "نجاح",
+                    MessageBox.Show($"تم تحميل الوثيقة بنجاح", "نجاح",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
@@ -527,29 +532,64 @@ namespace HR_Application.Views
             }
         }
 
-        private void closeBtn_Click(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region Helper Methods
+
+        private void ShowFallbackMessage(string message)
         {
-            CleanupResources();
-            this.Close();
+            var textBlock = new TextBlock
+            {
+                Text = message,
+                FontSize = 14,
+                TextWrapping = TextWrapping.Wrap,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = Brushes.Red,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(20),
+                FlowDirection = FlowDirection.RightToLeft
+            };
+
+            fallbackContainer.Child = textBlock;
+            pdfHost.Visibility = Visibility.Collapsed;
+            imageViewer.Visibility = Visibility.Collapsed;
+            textViewer.Visibility = Visibility.Collapsed;
+            fallbackContainer.Visibility = Visibility.Visible;
+            pdfNavigationPanel.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowErrorAndClose(string message)
+        {
+            MessageBox.Show(message, "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            Close();
         }
 
         private void CleanupResources()
         {
-            _pdfDocument?.Dispose();
-            _pdfViewer?.Dispose();
-
-            // حذف الملف المؤقت إذا كان موجوداً
-            if (!string.IsNullOrEmpty(_tempFilePath) && File.Exists(_tempFilePath))
+            try
             {
-                try
+                // حذف المجلد المؤقت للصور
+                if (!string.IsNullOrEmpty(_tempPdfImagesFolder) && Directory.Exists(_tempPdfImagesFolder))
                 {
-                    File.Delete(_tempFilePath);
-                }
-                catch
-                {
-                    // تجاهل الأخطاء في حذف الملف المؤقت
+                    Directory.Delete(_tempPdfImagesFolder, true);
                 }
             }
+            catch
+            {
+                // تجاهل أخطاء الحذف
+            }
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void closeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            CleanupResources();
+            _context?.Dispose();
+            Close();
         }
 
         protected override void OnClosed(EventArgs e)
@@ -558,5 +598,7 @@ namespace HR_Application.Views
             _context?.Dispose();
             base.OnClosed(e);
         }
+
+        #endregion
     }
 }

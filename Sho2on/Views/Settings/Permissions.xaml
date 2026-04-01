@@ -29,8 +29,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonHoverBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonHoverForeground}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -94,7 +94,7 @@
         <!-- DataTemplate للمنيو الرئيسي -->
         <HierarchicalDataTemplate x:Key="MenuTemplate" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal" Background="Transparent">
-                <CheckBox Style="{StaticResource TreeCheckBoxStyle}" 
+                <CheckBox Style="{DynamicResource TreeCheckBoxStyle}" 
                          IsChecked="{Binding IsActive, Mode=TwoWay}" 
                          VerticalAlignment="Center"/>
                 <TextBlock Text="{Binding Name}" 
@@ -106,7 +106,7 @@
         </HierarchicalDataTemplate>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
@@ -121,11 +121,11 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                        Grid.Row="0"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 15 15" Background="{StaticResource PrimaryColor}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 15 15" Background="{DynamicResource PrimaryColor}"  >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -144,7 +144,7 @@
                         </StackPanel>
 
                         <!-- زر الحفظ المحسن -->
-                        <Button Style="{StaticResource SaveButtonStyle}" IsDefault="True" Width="120"
+                        <Button Style="{DynamicResource SaveButtonStyle}" IsDefault="True" Width="120"
                                x:Name="save_btn" Click="save_btn_Click">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0,0,5,0"/>
@@ -165,14 +165,14 @@
 
                     <TextBlock Text="قائمة الصلاحيات" Grid.Row="0"
                               HorizontalAlignment="Center" VerticalAlignment="Center"
-                              FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}"
+                              FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}"
                               Margin="0,10,0,5"/>
 
-                    <TreeView Grid.Row="1" Style="{StaticResource PermissionsTreeViewStyle}" 
+                    <TreeView Grid.Row="1" Style="{DynamicResource PermissionsTreeViewStyle}" 
                              FlowDirection="RightToLeft" 
                              ItemsSource="{Binding Items}" 
                              Margin="10,5,10,10"
-                             ItemTemplate="{StaticResource MenuTemplate}">
+                             ItemTemplate="{DynamicResource MenuTemplate}">
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemStyle}">
                                 <Setter Property="IsExpanded" Value="True"/>

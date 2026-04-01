@@ -36,7 +36,9 @@ namespace HR_Application
 
                 var department = new Department
                 {
-                    Name = name_box.Text.Trim()
+                    Name = name_box.Text.Trim(),
+                    IsHR = isHR_box.IsChecked
+
                 };
 
                 await _context.Departments.AddAsync(department);
@@ -82,6 +84,7 @@ namespace HR_Application
             try
             {
                 _selectedDepartment.Name = name_box.Text.Trim();
+                _selectedDepartment.IsHR = isHR_box.IsChecked;
                 _selectedDepartment.EditedAt = DateTime.Now;
                 _context.Departments.Update(_selectedDepartment);
                 await _context.SaveChangesAsync();
@@ -100,6 +103,7 @@ namespace HR_Application
             {
                 _selectedDepartment = selected;
                 name_box.Text = selected.Name;
+                isHR_box.IsChecked = selected.IsHR;
             }
         }
 

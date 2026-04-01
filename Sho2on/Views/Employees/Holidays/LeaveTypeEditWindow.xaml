@@ -14,7 +14,7 @@
     <Window.Resources>
         <!-- نمط النص -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryColor}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
@@ -49,7 +49,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource PrimaryColor}" Padding="20">
+    <Border Background="{DynamicResource InputBackground}" Padding="20">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -58,15 +58,15 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان -->
-            <Border Grid.Row="0" Background="{StaticResource SecondaryColor}" CornerRadius="5" Padding="15" Margin="0,0,0,20">
+            <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" CornerRadius="5" Padding="15" Margin="0,0,0,20">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Icon:PackIconMaterial Kind="FileDocumentEdit" 
-                                          Foreground="{StaticResource PrimaryColor}" 
+                                          Foreground="{DynamicResource TextPrimaryColor}" 
                                           Width="24" Height="24"
                                           Margin="0,0,10,0"/>
                     <TextBlock x:Name="windowTitle" 
                                Text="نوع إجازة جديد" 
-                               Foreground="{StaticResource PrimaryColor}" 
+                               Foreground="{DynamicResource TextPrimaryColor}" 
                                FontSize="18" 
                                FontWeight="Bold"/>
                 </StackPanel>
@@ -76,42 +76,42 @@
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <!-- معلومات أساسية -->
-                    <Border Background="{StaticResource SecondaryColor}" CornerRadius="5" Padding="20" Margin="0,0,0,15">
+                    <Border Background="{DynamicResource PrimaryColor}" CornerRadius="5" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
                             <TextBlock Text="المعلومات الأساسية" 
                                        FontSize="16" FontWeight="Bold" 
-                                       Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,15"/>
+                                       Foreground="{DynamicResource TextPrimaryColor}" Margin="0,0,0,15"/>
 
                             <!-- الاسم -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="اسم نوع الإجازة *" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="اسم نوع الإجازة *" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtName" 
-                                         Style="{StaticResource InputFieldStyle}"
+                                         Style="{DynamicResource InputFieldStyle}"
                                          MaxLength="100"/>
                             </StackPanel>
 
                             <!-- الكود -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="كود النوع *" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="كود النوع *" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtCode" 
-                                         Style="{StaticResource InputFieldStyle}"
+                                         Style="{DynamicResource InputFieldStyle}"
                                          MaxLength="10"/>
                             </StackPanel>
 
                             <!-- الرصيد الافتراضي -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="الرصيد الافتراضي (أيام)" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="الرصيد الافتراضي (أيام)" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtDefaultBalance" 
-                                         Style="{StaticResource InputFieldStyle}"
+                                         Style="{DynamicResource InputFieldStyle}"
                                          Text="0"
                                          PreviewTextInput="NumberValidationTextBox"/>
                             </StackPanel>
 
                             <!-- الحد الأقصى للأيام المتتالية -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="الحد الأقصى للأيام المتتالية" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Text="الحد الأقصى للأيام المتتالية" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtMaxConsecutiveDays" 
-                                         Style="{StaticResource InputFieldStyle}"
+                                         Style="{DynamicResource InputFieldStyle}"
                                          Text="0"
                                          PreviewTextInput="NumberValidationTextBox"
                                          ToolTip="0 تعني لا يوجد حد"/>
@@ -130,17 +130,17 @@
                             <StackPanel>
                                 <CheckBox x:Name="chkIsActive" 
                                           Content="نشط" 
-                                          Style="{StaticResource CheckBoxStyle}"
+                                          Style="{DynamicResource CheckBoxStyle}"
                                           IsChecked="True"/>
 
                                 <CheckBox x:Name="chkDeductFromBalance" 
                                           Content="يخصم من الرصيد" 
-                                          Style="{StaticResource CheckBoxStyle}"
+                                          Style="{DynamicResource CheckBoxStyle}"
                                           IsChecked="True"/>
 
                                 <CheckBox x:Name="chkRequiresApproval" 
                                           Content="يتطلب موافقة المسؤول" 
-                                          Style="{StaticResource CheckBoxStyle}"
+                                          Style="{DynamicResource CheckBoxStyle}"
                                           IsChecked="True"/>
                             </StackPanel>
                         </StackPanel>
@@ -155,7 +155,7 @@
 
                             <TextBox x:Name="txtNotes" 
                                      Height="100" 
-                                     Style="{StaticResource InputFieldStyle}"
+                                     Style="{DynamicResource InputFieldStyle}"
                                      TextWrapping="Wrap"
                                      AcceptsReturn="True"
                                      VerticalScrollBarVisibility="Auto"/>
@@ -165,26 +165,26 @@
             </ScrollViewer>
 
             <!-- الأزرار -->
-            <Border Grid.Row="2" Background="{StaticResource PrimaryColor}" CornerRadius="5" Padding="15" Margin="0,20,0,0">
+            <Border Grid.Row="2" Background="{DynamicResource PrimaryColor}" CornerRadius="5" Padding="15" Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button x:Name="btnSave" 
-                            Style="{StaticResource ActionButtonStyle}"
+                            Style="{DynamicResource ActionButtonStyle}"
                             Background="#4CAF50" 
                             Foreground="White"
                             Click="btnSave_Click">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Icon:PackIconMaterial Kind="ContentSave" Width="20" Height="20" Foreground="{StaticResource ThirdColor}" Margin="0,0,5,0"/>
+                            <Icon:PackIconMaterial Kind="ContentSave" Width="20" Height="20" Foreground="{DynamicResource ThirdColor}" Margin="0,0,5,0"/>
                             <TextBlock Text="حفظ"/>
                         </StackPanel>
                     </Button>
 
                     <Button x:Name="btnCancel" 
-                            Style="{StaticResource ActionButtonStyle}"
+                            Style="{DynamicResource ActionButtonStyle}"
                             Background="#F44336" 
                             Foreground="White"
                             Click="btnCancel_Click">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Icon:PackIconMaterial Kind="Close" Width="20" Height="20" Foreground="{StaticResource ThirdColor}" Margin="0,0,5,0"/>
+                            <Icon:PackIconMaterial Kind="Close" Width="20" Height="20" Foreground="{DynamicResource ThirdColor}" Margin="0,0,5,0"/>
                             <TextBlock Text="إلغاء"/>
                         </StackPanel>
                     </Button>

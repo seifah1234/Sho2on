@@ -1,4 +1,5 @@
-﻿using HR_Application.ViewModels;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.ViewModels;
 using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
@@ -12,7 +13,9 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using static HR_Application.EmployeeData;
 using Button = System.Windows.Controls.Button;
+using Colors = System.Windows.Media.Colors;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application.Views.Employees
@@ -21,6 +24,8 @@ namespace HR_Application.Views.Employees
     {
         private readonly AppDbContext _context;
         private List<PermissionViewModel> _permissions = new List<PermissionViewModel>();
+        private List<PermissionViewModel> _ownPermissions = new List<PermissionViewModel>();
+        private List<User> users = new List<User>();
 
         public PermissionManagementWindow()
         {
@@ -34,12 +39,95 @@ namespace HR_Application.Views.Employees
             try
             {
                 await LoadPermissions();
+
+                if ((!App.CurrentUser.Department.IsHR.HasValue || !App.CurrentUser.Department.IsHR.Value) &&
+                   (!App.CurrentUser.JobTitle.IsManager.HasValue || !App.CurrentUser.JobTitle.IsManager.Value))
+                {
+                    employeesTab.Visibility = Visibility.Collapsed;
+                }
+
+                var _employees = _context.Users.Include(e => e.Shift).Include(e => e.Manager).ToList();
+
+                users.AddRange(_employees);
+                user_box.ItemsSource = users;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"خطأ في تحميل البيانات: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                txtEmployeeId.Text = user_box.SelectedValue.ToString();
+            }
+
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
 
         private async System.Threading.Tasks.Task LoadPermissions()
         {
@@ -52,7 +140,8 @@ namespace HR_Application.Views.Employees
                         .ThenInclude(u => u.JobTitle)
                     .Include(p => p.ApprovedBy)
                     .Where(p => p.ApprovedByUserId == App.CurrentUser.Id ||
-                               (p.ApprovedByUserId == null && App.CurrentUser.JobTitle.IsManager == true))
+                               (p.ApprovedByUserId == null && App.CurrentUser.JobTitle.IsManager == true) ||
+                               (p.Status == PermissionStatus.UnderReview && App.CurrentUser.Department.IsHR == true))
                     .ToListAsync();
 
                 // تطبيق الفلاتر
@@ -101,6 +190,55 @@ namespace HR_Application.Views.Employees
                 }).ToList();
 
                 dgPermissions.ItemsSource = _permissions;
+                query = await _context.EmployeePermissions
+                    .Include(p => p.User)
+                        .ThenInclude(u => u.Department)
+                    .Include(p => p.User)
+                        .ThenInclude(u => u.JobTitle)
+                    .Include(p => p.ApprovedBy)
+                    .Where(p => p.UserId == App.CurrentUser.Id)
+                    .ToListAsync();
+
+
+                if (dpOwnFromDate.SelectedDate.HasValue)
+                {
+                    query = query.Where(p => p.StartDateTime >= dpOwnFromDate.SelectedDate.Value).ToList();
+                }
+
+                if (dpOwnToDate.SelectedDate.HasValue)
+                {
+                    query = query.Where(p => p.EndDateTime <= dpOwnToDate.SelectedDate.Value).ToList();
+                }
+
+                if (cmbOwnStatus.SelectedItem is ComboBoxItem selectedOwnStatus &&
+                    selectedOwnStatus.Tag is string OwnStatus && !string.IsNullOrEmpty(OwnStatus))
+                {
+                    query = query.Where(p => p.Status == OwnStatus).ToList();
+                }
+
+
+                _ownPermissions = query.Select(p => new PermissionViewModel
+                {
+                    Id = p.Id,
+                    EmployeeId = p.UserId,
+                    EmployeeName = p.User?.FullName ?? "غير معروف",
+                    PermissionType = p.PermissionType,
+                    PermissionTypeName = GetPermissionTypeName(p.PermissionType),
+                    StartDateTime = p.StartDateTime,
+                    EndDateTime = p.EndDateTime,
+                    Duration = p.Duration,
+                    Reason = p.Reason,
+                    Status = GetStatusText(p.Status),
+                    StatusEn = p.Status,
+                    CreatedAt = p.CreatedAt,
+                    EmployeeDepartment = p.User?.Department?.Name ?? "غير معروف",
+                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "غير معروف",
+                    ApprovedByName = p.ApprovedBy?.FullName ?? "لم تتم الموافقة بعد",
+                    ApprovedDate = p.ApprovedDate,
+                    RejectionReason = p.RejectionReason
+                }).ToList();
+
+                dgOwnPermissions.ItemsSource = _ownPermissions;
             }
             catch (Exception ex)
             {
@@ -125,6 +263,7 @@ namespace HR_Application.Views.Employees
         {
             return status switch
             {
+                "UnderReview" => "تحت المراجعة",
                 "Pending" => "قيد الانتظار",
                 "Approved" => "موافق عليه",
                 "Rejected" => "مرفوض",
@@ -179,12 +318,20 @@ namespace HR_Application.Views.Employees
 
                 if (isApprove)
                 {
-                    permission.Status = PermissionStatus.Approved;
-                    permission.ApprovedDate = DateTime.Now;
-                    permission.ApprovedByUserId = App.CurrentUser?.Id;
+                    if (App.CurrentUser.Department != null && App.CurrentUser.Department.IsHR.HasValue && App.CurrentUser.Department.IsHR.Value)
+                    {
+                        permission.Status = PermissionStatus.Approved;
+                        permission.ApprovedDate = DateTime.Now;
 
-                    // تحديث سجل الحضور
-                    await UpdateAttendanceForPermission(permission);
+                        // تحديث سجل الحضور
+                        await UpdateAttendanceForPermission(permission);
+                    }
+                    else
+                    {
+                        permission.Status = PermissionStatus.UnderReview;
+                        permission.ApprovedByUserId = App.CurrentUser?.Id;
+                    }
+                    
 
                     MessageBox.Show("تم الموافقة على طلب الإذن", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -213,10 +360,9 @@ namespace HR_Application.Views.Employees
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في معالجة الطلب: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"خطأ في معالجة الطلب: {ex.InnerException}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
 
         private async System.Threading.Tasks.Task UpdateAttendanceForPermission(EmployeePermission permission)
         {
@@ -306,30 +452,17 @@ namespace HR_Application.Views.Employees
             base.OnClosed(e);
         }
 
-        private async void employeeName_box_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private async void btnOwnClearFilters_Click(object sender, RoutedEventArgs e)
         {
-            if (e.Key == Key.Enter || e.Key == Key.Tab)
-            {
-                var allUsers = await _context.Users
-                   .Include(u => u.Department)
-                   .Include(u => u.Branch)
-                   .Include(u => u.JobTitle)
-                   .OrderBy(u => u.FullName)
-                   .Where(u => u.FullName.StartsWith(employeeName_box.Text))
-                   .ToListAsync();
+            await LoadPermissions();
 
-                // فتح نافذة اختيار الموظف
-                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "اختر الموظف لطلب الإجازة");
-                employeeSelectionWindow.Owner = this;
+        }
 
-                if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
-                {
-                    var selectedEmployee = employeeSelectionWindow.SelectedUser;
-
-                    txtEmployeeId.Text = selectedEmployee.Id.ToString();
-                    employeeName_box.Text = selectedEmployee.FullName;
-                }
-            }
+        private void btnOwnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            dpOwnFromDate.SelectedDate = null;
+            dpOwnToDate.SelectedDate = null;
+            cmbOwnStatus.SelectedIndex = 0;
         }
     }
 
@@ -343,6 +476,7 @@ namespace HR_Application.Views.Employees
                 return status switch
                 {
                     "Draft" => new SolidColorBrush(Colors.Gray), // مسودة
+                    "Under Review" => new SolidColorBrush(Colors.Blue), // قيد الانتظار
                     "Pending" => new SolidColorBrush(Colors.Orange), // قيد الانتظار
                     "Approved" => new SolidColorBrush(Colors.Green), // موافق عليه
                     "Rejected" => new SolidColorBrush(Colors.Red), // مرفوض
@@ -398,9 +532,19 @@ namespace HR_Application.Views.Employees
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is string status && parameter is string paramStr)
+            if (value is string status)
             {
-                return status == paramStr ? Visibility.Visible : Visibility.Collapsed;
+                // تحقق من صلاحيات المستخدم
+                bool isManager = App.CurrentUser?.JobTitle?.IsManager ?? false;
+                bool isHR = App.CurrentUser?.Department?.IsHR ?? false;
+
+                // إظهار الزر للمدير إذا كانت الحالة Pending
+                if (status == "Pending" && isManager)
+                    return Visibility.Visible;
+
+                // إظهار الزر للموارد البشرية إذا كانت الحالة Under Review
+                if (status == "Under Review" && isHR)
+                    return Visibility.Visible;
             }
             return Visibility.Collapsed;
         }

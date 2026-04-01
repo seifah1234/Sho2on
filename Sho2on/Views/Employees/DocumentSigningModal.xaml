@@ -8,7 +8,7 @@
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         FlowDirection="RightToLeft"
-        Background="WhiteSmoke"
+        Background="{DynamicResource WindowRootBackground}"
         FontFamily="Segoe UI">
 
     <Window.Resources>
@@ -91,7 +91,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}"
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}"
                 Padding="20" CornerRadius="10" Margin="0,0,0,15">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -100,8 +100,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="📝" FontSize="24" Margin="0,0,15,0" Foreground="{StaticResource ThirdColor}"/>
-                    <TextBlock Text="توقيع الوثائق" Foreground="{StaticResource ThirdColor}" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="📝" FontSize="24" Margin="0,0,15,0" Foreground="{DynamicResource ThirdColor}"/>
+                    <TextBlock Text="توقيع الوثائق" Foreground="{DynamicResource ThirdColor}" FontSize="18" FontWeight="SemiBold"/>
                 </StackPanel>
 
                 <Button Grid.Column="1" Content="✕" 
@@ -117,7 +117,7 @@
         </Border>
 
         <!-- Documents List -->
-        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="0">
+        <Border Grid.Row="1" Background="{DynamicResource PrimaryColor}" CornerRadius="10" Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -125,10 +125,10 @@
                 </Grid.RowDefinitions>
 
                 <!-- List Header -->
-                <Border Grid.Row="0" Background="{StaticResource SecondaryColor}" CornerRadius="10,10,0,0" 
+                <Border Grid.Row="0" Background="{DynamicResource InputBackground}" CornerRadius="10,10,0,0" 
                         Padding="15" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
                     <TextBlock Text="الوثائق المتاحة للتوقيع" FontWeight="SemiBold" 
-                               Foreground="{StaticResource PrimaryColor}" FontSize="14"/>
+                               Foreground="{DynamicResource TextPrimaryColor}" FontSize="14"/>
                 </Border>
 
                 <!-- Documents List -->
@@ -136,7 +136,7 @@
                     <ItemsControl x:Name="documentsListBox" Padding="15">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource DocumentItemStyle}">
+                                <Border Style="{DynamicResource DocumentItemStyle}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -148,17 +148,17 @@
                                             <TextBlock Text="{Binding Title}" 
                                                        FontWeight="SemiBold" 
                                                        FontSize="14"
-                                                       Foreground="{StaticResource PrimaryColor}"
+                                                       Foreground="{DynamicResource PrimaryColor}"
                                                        Margin="0,0,0,5"/>
 
                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                                <Border Style="{StaticResource CategoryBadgeStyle}" Margin="0,0,8,0">
+                                                <Border Style="{DynamicResource CategoryBadgeStyle}" Margin="0,0,8,0">
                                                     <TextBlock Text="{Binding Category}" 
                                                                FontSize="11" 
                                                                Foreground="#7f8c8d"/>
                                                 </Border>
 
-                                                <Border Style="{StaticResource CategoryBadgeStyle}">
+                                                <Border Style="{DynamicResource CategoryBadgeStyle}">
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="📄" FontSize="10" Margin="0,0,4,0"/>
                                                         <TextBlock Text="{Binding FileType, StringFormat={}{0} ملف}"
@@ -180,12 +180,12 @@
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" 
                                                     VerticalAlignment="Center">
                                             <Button Content="👁️ معاينة" 
-                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Style="{DynamicResource SecondaryButtonStyle}"
                                                     Margin="0,0,8,0"
                                                     Click="previewBtn_Click"
                                                     Tag="{Binding}"/>
                                             <Button Content="✍️ توقيع" 
-                                                    Style="{StaticResource PrimaryButtonStyle}"
+                                                    Style="{DynamicResource PrimaryButtonStyle}"
                                                     Click="signBtn_Click"
                                                     Tag="{Binding}"/>
                                         </StackPanel>
@@ -198,7 +198,7 @@
 
                 <!-- Empty State -->
                 <Border Grid.Row="1" x:Name="emptyState" 
-                        Background="{StaticResource SecondaryColor}" 
+                        Background="{DynamicResource SecondaryColor}" 
                         Visibility="Collapsed">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" 
                                 Orientation="Vertical" Margin="20">
@@ -217,7 +217,7 @@
         </Border>
 
         <!-- Status & Actions -->
-        <Border Grid.Row="2" Background="{StaticResource SecondaryColor}" CornerRadius="0,0,10,10" 
+        <Border Grid.Row="2" Background="{DynamicResource InputBackground}" CornerRadius="0,0,10,10" 
                 Padding="15" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -229,12 +229,12 @@
                 <TextBlock Grid.Column="0" x:Name="statusText" 
                            Text="جاري تحميل الوثائق..." 
                            FontSize="12" 
-                           Foreground="{StaticResource PrimaryColor}"
+                           Foreground="{DynamicResource TextPrimaryColor}"
                            VerticalAlignment="Center"/>
 
                 <!-- Close Button -->
                 <Button Grid.Column="1" Content="إغلاق" 
-                        Style="{StaticResource CloseButtonStyle}"
+                        Style="{DynamicResource CloseButtonStyle}"
                         Click="closeBtn_Click"/>
             </Grid>
         </Border>

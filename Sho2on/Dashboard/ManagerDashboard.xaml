@@ -87,7 +87,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- فريق العمل -->
-                    <Border Grid.Column="0" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="0" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="👥" FontSize="24" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="TeamCount" Text="0" 
@@ -101,7 +101,7 @@
                     </Border>
 
                     <!-- الإنتاجية -->
-                    <Border Grid.Column="1" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="1" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="📈" FontSize="24" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="Productivity" Text="0%" 
@@ -115,7 +115,7 @@
                     </Border>
 
                     <!-- المهام المستحقة -->
-                    <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="2" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="✅" FontSize="24" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="PendingTasks" Text="0" 
@@ -130,7 +130,7 @@
                 </Grid>
 
                 <!-- Team Management -->
-                <Border Grid.Row="1" Style="{StaticResource StatCard}" Margin="0,15,0,0">
+                <Border Grid.Row="1" Style="{DynamicResource StatCard}" Margin="0,15,0,0">
                     <StackPanel Margin="10">
                         <TextBlock Text="فريق العمل" 
                                  FontSize="16" FontWeight="Bold"
@@ -162,7 +162,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- تقارير -->
-                    <Border Grid.Column="0" Style="{StaticResource StatCard}" Margin="0,0,5,0">
+                    <Border Grid.Column="0" Style="{DynamicResource StatCard}" Margin="0,0,5,0">
                         <StackPanel Margin="10">
                             <TextBlock Text="📊 التقارير" 
                                      FontSize="16" FontWeight="Bold"
@@ -170,15 +170,15 @@
 
                             <WrapPanel>
                                 <Button Content="تقرير الحضور" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenAttendanceReport"
                                         Margin="2"/>
                                 <Button Content="تقرير الإنتاجية" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenProductivityReport"
                                         Margin="2"/>
                                 <Button Content="تقرير المهام" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenTasksReport"
                                         Margin="2"/>
                             </WrapPanel>
@@ -186,7 +186,7 @@
                     </Border>
 
                     <!-- إدارة -->
-                    <Border Grid.Column="1" Style="{StaticResource StatCard}" Margin="5,0,0,0">
+                    <Border Grid.Column="1" Style="{DynamicResource StatCard}" Margin="5,0,0,0">
                         <StackPanel Margin="10">
                             <TextBlock Text="⚙️ الإدارة" 
                                      FontSize="16" FontWeight="Bold"
@@ -194,15 +194,15 @@
 
                             <WrapPanel>
                                 <Button Content="إدارة الفريق" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenTeamManagement"
                                         Margin="2"/>
                                 <Button Content="تقييمات الموظفين" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenEvaluations"
                                         Margin="2"/>
                                 <Button Content="طلبات الإجازة" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenLeaveRequests"
                                         Margin="2"/>
                             </WrapPanel>

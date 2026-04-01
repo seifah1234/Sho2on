@@ -26,7 +26,7 @@
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="Foreground" Value="#424242"/>
@@ -39,8 +39,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonHoverBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonHoverForeground}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -63,7 +63,7 @@
         </Style>
         <!-- نمط للـ RadioButton -->
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="10"/>
@@ -101,7 +101,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -114,15 +114,20 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- TabControl المحسن -->
             <TabControl Grid.Row="1" FlowDirection="RightToLeft" Margin="10" Background="Transparent">
-                <TabItem Header="إعدادات الشهر" Background="Transparent">
+                <TabItem Background="Transparent">
+                    <TabItem.Header>
+                        <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
+                            <Label Content="إعدادات الشهر"/>
+                        </Border>
+                    </TabItem.Header>
                     <Grid>
-                        <Border CornerRadius="20" Margin="10" Background="{StaticResource PrimaryColor}"  >
+                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  >
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <!-- تفاصيل الشهر -->
                                 <Label HorizontalAlignment="Center" Content="" Name="month_detail_txt" Foreground="#FFFFFF" FontSize="18" FontWeight="Bold" Margin="20"/>
@@ -134,10 +139,34 @@
                                 </StackPanel>
 
                                 <!-- زر الحفظ -->
-                                <Button Style="{StaticResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_month_btn" Click="save_month_btn_Click" Margin="20">
+                                <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_month_btn" Click="save_month_btn_Click" Margin="20">
                                     <StackPanel Orientation="Horizontal">
                                         <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                         <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
+                
+                <TabItem Background="Transparent">
+                    <TabItem.Header>
+                        <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
+                            <Label Content="إعدادات البرنامج"/>
+                        </Border>
+                    </TabItem.Header>
+                    <Grid>
+                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  >
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <!-- تفاصيل الشهر -->
+                                <Label HorizontalAlignment="Center" Content="" Name="logo_path_txt" Foreground="#FFFFFF" FontSize="18" FontWeight="Bold" Margin="20"/>
+
+                                <!-- زر الحفظ -->
+                                <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="upload_logo_btn" Click="upload_logo_btn_Click" Margin="20">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Icon:PackIconMaterial Kind="Upload" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                        <TextBlock Text="Upload" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>

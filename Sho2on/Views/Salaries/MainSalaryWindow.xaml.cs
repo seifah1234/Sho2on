@@ -1,10 +1,13 @@
-﻿using HR_Application.Services;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using static HR_Application.EmployeeData;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application.Views
@@ -18,6 +21,7 @@ namespace HR_Application.Views
         private List<User> _filteredUsers = new List<User>();
         private int _currentUserIndex = -1;
         private User _currentUser = null;
+        private List<User> users = new List<User>();
 
         public MainSalaryWindow()
         {
@@ -267,6 +271,78 @@ namespace HR_Application.Views
             }
         }
 
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                code_box.Text = user_box.SelectedValue.ToString();
+                _currentUser = selectedUser;
+            }
+
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
         private async Task ApplyFilters()
         {
             var query = _context.Users
@@ -282,11 +358,6 @@ namespace HR_Application.Views
                 query = query.Where(u => u.Code.Contains(code_box.Text));
             }
 
-            // تطبيق عامل التصفية بالاسم
-            if (!string.IsNullOrEmpty(name_box.Text))
-            {
-                query = query.Where(u => u.FullName.Contains(name_box.Text));
-            }
 
             // تطبيق عامل التصفية بالفرع
             if (branch_box.SelectedValue != null)
@@ -581,6 +652,11 @@ namespace HR_Application.Views
                 branch_box.ItemsSource = branches;
                 branch_box.DisplayMemberPath = "Name";
                 branch_box.SelectedValuePath = "Id";
+
+                var dbUsers = _context.Users.ToList();
+
+                users.AddRange(dbUsers);
+                user_box.ItemsSource = users;
 
                 // تحميل بيانات المستخدم الحالي إذا كان هناك موظف محدد
                 if (_currentUser != null)

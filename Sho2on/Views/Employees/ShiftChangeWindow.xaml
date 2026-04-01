@@ -37,7 +37,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource PrimaryColor}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -50,15 +50,15 @@
                        VerticalAlignment="Center" 
                        FontSize="18" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{DynamicResource PrimaryColor}"  >
                 <Grid>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Vertical" FlowDirection="RightToLeft">
-                        <TextBlock VerticalAlignment="Center" Text="الوردية" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
+                        <TextBlock VerticalAlignment="Center" Text="الوردية" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
                         <ComboBox KeyDown="shift_box_KeyDown" IsEditable="True" Name="shift_box" Margin="5" TabIndex="2"/>
                     </StackPanel>
                 </Grid>

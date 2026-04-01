@@ -10,14 +10,14 @@
         FlowDirection="RightToLeft"
         Height="650" Width="800"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SecondaryColor}"
+        Background="{DynamicResource SecondaryColor}"
         ResizeMode="NoResize">
 
     <Window.Resources>
         <!-- نمط البطاقات -->
         <Style x:Key="DetailCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="20"/>
@@ -26,7 +26,7 @@
 
         <!-- نمط التسميات -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryColor}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="0,0,0,3"/>
@@ -34,7 +34,7 @@
 
         <!-- نمط القيم -->
         <Style x:Key="ValueStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryColor}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
@@ -48,7 +48,7 @@
         <local:DateTimeToPersianConverter x:Key="DateTimeToPersianConverter"/>
     </Window.Resources>
 
-    <Grid Background="#F5F5F5">
+    <Grid Background="{DynamicResource WindowRootBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -56,17 +56,17 @@
         </Grid.RowDefinitions>
 
         <!-- الهيدر -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" Padding="20">
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" Padding="20">
             <StackPanel>
                 <TextBlock Text="تفاصيل طلب الإجازة" 
-                           Foreground="{StaticResource ThirdColor}" 
+                           Foreground="{DynamicResource ThirdColor}" 
                            FontSize="20" 
                            FontWeight="Bold"
                            HorizontalAlignment="Center"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                     <TextBlock Text="رقم الطلب:" 
-                               Foreground="{StaticResource ThirdColor}" 
+                               Foreground="{DynamicResource ThirdColor}" 
                                FontWeight="SemiBold"
                                Margin="0,0,5,0"/>
                     <TextBlock x:Name="txtRequestId" 
@@ -81,7 +81,7 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Background="Transparent" Padding="20">
             <StackPanel>
                 <!-- معلومات الموظف -->
-                <Border Style="{StaticResource DetailCardStyle}">
+                <Border Style="{DynamicResource DetailCardStyle}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                             <Icon:PackIconMaterial Kind="Account" 
@@ -101,32 +101,32 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="كود الموظف" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtEmployeeId" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="كود الموظف" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtEmployeeId" Style="{DynamicResource ValueStyle}"/>
 
-                                <TextBlock Text="اسم الموظف" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtEmployeeName" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="اسم الموظف" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtEmployeeName" Style="{DynamicResource ValueStyle}"/>
 
-                                <TextBlock Text="الإدارة" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtDepartment" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="الإدارة" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtDepartment" Style="{DynamicResource ValueStyle}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="الفرع" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtBranch" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="الفرع" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtBranch" Style="{DynamicResource ValueStyle}"/>
 
-                                <TextBlock Text="تاريخ التعيين" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtHireDate" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="تاريخ التعيين" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtHireDate" Style="{DynamicResource ValueStyle}"/>
 
-                                <TextBlock Text="الإجازة الأسبوعية" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtWeekend" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="الإجازة الأسبوعية" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtWeekend" Style="{DynamicResource ValueStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- معلومات الإجازة -->
-                <Border Style="{StaticResource DetailCardStyle}">
+                <Border Style="{DynamicResource DetailCardStyle}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                             <Icon:PackIconMaterial Kind="Calendar" 
@@ -146,31 +146,31 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="نوع الإجازة" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtLeaveType" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="نوع الإجازة" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtLeaveType" Style="{DynamicResource ValueStyle}"/>
 
-                                <TextBlock Text="من تاريخ" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtStartDate" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="من تاريخ" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtStartDate" Style="{DynamicResource ValueStyle}"/>
 
-                                <TextBlock Text="المدة (أيام)" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtDuration" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="المدة (أيام)" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtDuration" Style="{DynamicResource ValueStyle}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1">
 
-                                <TextBlock Text="تاريخ الطلب" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtRequestDate" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="تاريخ الطلب" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtRequestDate" Style="{DynamicResource ValueStyle}"/>
                                 
-                                <TextBlock Text="إلى تاريخ" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtEndDate" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="إلى تاريخ" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtEndDate" Style="{DynamicResource ValueStyle}"/>
 
-                                <TextBlock Text="التأثير على الرصيد" Style="{StaticResource LabelStyle}"/>
-                                <TextBlock x:Name="txtBalanceEffect" Style="{StaticResource ValueStyle}"/>
+                                <TextBlock Text="التأثير على الرصيد" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock x:Name="txtBalanceEffect" Style="{DynamicResource ValueStyle}"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- السبب -->
-                        <TextBlock Text="سبب الإجازة" Style="{StaticResource LabelStyle}" Margin="0,10,0,10"/>
+                        <TextBlock Text="سبب الإجازة" Style="{DynamicResource LabelStyle}" Margin="0,10,0,10"/>
                         <Border Background="#F8F9FA" CornerRadius="5" Padding="15" Margin="0,0,0,10">
                             <TextBlock x:Name="txtReason" 
                                        Foreground="#333333" 
@@ -182,7 +182,7 @@
                 </Border>
 
                 <!-- حالة الطلب -->
-                <Border Style="{StaticResource DetailCardStyle}">
+                <Border Style="{DynamicResource DetailCardStyle}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                             <Icon:PackIconMaterial Kind="ClipboardCheck" 
@@ -207,7 +207,7 @@
                                     CornerRadius="5" 
                                     Margin="0,0,15,0">
                                 <Border.Background>
-                                    <Binding Path="StatusId" Converter="{StaticResource StatusToColorConverter}"/>
+                                    <Binding Path="StatusId" Converter="{DynamicResource StatusToColorConverter}"/>
                                 </Border.Background>
                                 <TextBlock x:Name="txtStatus" 
                                            Text="" 
@@ -225,15 +225,15 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="تاريخ الموافقة/الرفض" Style="{StaticResource LabelStyle}"/>
-                                        <TextBlock x:Name="txtApprovalDate" Style="{StaticResource ValueStyle}"/>
+                                        <TextBlock Text="تاريخ الموافقة/الرفض" Style="{DynamicResource LabelStyle}"/>
+                                        <TextBlock x:Name="txtApprovalDate" Style="{DynamicResource ValueStyle}"/>
 
-                                        <TextBlock Text="تمت الموافقة بواسطة" Style="{StaticResource LabelStyle}"/>
-                                        <TextBlock x:Name="txtApprovedBy" Style="{StaticResource ValueStyle}"/>
+                                        <TextBlock Text="تمت الموافقة بواسطة" Style="{DynamicResource LabelStyle}"/>
+                                        <TextBlock x:Name="txtApprovedBy" Style="{DynamicResource ValueStyle}"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="سبب الرفض" Style="{StaticResource LabelStyle}"/>
+                                        <TextBlock Text="سبب الرفض" Style="{DynamicResource LabelStyle}"/>
                                         <Border Background="#FFF3E0" CornerRadius="5" Padding="10" Margin="0,0,0,10">
                                             <TextBlock x:Name="txtRejectionReason" 
                                                        Foreground="#E65100" 
@@ -249,7 +249,7 @@
                 </Border>
 
                 <!-- معلومات الرصيد -->
-                <Border Style="{StaticResource DetailCardStyle}">
+                <Border Style="{DynamicResource DetailCardStyle}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                             <Icon:PackIconMaterial Kind="Calculator" 
@@ -336,7 +336,7 @@
                 </Border>
 
                 <!-- ملاحظات -->
-                <Border Style="{StaticResource DetailCardStyle}">
+                <Border Style="{DynamicResource DetailCardStyle}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                             <Icon:PackIconMaterial Kind="NoteText" 
@@ -363,7 +363,7 @@
         </ScrollViewer>
 
         <!-- الأزرار -->
-        <Border Grid.Row="2" Padding="15" BorderThickness="1,0,0,0" Background="{StaticResource PrimaryColor}" BorderBrush="#E0E0E0">
+        <Border Grid.Row="2" Padding="15" BorderThickness="1,0,0,0" Background="{DynamicResource PrimaryColor}" BorderBrush="#E0E0E0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button x:Name="btnPrint" 
                         Width="120" Height="40" 
@@ -373,8 +373,8 @@
                         Click="btnPrint_Click"
                         Margin="0,0,10,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Printer" Width="18" Height="18" Margin="0,0,5,0"/>
-                        <TextBlock Text="طباعة" Foreground="{StaticResource ThirdColor}"/>
+                        <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Printer" Width="18" Height="18" Margin="0,0,5,0"/>
+                        <TextBlock Text="طباعة" Foreground="{DynamicResource ThirdColor}"/>
                     </StackPanel>
                 </Button>
 
@@ -385,8 +385,8 @@
                         FontSize="13" FontWeight="Bold"
                         Click="btnClose_Click">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Icon:PackIconMaterial Kind="Close" Foreground="{StaticResource ThirdColor}" Width="18" Height="18" Margin="0,0,5,0"/>
-                        <TextBlock Text="إغلاق" Foreground="{StaticResource ThirdColor}"/>
+                        <Icon:PackIconMaterial Kind="Close" Foreground="{DynamicResource ThirdColor}" Width="18" Height="18" Margin="0,0,5,0"/>
+                        <TextBlock Text="إغلاق" Foreground="{DynamicResource ThirdColor}"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

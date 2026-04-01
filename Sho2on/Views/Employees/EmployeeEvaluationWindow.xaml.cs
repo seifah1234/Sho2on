@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.Views.Employees.Holidays;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
@@ -10,6 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using static HR_Application.EmployeeData;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using Button = System.Windows.Controls.Button;
@@ -23,15 +26,15 @@ namespace HR_Application.Views
     public partial class EmployeeEvaluationWindow : Window
     {
         private AppDbContext _context = new AppDbContext(App.ConnectionString);
-        private int _employeeId;
+        private User _employee;
         private ObservableCollection<EvaluationCriteriaModel> _administrativeCriteria;
         private ObservableCollection<EvaluationCriteriaModel> _technicalCriteria;
         private bool _isAdministrativeActive = true;
+        private List<User> users = new List<User>();
 
-        public EmployeeEvaluationWindow(int employeeId)
+        public EmployeeEvaluationWindow()
         {
             InitializeComponent();
-            _employeeId = employeeId;
 
             // تهيئة القوائم
             _administrativeCriteria = new ObservableCollection<EvaluationCriteriaModel>();
@@ -41,8 +44,6 @@ namespace HR_Application.Views
             administrativeItemsControl.ItemsSource = _administrativeCriteria;
             technicalItemsControl.ItemsSource = _technicalCriteria;
 
-            LoadEmployeeInfo();
-            CalculateStatistics();
         }
 
         private async Task LoadEvaluationData()
@@ -51,7 +52,7 @@ namespace HR_Application.Views
             {
                 var evaluation = await _context.EmployeeEvaluations
                     .Include(ev => ev.EvaluationCriterias)
-                    .FirstOrDefaultAsync(ev => ev.EmployeeId == _employeeId);
+                    .FirstOrDefaultAsync(ev => ev.EmployeeId == _employee.Id);
 
                 if (evaluation != null)
                 {
@@ -100,18 +101,23 @@ namespace HR_Application.Views
             }
         }
 
+        private async void LoadEmployee()
+        {
+            LoadEmployeeInfo();
+            CalculateStatistics();
+            await LoadEvaluationData();
+
+        }
 
         private void LoadEmployeeInfo()
         {
             try
-            {
-                var employee = _context.Users
-                    .FirstOrDefault(e => e.Id == _employeeId);
+            {;
 
-                if (employee != null)
+                if (_employee != null)
                 {
-                    txtEmployeeName.Text = employee.FullName;
-                    txtEmployeeCode.Text = $"كود: {employee.Id}";
+                    txtEmployeeName.Text = _employee.FullName;
+                    txtEmployeeCode.Text = $"كود: {_employee.Id}";
                 }
             }
             catch (Exception ex)
@@ -125,6 +131,80 @@ namespace HR_Application.Views
         {
             AddCriteria(_administrativeCriteria, txtNewAdministrativeCriteria, "إداري");
         }
+
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                txtEmployeeCodeSearch.Text = user_box.SelectedValue.ToString();
+                _employee = selectedUser;
+                LoadEmployee();
+            }
+            
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
 
         private void AddTechnicalCriteria_Click(object sender, RoutedEventArgs e)
         {
@@ -146,8 +226,6 @@ namespace HR_Application.Views
                 Name = textBox.Text,
                 Index = criteriaList.Count + 1,
                 GroupName = $"{type}_Group_{criteriaList.Count}",
-                IsSuccessful = false,
-                Percentage = 0,
                 Notes = ""
             });
 
@@ -196,6 +274,10 @@ namespace HR_Application.Views
 
                     // تحديث حالة النجاح بناءً على النسبة (50% فما فوق تعتبر ناجحة)
                     criteria.IsSuccessful = criteria.Percentage >= 50;
+                }
+                else
+                {
+                    criteria.IsSuccessful = null;
                 }
                 CalculateStatistics();
             }
@@ -262,15 +344,19 @@ namespace HR_Application.Views
             UpdatePercentageColor(txtFinalPercentage, finalPercentage);
 
             // تحديث النتيجة النهائية تلقائياً بناءً على النسبة الإجمالية
-            if (finalPercentage >= 50)
+            if (finalPercentage > 0)
             {
-                if (!rbSuccessful.IsChecked == true)
-                    rbSuccessful.IsChecked = true;
-            }
-            else
-            {
-                if (!rbUnsuccessful.IsChecked == true)
-                    rbUnsuccessful.IsChecked = true;
+                if (finalPercentage >= 50)
+                {
+                    if (!rbSuccessful.IsChecked == true)
+                        rbSuccessful.IsChecked = true;
+                }
+                else
+                {
+                    if (!rbUnsuccessful.IsChecked == true)
+                        rbUnsuccessful.IsChecked = true;
+                }
+
             }
         }
 
@@ -289,8 +375,8 @@ namespace HR_Application.Views
             }
 
             var totalCount = criteriaList.Count;
-            var successfulCount = criteriaList.Count(c => c.IsSuccessful);
-            var unsuccessfulCount = criteriaList.Count(c => !c.IsSuccessful);
+            var successfulCount = criteriaList.Where(c => c.Percentage > 0).Count(c => c.IsSuccessful.HasValue && c.IsSuccessful.Value);
+            var unsuccessfulCount = criteriaList.Where(c => c.Percentage > 0).Count(c => c.IsSuccessful.HasValue && c.IsSuccessful.Value);
             var averagePercentage = GetAveragePercentage(criteriaList);
 
             totalText.Text = totalCount.ToString();
@@ -306,7 +392,7 @@ namespace HR_Application.Views
             if (criteriaList == null || criteriaList.Count == 0)
                 return 0;
 
-            return criteriaList.Average(c => c.Percentage);
+            return criteriaList.Average(c => c.Percentage ?? 0);
         }
 
         private void UpdatePercentageColor(TextBlock textBlock, decimal percentage)
@@ -369,7 +455,7 @@ namespace HR_Application.Views
             {
                 // حذف التقييمات القديمة
                 _context.EmployeeEvaluations.RemoveRange(
-                    _context.EmployeeEvaluations.Where(ev => ev.EmployeeId == _employeeId));
+                    _context.EmployeeEvaluations.Where(ev => ev.EmployeeId == _employee.Id));
 
                 // حساب النسب
                 decimal administrativePercentage = GetAveragePercentage(_administrativeCriteria);
@@ -379,7 +465,7 @@ namespace HR_Application.Views
                 // إنشاء تقييم جديد
                 var evaluation = new EmployeeEvaluation
                 {
-                    EmployeeId = _employeeId,
+                    EmployeeId = _employee.Id,
                     EvaluatorId = App.CurrentUser?.Id ?? 1,
                     EvaluationDate = DateTime.Now,
                     Status = EvaluationStatus.Completed,
@@ -404,9 +490,9 @@ namespace HR_Application.Views
                     allCriteria.Add(new EvaluationCriteria
                     {
                         CriteriaName = criteria.Name,
-                        Score = criteria.Percentage,
+                        Score = criteria.Percentage ?? 0,
                         MaxScore = 100,
-                        IsSuccessful = criteria.IsSuccessful,
+                        IsSuccessful = criteria.IsSuccessful ?? false, 
                         Notes = criteria.Notes,
                         OrderIndex = orderIndex++,
                         EvaluationType = EvaluationType.Administrative
@@ -419,9 +505,9 @@ namespace HR_Application.Views
                     allCriteria.Add(new EvaluationCriteria
                     {
                         CriteriaName = criteria.Name,
-                        Score = criteria.Percentage,
+                        Score = criteria.Percentage ?? 0,
                         MaxScore = 100,
-                        IsSuccessful = criteria.IsSuccessful,
+                        IsSuccessful = criteria.IsSuccessful ?? false,
                         Notes = criteria.Notes,
                         OrderIndex = orderIndex++,
                         EvaluationType = EvaluationType.Technical
@@ -435,8 +521,6 @@ namespace HR_Application.Views
                 MessageBox.Show("تم حفظ التقييم بنجاح", "نجاح",
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
-                this.DialogResult = true;
-                this.Close();
             }
             catch (Exception ex)
             {
@@ -447,7 +531,6 @@ namespace HR_Application.Views
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
             this.Close();
         }
 
@@ -459,7 +542,44 @@ namespace HR_Application.Views
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            await LoadEvaluationData();
+            var dbUsers = _context.Users.ToList();
+
+            users.AddRange(dbUsers);
+            user_box.ItemsSource = users;
+        }
+
+        private async void txtEmployeeCodeSearch_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                var code = txtEmployeeCodeSearch.Text;
+                if (!string.IsNullOrEmpty(code))
+                {
+                    var employee = await _context.Users.FirstOrDefaultAsync(u => u.Code == code);
+                    if (employee != null) {
+                        _employee = employee;
+                        LoadEmployee();
+                    }
+                    else
+                    {
+                        MessageBox.Show("لم يتم العثور على الموظف", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        private void txtEmployeeNameSearch_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                /*var employeeSearch = new EmployeeSelectionWindow(_context.Users.ToList(), false, "اختر الموظف ليتم تقييمه", txtEmployeeNameSearch.Text);
+                if (employeeSearch.DialogResult == true)
+                {
+                    _employee = employeeSearch.SelectedUser;
+                    LoadEmployee();
+                }*/
+            }
+
         }
     }
 
@@ -467,8 +587,8 @@ namespace HR_Application.Views
     public class EvaluationCriteriaModel : System.ComponentModel.INotifyPropertyChanged
     {
         private string _name;
-        private bool _isSuccessful;
-        private decimal _percentage;
+        private bool? _isSuccessful;
+        private decimal? _percentage;
         private string _notes;
 
         public int Id { get; set; }
@@ -486,7 +606,7 @@ namespace HR_Application.Views
         public int Index { get; set; }
         public string GroupName { get; set; }
 
-        public bool IsSuccessful
+        public bool? IsSuccessful
         {
             get => _isSuccessful;
             set
@@ -497,7 +617,7 @@ namespace HR_Application.Views
             }
         }
 
-        public decimal Percentage
+        public decimal? Percentage
         {
             get => _percentage;
             set
@@ -518,7 +638,7 @@ namespace HR_Application.Views
         }
 
         // خاصية محسوبة للعرض
-        public bool IsUnsuccessful
+        public bool? IsUnsuccessful
         {
             get => !IsSuccessful;
             set

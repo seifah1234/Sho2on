@@ -8,7 +8,7 @@
         Title="إدارة أنواع الإجازات" 
         Height="600" Width="800"
         FlowDirection="RightToLeft"
-        Background="{StaticResource SecondaryColor}"
+        Background="{DynamicResource WindowRootBackground}"
         WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
@@ -51,7 +51,7 @@
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
                   RowHeight="35"
-                  CellStyle="{StaticResource DataGridCellStyle}">
+                  CellStyle="{DynamicResource DataGridCellStyle}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="الكود" Binding="{Binding Id}" Width="80"/>
                 <DataGridTextColumn Header="النوع" Binding="{Binding Name}" Width="150"/>

@@ -1,4 +1,5 @@
-﻿using HR_Application.Views.Employees.Holidays;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
@@ -9,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application.Views.Employees
@@ -20,6 +22,8 @@ namespace HR_Application.Views.Employees
         private User _selectedEmployee;
         private User _selectedApprover;
         private List<User> _managers = new List<User>();
+        private List<User> _employees = new List<User>();
+
 
         public PermissionRequestWindow(string employeeCode = null)
         {
@@ -41,12 +45,8 @@ namespace HR_Application.Views.Employees
             {
                 if (!string.IsNullOrEmpty(employeeCode))
                 {
-                    var employee = await _context.Users
-                        .Include(u => u.Department)
-                        .Include(u => u.Branch)
-                        .Include(u => u.JobTitle)
-                        .Include(u => u.Shift)
-                        .FirstOrDefaultAsync(u => u.Code == employeeCode);
+                    var employee = _employees
+                        .FirstOrDefault(u => u.Code == employeeCode);
 
                     if (employee != null)
                     {
@@ -65,7 +65,8 @@ namespace HR_Application.Views.Employees
             var employeeSelectionWindow = new EmployeeSelectionWindow(
                 _context.Users.ToList(),
                 false,
-                "اختر الموظف لطلب الإذن");
+                "اختر الموظف لطلب الإذن",
+                user_box.Text);
             employeeSelectionWindow.Owner = this;
 
             if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
@@ -79,8 +80,8 @@ namespace HR_Application.Views.Employees
             _selectedEmployee = employee;
             _employeeId = employee.Id;
 
-            txtEmployeeCode.Text = employee.Id.ToString();
-            txtEmployeeName.Text = employee.FullName;
+            txtEmployeeCode.Text = employee.Code.ToString();
+            user_box.SelectedValue = employee.Code;
 
             // عرض معلومات الموظف
             txtDepartment.Text = employee.Department?.Name ?? "غير محدد";
@@ -90,9 +91,88 @@ namespace HR_Application.Views.Employees
 
             panelEmployeeInfo.Visibility = Visibility.Visible;
 
+            if (employee.Manager != null)
+            {
+                _selectedApprover = employee.Manager;
+                txtApproverName.Text = _selectedApprover.FullName;
+            }
             // تحميل المديرين
             LoadApprovers();
         }
+
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                txtEmployeeCode.Text = user_box.SelectedValue.ToString();
+                _selectedEmployee = selectedUser;
+            }
+
+        }
+
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = _employees;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
 
         private async void LoadApprovers()
         {
@@ -131,10 +211,6 @@ namespace HR_Application.Views.Employees
             }
         }
 
-        private void Time_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            CalculateDuration();
-        }
 
         private void dpPermissionDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -143,14 +219,11 @@ namespace HR_Application.Views.Employees
 
         private void CalculateDuration()
         {
-            if (string.IsNullOrEmpty(txtStartTime.Text) || string.IsNullOrEmpty(txtEndTime.Text))
+            if (!txtStartTime.SelectedTime.HasValue || !txtEndTime.SelectedTime.HasValue)
                 return;
 
-            if (!IsValidTime(txtStartTime.Text) || !IsValidTime(txtEndTime.Text))
-                return;
-
-            var startTime = TimeSpan.Parse(txtStartTime.Text);
-            var endTime = TimeSpan.Parse(txtEndTime.Text);
+            var startTime = txtStartTime.SelectedTime.Value.TimeOfDay;
+            var endTime = txtEndTime.SelectedTime.Value.TimeOfDay;
 
             if (endTime <= startTime)
             {
@@ -178,8 +251,8 @@ namespace HR_Application.Views.Employees
                     {
                         UserId = _employeeId,
                         PermissionType = (cmbPermissionType.SelectedItem as ComboBoxItem)?.Tag?.ToString(),
-                        StartDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtStartTime.Text),
-                        EndDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtEndTime.Text),
+                        StartDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtStartTime.SelectedTime.Value.TimeOfDay),
+                        EndDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtEndTime.SelectedTime.Value.TimeOfDay),
                         Duration = double.Parse(txtDuration.Text),
                         Reason = txtReason.Text,
                         Notes = txtNotes.Text,
@@ -203,10 +276,9 @@ namespace HR_Application.Views.Employees
             }
         }
 
-        private DateTime CombineDateAndTime(DateTime date, string time)
+        private DateTime CombineDateAndTime(DateTime date, TimeSpan time)
         {
-            var timeSpan = TimeSpan.Parse(time);
-            return date.Date + timeSpan;
+            return date.Date + time;
         }
 
         private async void btnSaveDraft_Click(object sender, RoutedEventArgs e)
@@ -219,8 +291,8 @@ namespace HR_Application.Views.Employees
                     {
                         UserId = _employeeId,
                         PermissionType = (cmbPermissionType.SelectedItem as ComboBoxItem)?.Tag?.ToString(),
-                        StartDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtStartTime.Text),
-                        EndDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtEndTime.Text),
+                        StartDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtStartTime.SelectedTime.Value.TimeOfDay),
+                        EndDateTime = CombineDateAndTime(dpPermissionDate.SelectedDate.Value, txtEndTime.SelectedTime.Value.TimeOfDay),
                         Duration = double.Parse(txtDuration.Text),
                         Reason = txtReason.Text,
                         Notes = txtNotes.Text,
@@ -277,7 +349,7 @@ namespace HR_Application.Views.Employees
             }
 
             // التحقق من الأوقات
-            if (!IsValidTime(txtStartTime.Text) || !IsValidTime(txtEndTime.Text))
+            if (!txtStartTime.SelectedTime.HasValue || !txtEndTime.SelectedTime.HasValue)
             {
                 MessageBox.Show("يرجى إدخال وقت صحيح (HH:mm)", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
@@ -317,6 +389,43 @@ namespace HR_Application.Views.Employees
         {
             _context?.Dispose();
             base.OnClosed(e);
+        }
+
+        private void txtEmployeeCode_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Tab || e.Key == System.Windows.Input.Key.Enter)
+            {
+                LoadEmployeeByCode(txtEmployeeCode.Text);
+            }
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+
+                _employees = await _context.Users
+                    .Include(u => u.Department)
+                    .Include(u => u.Branch)
+                    .Include(u => u.JobTitle)
+                    .Include(u => u.Shift)
+                    .Include(u => u.Manager)
+                    .ToListAsync();
+
+                user_box.ItemsSource = _employees;
+
+                LoadEmployeeByCode(App.CurrentUser.Code);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void txtStartTime_SelectedTimeChanged(object sender, RoutedPropertyChangedEventArgs<DateTime?> e)
+        {
+            CalculateDuration();
+
         }
     }
 

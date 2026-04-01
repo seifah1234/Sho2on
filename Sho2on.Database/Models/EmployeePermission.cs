@@ -76,6 +76,7 @@ namespace Sho2on.Database.Models
 
     public static class PermissionStatus
     {
+        public const string UnderReview = "Under Review";
         public const string Pending = "Pending";
         public const string Approved = "Approved";
         public const string Rejected = "Rejected";

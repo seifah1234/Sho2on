@@ -60,8 +60,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -90,7 +90,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -104,12 +104,12 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{DynamicResource PrimaryColor}"  >
                 <Grid>
                     <Image Visibility="Collapsed" Name="GIFTop" Source="pack://application:,,,/assets/images/Top.gif" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" FlowDirection="RightToLeft" VerticalAlignment="Center">
@@ -131,7 +131,11 @@
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="5 0 0 5">
                                             <TextBox Visibility="Collapsed" Name="job_box" Margin="5"/>
-                                            <TextBox  Width="230" Name="name_box" Tag="اسم الموظف" FlowDirection="RightToLeft" Margin="5"/>
+                                            <!--<TextBox  Width="230" Name="name_box" Tag="اسم الموظف" FlowDirection="RightToLeft" Margin="5"/>-->
+                                            <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal">
+                                                <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                                <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
+                                            </StackPanel>
                                             <TextBox Name="code_box" Tag="كود الموظف" FlowDirection="RightToLeft" Margin="5"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -155,32 +159,32 @@
 
                         <!-- الأزرار الرئيسية -->
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                            <Button Style="{StaticResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="5">
+                            <Button Style="{DynamicResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Eye" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="عرض البيانات" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
+                                    <TextBlock Text="عرض البيانات" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Visibility="Collapsed" Style="{StaticResource ActionButtonStyle}" x:Name="save_btn" Click="save_btn_Click" Margin="5">
+                            <Button Visibility="Collapsed" Style="{DynamicResource ActionButtonStyle}" x:Name="save_btn" Click="save_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                     <TextBlock Text="حفظ" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
-                            <Button Visibility="Collapsed" Style="{StaticResource ActionButtonStyle}" Background="#D32F2F" x:Name="delete_btn" Click="delete_btn_Click" Margin="5">
+                            <Button Visibility="Collapsed" Style="{DynamicResource ActionButtonStyle}" Background="#D32F2F" x:Name="delete_btn" Click="delete_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حذف" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
+                                    <TextBlock Text="حذف" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
 
                         <!-- الأزرار الإضافية -->
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                            <Button Style="{StaticResource ActionButtonStyle}" x:Name="add_btn" Click="add_btn_Click" Margin="5">
+                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="add_btn" Click="add_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="إضافة" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
+                                    <TextBlock Text="إضافة" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
                             <Button Visibility="Collapsed" Margin="5" VerticalAlignment="Center" Cursor="Hand" x:Name="excel_btn" Height="45" Width="70" Background="Transparent" BorderThickness="0" Click="excel_btn_Click">
@@ -198,15 +202,15 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <design:TimePicker Name="time_picker" VerticalAlignment="Center" Margin="5" Background="Black" Foreground="Black" BorderBrush="Black" BorderThickness="1" Padding="2" FontSize="12"/>
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
-                                <DatePicker Style="{StaticResource DatePickerStyle}" VerticalAlignment="Center" Language="en-GB" Name="add_date_picker" FlowDirection="RightToLeft"/>
+                                <DatePicker Style="{DynamicResource DatePickerStyle}" VerticalAlignment="Center" Language="en-GB" Name="add_date_picker" FlowDirection="RightToLeft"/>
                                 <Label Content="التاريخ :" FlowDirection="RightToLeft" Foreground="#424242" Margin="10 0 0 0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <RadioButton Style="{StaticResource RadioButtonStyle}" Content="انصراف" Name="dep_radio"/>
-                            <RadioButton Style="{StaticResource RadioButtonStyle}" IsChecked="True" Content="حضور" Name="att_radio"/>
+                            <RadioButton Style="{DynamicResource RadioButtonStyle}" Content="انصراف" Name="dep_radio"/>
+                            <RadioButton Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Content="حضور" Name="att_radio"/>
                         </StackPanel>
-                        <Button Style="{StaticResource ActionButtonStyle}" x:Name="add_print_btn" Click="add_btn_Click" Margin="5">
+                        <Button Style="{DynamicResource ActionButtonStyle}" x:Name="add_print_btn" Click="add_btn_Click" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                 <TextBlock Text="إضافة" VerticalAlignment="Center"/>

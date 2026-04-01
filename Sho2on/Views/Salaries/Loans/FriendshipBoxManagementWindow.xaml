@@ -14,7 +14,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="{DynamicResource WindowRootBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
 
         <!-- العنوان -->
-        <Border Grid.Row="0" Background="#1976D2" Padding="15">
+        <Border Grid.Row="0" Padding="15">
             <TextBlock Text="إدارة صندوق الزمالة المشترك" 
                        Foreground="White" 
                        FontSize="18" 
@@ -31,9 +31,16 @@
         </Border>
 
         <!-- محتوى النافذة -->
-        <TabControl Grid.Row="1" Margin="10">
+        <TabControl Grid.Row="1" Margin="10" Background="{DynamicResource InputBackground}">
             <!-- تبويب معلومات الصندوق -->
-            <TabItem Header="معلومات الصندوق">
+            <TabItem>
+
+                <TabItem.Header>
+                    <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
+                        <Label Content="معلومات الصندوق" Foreground="{DynamicResource PrimaryColor}"/>
+
+                    </Border>
+                </TabItem.Header>
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -124,6 +131,7 @@
 
                             <Button Grid.Column="2" x:Name="btnUpdatePercentage" 
                                     Content="تحديث النسبة" Width="120" Height="30"
+                                    Background="{DynamicResource ButtonHoverBackground}"
                                     Click="BtnUpdatePercentage_Click"/>
                         </Grid>
                     </GroupBox>
@@ -152,15 +160,26 @@
             </TabItem>
 
             <!-- تبويب حركات الصندوق -->
-            <TabItem Header="حركات الصندوق">
+            <TabItem>
+
+                <TabItem.Header>
+                    <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
+                        <Label Content="حركات الصندوق" Foreground="{DynamicResource PrimaryColor}"/>
+
+                    </Border>
+                </TabItem.Header>
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="241*"/>
+                        <ColumnDefinition Width="634*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
                     <!-- فلاتر الحركات -->
-                    <Border Grid.Row="0" Background="#F5F5F5" Padding="10">
+                    <Border Grid.Row="0"  Padding="10" Grid.ColumnSpan="2">
                         <StackPanel Orientation="Horizontal">
                             <DatePicker x:Name="dpFromDate" Width="120" Margin="5"/>
                             <DatePicker x:Name="dpToDate" Width="120" Margin="5"/>
@@ -170,12 +189,12 @@
                                 <ComboBoxItem Content="سحب"/>
                                 <ComboBoxItem Content="سداد"/>
                             </ComboBox>
-                            <Button Content="تصفية" Width="80" Margin="5" Click="BtnFilterTransactions_Click"/>
+                            <Button Content="تصفية" Background="{DynamicResource ButtonHoverBackground}" Width="80" Margin="5" Click="BtnFilterTransactions_Click"/>
                         </StackPanel>
                     </Border>
 
                     <!-- جدول الحركات -->
-                    <DataGrid Grid.Row="1" x:Name="dgTransactions" AutoGenerateColumns="False" Margin="5">
+                    <DataGrid Grid.Row="1" x:Name="dgTransactions" AutoGenerateColumns="False" Margin="5,5,5,5" Grid.ColumnSpan="2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="التاريخ" Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" Width="100"/>
                             <DataGridTextColumn Header="النوع" Binding="{Binding TransactionType}" Width="80"/>
@@ -191,27 +210,34 @@
             </TabItem>
 
             <!-- تبويب تقارير الصندوق -->
-            <TabItem Header="تقارير">
+            <TabItem>
+
+                <TabItem.Header>
+                    <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
+                        <Label Content="تقارير" Foreground="{DynamicResource PrimaryColor}"/>
+
+                    </Border>
+                </TabItem.Header>
                 <StackPanel Margin="20">
-                    <Button x:Name="btnGenerateMonthlyReport" Content="تقرير شهري" 
+                    <Button Background="{DynamicResource ButtonHoverBackground}" x:Name="btnGenerateMonthlyReport" Content="تقرير شهري" 
                             Height="40" Margin="0,10" Click="BtnGenerateMonthlyReport_Click"/>
 
-                    <Button x:Name="btnGenerateYearlyReport" Content="تقرير سنوي" 
+                    <Button Background="{DynamicResource ButtonHoverBackground}" x:Name="btnGenerateYearlyReport" Content="تقرير سنوي" 
                             Height="40" Margin="0,10" Click="BtnGenerateYearlyReport_Click"/>
 
-                    <Button x:Name="btnExportToExcel" Content="تصدير إلى Excel" 
+                    <Button Background="{DynamicResource ButtonHoverBackground}" x:Name="btnExportToExcel" Content="تصدير إلى Excel" 
                             Height="40" Margin="0,10" Click="BtnExportToExcel_Click"/>
 
-                    <Button x:Name="btnPrintBalanceSheet" Content="طباعة كشف الرصيد"  
+                    <Button Background="{DynamicResource ButtonHoverBackground}" x:Name="btnPrintBalanceSheet" Content="طباعة كشف الرصيد"  
                             Height="40" Margin="0,10" Click="BtnPrintBalanceSheet_Click"/>
                 </StackPanel>
             </TabItem>
         </TabControl>
 
         <!-- الأزرار السفلية -->
-        <Border Grid.Row="2" Background="#F5F5F5" Padding="10">
+        <Border Grid.Row="2" Background="{DynamicResource MainBackground}" Padding="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button x:Name="btnClose" Content="إغلاق" Width="100" Click="BtnClose_Click"/>
+                <Button Background="{DynamicResource ButtonHoverBackground}" x:Name="btnClose" Content="إغلاق" Width="100" Click="BtnClose_Click"/>
             </StackPanel>
         </Border>
     </Grid>

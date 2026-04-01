@@ -5,13 +5,13 @@
         xmlns:local="clr-namespace:HR_Application.Views.Employees.Holidays"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
-        FlowDirection="RightToLeft" Background="{StaticResource SecondaryColor}"
+        FlowDirection="RightToLeft" Background="{DynamicResource WindowRootBackground}"
         ResizeMode="CanResizeWithGrip">
 
     <Window.Resources>
         <!-- نمط للنافذة -->
         <Style TargetType="Window">
-            <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
         </Style>
 
         <!-- نمط للأزرار -->
@@ -47,15 +47,15 @@
                    Text="اختر موظف" 
                    FontSize="20" 
                    FontWeight="Bold" 
-                   Foreground="{StaticResource PrimaryColor}"
+                   Foreground="{DynamicResource TextPrimaryColor}"
                    HorizontalAlignment="Center"
                    Margin="0,0,0,15"/>
 
         <!-- شريط البحث -->
-        <StackPanel Grid.Row="1" FlowDirection="RightToLeft" Background="{StaticResource PrimaryColor}" Orientation="Horizontal" Margin="0,0,0,10">
+        <StackPanel Grid.Row="1" FlowDirection="RightToLeft" Background="{DynamicResource PrimaryColor}" Orientation="Horizontal" Margin="0,0,0,10">
             <TextBlock Text="بحث:" 
                        VerticalAlignment="Center" 
-                       Margin="10" Foreground="{StaticResource ThirdColor}"
+                       Margin="10" Foreground="{DynamicResource ThirdColor}"
                        FontWeight="SemiBold"/>
             <TextBox x:Name="txtSearch" 
                      Width="300" 
@@ -101,11 +101,11 @@
                     HorizontalAlignment="Center" 
                     Margin="0,15,0,0">
             <Button x:Name="btnSelect" 
-                    Style="{StaticResource SelectButtonStyle}" 
+                    Style="{DynamicResource SelectButtonStyle}" 
                     Content="اختيار" 
                     Click="btnSelect_Click"/>
             <Button x:Name="btnCancel" 
-                    Style="{StaticResource CancelButtonStyle}" 
+                    Style="{DynamicResource CancelButtonStyle}" 
                     Content="إلغاء" 
                     Click="btnCancel_Click"/>
         </StackPanel>

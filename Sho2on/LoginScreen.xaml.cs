@@ -259,6 +259,11 @@ namespace HR_Application
 
             var user = await _context.Users
                 .Include(u => u.JobTitle)
+                .Include(u => u.Manager)
+                .ThenInclude(m => m.JobTitle)
+                .Include(u => u.Manager)
+                .ThenInclude(m => m.Department)
+                .Include(u => u.Department)
                 .Where(u => u.Username == username && u.PasswordHash == passwordHash)
                 .FirstOrDefaultAsync();
 

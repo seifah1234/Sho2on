@@ -1,31 +1,224 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
+using System.Windows.Data;
+using System.Windows.Input;
+using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
-using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace HR_Application.Views
 {
+    // ─────────────────────────────────────────────
+    // ViewModel: ملف واحد داخل الـ Folder
+    // ─────────────────────────────────────────────
+    public class DocumentViewModel : INotifyPropertyChanged
+    {
+        private CompanyDocument _doc;
+
+        public DocumentViewModel(CompanyDocument doc)
+        {
+            _doc = doc;
+        }
+
+        // تفويض جميع خصائص الـ CompanyDocument الأصلية
+        public int Id => _doc.Id;
+        public string Title => _doc.Title;
+        public string FileName => _doc.FileName;
+        public string FilePath => _doc.FilePath;
+        public string FullPath => _doc.FullPath;
+        public string FileType => _doc.FileType;
+        public long FileSize => _doc.FileSize;
+        public bool IsRequired => _doc.IsRequired;
+        public bool IsActive => _doc.IsActive;
+        public DateTime UploadDate => _doc.UploadDate;
+        public JobTitle JobTitle => _doc.JobTitle;
+        public bool HasJobTitle => _doc.JobTitle != null;
+
+        // أيقونة الملف حسب الامتداد
+        public string FileIcon => _doc.FileType?.ToLower() switch
+        {
+            ".pdf" => "📄",
+            ".docx" => "📝",
+            ".doc" => "📝",
+            ".xlsx" => "📊",
+            ".xls" => "📊",
+            ".pptx" => "📋",
+            ".txt" => "📃",
+            ".png" or ".jpg" or ".jpeg" => "🖼",
+            _ => "📎"
+        };
+
+        public string ActiveText => _doc.IsActive ? "نشط" : "معطّل";
+        public string ActiveColor => _doc.IsActive ? "#27ae60" : "#95a5a6";
+
+        // الكائن الأصلي للعمليات (حذف، تحميل…)
+        public CompanyDocument Original => _doc;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    // ─────────────────────────────────────────────
+    // ViewModel: Folder = تصنيف + قائمة ملفاته
+    // ─────────────────────────────────────────────
+    public class FolderViewModel : INotifyPropertyChanged
+    {
+        private bool _isExpanded = true;
+
+        public string CategoryName { get; set; }
+        public List<DocumentViewModel> Documents { get; set; } = new();
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                _isExpanded = value;
+                OnPropertyChanged(nameof(IsExpanded));
+                OnPropertyChanged(nameof(ArrowText));
+            }
+        }
+
+        public string CountText => $"{Documents.Count} ملف";
+        public string ArrowText => _isExpanded ? "▲" : "▼";
+
+        public void Toggle() => IsExpanded = !IsExpanded;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string name) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    // ─────────────────────────────────────────────
+    // Code-Behind
+    // ─────────────────────────────────────────────
     public partial class CompanyDocumentsWindow : Window
     {
         private AppDbContext _context = new AppDbContext(App.ConnectionString);
         private string _selectedFilePath;
         private CompanyDocument _selectedDocument;
 
+        // قائمة الـ Folders المعروضة حالياً
+        private List<FolderViewModel> _folders = new();
+
         public CompanyDocumentsWindow()
         {
             InitializeComponent();
+
+
             CheckStorageAccessibility();
         }
+
+        // ──────────────────────────────────────────
+        // تحميل البيانات
+        // ──────────────────────────────────────────
+
+        private async Task LoadDocuments()
+        {
+            try
+            {
+                var query = _context.CompanyDocuments
+                    .Include(d => d.Uploader)
+                    .Include(d => d.JobTitle)
+                    .AsQueryable();
+
+                // فلتر التصنيف
+                if (categoryFilter.SelectedValue != null)
+                {
+                    var selectedCategory = (int)categoryFilter.SelectedValue;
+                    query = query.Where(d => d.Category == (DocumentCategory)selectedCategory);
+                }
+
+                // فلتر الوظيفة
+                if (jobTitleFilterComboBox.SelectedValue != null)
+                {
+                    var selectedJobTitleId = (int)jobTitleFilterComboBox.SelectedValue;
+                    query = query.Where(d => d.JobTitleId == selectedJobTitleId);
+                }
+
+                // فلتر النشط
+                if (activeOnlyCheck.IsChecked == true)
+                    query = query.Where(d => d.IsActive);
+
+                var documents = await query
+                    .OrderByDescending(d => d.UploadDate)
+                    .ToListAsync();
+
+                // ──── تجميع الملفات داخل Folders ────
+                _folders = documents
+                    .GroupBy(d => d.Category)
+                    .OrderBy(g => g.Key)
+                    .Select(g =>
+                    {
+                        // هل كان الـ Folder مفتوحاً قبل إعادة التحميل؟
+                        var prev = _folders.FirstOrDefault(f => f.CategoryName == GetCategoryName(g.Key));
+                        return new FolderViewModel
+                        {
+                            CategoryName = GetCategoryName(g.Key),
+                            IsExpanded = prev?.IsExpanded ?? true,
+                            Documents = g.Select(d => new DocumentViewModel(d)).ToList()
+                        };
+                    })
+                    .ToList();
+
+                foldersPanel.ItemsSource = _folders;
+                statusText.Text = $"تم تحميل {documents.Count} ملف في {_folders.Count} تصنيف";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في تحميل الملفات: {ex.Message}", "خطأ",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ──────────────────────────────────────────
+        // أحداث الـ Folders
+        // ──────────────────────────────────────────
+
+        /// <summary>النقر على رأس الـ Folder → فتح/إغلاق</summary>
+        private void FolderHeader_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border border &&
+                border.DataContext is FolderViewModel folder)
+            {
+                folder.Toggle();
+            }
+        }
+
+        /// <summary>النقر على صف ملف → اختياره كـ SelectedDocument</summary>
+        private void FileRow_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border border &&
+                border.DataContext is DocumentViewModel vm)
+            {
+                _selectedDocument = vm.Original;
+                statusText.Text = $"تم اختيار: {_selectedDocument.Title}";
+
+                // إزالة الـ highlight من كل الصفوف
+                foreach (var folder in _folders)
+                    foreach (var doc in folder.Documents)
+                        border.Background = System.Windows.Media.Brushes.Transparent;
+
+                // تلوين الصف المحدد
+                border.Background = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter
+                        .ConvertFromString("#2000ADEF"));
+            }
+        }
+
+        // ──────────────────────────────────────────
+        // باقي الكود (بدون تغيير جوهري)
+        // ──────────────────────────────────────────
 
         private void CheckStorageAccessibility()
         {
@@ -36,7 +229,6 @@ namespace HR_Application.Views
 
                 if (isNetworkPath)
                 {
-                    // اختبار سرعة الوصول للمسار الشبكي
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     bool canAccess = Directory.Exists(storagePath);
                     stopwatch.Stop();
@@ -44,11 +236,8 @@ namespace HR_Application.Views
                     if (canAccess)
                     {
                         statusText.Text = $"المسار المركزي: {storagePath} (زمن الوصول: {stopwatch.ElapsedMilliseconds}ms)";
-
                         if (stopwatch.ElapsedMilliseconds > 1000)
-                        {
                             statusText.Text += " - اتصال بطيء";
-                        }
                     }
                     else
                     {
@@ -68,7 +257,6 @@ namespace HR_Application.Views
 
         private async Task LoadCategories()
         {
-            // تحميل التصنيفات
             categoryBox.ItemsSource = Enum.GetValues(typeof(DocumentCategory))
                 .Cast<DocumentCategory>()
                 .Select(c => new { Value = (int)c, Name = GetCategoryName(c) })
@@ -81,7 +269,6 @@ namespace HR_Application.Views
             categoryFilter.DisplayMemberPath = "Name";
             categoryFilter.SelectedValuePath = "Value";
 
-            // تحميل الوظائف إذا كان التصنيف JobDescription
             await LoadJobTitles();
         }
 
@@ -108,63 +295,17 @@ namespace HR_Application.Views
             }
         }
 
-        private string GetCategoryName(DocumentCategory category)
+        private string GetCategoryName(DocumentCategory category) => category switch
         {
-            return category switch
-            {
-                DocumentCategory.JobDescription => "وصف الوظيفة",
-                DocumentCategory.CompanyPolicy => "سياسات الشركة",
-                DocumentCategory.HRManual => "دليل الموارد البشرية",
-                DocumentCategory.CodeOfConduct => "قواعد السلوك",
-                DocumentCategory.SafetyProcedure => "إجراءات السلامة",
-                DocumentCategory.Contract => "العقود",
-                DocumentCategory.Other => "أخرى",
-                _ => "أخرى"
-            };
-        }
-
-        private async Task LoadDocuments()
-        {
-            try
-            {
-                var query = _context.CompanyDocuments
-                    .Include(d => d.Uploader)
-                    .Include(d => d.JobTitle) // تضمين بيانات الوظيفة
-                    .AsQueryable();
-
-                // Apply category filter
-                if (categoryFilter.SelectedValue != null)
-                {
-                    var selectedCategory = (int)categoryFilter.SelectedValue;
-                    query = query.Where(d => d.Category == (DocumentCategory)selectedCategory);
-                }
-
-                // Apply job title filter
-                if (jobTitleFilterComboBox.SelectedValue != null)
-                {
-                    var selectedJobTitleId = (int)jobTitleFilterComboBox.SelectedValue;
-                    query = query.Where(d => d.JobTitleId == selectedJobTitleId);
-                }
-
-                // Apply active filter
-                if (activeOnlyCheck.IsChecked == true)
-                {
-                    query = query.Where(d => d.IsActive);
-                }
-
-                var documents = await query
-                    .OrderByDescending(d => d.UploadDate)
-                    .ToListAsync();
-
-                documentsGrid.ItemsSource = documents;
-                statusText.Text = $"تم تحميل {documents.Count} ملف";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"خطأ في تحميل الملفات: {ex.Message}", "خطأ",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+            DocumentCategory.JobDescription => "وصف الوظيفة",
+            DocumentCategory.CompanyPolicy => "سياسات الشركة",
+            DocumentCategory.HRManual => "دليل الموارد البشرية",
+            DocumentCategory.CodeOfConduct => "قواعد السلوك",
+            DocumentCategory.SafetyProcedure => "إجراءات السلامة",
+            DocumentCategory.Contract => "العقود",
+            DocumentCategory.Other => "أخرى",
+            _ => "أخرى"
+        };
 
         private void browseBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -188,11 +329,7 @@ namespace HR_Application.Views
             string[] sizes = { "B", "KB", "MB", "GB" };
             int order = 0;
             double len = bytes;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len = len / 1024;
-            }
+            while (len >= 1024 && order < sizes.Length - 1) { order++; len /= 1024; }
             return $"{len:0.##} {sizes[order]}";
         }
 
@@ -209,22 +346,17 @@ namespace HR_Application.Views
             try
             {
                 var fileInfo = new FileInfo(_selectedFilePath);
-
-                // استخدام المسار المركزي
                 string storagePath = AppDbContext.CentralStoragePath;
                 string companyDocumentsPath = Path.Combine(storagePath, "CompanyDocuments");
 
                 if (!Directory.Exists(companyDocumentsPath))
                     Directory.CreateDirectory(companyDocumentsPath);
 
-                // توليد اسم فريد للملف
                 var fileName = $"{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileInfo.Name)}{fileInfo.Extension}";
                 var destinationPath = Path.Combine(companyDocumentsPath, fileName);
 
-                // نسخ الملف للمسار المركزي
                 File.Copy(_selectedFilePath, destinationPath, true);
 
-                // إنشاء سجل الملف في قاعدة البيانات
                 var document = new CompanyDocument
                 {
                     Title = titleBox.Text,
@@ -237,11 +369,10 @@ namespace HR_Application.Views
                     Description = descriptionBox.Text,
                     UploadedBy = App.CurrentUser?.Id ?? 1,
                     IsActive = true,
-                    StorageType = "Central", // إضافة حقل لتحديد نوع التخزين
+                    StorageType = "Central",
                     FullPath = destinationPath
                 };
 
-                // إذا كان التصنيف "وصف الوظيفة" وتم اختيار وظيفة
                 var selectedCategory = (DocumentCategory)categoryBox.SelectedValue;
                 if (selectedCategory == DocumentCategory.JobDescription &&
                     jobTitleComboBox.SelectedValue != null)
@@ -255,7 +386,6 @@ namespace HR_Application.Views
                 MessageBox.Show($"تم رفع الملف بنجاح إلى:\n{destinationPath}", "نجاح",
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // إعادة تعيين النموذج
                 ClearForm();
                 await LoadDocuments();
             }
@@ -291,21 +421,12 @@ namespace HR_Application.Views
             {
                 string sourcePath;
 
-                // تحديد المسار بناءً على نوع التخزين
                 if (!string.IsNullOrEmpty(_selectedDocument.FullPath) && File.Exists(_selectedDocument.FullPath))
-                {
                     sourcePath = _selectedDocument.FullPath;
-                }
                 else if (!string.IsNullOrEmpty(_selectedDocument.FilePath) && File.Exists(_selectedDocument.FilePath))
-                {
                     sourcePath = _selectedDocument.FilePath;
-                }
                 else
-                {
-                    // البحث في المسار المركزي
-                    string storagePath = AppDbContext.CentralStoragePath;
-                    sourcePath = Path.Combine(storagePath, "CompanyDocuments", _selectedDocument.FileName);
-                }
+                    sourcePath = Path.Combine(AppDbContext.CentralStoragePath, "CompanyDocuments", _selectedDocument.FileName);
 
                 if (!File.Exists(sourcePath))
                 {
@@ -366,7 +487,6 @@ namespace HR_Application.Views
             {
                 try
                 {
-                    // البحث عن الملف وحذفه
                     string[] possiblePaths = {
                         _selectedDocument.FullPath,
                         _selectedDocument.FilePath,
@@ -375,15 +495,8 @@ namespace HR_Application.Views
                     };
 
                     foreach (var path in possiblePaths)
-                    {
-                        if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                        {
-                            File.Delete(path);
-                            break;
-                        }
-                    }
+                        if (!string.IsNullOrEmpty(path) && File.Exists(path)) { File.Delete(path); break; }
 
-                    // حذف من قاعدة البيانات
                     _context.CompanyDocuments.Remove(_selectedDocument);
                     await _context.SaveChangesAsync();
 
@@ -409,12 +522,15 @@ namespace HR_Application.Views
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
-            // يمكنك إضافة كود عرض التوقيعات هنا لاحقاً
+            // أضف كود عرض التوقيعات هنا
         }
 
         private void previewBtn_Click(object sender, RoutedEventArgs e)
         {
+            // دعم زر المعاينة من داخل الـ DataGrid Row
+            if (sender is Button btn && btn.DataContext is DocumentViewModel vm)
+                _selectedDocument = vm.Original;
+
             if (_selectedDocument == null)
             {
                 MessageBox.Show("يرجى اختيار ملف أولاً", "تحذير",
@@ -435,51 +551,32 @@ namespace HR_Application.Views
             }
         }
 
-        private void documentsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            _selectedDocument = documentsGrid.SelectedItem as CompanyDocument;
-        }
-
-        private async void categoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        // الفلاتر
+        private async void categoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
             await LoadDocuments();
-        }
 
-        private async void jobTitleFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        private async void jobTitleFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
             await LoadDocuments();
-        }
 
-        private async void activeOnlyCheck_Changed(object sender, RoutedEventArgs e)
-        {
+        private async void activeOnlyCheck_Changed(object sender, RoutedEventArgs e) =>
             await LoadDocuments();
-        }
 
-        // حدث عند تغيير التصنيف في رفع الملف الجديد
         private void categoryBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (categoryBox.SelectedValue != null)
             {
                 var selectedCategory = (DocumentCategory)categoryBox.SelectedValue;
+                jobTitleSection.Visibility = selectedCategory == DocumentCategory.JobDescription
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
 
-                // إظهار قسم اختيار الوظيفة فقط إذا كان التصنيف "وصف الوظيفة"
-                if (selectedCategory == DocumentCategory.JobDescription)
-                {
-                    jobTitleSection.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    jobTitleSection.Visibility = Visibility.Collapsed;
+                if (selectedCategory != DocumentCategory.JobDescription)
                     jobTitleComboBox.SelectedIndex = -1;
-                }
             }
         }
 
-        // حدث لمسح فلتر الوظيفة
-        private void clearJobTitleFilter_Click(object sender, RoutedEventArgs e)
-        {
+        private void clearJobTitleFilter_Click(object sender, RoutedEventArgs e) =>
             jobTitleFilterComboBox.SelectedIndex = -1;
-        }
 
         protected override void OnClosed(EventArgs e)
         {
@@ -492,5 +589,7 @@ namespace HR_Application.Views
             await LoadCategories();
             activeOnlyCheck.IsChecked = true;
         }
+
+        
     }
 }

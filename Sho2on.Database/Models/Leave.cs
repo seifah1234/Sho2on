@@ -40,6 +40,7 @@ namespace Sho2on.Database.Models
         public DateTime? ApprovalDate { get; set; }
 
         public int? ApprovedBy { get; set; }
+        public int? ReplacementUserId { get; set; }
 
         public string? RejectionReason { get; set; }
 
@@ -57,6 +58,9 @@ namespace Sho2on.Database.Models
 
         [ForeignKey(nameof(ApprovedBy))]
         public virtual User Approver { get; set; }
+
+        [ForeignKey(nameof(ReplacementUserId))]
+        public virtual User ReplacementUser { get; set; }
 
         [ForeignKey(nameof(CancelledBy))]
         public virtual User Canceller { get; set; }

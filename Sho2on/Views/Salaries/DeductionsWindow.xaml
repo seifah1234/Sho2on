@@ -7,7 +7,7 @@
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Height="550" Width="950" MinHeight="550" MinWidth="950"
+        Height="550" Width="1050" MinHeight="550"
         WindowStartupLocation="CenterScreen"
         Background="Transparent"
         >
@@ -65,8 +65,8 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -105,7 +105,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -118,38 +118,41 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{DynamicResource PrimaryColor}"  >
                 <Grid>
-                    <Image Name="GIFTop" Source="pack://application:,,,/assets/images/Top.gif" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="10">
                         <!-- GroupBox المحسن -->
-                        <GroupBox Style="{StaticResource GroupBoxStyle}" Header="البيانات الأساسية" Margin="10">
+                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="البيانات الأساسية" Margin="10">
                             <StackPanel VerticalAlignment="Center" Orientation="Vertical" FlowDirection="LeftToRight">
                                 <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
                                     <!-- الأزرار -->
-                                    <Button Style="{StaticResource ActionButtonStyle}" Name="save_btn" Click="save_btn_Click" Margin="10">
+                                    <Button Style="{DynamicResource ActionButtonStyle}" Name="save_btn" Click="save_btn_Click" Margin="10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حفظ" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="حفظ" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="10">
+                                    <Button Style="{DynamicResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="بحث" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="بحث" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <StackPanel Margin="5" Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Center">
                                         <Label VerticalAlignment="Center" Content="الفرع" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
                                         <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                                     </StackPanel>
-                                    <!-- TextBoxes -->
-                                    <TextBox Width="200" Name="name_box" Tag="الاسم" FlowDirection="RightToLeft" Margin="10"/>
+                                    <!-- TextBoxes 
+                                    <TextBox Width="200" Name="name_box" Tag="الاسم" FlowDirection="RightToLeft" Margin="10"/>-->
+                                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                                        <TextBlock Width="250" Name="user_box" Margin="5"/>
+                                        <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف: " VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                    </StackPanel>
                                     <TextBox Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="10"/>
                                 </StackPanel>
                             </StackPanel>
@@ -160,11 +163,11 @@
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <!-- RadioButtons -->
                                 <StackPanel Orientation="Horizontal" Margin="10" HorizontalAlignment="Center">
-                                    <RadioButton Style="{StaticResource RadioButtonStyle}" IsChecked="True" Checked="ancestor_Checked" Name="ancestor_check" Content="سلف"/>
-                                    <RadioButton Style="{StaticResource RadioButtonStyle}" Checked="penalty_Checked" Name="penalty_check" Content="جزاء"/>
-                                    <RadioButton Style="{StaticResource RadioButtonStyle}" Checked="deficit_Checked" Name="deficit_check" Content="عجز"/>
-                                    <RadioButton Style="{StaticResource RadioButtonStyle}" Checked="reward_Checked" Name="reward_check" Content="مكافأة"/>
-                                    <RadioButton Style="{StaticResource RadioButtonStyle}" Checked="phone_check_Checked" Name="phone_check" Content="فاتورة تليفون"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Checked="ancestor_Checked" Name="ancestor_check" Content="سلف"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="penalty_Checked" Name="penalty_check" Content="جزاء"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="deficit_Checked" Name="deficit_check" Content="عجز"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="reward_Checked" Name="reward_check" Content="مكافأة"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="phone_check_Checked" Name="phone_check" Content="فاتورة تليفون"/>
                                 </StackPanel>
 
                                 <!-- DatePicker -->

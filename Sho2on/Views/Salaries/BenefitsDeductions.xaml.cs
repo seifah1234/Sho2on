@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Office.Interop.Excel;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
@@ -8,12 +10,15 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Office.Interop.Excel;
-using MessageBox = System.Windows.MessageBox;
-using Range = Microsoft.Office.Interop.Excel.Range;
+using System.Windows.Media;
+using static HR_Application.EmployeeData;
 using Application = Microsoft.Office.Interop.Excel.Application;
 using Button = System.Windows.Controls.Button;
+using MessageBox = System.Windows.MessageBox;
+using Range = Microsoft.Office.Interop.Excel.Range;
 using Window = System.Windows.Window;
+using Workbook = Microsoft.Office.Interop.Excel.Workbook;
+using Worksheet = Microsoft.Office.Interop.Excel.Worksheet;
 
 namespace HR_Application.Views
 {
@@ -26,6 +31,7 @@ namespace HR_Application.Views
         private ObservableCollection<SalaryOperationViewModel> _deductions = new ObservableCollection<SalaryOperationViewModel>();
         private Dictionary<int, string> _operations = new Dictionary<int, string>();
         private Dictionary<int, string> _types = new Dictionary<int, string>();
+        private List<User> users = new List<User>();
 
         public BenefitsDeductions()
         {
@@ -74,7 +80,84 @@ namespace HR_Application.Views
             month_box.SelectedItem = DateTime.Now.ToString("MMMM", CultureInfo.CurrentCulture);
             year_box.FlowDirection = System.Windows.FlowDirection.LeftToRight;
             year_box.SelectedItem = DateTime.Now.Year;
+
+            var dbUsers = _context.Users.ToList();
+
+            users.AddRange(dbUsers);
+            user_box.ItemsSource = users;
         }
+
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                code_box.Text = user_box.SelectedValue.ToString();
+            }
+
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
 
         private (DateTime Start, DateTime End) GetCustomMonthDates(int month, int year)
         {
@@ -166,13 +249,13 @@ namespace HR_Application.Views
                 if (employee == null)
                 {
                     MessageBox.Show("الموظف غير موجود أو ليس لديك صلاحية الوصول", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
-                    name_box.Text = "";
+                    user_box.SelectedIndex = -1;
                     _deductions.Clear();
                     list.ItemsSource = _deductions;
                     return;
                 }
 
-                name_box.Text = employee.FullName;
+                user_box.SelectedValue = employee.Code;
 
                 // تحديد التواريخ
                 int monthNumber = DateTime.ParseExact(month_box.Text, "MMMM", CultureInfo.CurrentCulture).Month;
@@ -322,7 +405,7 @@ namespace HR_Application.Views
                 return;
             }
 
-            DeductionsWindow deductionsWindow = new DeductionsWindow(employeeCode, name_box.Text);
+            DeductionsWindow deductionsWindow = new DeductionsWindow(employeeCode, user_box.Text);
             deductionsWindow.Closed += async (s, args) => await GetDataAsync();
             deductionsWindow.ShowDialog();
         }

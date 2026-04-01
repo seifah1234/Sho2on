@@ -1,4 +1,5 @@
-﻿using HR_Application.Views.Employees.Holidays;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 using MessageBox = System.Windows.MessageBox;
 using RadioButton = System.Windows.Controls.RadioButton;
 
@@ -20,6 +22,7 @@ namespace HR_Application.Views
         private int _selectedLeaveTypeId;
         private User _user; 
         private User _selectedManager;
+        private User _selectedReplaceEmployee;
         private List<LeaveType> _leaveTypes = new List<LeaveType>();
         private List<JobTitle> _jobTitles = new List<JobTitle>();
         private List<User> _managers = new List<User>();
@@ -28,43 +31,117 @@ namespace HR_Application.Views
         public HolidayRequestWindow(string employeeCode = null)
         {
             InitializeComponent();
-            InitializeEvents();
-            LoadData();
 
-            if (!string.IsNullOrEmpty(employeeCode))
+            if (employeeCode != null && !string.IsNullOrEmpty(employeeCode))
             {
                 employeeCode_box.Text = employeeCode;
                 SearchEmployee();
             }
+                
         }
 
-        private async void LoadData()
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                ReplaceEmployeeCode_box.Text = user_box.SelectedValue.ToString();
+            }
+
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = _users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
+        private async Task LoadData()
         {
             try
             {
+                using (var dbContext = new AppDbContext(App.ConnectionString))
+                {
+                    _users = await dbContext.Users
+                        .Include(u => u.Department)
+                        .Include(u => u.Branch)
+                        .Include(u => u.JobTitle)
+                        .Include(u => u.Manager)
+                        .ToListAsync();
 
-                _users = await _context.Users
-                    .Include(u => u.Department)
-                    .Include(u => u.Branch)
-                    .Include(u => u.JobTitle)
-                    .Include(u => u.Manager)
-                    .ToListAsync();
-
-
-                _jobTitles = await _context.JobTitles
-                    .OrderBy(j => j.Name)
-                    .ToListAsync();
-
-                cmbFilterByJobTitle.ItemsSource = _jobTitles;
+                    user_box.ItemsSource = _users;
 
 
-                _leaveTypes = await _context.LeaveTypes
-                    .Where(lt => lt.IsActive)
-                    .OrderBy(lt => lt.Name)
-                    .ToListAsync();
+                    _jobTitles = await dbContext.JobTitles
+                        .OrderBy(j => j.Name)
+                        .ToListAsync();
 
-                // تحديث RadioButtons بناءً على أنواع الإجازات
-                UpdateLeaveTypeRadioButtons();
+                    cmbFilterByJobTitle.ItemsSource = _jobTitles;
+
+
+                    _leaveTypes = await dbContext.LeaveTypes
+                        .Where(lt => lt.IsActive)
+                        .OrderBy(lt => lt.Name)
+                        .ToListAsync();
+
+                    // تحديث RadioButtons بناءً على أنواع الإجازات
+                    UpdateLeaveTypeRadioButtons();
+                }
             }
             catch (Exception ex)
             {
@@ -76,38 +153,39 @@ namespace HR_Application.Views
         public HolidayRequestWindow()
         {
             InitializeComponent();
-            InitializeEvents();
-            LoadData();
         }
 
         private async Task LoadManagers(int? jobTitleId = null)
         {
             try
             {
-                var query = _context.Users
-                    .Include(u => u.JobTitle)
-                    .Include(u => u.Department)
-                    .Where(u => u.JobTitle.IsManager.HasValue && u.JobTitle.IsManager.Value);
-
-                if (jobTitleId.HasValue && jobTitleId.Value > 0)
+                using (var dbContext = new AppDbContext(App.ConnectionString))
                 {
-                    query = query.Where(u => u.JobTitleId == jobTitleId.Value);
+                    var query = dbContext.Users
+                        .Include(u => u.JobTitle)
+                        .Include(u => u.Department)
+                        .Where(u => u.JobTitle.IsManager.HasValue && u.JobTitle.IsManager.Value);
+
+                    if (jobTitleId.HasValue && jobTitleId.Value > 0)
+                    {
+                        query = query.Where(u => u.JobTitleId == jobTitleId.Value);
+                    }
+
+                    _managers = await query
+                        .OrderBy(u => u.FullName)
+                        .ToListAsync();
+
+                    // الآن بدلاً من ComboBox، سنستخدم زر لفتح نافذة الاختيار
+                    if (_managers.Count == 0 && _selectedManager == null)
+                    {
+                        btnSelectManager.Content = "لا يوجد مديرين متاحين";
+
+                    }
+                    btnSelectManager.IsEnabled = _managers.Count > 0;
+
+                    // تحديث قسم الموافقة
+                    UpdateApprovalSectionVisibility();
                 }
-
-                _managers = await query
-                    .OrderBy(u => u.FullName)
-                    .ToListAsync();
-
-                // الآن بدلاً من ComboBox، سنستخدم زر لفتح نافذة الاختيار
-                if (_managers.Count == 0 && _selectedManager == null)
-                {
-                    btnSelectManager.Content = "لا يوجد مديرين متاحين";
-
-                }
-                btnSelectManager.IsEnabled = _managers.Count > 0;
-
-                // تحديث قسم الموافقة
-                UpdateApprovalSectionVisibility();
             }
             catch (Exception ex)
             {
@@ -126,7 +204,6 @@ namespace HR_Application.Views
 
             // فتح نافذة اختيار المدير
             var managerSelectionWindow = new EmployeeSelectionWindow(_managers, true, "اختر الموافق على الإجازة");
-            managerSelectionWindow.Owner = this;
 
             if (managerSelectionWindow.ShowDialog() == true && managerSelectionWindow.SelectedUser != null)
             {
@@ -286,42 +363,46 @@ namespace HR_Application.Views
             }
         }
 
+        private async Task LoadEmployeeData(User selectedEmployee)
+        {
+
+            _employeeId = selectedEmployee.Id;
+            _user = selectedEmployee;
+            employeeCode_box.Text = selectedEmployee.Code;
+            employeeName_box.Text = selectedEmployee.FullName;
+
+            if (_user.Manager != null)
+            {
+                _selectedManager = _user.Manager;
+
+                UpdateSelectedManagerDisplay(_selectedManager);
+            }
+
+            DisplayEmployeeInfo(selectedEmployee);
+
+            // تحميل المديرين
+            await LoadManagers();
+
+            await UpdateLeaveBalanceDisplay(_employeeId, _selectedLeaveTypeId);
+
+            leaveBalanceSection.Visibility = Visibility.Visible;
+        }
+
         private async void SearchEmployee()
         {
             try
             {
                 // تحميل جميع الموظفين
-                var allUsers = _users.Where(u => u.FullName.StartsWith(employeeName_box.Text) || u.Id.ToString() == employeeCode_box.Text)
+                var allUsers = _users.Where(u => u.FullName.StartsWith(employeeName_box.Text) || u.Code == employeeCode_box.Text)
                     .ToList();
 
                 // فتح نافذة اختيار الموظف
                 var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "اختر الموظف لطلب الإجازة", employeeCode_box.Text);
-                employeeSelectionWindow.Owner = this;
 
                 if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
                 {
                     var selectedEmployee = employeeSelectionWindow.SelectedUser;
-
-                    _employeeId = selectedEmployee.Id;
-                    _user = selectedEmployee;
-                    employeeCode_box.Text = selectedEmployee.Id.ToString();
-                    employeeName_box.Text = selectedEmployee.FullName;
-
-                    if (_user.Manager != null)
-                    {
-                        _selectedManager = _user.Manager;
-
-                        UpdateSelectedManagerDisplay(_selectedManager);
-                    }
-
-                    DisplayEmployeeInfo(selectedEmployee);
-
-                    // تحميل المديرين
-                    await LoadManagers();
-
-                    await UpdateLeaveBalanceDisplay(_employeeId, _selectedLeaveTypeId);
-
-                    leaveBalanceSection.Visibility = Visibility.Visible;
+                    LoadEmployeeData(selectedEmployee);
                 }
             }
             catch (Exception ex)
@@ -371,24 +452,26 @@ namespace HR_Application.Views
         {
             try
             {
-                var balanceInfo = await CalculateLeaveBalance(userId, leaveTypeId);
+               
+                    var balanceInfo = await CalculateLeaveBalance(userId, leaveTypeId);
 
-                // تحديث عرض الرصيد
-                annualBalance_text.Text = $"{balanceInfo.Total} يوم";
-                remainingBalance_text.Text = $"{balanceInfo.Remaining} يوم";
-                usedBalance_text.Text = $"{balanceInfo.Used} يوم";
+                    // تحديث عرض الرصيد
+                    annualBalance_text.Text = $"{balanceInfo.Total} يوم";
+                    remainingBalance_text.Text = $"{balanceInfo.Remaining} يوم";
+                    usedBalance_text.Text = $"{balanceInfo.Used} يوم";
 
-                // تحديث لون الرصيد المتبقي
-                UpdateRemainingBalanceColor(balanceInfo.Remaining, balanceInfo.Total);
+                    // تحديث لون الرصيد المتبقي
+                    UpdateRemainingBalanceColor(balanceInfo.Remaining, balanceInfo.Total);
 
-                // عرض معلومات نوع الإجازة
-                var leaveType = _leaveTypes.FirstOrDefault(lt => lt.Id == leaveTypeId);
-                if (leaveType != null)
-                {
-                    txtLeaveTypeInfo.Text = leaveType.Name;
-                    txtMaxConsecutiveDays.Text = leaveType.MaxConsecutiveDays?.ToString() ?? "لا يوجد حد";
-                    txtRequiresApproval.Text = leaveType.RequiresApproval ? "نعم" : "لا";
-                }
+                    // عرض معلومات نوع الإجازة
+                    var leaveType = _leaveTypes.FirstOrDefault(lt => lt.Id == leaveTypeId);
+                    if (leaveType != null)
+                    {
+                        txtLeaveTypeInfo.Text = leaveType.Name;
+                        txtMaxConsecutiveDays.Text = leaveType.MaxConsecutiveDays?.ToString() ?? "لا يوجد حد";
+                        txtRequiresApproval.Text = leaveType.RequiresApproval ? "نعم" : "لا";
+                    }
+                
             }
             catch (Exception ex)
             {
@@ -412,28 +495,32 @@ namespace HR_Application.Views
 
         private async System.Threading.Tasks.Task<LeaveBalanceInfo> CalculateLeaveBalance(int userId, int leaveTypeId)
         {
-            // الحصول على رصيد الإجازة من قاعدة البيانات
-            var leaveBalance = await _context.LeaveBalances
+            using (var dbContext = new AppDbContext(App.ConnectionString))
+            {
+                // الحصول على رصيد الإجازة من قاعدة البيانات
+                var leaveBalance = await dbContext.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.UserId == userId && lb.LeaveTypeId == leaveTypeId);
 
-            var leaveType = await _context.LeaveTypes.FindAsync(leaveTypeId);
+                var leaveType = await dbContext.LeaveTypes.FindAsync(leaveTypeId);
 
-            int totalBalance = leaveBalance?.TotalBalance ?? leaveType?.DefaultBalance ?? 0;
+                int totalBalance = leaveBalance?.TotalBalance ?? leaveType?.DefaultBalance ?? 0;
 
-            // حساب الإجازات المستخدمة (الموافق عليها فقط)
-            var usedLeaves = await _context.Leaves
-                .Where(l => l.UserId == userId &&
-                           l.LeaveTypeId == leaveTypeId &&
-                           l.Status == 2 && // الموافق عليها
-                           !l.IsCancelled)
-                .SumAsync(l => (int?)l.Duration) ?? 0;
+                // حساب الإجازات المستخدمة (الموافق عليها فقط)
+                var usedLeaves = await dbContext.Leaves
+                    .Where(l => l.UserId == userId &&
+                               l.LeaveTypeId == leaveTypeId &&
+                               l.Status == 2 && // الموافق عليها
+                               !l.IsCancelled)
+                    .SumAsync(l => (int?)l.Duration) ?? 0;
 
-            return new LeaveBalanceInfo
-            {
-                Total = totalBalance,
-                Used = usedLeaves,
-                Remaining = totalBalance - usedLeaves
-            };
+                return new LeaveBalanceInfo
+                {
+                    Total = totalBalance,
+                    Used = usedLeaves,
+                    Remaining = totalBalance - usedLeaves
+                };
+            }
+
         }
 
         private async System.Threading.Tasks.Task CheckLeaveBalance()
@@ -521,6 +608,7 @@ namespace HR_Application.Views
                         Duration = int.Parse(duration_box.Text),
                         Reason = reason_box.Text,
                         RequestDate = DateTime.Now,
+                        ReplacementUserId = (_selectedReplaceEmployee != null) ? _selectedReplaceEmployee.Id : null,
                         Status = requiresApproval ? 1 : 2, // 1: Pending, 2: Approved
                         ApprovedBy = approvingManagerId
                     };
@@ -859,6 +947,48 @@ namespace HR_Application.Views
                     }
                 }
             }
+        }
+
+        private void searchReplace_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+            try
+            {
+                // تحميل جميع الموظفين
+                var allUsers = _users.Where(u => u.Code == ReplaceEmployeeCode_box.Text)
+                    .ToList();
+
+                // فتح نافذة اختيار الموظف
+                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "اختر الموظف القائم عن العمل", ReplaceEmployeeCode_box.Text);
+                employeeSelectionWindow.Owner = this;
+
+                if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
+                {
+                    _selectedReplaceEmployee = employeeSelectionWindow.SelectedUser;
+
+                    ReplaceEmployeeCode_box.Text = _selectedReplaceEmployee.Code;
+                    user_box.SelectedValue = _selectedReplaceEmployee.Code;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في البحث: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+            InitializeEvents();
+            await LoadData();
+            employeeCode_box.Text = App.CurrentUser.Code;
+            await LoadEmployeeData(App.CurrentUser);
+        }
+
+        private void ReplaceEmployeeCode_box_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            user_box.SelectedValue = ReplaceEmployeeCode_box.Text;
         }
     }
 

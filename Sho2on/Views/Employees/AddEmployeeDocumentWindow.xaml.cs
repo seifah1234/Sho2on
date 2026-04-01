@@ -134,17 +134,9 @@ namespace HR_Application.Views
         {
             return type switch
             {
-                EmployeeDocumentType.CV => "السيرة الذاتية",
-                EmployeeDocumentType.NationalID => "البطاقة الشخصية",
-                EmployeeDocumentType.DrivingLicense => "رخصة القيادة",
-                EmployeeDocumentType.DegreeCertificate => "شهادة المؤهل",
-                EmployeeDocumentType.TrainingCertificate => "شهادات التدريب",
-                EmployeeDocumentType.WorkPermit => "تصريح العمل",
-                EmployeeDocumentType.Insurance => "التأمين",
-                EmployeeDocumentType.MilitaryCertificate => "الشهادة العسكرية",
-                EmployeeDocumentType.Passport => "الجواز",
-                EmployeeDocumentType.PersonalContract => "العقد الشخصي",
-                EmployeeDocumentType.Photo => "صورة شخصية",
+                EmployeeDocumentType.TrainingCertificate => "التدريب",
+                EmployeeDocumentType.WorkPermit => "وثائق التعيين",
+                EmployeeDocumentType.SignedCompanyDocument => "وثائق موقعه",
                 EmployeeDocumentType.Other => "أخرى",
                 _ => "أخرى"
             };

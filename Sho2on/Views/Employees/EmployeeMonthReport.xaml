@@ -8,128 +8,230 @@
         Background="Transparent">
 
     <Window.Resources>
-        <!-- تدرج لوني للخلفية الرئيسية -->
-        <LinearGradientBrush x:Key="MainBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#E3F2FD" Offset="0"/>
-            <GradientStop Color="#BBDEFB" Offset="1"/>
-        </LinearGradientBrush>
-        <!-- تدرج للقسم العلوي -->
-        <!-- تأثير ظل -->
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
-        <!-- نمط للـ ComboBox -->
-        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-        </Style>
-        <!-- نمط للأزرار -->
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="110"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#1976D2"/>
+
+        <!-- Action button used in the toolbar -->
+        <Style x:Key="ToolbarButtonStyle" TargetType="Button">
+            <Setter Property="Height"          Value="40"/>
+            <Setter Property="Padding"         Value="14,0"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Background"      Value="#0D2233"/>
+            <Setter Property="Foreground"      Value="{DynamicResource ButtonHoverForeground}"/>
+            <Setter Property="Background"      Value="{DynamicResource ButtonHoverBackground}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+            <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background"  Value="#0D3344"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#BBDEFB"/>
-                </Trigger>
-            </Style.Triggers>
+        </Style>
+
+        <!-- Local ComboBox override to keep white text on dark header -->
+        <Style x:Key="HeaderComboStyle" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="Width"  Value="110"/>
+            <Setter Property="Height" Value="36"/>
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <!-- ════ Window root ════ -->
+    <Border CornerRadius="15" Background="{DynamicResource WindowRootBackground}">
+
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
-                <RowDefinition Height="120"/>
+                <RowDefinition Height="52"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- العنوان المحسن -->
-            <TextBlock Text="شهري الموظفين" 
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Center" 
-                       FontSize="22" 
-                       FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
-                         
-                       Grid.ColumnSpan="2"/>
-
-            <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
+            <!-- ── Title bar ── -->
+            <Border Grid.Row="0" CornerRadius="15 15 0 0">
                 <Grid>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
-                        <!-- الأزرار -->
-                        <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="0 0 10 0">
-                            <StackPanel Orientation="Horizontal">
-                                <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="Excel" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="print_btn" Click="print_btn_Click" Margin="0 0 10 0">
-                            <StackPanel Orientation="Horizontal">
-                                <Icon:PackIconMaterial Kind="Printer" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="طباعة" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource SecondaryButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="0 0 30 0">
-                            <StackPanel Orientation="Horizontal">
-                                <Icon:PackIconMaterial Kind="Eye" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="عرض البيانات" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <!-- الفلاتر -->
-                        <StackPanel FlowDirection="RightToLeft" Margin="0 0 20 0" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Label VerticalAlignment="Center" Content="الشهر :" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                            <ComboBox Name="month_box" Margin="5 0 0 0"/>
-                        </StackPanel>
-                        <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Label VerticalAlignment="Center" Content="السنة :" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                            <ComboBox Name="year_box" Margin="5 0 0 0"/>
-                        </StackPanel>
-                        <StackPanel FlowDirection="RightToLeft" Margin="20 0 0 0" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Label VerticalAlignment="Center" Content="الفرع :" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
-                            <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" Name="branch_box" Margin="5 0 0 0"/>
-                        </StackPanel>
+                    <Rectangle VerticalAlignment="Bottom" Height="1" Opacity="0.2">
+                        <Rectangle.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="Transparent" Offset="0"/>
+                                <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Icon:PackIconMaterial Kind="CalendarMonth" Width="20" Height="20"
+                                               Foreground="{DynamicResource TextPrimaryColor}"
+                                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="شهري الموظفين"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Opacity="0.95"   Margin="20">
-                <DataGrid AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="dataGrid">
+            <!-- ── Toolbar / Filters ── -->
+            <Border Grid.Row="1" Padding="16,12" Background="{DynamicResource InputBackground}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Color="#000000" Opacity="0.4"/>
+                </Border.Effect>
+                <!-- Bottom hairline -->
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="Transparent" Offset="0"/>
+                        <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Action buttons -->
+                    <UniformGrid Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <Button Style="{DynamicResource ToolbarButtonStyle}"
+                                x:Name="excel_btn" Click="excel_btn_Click" Margin="0,0,6,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="FileExcel" Width="16" Height="16"
+                                                       Foreground="{DynamicResource SuccessColor}"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Excel" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{DynamicResource ToolbarButtonStyle}" IsDefault="True"
+                                x:Name="data_load_btn" Click="data_load_btn_Click" Margin="0,0,6,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="Eye" Width="16" Height="16"
+                                                       Foreground="{DynamicResource AccentColor}"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="عرض البيانات" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{DynamicResource ToolbarButtonStyle}"
+                                x:Name="clear_btn" Click="clear_btn_Click" Margin="0,0,6,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="EraserVariant" Width="16" Height="16"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="جديد" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{DynamicResource ToolbarButtonStyle}" Margin="0,0,6,6"
+                                x:Name="print_btn" Click="print_btn_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="Printer" Width="16" Height="16"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="طباعة" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </UniformGrid>
+
+                    <!-- Filters -->
+                    <UniformGrid Grid.Column="1" 
+                               VerticalAlignment="Center" HorizontalAlignment="Right"
+                               FlowDirection="RightToLeft">
+
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Content="الفرع :" VerticalAlignment="Center"/>
+                            <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
+                                      Name="branch_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Content="الادارة :" VerticalAlignment="Center"/>
+                            <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
+                                      Name="dept_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Content="القطاع :" VerticalAlignment="Center"/>
+                            <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
+                                      Name="section_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Content="الوظيفة :" VerticalAlignment="Center"/>
+                            <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
+                                      Name="job_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Content="الشهر :" VerticalAlignment="Center"/>
+                            <ComboBox Name="month_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Content="السنة :" VerticalAlignment="Center"/>
+                            <ComboBox Name="year_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
+                        </StackPanel>
+                    </UniformGrid>
+                </Grid>
+            </Border>
+
+            <!-- ── DataGrid ── -->
+            <Border Grid.Row="2" Margin="16,12,16,16" CornerRadius="16"
+                    Background="{DynamicResource SurfaceColor}"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="#000000" Opacity="0.4"/>
+                </Border.Effect>
+                <DataGrid AutoGenerateColumns="False"
+                          FlowDirection="RightToLeft"
+                          Margin="0"
+                          x:Name="dataGrid"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          SelectionUnit="FullRow">
                     <DataGrid.Columns>
-                        <DataGridTextColumn CanUserSort="False" Header="الكود" Width="120" IsReadOnly="True" Binding="{Binding dataTotal.Code}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الاسم" Width="120" IsReadOnly="True" Binding="{Binding dataTotal.Name}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="عدد ساعات العمل" IsReadOnly="True" Binding="{Binding dataTotal.TotalWorkTime, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="التأخير" IsReadOnly="True" Binding="{Binding dataTotal.TotalLate, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="خ مبكر" IsReadOnly="True" Binding="{Binding dataTotal.TotalEarly, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الإضافي" IsReadOnly="True" Binding="{Binding dataTotal.TotalOT, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="عدد ساعات العمل الفعلية" IsReadOnly="True" Binding="{Binding dataTotal.TotalAttendTime, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الإجازات" IsReadOnly="True" Binding="{Binding dataTotal.TotalHoliday}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الغياب" IsReadOnly="True" Binding="{Binding dataTotal.TotalAbsence}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="الكود"
+                                            Width="110" IsReadOnly="True"
+                                            Binding="{Binding dataTotal.Code}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="الاسم"
+                                            Width="130" IsReadOnly="True"
+                                            Binding="{Binding dataTotal.Name}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="ساعات العمل"
+                                            IsReadOnly="True"
+                                            Binding="{Binding dataTotal.TotalWorkTime, StringFormat={}{0:hh\\:mm}}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="التأخير"
+                                            IsReadOnly="True"
+                                            Binding="{Binding dataTotal.TotalLate, StringFormat={}{0:hh\\:mm}}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="خ مبكر"
+                                            IsReadOnly="True"
+                                            Binding="{Binding dataTotal.TotalEarly, StringFormat={}{0:hh\\:mm}}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="الإضافي"
+                                            IsReadOnly="True"
+                                            Binding="{Binding dataTotal.TotalOT, StringFormat={}{0:hh\\:mm}}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="ساعات الفعلية"
+                                            IsReadOnly="True"
+                                            Binding="{Binding dataTotal.TotalAttendTime, StringFormat={}{0:hh\\:mm}}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="الإجازات"
+                                            IsReadOnly="True"
+                                            Binding="{Binding dataTotal.TotalHoliday}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="الغياب"
+                                            IsReadOnly="True"
+                                            Binding="{Binding dataTotal.TotalAbsence}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>

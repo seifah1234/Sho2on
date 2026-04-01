@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HR_Application.Views;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
@@ -11,10 +12,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using static HR_Application.EmployeeData;
 using static MaterialDesignThemes.Wpf.Theme;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 using Application = System.Windows.Application;
+using Colors = System.Windows.Media.Colors;
 using DataGrid = System.Windows.Controls.DataGrid;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
@@ -34,6 +37,7 @@ namespace HR_Application
         TimeSpan shiftTo = new TimeSpan();
         List<bool> weekHoli = new List<bool>();
         Dictionary<string, int> _dates = new Dictionary<string, int>();
+        private List<User> users = new List<User>();
 
         private AppDbContext _context;
 
@@ -45,7 +49,6 @@ namespace HR_Application
             _context = new AppDbContext(App.ConnectionString);
             job_box.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right;
             job_box.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
-            name_box.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
             InitializeDateSelections();
             OpenMonthlyDataCommand = new RelayCommand(OpenMonthlyData);
         }
@@ -62,6 +65,11 @@ namespace HR_Application
             branch_box.ItemsSource = branches;
             branch_box.DisplayMemberPath = "Name";
             branch_box.SelectedValuePath = "Id";
+
+            var dbUsers = _context.Users.ToList();
+
+            users.AddRange(dbUsers);
+            user_box.ItemsSource = users;
         }
 
         private void Min_Click(object sender, RoutedEventArgs e)
@@ -142,6 +150,78 @@ namespace HR_Application
             }
         }
 
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                code_box.Text = user_box.SelectedValue.ToString();
+            }
+
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
+
         private void DataGet()
         {
             try
@@ -164,7 +244,7 @@ namespace HR_Application
                     {
                         branchI = userData.BranchId;
                         branch = userData.Branch.Name;
-                        name_box.Text = userData.FullName;
+                        user_box.SelectedValue = userData.Id;
                         job_box.Text = userData.JobTitle.Name;
                         shift = userData.Shift.Name;
                         shiftFrom = userData.Shift.StartTime;
@@ -433,7 +513,7 @@ namespace HR_Application
                     var record = new
                     {
                         Code = code_box.Text,
-                        Name = name_box.Text,
+                        Name = user_box.Text,
                         DayDate = Convert.ToDateTime(data.dateEdit).Date,
                         Shift = shift,
                         OnDuty = timeOn,

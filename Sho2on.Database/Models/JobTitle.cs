@@ -13,6 +13,7 @@ public class JobTitle
 
     public bool? IsDriver { get; set; }
     public bool? IsManager { get; set; }
+    public bool? IsHR { get; set; }
 
     public DateTime? EditedAt { get; set; } = DateTime.Now;
 }

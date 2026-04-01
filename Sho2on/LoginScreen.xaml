@@ -3,149 +3,351 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:uc="clr-namespace:HR_Application.UserControls"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Height="550" Width="900" MinHeight="550" MinWidth="950" 
-        WindowStyle="SingleBorderWindow" 
+        Height="550" Width="900" MinHeight="550" MinWidth="950"
+        WindowStyle="SingleBorderWindow"
         FlowDirection="RightToLeft"
-        WindowStartupLocation="CenterScreen" 
+        WindowStartupLocation="CenterScreen"
         Background="Transparent">
 
     <Window.Resources>
-        
-        <!-- تأثير ظل -->
-        <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
-        <!-- نمط للحقول -->
+
+        <DropShadowEffect x:Key="ShadowEffect"  BlurRadius="5"  ShadowDepth="2" Color="Gray"/>
+        <DropShadowEffect x:Key="GlowCyan"      BlurRadius="18" ShadowDepth="0" Color="#00BCD4" Opacity="0.45"/>
+        <DropShadowEffect x:Key="FieldShadow"   BlurRadius="10" ShadowDepth="0" Color="#000000" Opacity="0.2"/>
+
+        <!-- ── Input field — theme-aware ── -->
         <Style x:Key="InputFieldStyle" TargetType="TextBox">
-            <Setter Property="Width" Value="250"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryColor}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="#424242"/>
-        </Style>
-        <Style x:Key="PasswordFieldStyle" TargetType="PasswordBox">
-            <Setter Property="Width" Value="250"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PrimaryColor}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="#424242"/>
-        </Style>
-        <!-- نمط للزر -->
-        <Style x:Key="LoginButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="160"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width"          Value="250"/>
+            <Setter Property="Height"         Value="40"/>
+            <Setter Property="Padding"        Value="10,8"/>
+            <Setter Property="FontSize"       Value="14"/>
+            <Setter Property="BorderBrush"    Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+            <Setter Property="Background"     Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground"     Value="{DynamicResource InputForeground}"/>
+            <Setter Property="CaretBrush"     Value="{DynamicResource AccentColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="0 6 6 0"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{DynamicResource InputHoverBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource AccentColor}"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#0D47A1"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
+
+        <!-- ── Password field — theme-aware ── -->
+        <Style x:Key="PasswordFieldStyle" TargetType="PasswordBox">
+            <Setter Property="Width"          Value="250"/>
+            <Setter Property="Height"         Value="40"/>
+            <Setter Property="Padding"        Value="10,8"/>
+            <Setter Property="FontSize"       Value="14"/>
+            <Setter Property="BorderBrush"    Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+            <Setter Property="Background"     Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground"     Value="{DynamicResource InputForeground}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="0 6 6 0"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{DynamicResource InputHoverBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Login button — accent gradient, always visible on both themes ── -->
+        <Style x:Key="LoginButtonStyle" TargetType="Button">
+            <Setter Property="Width"          Value="200"/>
+            <Setter Property="Height"         Value="46"/>
+            <Setter Property="FontSize"       Value="15"/>
+            <Setter Property="FontWeight"     Value="SemiBold"/>
+            <Setter Property="Foreground"     Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"         Value="Hand"/>
+            <Setter Property="Background"     Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="12">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#007B8A" Offset="0"/>
+                                    <GradientStop Color="#00ACC1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#00ACC1" Offset="0"/>
+                                            <GradientStop Color="#006064" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Icon prefix tile — theme-aware ── -->
+        <Style x:Key="FieldIconTile" TargetType="Border">
+            <Setter Property="CornerRadius"    Value="6 0 0 6"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+            <Setter Property="Background"      Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Width"           Value="42"/>
+        </Style>
+
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <!-- ════ Root window border ════ -->
+    <Border CornerRadius="15" Background="{DynamicResource MainBackgroundBrush}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
+                <RowDefinition Height="56"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- العنوان المحسن -->
-            <TextBlock Text="Welcome to Sho2on" 
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Center" 
-                       FontSize="22" 
-                       FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
-                         
-                       Grid.ColumnSpan="2"/>
+            <!-- ════ Title bar ════ -->
+            <Border Grid.Row="0" CornerRadius="15 15 0 0"
+                    Background="{DynamicResource HeaderBackground}">
+                <Grid>
+                    <!-- Bottom hairline -->
+                    <Rectangle VerticalAlignment="Bottom" Height="1" Opacity="0.25">
+                        <Rectangle.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="Transparent" Offset="0"/>
+                                <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
 
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Icon:PackIconMaterial Kind="AccountGroup"
+                                               Width="22" Height="22"
+                                               Foreground="{DynamicResource AccentColor}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                        <TextBlock Text="Welcome to Sho2on"
+                                   FontSize="20" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SecondaryColor}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ════ Content row ════ -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <!-- المنطقة الرئيسية -->
-                <Border CornerRadius="20" Background="{StaticResource PrimaryColor}">
+
+                <!-- ════ Login form panel ════ -->
+                <Border Grid.Column="0" CornerRadius="0 0 0 15"
+                        Background="{DynamicResource SidebarBrush}">
                     <Grid>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Orientation="Vertical">
 
-                        <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center">
-                            <!-- حقول الإدخال مع أيقونات -->
-                            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="10">
-                                <!-- Username -->
-                                <TextBlock HorizontalAlignment="Right" Text="Username" Foreground="{StaticResource ThirdColor}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
+                            <!-- Logo / shield badge -->
+                            <Border HorizontalAlignment="Center" Margin="0,0,0,28"
+                                    CornerRadius="50" Width="70" Height="70"
+                                    BorderThickness="2">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#00BCD4" Offset="0"/>
+                                        <GradientStop Color="#0D47A1" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="14" ShadowDepth="0"
+                                                      Color="#00BCD4" Opacity="0.35"/>
+                                </Border.Effect>
+                                <Border CornerRadius="50" Background="{DynamicResource SurfaceColor}" Margin="3">
+                                    <Icon:PackIconMaterial Kind="ShieldAccount"
+                                                           Width="32" Height="32"
+                                                           Foreground="{DynamicResource AccentColor}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+
+                            <!-- ── Username ── -->
+                            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,0,0,16">
+                                <TextBlock HorizontalAlignment="Right" Text="Username"
+                                           Foreground="{DynamicResource MutedColor}"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Margin="0,0,4,6"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="42"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="{StaticResource ThirdColor}" CornerRadius="5 0 0 5" BorderBrush="{StaticResource PrimaryColor}" BorderThickness="2 2 0 2">
-                                        <Icon:PackIconMaterial Kind="Account" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource PrimaryColor}" Width="20" Height="20"/>
+                                    <Border Grid.Column="0" Style="{DynamicResource FieldIconTile}">
+                                        <Icon:PackIconMaterial Kind="Account"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               Foreground="{DynamicResource AccentColor}"
+                                                               Width="18" Height="18"/>
                                     </Border>
-                                    <TextBox Grid.Column="1" Style="{StaticResource InputFieldStyle}" Name="username_box" Focusable="True" BorderThickness="2"  TabIndex="1"/>
+                                    <TextBox Grid.Column="1"
+                                             Style="{DynamicResource InputFieldStyle}"
+                                             Name="username_box"
+                                             Focusable="True"
+                                             TabIndex="1"/>
                                 </Grid>
                             </StackPanel>
 
-                            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="10">
-                                <!-- Password -->
-                                <TextBlock HorizontalAlignment="Right" Text="Password"  Foreground="{StaticResource ThirdColor}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
-                                <Grid >
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="40"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="{StaticResource ThirdColor}" CornerRadius="5 0 0 5" BorderBrush="{StaticResource PrimaryColor}" BorderThickness="2 2 0 2">
-                                        <Icon:PackIconMaterial Kind="Lock" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource PrimaryColor}" Width="20" Height="20"/>
-                                    </Border>
-                                    <PasswordBox Grid.Column="1" FlowDirection="LeftToRight" Style="{StaticResource PasswordFieldStyle}" Name="pass_box" BorderThickness="2" TabIndex="2"/>
-                                </Grid>
-                            </StackPanel>
-
-                            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="10">
-                                <!-- Database Host -->
-                                <TextBlock HorizontalAlignment="Right" Text="Database Host" Foreground="{StaticResource ThirdColor}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
+                            <!-- ── Password ── -->
+                            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,0,0,16">
+                                <TextBlock HorizontalAlignment="Right" Text="Password"
+                                           Foreground="{DynamicResource MutedColor}"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Margin="0,0,4,6"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="42"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="{StaticResource ThirdColor}" CornerRadius="5 0 0 5" BorderBrush="{StaticResource PrimaryColor}" BorderThickness="2 2 0 2">
-                                        <Icon:PackIconMaterial Kind="Server" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource PrimaryColor}" Width="20" Height="20"/>
+                                    <Border Grid.Column="0" Style="{DynamicResource FieldIconTile}">
+                                        <Icon:PackIconMaterial Kind="Lock"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               Foreground="{DynamicResource AccentColor}"
+                                                               Width="18" Height="18"/>
                                     </Border>
-                                    <TextBox Grid.Column="1" Style="{StaticResource InputFieldStyle}" Name="IPDB_box" BorderThickness="2"  TabIndex="3"/>
+                                    <PasswordBox Grid.Column="1"
+                                                 FlowDirection="LeftToRight"
+                                                 Style="{DynamicResource PasswordFieldStyle}"
+                                                 Name="pass_box"
+                                                 TabIndex="2"/>
                                 </Grid>
                             </StackPanel>
 
-                            <!-- زر تسجيل الدخول المحسن -->
-                            <Border HorizontalAlignment="Center" Name="btn_border" Margin="20" CornerRadius="8" Background="#1976D2" Cursor="Hand"  >
-                                <Button Name="login_btn" Click="login_Clicked" Content="تسجيل الدخول" IsDefault="True" Style="{StaticResource LoginButtonStyle}" BorderThickness="0"/>
+                            <!-- ── Database Host ── -->
+                            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,0,0,28">
+                                <TextBlock HorizontalAlignment="Right" Text="Database Host"
+                                           Foreground="{DynamicResource MutedColor}"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Margin="0,0,4,6"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="42"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{DynamicResource FieldIconTile}">
+                                        <Icon:PackIconMaterial Kind="Server"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               Foreground="{DynamicResource AccentColor}"
+                                                               Width="18" Height="18"/>
+                                    </Border>
+                                    <TextBox Grid.Column="1"
+                                             Style="{DynamicResource InputFieldStyle}"
+                                             Name="IPDB_box"
+                                             TabIndex="3"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- ── Login button ── -->
+                            <Border HorizontalAlignment="Center"
+                                    Name="btn_border"
+                                    CornerRadius="12">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="16" ShadowDepth="0"
+                                                      Color="#00BCD4" Opacity="0.3"/>
+                                </Border.Effect>
+                                <Button Name="login_btn"
+                                        Click="login_Clicked"
+                                        Content="تسجيل الدخول"
+                                        IsDefault="True"
+                                        Style="{DynamicResource LoginButtonStyle}"/>
+                            </Border>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ════ GIF / illustration panel ════ -->
+                <Border Grid.Column="1" CornerRadius="0 0 15 0" ClipToBounds="True">
+                    <Grid>
+                        <!-- Background layer — adjusts with theme -->
+                        <Border CornerRadius="0 0 15 0"
+                                Background="{DynamicResource MainBackgroundBrush}"
+                                Opacity="0.85"/>
+
+                        <!-- GIF -->
+                        <Image Source="/assets/images/Background.gif"
+                               Name="GIFImage"
+                               Stretch="UniformToFill"
+                               Opacity="0.5"/>
+
+
+                        <!-- Branding badge at bottom -->
+                        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                    Margin="0,0,0,32">
+                            <Border HorizontalAlignment="Center"
+                                    CornerRadius="20" Padding="18,6"
+                                    Background="{DynamicResource SurfaceLightColor}"
+                                    BorderThickness="1">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#00BCD4" Offset="0"/>
+                                        <GradientStop Color="#0D47A1" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <TextBlock Text="نظام الموارد البشرية"
+                                           Foreground="{DynamicResource ThirdColor}"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"/>
                             </Border>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <Image Source="/assets/images/Background.gif" Name="GIFImage" Grid.Column="1" Stretch="UniformToFill"/>
             </Grid>
         </Grid>
     </Border>

@@ -28,7 +28,7 @@ namespace HR_Application
         private Dictionary<string, List<int>> holiday = new Dictionary<string, List<int>>();
         List<EmployeeHoilday> GlobalResult = new List<EmployeeHoilday>();
         private CultureInfo arabicCulture = new CultureInfo("ar-SA");
-        int? branchCode = 0;
+        int? branchCode = null;
 
         private AppDbContext _context = new AppDbContext(App.ConnectionString);
 
@@ -313,14 +313,24 @@ namespace HR_Application
 
                 // Load branches using EF
                 var dbBranches = await _context.Branches.ToListAsync();
+                var _branches = new List<Branch>();
                 foreach (var branch in dbBranches)
                 {
                     if (App.userBranches.Contains(branch.Id))
                     {
-                        branch_box.Items.Add(branch);
+                        _branches.Add(branch);
                         branches.Add(branch.Name, branch.Id);
                     }
                 }
+                branch_box.ItemsSource = _branches;
+
+                var sections = await _context.Degrees.ToListAsync();
+                var depts = await _context.Departments.ToListAsync();
+                var jobs = await _context.JobTitles.ToListAsync();
+
+                section_box.ItemsSource = sections;
+                dept_box.ItemsSource = depts;
+                job_box.ItemsSource = jobs;
             }
             catch (Exception ex)
             {
@@ -362,120 +372,128 @@ namespace HR_Application
                 { "الأربعاء", 4 }, { "الخميس", 5 }, { "الجمعة", 6 }
             };
 
-            if (!string.IsNullOrEmpty(branch_box.Text))
+
+            try
             {
-                branchCode = int.Parse(branch_box.SelectedValue.ToString());
+                int monthNumber = DateTime.ParseExact(month_box.Text, "MMMM", CultureInfo.CurrentCulture).Month;
+                int year = Convert.ToInt16(year_box.Text);
+                (DateTime startMonth, DateTime endMonth) = GetCustomMonthDates(monthNumber, year);
 
-                if (!App.userBranches.Contains(branchCode.Value))
+                // Nested dictionary to store data per employee
+                var employeeDataDict = new Dictionary<DateTime, Dictionary<string, DateTime>>();
+
+                // Load attendance data using EF
+                var attendances = _context.Attendances
+                    .Include(a => a.User)
+                    .Include(a => a.CheckInBranch)
+                    .Where(a => a.AttendanceDate >= startMonth &&
+                                a.AttendanceDate <= endMonth)
+                    .OrderBy(a => a.UserId)
+                    .AsQueryable();
+
+
+                if (branch_box.SelectedValue != null)
                 {
-                        MessageBox.Show("Access Denied");
-                    return;
+                    attendances = attendances.Where(a => a.User != null && a.User.BranchId.ToString() == branch_box.SelectedValue.ToString());
                 }
-                try
+                if (dept_box.SelectedValue != null)
                 {
-                    int monthNumber = DateTime.ParseExact(month_box.Text, "MMMM", CultureInfo.CurrentCulture).Month;
-                    int year = Convert.ToInt16(year_box.Text);
-                    (DateTime startMonth, DateTime endMonth) = GetCustomMonthDates(monthNumber, year);
+                    attendances = attendances.Where(a => a.User != null && a.User.DepartmentId.ToString() == dept_box.SelectedValue.ToString());
+                }
 
-                    // Nested dictionary to store data per employee
-                    var employeeDataDict = new Dictionary<DateTime, Dictionary<string, DateTime>>();
-                    var selectedBranchId = branches[branch_box.Text];
+                if (section_box.SelectedValue != null)
+                {
+                    attendances = attendances.Where(a => a.User != null && a.User.DegreeId.ToString() == section_box.SelectedValue.ToString());
+                }
 
-                    // Load attendance data using EF
-                    var attendances = await _context.Attendances
-                        .Include(a => a.User)
-                        .Include(a => a.CheckInBranch)
-                        .Where(a => a.AttendanceDate >= startMonth &&
-                                   a.AttendanceDate <= endMonth &&
-                                   a.CheckInBranchId == selectedBranchId)
-                        .OrderBy(a => a.User.Id)
-                        .ToListAsync();
+                if (job_box.SelectedValue != null)
+                {
+                    attendances = attendances.Where(a => a.User != null && a.User.JobTitleId.ToString() == job_box.SelectedValue.ToString());
+                }
 
-                    foreach (var att in attendances)
-                    {
+                foreach (var att in attendances)
+                {
                         
-                            var code = att.User.Id.ToString();
-                            var name = att.User.FullName;
-                            var workTime = att.TotalWorkHours ?? TimeSpan.Zero;
-                            var attendTime = att.TotalWorkHours ?? TimeSpan.Zero;
-                            var dateOnly = att.AttendanceDate;
+                        var code = att.User.Code;
+                        var name = att.User.FullName;
+                        var workTime = att.TotalWorkHours ?? TimeSpan.Zero;
+                        var attendTime = att.TotalWorkHours ?? TimeSpan.Zero;
+                        var dateOnly = att.AttendanceDate;
 
-                            var exemptL = att.ExemptLate;
-                            var exemptE = att.ExemptEarlyLeave;
-                            var exemptO = att.ExemptOvertime;
+                        var exemptL = att.ExemptLate;
+                        var exemptE = att.ExemptEarlyLeave;
+                        var exemptO = att.ExemptOvertime;
 
-                            var late = exemptL ? TimeSpan.Zero : (att.Late ?? TimeSpan.Zero);
-                            var early = exemptE ? TimeSpan.Zero : (att.EarlyLeave ?? TimeSpan.Zero);
-                            var ot = exemptO ? TimeSpan.Zero : (att.Overtime ?? TimeSpan.Zero);
+                        var late = exemptL ? TimeSpan.Zero : (att.Late ?? TimeSpan.Zero);
+                        var early = exemptE ? TimeSpan.Zero : (att.EarlyLeave ?? TimeSpan.Zero);
+                        var ot = exemptO ? TimeSpan.Zero : (att.Overtime ?? TimeSpan.Zero);
 
-                            var record = new EmployeeData
-                            {
-                                Code = code,
-                                Name = name,
-                                WH = workTime,
-                                AH = attendTime,
-                                Late = late,
-                                Early = early,
-                                OT = ot,
-                                Absence = att.IsAbsence ? 1 : 0,
-                                Holiday = att.IsHoliday ? 1 : 0
-                            };
-
-                            employees.Add(record);
-
-                            // Ensure there's a dictionary for each employee
-                            if (!employeeDataDict.ContainsKey(dateOnly))
-                            {
-                                employeeDataDict[dateOnly] = new Dictionary<string, DateTime>();
-                            }
-                            if (!employeeDataDict[dateOnly].ContainsKey(code))
-                            {
-                                employeeDataDict[dateOnly][code] = dateOnly;
-                            }
-                        
-                    }
-                    
-
-                        var result = employees
-                            .GroupBy(a => new { a.Code, a.Name })
-                            .Select(g => new EmployeeDataTotal
-                            {
-                                Code = g.Key.Code,
-                                Name = g.Key.Name,
-                                TotalWorkTime = totalWH.ContainsKey(g.Key.Code) ? totalWH[g.Key.Code] : "0",
-                                TotalAttendTime = FormatTime(g.Sum(a => a.AH.TotalHours), g.Sum(a => a.AH.Minutes)),
-                                TotalLate = FormatTime(g.Sum(a => a.Late.TotalHours), g.Sum(a => a.Late.Minutes)),
-                                TotalEarly = FormatTime(g.Sum(a => a.Early.TotalHours), g.Sum(a => a.Early.Minutes)),
-                                TotalOT = FormatTime(g.Sum(a => a.OT.TotalHours), g.Sum(a => a.OT.Minutes)),
-                                TotalAbsence = g.Sum(a => a.Absence).ToString(),
-                                TotalHoliday = g.Sum(a => a.Holiday).ToString()
-                            })
-                            .ToList();
-
-                        foreach (EmployeeDataTotal employee in result)
+                        var record = new EmployeeData
                         {
+                            Code = code,
+                            Name = name,
+                            WH = workTime,
+                            AH = attendTime,
+                            Late = late,
+                            Early = early,
+                            OT = ot,
+                            Absence = att.IsAbsence ? 1 : 0,
+                            Holiday = att.IsHoliday ? 1 : 0
+                        };
 
-                            var record1 = new EmployeeHoilday
-                            {
-                                dataTotal = employee
-                            };
+                        employees.Add(record);
 
-                            GlobalResult.Add(record1);
+                        // Ensure there's a dictionary for each employee
+                        if (!employeeDataDict.ContainsKey(dateOnly))
+                        {
+                            employeeDataDict[dateOnly] = new Dictionary<string, DateTime>();
                         }
+                        if (!employeeDataDict[dateOnly].ContainsKey(code))
+                        {
+                            employeeDataDict[dateOnly][code] = dateOnly;
+                        }
+                        
+                }
+                   
 
-                        dataGrid.Items.Refresh();
-                        dataGrid.ItemsSource = GlobalResult;
+                var result = employees
+                        .GroupBy(a => new { a.Code, a.Name })
+                        .Select(g => new EmployeeDataTotal
+                        {
+                            Code = g.Key.Code,
+                            Name = g.Key.Name,
+                            TotalWorkTime = totalWH.ContainsKey(g.Key.Code) ? totalWH[g.Key.Code] : "0",
+                            TotalAttendTime = FormatTime(g.Sum(a => a.AH.TotalHours), g.Sum(a => a.AH.Minutes)),
+                            TotalLate = FormatTime(g.Sum(a => a.Late.TotalHours), g.Sum(a => a.Late.Minutes)),
+                            TotalEarly = FormatTime(g.Sum(a => a.Early.TotalHours), g.Sum(a => a.Early.Minutes)),
+                            TotalOT = FormatTime(g.Sum(a => a.OT.TotalHours), g.Sum(a => a.OT.Minutes)),
+                            TotalAbsence = g.Sum(a => a.Absence).ToString(),
+                            TotalHoliday = g.Sum(a => a.Holiday).ToString()
+                        })
+                        .ToList();
+
                     
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+
+                    foreach (EmployeeDataTotal employee in result)
+                    {
+
+                        var record1 = new EmployeeHoilday
+                        {
+                            dataTotal = employee
+                        };
+
+                        GlobalResult.Add(record1);
+                    }
+
+                    dataGrid.Items.Refresh();
+                    dataGrid.ItemsSource = GlobalResult;
+                    
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("مطلوب اختيار الفرع");
+                MessageBox.Show(ex.Message);
             }
+            
         }
 
         public string FormatTime(double totalHours, double totalMinutes)
@@ -538,6 +556,19 @@ namespace HR_Application
         private void excel_btn_Click(object sender, RoutedEventArgs e)
         {
             ExportDataGridToExcel();
+        }
+
+        private void clear_btn_Click(object sender, RoutedEventArgs e)
+        {
+            branch_box.SelectedIndex = -1;
+            dept_box.SelectedIndex = -1;
+            section_box.SelectedIndex = -1;
+            job_box.SelectedIndex = -1;
+            month_box.SelectedIndex = -1;
+            year_box.SelectedIndex = -1;
+            GlobalResult.Clear();
+            dataGrid.ItemsSource = null;
+
         }
     }
 }

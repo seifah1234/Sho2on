@@ -42,7 +42,17 @@ namespace HR_Application
                 end_month.Text = Properties.Settings.Default.EndOfMonth.ToString();
                 month_detail_txt.FlowDirection = System.Windows.FlowDirection.RightToLeft;
                 month_detail_txt.Content = month_data;
-                
+
+                if (!string.IsNullOrEmpty(Properties.Settings.Default.Logo))
+                {
+                    logo_path_txt.Content = Properties.Settings.Default.Logo;
+
+                }
+                else
+                {
+                    logo_path_txt.Content = "No logo selected";
+                }
+
             }
             catch (Exception e)
             {
@@ -112,5 +122,30 @@ namespace HR_Application
             
         }
 
+        private void upload_logo_btn_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Image files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+
+                    Properties.Settings.Default.Logo = openFileDialog.FileName;
+                    Properties.Settings.Default.Save();
+                    logo_path_txt.Content = openFileDialog.FileName;
+
+                    MessageBox.Show("Logo updated successfully!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error updating logo: {ex.Message}");
+                }
+            }
+        }
     }
 }

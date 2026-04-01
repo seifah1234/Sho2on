@@ -73,18 +73,8 @@ namespace Sho2on.Database.Models
         // وثائق الشركة الموقعة
         SignedCompanyDocument = 1,
 
-        // وثائق شخصية
-        CV = 2,                 // السيرة الذاتية
-        NationalID = 3,         // البطاقة الشخصية
-        DrivingLicense = 4,     // رخصة القيادة
-        DegreeCertificate = 5,  // شهادة المؤهل
         TrainingCertificate = 6,// شهادات التدريب
         WorkPermit = 7,         // تصريح العمل
-        Insurance = 8,          // التأمين
-        MilitaryCertificate = 9,// الشهادة العسكرية
-        Passport = 10,          // الجواز
-        PersonalContract = 11,  // العقد الشخصي
-        Photo = 12,             // صورة شخصية
         Other = 99              // أخرى
     }
 

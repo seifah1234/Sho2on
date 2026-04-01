@@ -50,6 +50,7 @@ namespace HR_Application
                     Name = name_box.Text.Trim(),
                     IsDriver = isDriver_box.IsChecked,
                     IsManager = isManager_box.IsChecked,
+                    IsHR = isHR_box.IsChecked,
                 };
 
                 await _context.JobTitles.AddAsync(job);
@@ -99,6 +100,7 @@ namespace HR_Application
                 selectedJob.Name = name_box.Text.Trim();
                 selectedJob.IsDriver = isDriver_box.IsChecked;
                 selectedJob.IsManager = isManager_box.IsChecked;
+                selectedJob.IsHR = isHR_box.IsChecked;
                 selectedJob.EditedAt = DateTime.Now;
                 _context.JobTitles.Update(selectedJob);
                 await _context.SaveChangesAsync();
@@ -120,6 +122,7 @@ namespace HR_Application
                 name_box.Text = selectedJob.Name;
                 isDriver_box.IsChecked = selectedJob.IsDriver;
                 isManager_box.IsChecked = selectedJob.IsManager;
+                isHR_box.IsChecked = selectedJob.IsHR;
                 editBtn.Visibility = Visibility.Visible;
                 saveBtn.Visibility = Visibility.Collapsed;
             }
@@ -142,6 +145,7 @@ namespace HR_Application
             name_box.Clear();
             isDriver_box.IsChecked = false;
             isManager_box.IsChecked = false;
+            isHR_box.IsChecked = false;
             editBtn.Visibility = Visibility.Collapsed;
             saveBtn.Visibility = Visibility.Visible;
         }

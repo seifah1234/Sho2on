@@ -6,6 +6,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Height="500" Width="700" MinHeight="500" MinWidth="700"
         WindowStartupLocation="CenterScreen"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Background="Transparent">
 
     <Window.Resources>
@@ -23,7 +24,7 @@
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="5" ShadowDepth="2" Color="Gray"/>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="350"/>
@@ -41,56 +42,59 @@
                        VerticalAlignment="Center" 
                        FontSize="20" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- الجانب الأيمن: نموذج الإدخال -->
-            <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{StaticResource HeaderBackground}"  >
+            <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{DynamicResource BorderColor}"  >
                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" Width="280">
                     <!-- Time Picker للوقت من -->
                     <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
-                        <Controls:TimePicker x:Name="FromTimePicker" 
-                                             Margin="0 10 0 0" 
-                                             Width="200" 
-                                             SelectedTimeFormat="Short"
-                                             
-                                             Culture="en-US" 
-                                             Foreground="{StaticResource ThirdColor}" 
-                                             Background="Transparent" 
-                                             BorderThickness="1"/>
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+
+                        <materialDesign:TimePicker Name="fromTimePicker" Width="100" Height="30"
+                                                   BorderThickness="1"
+                                                   Padding="3"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="10"
+                                                   VerticalContentAlignment="Center"
+                                                   BorderBrush="{DynamicResource SecondaryColor}"
+                                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                                   Background="{DynamicResource SecondaryColor}"/>
                     </StackPanel>
 
                     <!-- Time Picker للوقت إلى -->
                     <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
-                        <Controls:TimePicker x:Name="ToTimePicker" 
-                                             Margin="0 10 0 0" 
-                                             Width="200" 
-                                             Culture="en-US" 
-                                             Foreground="{StaticResource ThirdColor}" 
-                                             SelectedTimeFormat="Short"
-                                             
-                                             Background="Transparent" 
-                                             BorderThickness="1"/>
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+
+                        <materialDesign:TimePicker Name="toTimePicker" Width="100" Height="30"
+                                                   BorderThickness="1"
+                                                   Padding="3"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="10"
+                                                   VerticalContentAlignment="Center"
+                                                   BorderBrush="{DynamicResource SecondaryColor}"
+                                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                                   Background="{DynamicResource SecondaryColor}"/>
+
                     </StackPanel>
 
                     <!-- أزرار التعديل والحفظ -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
-                        <Button Height="45" Width="110" BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Margin="5" Click="edit_Btn">
+                        <Button Height="45" Width="110" BorderThickness="2" BorderBrush="{DynamicResource ThirdColor}" Background="Transparent" Margin="5" Click="edit_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="تعديل" Foreground="{StaticResource ThirdColor}" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="تعديل" Foreground="{DynamicResource ThirdColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button Height="45" Width="110" Margin="5" BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Click="save_Btn">
+                        <Button Height="45" Width="110" Margin="5" BorderThickness="2" BorderBrush="{DynamicResource ThirdColor}" Background="Transparent" Click="save_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="حفظ" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColor}" Text="حفظ" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -98,19 +102,19 @@
 
                     <!-- أزرار الخروج والحذف -->
                     <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Width="110" Margin="5" Height="45" Click="exit_Btn">
+                        <Button BorderThickness="2" BorderBrush="{DynamicResource ThirdColor}" Background="Transparent" Width="110" Margin="5" Height="45" Click="exit_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="خروج" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColor}" Text="خروج" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button BorderThickness="2" BorderBrush="{StaticResource ThirdColor}" Background="Transparent" Width="110" Margin="5" Height="45" Click="delete_Btn">
+                        <Button BorderThickness="2" BorderBrush="{DynamicResource ThirdColor}" Background="Transparent" Width="110" Margin="5" Height="45" Click="delete_Btn">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{StaticResource ThirdColor}" Text="حذف" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColor}" Text="حذف" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>

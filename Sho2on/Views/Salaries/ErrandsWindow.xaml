@@ -10,9 +10,9 @@
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Height="400" Width="600" MinHeight="450" MinWidth="800"
+        Height="600" Width="800" MinHeight="450" MinWidth="800"
         WindowStartupLocation="CenterScreen"
-        Background="Transparent">
+        Background="{DynamicResource WindowRootBackground}">
 
     <Window.Resources>
         <!-- تدرج لوني للخلفية الرئيسية -->
@@ -60,7 +60,7 @@
             <Setter Property="BorderBrush" Value="#FFFFFF"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -68,7 +68,7 @@
         </Style>
         <!-- نمط للـ RadioButton -->
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="5"/>
@@ -79,8 +79,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -103,7 +103,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -111,61 +111,112 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="المأموؤيات" 
+            <TextBlock Text="المأموريات" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{DynamicResource HeaderBackground}"  >
                 <Grid>
                     <Image Visibility="Collapsed" Name="GIFTop" Source="pack://application:,,,/assets/images/sidebar.jpg" Stretch="UniformToFill" Opacity="0.3"/>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Vertical" FlowDirection="RightToLeft">
                       
 
                         <!-- TextBoxes للكود والاسم -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5" HorizontalAlignment="Center">
-                            <StackPanel Margin="5" Orientation="Vertical" FlowDirection="RightToLeft" HorizontalAlignment="Center">
-                                <Label VerticalAlignment="Center" Content="الفرع" Foreground="{StaticResource ThirdColor}" HorizontalAlignment="Left"/>
-                                <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                            <TextBox x:Name="txtEmployeeCode" 
+                                             Tag="كود الموظف" 
+                                             Width="120"
+                                     VerticalAlignment="Bottom"
+                                             KeyDown="txtEmployeeCode_KeyDown"
+                                             BorderBrush="{DynamicResource ThirdColor}"
+                                             Foreground="{DynamicResource ThirdColor}"
+                                             Margin="5"/>
+                            <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
+                                <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                             </StackPanel>
-                            <TextBox VerticalAlignment="Bottom" Tag="كود الموظف" KeyDown="CodeBox_KeyDown" Name="code_box" Margin="5" TabIndex="2"/>
-                            <TextBox VerticalAlignment="Bottom" Width="300" Tag="اسم الموظف" x:Name="name_box" Margin="5" TabIndex="2"/>
+                            <Button x:Name="btnSelectEmployee" 
+                                            Background="{DynamicResource ButtonHoverBackground}"
+                                            Click="btnSelectEmployee_Click"
+                                    Height="40"
+                                    Foreground="{DynamicResource ButtonHoverForeground}"
+                                            Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Kind="AccountSearch" Width="20" Height="20" Margin="0,0,5,0"/>
+                                    <TextBlock Text="اختر الموظف"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
 
                         <!-- DateTimePickers -->
                         <StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center" Text="من :" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
+                            <TextBlock VerticalAlignment="Center" Text="من :" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                             <xctk:DateTimePicker ValueChanged="from_dateTimePicker_ValueChanged" Name="from_dateTimePicker" Width="170" HorizontalContentAlignment="Center" Format="Custom" FlowDirection="LeftToRight" 
                                                  TimePickerVisibility="Visible" 
                                                  Background="Transparent"
-                                                 Foreground="{StaticResource ThirdColor}"
-                                                 BorderBrush="{StaticResource ThirdColor}"
+                                                 Foreground="{DynamicResource TextPrimaryColor}"
+                                                 BorderBrush="{DynamicResource TextPrimaryColor}"
                                                   FormatString="dd/MM/yyyy HH:mm" Margin="5"/>
-                            <TextBlock VerticalAlignment="Center" Margin="10 0 0 0" Text="الى :" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ThirdColor}"/>
+                            <TextBlock VerticalAlignment="Center" Margin="10 0 0 0" Text="الى :" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                             <xctk:DateTimePicker ValueChanged="to_dateTimePicker_ValueChanged" Name="to_dateTimePicker" Width="170" HorizontalContentAlignment="Center" Format="Custom" FlowDirection="LeftToRight" 
                                                  TimePickerVisibility="Visible" 
                                                  Background="Transparent"
-                                                 Foreground="{StaticResource ThirdColor}"
-                                                 BorderBrush="{StaticResource ThirdColor}"
+                                                 Foreground="{DynamicResource TextPrimaryColor}"
+                                                 BorderBrush="{DynamicResource TextPrimaryColor}"
                                                   FormatString="dd/MM/yyyy HH:mm" Margin="5"/>
                         </StackPanel>
+
+                        <!-- المدير الموافق -->
+                        <GroupBox x:Name="groupApprover" 
+           Header="الموافق على المأمورية" 
+           FontSize="16" 
+           FontWeight="Bold" 
+           Foreground="{DynamicResource TextPrimaryColor}"
+                                  BorderBrush="{DynamicResource ThirdColor}"
+           Padding="15"
+           Margin="10">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBox x:Name="txtApproverName" 
+                      Tag="اسم الموافق" 
+                      Width="300"
+                      Style="{DynamicResource WideInputFieldStyle}"
+                      Margin="5"
+                      IsReadOnly="True"/>
+                                    <Button x:Name="btnSelectApprover" 
+                     Style="{DynamicResource ActionButtonStyle}"
+                     Background="{DynamicResource ButtonHoverBackground}"
+                     Foreground="{DynamicResource ButtonHoverForeground}"
+                     Click="btnSelectApprover_Click"
+                     Margin="5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Icon:PackIconMaterial Kind="AccountTie" Width="20" Height="20" Margin="0,0,5,0"/>
+                                            <TextBlock Text="اختر الموافق"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
 
                         <!-- TextBoxes للبيان والقيمة -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBox Width="400" Name="text_box" Tag="ملاحظات" Margin="10" TabIndex="3"/>
-                            <TextBox Style="{StaticResource InputFieldStyle}" Visibility="Collapsed" Name="value_box" Tag="القيمة" Margin="10" TabIndex="3"/>
+                            <TextBox Style="{DynamicResource InputFieldStyle}" Visibility="Collapsed" Name="value_box" Tag="القيمة" Margin="10" TabIndex="3"/>
                         </StackPanel>
 
                         <!-- زر الإضافة -->
-                        <Button Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Center" x:Name="save_btn" Click="save_month_btn_Click" Margin="20">
+                        <Button Style="{DynamicResource ActionButtonStyle}" Background="{DynamicResource ButtonHoverBackground}" Foreground="{DynamicResource ButtonHoverForeground}" HorizontalAlignment="Center" x:Name="save_btn" Click="save_month_btn_Click" Margin="20">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="إضافة" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
+                                <TextBlock Text="إضافة" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

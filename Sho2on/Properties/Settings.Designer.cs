@@ -166,5 +166,33 @@ namespace HR_Application.Properties {
                 this["LateValue"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Dark")]
+        public string ThemeName
+        {
+            get {
+                return ((string)(this["ThemeName"]));
+            }
+            set {
+                this["ThemeName"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("pack://application:,,,/assets/images/Back.gif")]
+        public string Logo
+        {
+            get
+            {
+                return ((string)(this["Logo"]));
+            }
+            set
+            {
+                this["Logo"] = value;
+            }
+        }
     }
 }

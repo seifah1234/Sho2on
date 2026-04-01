@@ -311,6 +311,7 @@ namespace Sho2on.Database
 
         public DbSet<FriendshipBoxTransaction> FriendshipBoxTransactions { get; set; }
         public DbSet<EmployeePermission> EmployeePermissions { get; set; }
+        public DbSet<Qualification> Qualifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -364,6 +365,7 @@ namespace Sho2on.Database
                 .HasOne(rp => rp.Manager)
                 .WithMany(p => p.MyEmployees)
                 .HasForeignKey(rp => rp.ManagerId);
+
 
             modelBuilder.Entity<UserRole>()
                 .HasOne(ur => ur.User)

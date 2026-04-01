@@ -231,7 +231,6 @@ namespace Sho2on.Services
 
             // Boolean values
             user.InDuty = GetBoolValue(worksheet.Cells[row, 26].Value);
-            user.IsInsured = GetBoolValue(worksheet.Cells[row, 27].Value);
             user.Blacklist = GetBoolValue(worksheet.Cells[row, 29].Value);
             user.UnderTraining = GetBoolValue(worksheet.Cells[row, 31].Value);
             user.UnderEmployment = GetBoolValue(worksheet.Cells[row, 32].Value);

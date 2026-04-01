@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
@@ -22,6 +23,7 @@ namespace HR_Application.Views.Employees.Holidays
         private readonly AppDbContext _context;
         private User _selectedUser;
         private ObservableCollection<LeaveBalanceViewModel> _leaveBalances;
+        private List<User> users = new List<User>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -64,20 +66,16 @@ namespace HR_Application.Views.Employees.Holidays
         {
             try
             {
+
                 var query = _context.Users
                     .Include(u => u.Department)
                     .Include(u => u.Branch)
                     .Include(u => u.JobTitle)
                     .AsQueryable();
 
-                if (int.TryParse(txtSearchEmployeeId.Text, out int employeeId) && employeeId > 0)
+                if (!string.IsNullOrEmpty(txtSearchEmployeeId.Text))
                 {
-                    query = query.Where(u => u.Id == employeeId);
-                }
-
-                if (!string.IsNullOrWhiteSpace(txtSearchEmployeeName.Text))
-                {
-                    query = query.Where(u => u.FullName.Contains(txtSearchEmployeeName.Text));
+                    query = query.Where(u => u.Code == txtSearchEmployeeId.Text);
                 }
 
                 var users = await query.Take(10).ToListAsync();
@@ -85,8 +83,8 @@ namespace HR_Application.Views.Employees.Holidays
                 if (users.Count == 1)
                 {
                     SelectedUser = users.First();
-                    txtSearchEmployeeId.Text = SelectedUser.Id.ToString();
-                    txtSearchEmployeeName.Text = SelectedUser.FullName.ToString();
+                    txtSearchEmployeeId.Text = SelectedUser.Code.ToString();
+                    user_box.SelectedValue = SelectedUser.Code;
                     
                 }
                 else if (users.Count > 1)
@@ -97,8 +95,8 @@ namespace HR_Application.Views.Employees.Holidays
                     if (selectionWindow.ShowDialog() == true && selectionWindow.SelectedUser != null)
                     {
                         SelectedUser = selectionWindow.SelectedUser;
-                        txtSearchEmployeeId.Text = SelectedUser.Id.ToString();
-                        txtSearchEmployeeName.Text = SelectedUser.FullName.ToString();
+                        txtSearchEmployeeId.Text = SelectedUser.Code.ToString();
+                        user_box.SelectedValue = SelectedUser.Code;
                     }
                 }
                 else
@@ -110,6 +108,79 @@ namespace HR_Application.Views.Employees.Holidays
             {
                 MessageBox.Show($"خطأ في البحث: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                txtSearchEmployeeId.Text = user_box.SelectedValue.ToString();
+                _selectedUser = selectedUser;
+            }
+
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
         }
 
         private async void LoadLeaveBalances()
@@ -189,7 +260,7 @@ namespace HR_Application.Views.Employees.Holidays
             SelectedUser = null;
             LeaveBalances.Clear();
             txtSearchEmployeeId.Text = string.Empty;
-            txtSearchEmployeeName.Text = string.Empty;
+            user_box.SelectedIndex = -1;
             txtGeneralNotes.Text = string.Empty;
         }
 
@@ -318,6 +389,15 @@ namespace HR_Application.Views.Employees.Holidays
         {
             _context?.Dispose();
             base.OnClosed(e);
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+            var _employees = _context.Users.Include(e => e.Shift).Include(e => e.Manager).ToList();
+
+            users.AddRange(_employees);
+            user_box.ItemsSource = users;
         }
     }
 

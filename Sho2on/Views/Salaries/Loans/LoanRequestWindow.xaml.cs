@@ -1,4 +1,5 @@
-﻿using HR_Application.Services;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
@@ -6,6 +7,7 @@ using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application.Views
@@ -14,6 +16,7 @@ namespace HR_Application.Views
     {
         private AppDbContext _context;
         private User _currentUser;
+        private List<User> users = new List<User>();
 
         public LoanRequestWindow()
         {
@@ -24,6 +27,79 @@ namespace HR_Application.Views
 
             LoadManagers();
         }
+
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (user_box.SelectedItem is User selectedUser)
+            {
+                txtCode.Text = user_box.SelectedValue.ToString();
+                _currentUser = selectedUser; 
+            }
+
+        }
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
 
         private async void LoadManagers()
         {
@@ -42,6 +118,11 @@ namespace HR_Application.Views
                 {
                     cmbManagers.SelectedIndex = 0;
                 }
+
+                var dbUsers = _context.Users.ToList();
+
+                users.AddRange(dbUsers);
+                user_box.ItemsSource = users;
             }
             catch (Exception ex)
             {
@@ -70,7 +151,7 @@ namespace HR_Application.Views
                 }
 
                 // عرض معلومات الموظف
-                txtName.Text = _currentUser.FullName;
+                user_box.SelectedValue = _currentUser.Code;
 
                 // الحصول على الراتب الأساسي
                 var basicSalary = _currentUser.Salaries?.FirstOrDefault(s => s.Type == 1);

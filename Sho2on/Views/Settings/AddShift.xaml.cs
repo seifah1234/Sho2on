@@ -1,8 +1,14 @@
-﻿using Sho2on.Database.Models; // عدل المسار حسب مكان موديل Shift
+﻿using MaterialDesignThemes.Wpf;
 using Sho2on.Database;
+using Sho2on.Database.Models; // عدل المسار حسب مكان موديل Shift
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application
@@ -19,28 +25,30 @@ namespace HR_Application
             LoadData();
         }
 
+
+
         private void LoadData()
         {
             _selectedShift = null;
             list.ItemsSource = _context.Shifts
                                        .OrderBy(s => s.StartTime)
                                        .ToList();
-            FromTimePicker.SelectedDateTime = null;
-            ToTimePicker.SelectedDateTime = null;
+            fromTimePicker.SelectedTime = null;
+            toTimePicker.SelectedTime = null;
         }
 
         private async void save_Btn(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (FromTimePicker.SelectedDateTime == null || ToTimePicker.SelectedDateTime == null)
+                if (fromTimePicker.SelectedTime == null || toTimePicker.SelectedTime == null)
                 {
                     MessageBox.Show("من فضلك اختر الوقت من وإلى", "خطأ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                TimeSpan fromTime = FromTimePicker.SelectedDateTime.Value.TimeOfDay;
-                TimeSpan toTime = ToTimePicker.SelectedDateTime.Value.TimeOfDay;
+                TimeSpan fromTime = fromTimePicker.SelectedTime.Value.TimeOfDay;
+                TimeSpan toTime = toTimePicker.SelectedTime.Value.TimeOfDay;
 
                 var shift = new Shift
                 {
@@ -72,14 +80,14 @@ namespace HR_Application
 
             try
             {
-                if (FromTimePicker.SelectedDateTime == null || ToTimePicker.SelectedDateTime == null)
+                if (fromTimePicker.SelectedTime == null || toTimePicker.SelectedTime == null)
                 {
                     MessageBox.Show("من فضلك اختر الوقت من وإلى", "خطأ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                _selectedShift.StartTime = FromTimePicker.SelectedDateTime.Value.TimeOfDay;
-                _selectedShift.EndTime = ToTimePicker.SelectedDateTime.Value.TimeOfDay;
+                _selectedShift.StartTime = fromTimePicker.SelectedTime.Value.TimeOfDay;
+                _selectedShift.EndTime = toTimePicker.SelectedTime.Value.TimeOfDay;
                 _selectedShift.Name = $"{_selectedShift.StartTime:hh\\:mm} - {_selectedShift.EndTime:hh\\:mm}";
                 _selectedShift.EditedAt = DateTime.Now;
 
@@ -122,8 +130,8 @@ namespace HR_Application
             if (list.SelectedItem is Shift selected)
             {
                 _selectedShift = selected;
-                FromTimePicker.SelectedDateTime = DateTime.Today.Add(selected.StartTime);
-                ToTimePicker.SelectedDateTime = DateTime.Today.Add(selected.EndTime);
+                fromTimePicker.SelectedTime = DateTime.Today.Add(selected.StartTime);
+                toTimePicker.SelectedTime = DateTime.Today.Add(selected.EndTime);
             }
         }
 
@@ -134,5 +142,6 @@ namespace HR_Application
         {
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
+
     }
 }

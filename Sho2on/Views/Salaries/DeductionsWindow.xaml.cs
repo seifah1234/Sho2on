@@ -1,9 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using static HR_Application.EmployeeData;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application.Views
@@ -17,6 +21,7 @@ namespace HR_Application.Views
         private int _employeeCode;
         private int _type = 7;
         private int _operation = 1;
+        private List<User> users = new List<User>();
 
         public DeductionsWindow(int code, string name)
         {
@@ -25,7 +30,7 @@ namespace HR_Application.Views
             _employeeCode = code;
 
             code_box.Text = code.ToString();
-            name_box.Text = name;
+            user_box.Text = name;
         }
 
         private async Task InitializeForm()
@@ -36,6 +41,69 @@ namespace HR_Application.Views
                 .Where(b => App.userBranches.Contains(b.Id))
                 .ToListAsync();
         }
+
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
 
         private async void save_btn_Click(object sender, RoutedEventArgs e)
         {
@@ -141,25 +209,25 @@ namespace HR_Application.Views
         {
             try
             {
-                if (branch_box.SelectedValue == null || string.IsNullOrWhiteSpace(code_box.Text) || !int.TryParse(code_box.Text, out int code))
+                if (branch_box.SelectedValue == null || string.IsNullOrWhiteSpace(code_box.Text) || !string.IsNullOrWhiteSpace(code_box.Text))
                 {
                     MessageBox.Show("يرجى إدخال كود موظف صحيح و اختيار الفرع", "خطأ في الإدخال", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var employee = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Id == code && u.BranchId.ToString() == branch_box.SelectedValue.ToString());
+                    .FirstOrDefaultAsync(u => u.Code == code_box.Text && u.BranchId.ToString() == branch_box.SelectedValue.ToString());
 
                 if (employee != null)
                 {
-                    name_box.Text = employee.FullName;
-                    _employeeCode = code;
+                    user_box.Text = employee.FullName;
+                    _employeeCode = int.Parse(employee.Code);
                 }
                 else
                 {
                     MessageBox.Show("الموظف غير موجود أو ليس لديك صلاحية الوصول", "خطأ في الوصول", MessageBoxButton.OK, MessageBoxImage.Error);
                     code_box.Clear();
-                    name_box.Clear();
+                    user_box.Text = "";
                 }
             }
             catch (Exception ex)

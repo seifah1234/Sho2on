@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.Classes;
 using HR_Application.Views;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
@@ -7,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfAnimatedGif;
 using MessageBox = System.Windows.MessageBox;
@@ -26,6 +29,7 @@ namespace HR_Application
         private Dictionary<string, int> breaks = new Dictionary<string, int>();
         private Dictionary<string, int> weekHolidays = new Dictionary<string, int>();
         private Dictionary<string, int> jobTypes = new Dictionary<string, int>();
+        private List<User> users = new List<User>();
 
         private AppDbContext _context;
 
@@ -55,6 +59,77 @@ namespace HR_Application
             }
         }
 
+        private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (user_box.SelectedItem != null)
+            {
+                code_box.Text = user_box.SelectedValue.ToString();
+            }
+        }
+
+
+        private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            var comboBox = sender as System.Windows.Controls.ComboBox;
+            var textBox = (System.Windows.Controls.TextBox)comboBox.Template.FindName("PART_EditableTextBox", comboBox);
+
+            textBox.TextChanged -= searchComboBox_TextChanged;
+            textBox.TextChanged += searchComboBox_TextChanged;
+        }
+
+        private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as System.Windows.Controls.TextBox;
+            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
+            var searchText = textBox.Text;
+
+            var itemsList = comboBox.Tag as List<User>;
+
+            switch (comboBox.Name)
+            {
+                case "user_box":
+                    itemsList = users;
+                    break;
+            }
+
+            if (itemsList == null)
+                return;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = itemsList;
+            }
+            else
+            {
+                var filteredItems = itemsList
+                    .Where(item => item.FullName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.ItemsSource = null;
+                comboBox.ItemsSource = filteredItems;
+            }
+
+            comboBox.IsDropDownOpen = true;
+            textBox.Text = searchText;
+            textBox.CaretIndex = searchText.Length;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                if (parentObject is T parent)
+                {
+                    return parent;
+                }
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+            return null;
+        }
+
+
         private void LoadData()
         {
             try
@@ -81,10 +156,11 @@ namespace HR_Application
 
                 // Load departments
                 var departmentsFromDb = _context.Departments.ToList();
-                foreach (var dept in departmentsFromDb)
-                {
-                    departments.Add(dept.Name, dept.Id);
-                }
+                deptComboBox.ItemsSource = departmentsFromDb;
+
+                // Load departments
+                var qualificationsFromDb = _context.Qualifications.ToList();
+                eduComboBox.ItemsSource = qualificationsFromDb;
 
                 // Load jobs
                 jobComboBox.Items.Clear();
@@ -130,19 +206,26 @@ namespace HR_Application
                     jobTypes.Add(jobType.Name, jobType.Id);
                 }
 
-                // Load insured options
-                insuredComboBox.Items.Clear();
-                insuredComboBox.Items.Add("نعم");
-                insuredComboBox.Items.Add("لا");
-                _insured.Add("نعم", 1);
-                _insured.Add("لا", 0);
-
                 // Load inDuty options
                 inDutyComboBox.Items.Clear();
                 inDutyComboBox.Items.Add("نعم");
                 inDutyComboBox.Items.Add("لا");
                 _inDuties.Add("نعم", true);
                 _inDuties.Add("لا", false);
+
+                var recidences = Recidence.Recidences();
+                recidenceComboBox.ItemsSource = recidences;
+
+                var insures = Insurance.Insurances();
+                insuredComboBox.ItemsSource = insures;
+
+                var maritals = Marital.Maritals();
+                maritalComboBox.ItemsSource = maritals;
+
+                var dbUsers = _context.Users.ToList();
+
+                users.AddRange(dbUsers);
+                user_box.ItemsSource = users;
             }
             catch (Exception e)
             {
@@ -317,6 +400,7 @@ namespace HR_Application
                 .Include(u => u.Break)
                 .Include(u => u.WeekHoliday)
                 .Include(u => u.JobType)
+                .Include(u => u.Qualification)
                 .AsQueryable();
 
             if (filters.ContainsKey("code"))
@@ -334,9 +418,19 @@ namespace HR_Application
                 query = query.Where(u => u.FullName.Contains(filters["name"]));
             }
 
+            if (filters.ContainsKey("phone"))
+            {
+                query = query.Where(u => u.PhoneNumber.StartsWith(filters["phone"]));
+            }
+
             if (filters.ContainsKey("insured"))
             {
-                query = query.Where(u => u.IsInsured == (filters["insured"] == "1"));
+                query = query.Where(u => u.InsuredId.ToString() == filters["insured"]);
+            }
+
+            if (filters.ContainsKey("recidence"))
+            {
+                query = query.Where(u => u.RecidenceId.ToString() == filters["recidence"]);
             }
 
             if (filters.ContainsKey("inDuty"))
@@ -350,6 +444,18 @@ namespace HR_Application
                 query = query.Where(u => u.JobTitleId == jobCode);
             }
 
+            if (filters.ContainsKey("qualification"))
+            {
+                int qualificationCode = int.Parse(filters["qualification"]);
+                query = query.Where(u => u.QualificationId == qualificationCode);
+            }
+
+            if (filters.ContainsKey("marital"))
+            {
+                int maritalCode = int.Parse(filters["marital"]);
+                query = query.Where(u => u.MaritalId == maritalCode);
+            }
+
             if (filters.ContainsKey("holidayBalance"))
             {
                 int holidayBalance = int.Parse(filters["holidayBalance"]);
@@ -360,6 +466,12 @@ namespace HR_Application
             {
                 int branchCode = int.Parse(filters["branch"]);
                 query = query.Where(u => u.BranchId == branchCode);
+            }
+
+            if (filters.ContainsKey("dept"))
+            {
+                int deptCode = int.Parse(filters["dept"]);
+                query = query.Where(u => u.DepartmentId == deptCode);
             }
 
             if (filters.ContainsKey("fromDate"))
@@ -426,14 +538,19 @@ namespace HR_Application
             var filters = new Dictionary<string, string>();
             employeeList.Clear();
 
-            string name = name_box.Text;
+            string name = user_box.Text;
             string code = code_box.Text;
             string cardNo = cardId_box.Text;
+            string phone = whatsAppNoBox.Text;
             string holidayBalance = holiday_balance_box.Text;
-            string job = (jobComboBox.SelectedItem != null) ? jobs[jobComboBox.SelectedItem.ToString()].ToString() : "";
-            string branch = (branchComboBox.SelectedItem != null) ? branches[branchComboBox.SelectedItem.ToString()].ToString() : "";
-            string insured = (insuredComboBox.SelectedItem != null) ? _insured[insuredComboBox.SelectedItem.ToString()].ToString() : "";
-            string inDuty = (inDutyComboBox.SelectedItem != null) ? inDutyComboBox.SelectedItem.ToString() : "";
+            string? job = (jobComboBox.SelectedItem != null) ? jobs[jobComboBox.SelectedItem.ToString()].ToString() : "";
+            string? branch = (branchComboBox.SelectedItem != null) ? branches[branchComboBox.SelectedItem.ToString()].ToString() : "";
+            string? dept = (deptComboBox.SelectedValue != null) ? deptComboBox.SelectedValue.ToString() : "";
+            string? qualification = (eduComboBox.SelectedValue != null) ? eduComboBox.SelectedValue.ToString() : "";
+            string? insured = (insuredComboBox.SelectedItem != null) ? insuredComboBox.SelectedValue.ToString() : "";
+            string? marital = (maritalComboBox.SelectedItem != null) ? maritalComboBox.SelectedValue.ToString() : "";
+            string? recidence = (recidenceComboBox.SelectedItem != null) ? recidenceComboBox.SelectedValue.ToString() : "";
+            string? inDuty = (inDutyComboBox.SelectedItem != null) ? inDutyComboBox.SelectedItem.ToString() : "";
 
             if (!string.IsNullOrEmpty(code))
             {
@@ -455,17 +572,37 @@ namespace HR_Application
             {
                 filters.Add("job", job);
             }
+            if (!string.IsNullOrEmpty(qualification))
+            {
+                filters.Add("qualification", qualification);
+            }
+            if (!string.IsNullOrEmpty(marital))
+            {
+                filters.Add("marital", marital);
+            }
             if (!string.IsNullOrEmpty(branch))
             {
                 filters.Add("branch", branch);
+            }
+            if (!string.IsNullOrEmpty(dept))
+            {
+                filters.Add("dept", dept);
             }
             if (!string.IsNullOrEmpty(insured))
             {
                 filters.Add("insured", insured);
             }
+            if (!string.IsNullOrEmpty(recidence))
+            {
+                filters.Add("recidence", recidence);
+            }
             if (!string.IsNullOrEmpty(inDuty))
             {
                 filters.Add("inDuty", inDuty);
+            }
+            if (!string.IsNullOrEmpty(phone))
+            {
+                filters.Add("phone", phone);
             }
             if (from_picker.SelectedDate.HasValue && to_picker.SelectedDate.HasValue)
             {
@@ -496,19 +633,19 @@ namespace HR_Application
                         RowNumber = rowNumber++,
                         Name = user.FullName,
                         Address = user.Address,
-                        Code = user.Id,
+                        Code = user.Code,
                         HolidayBalance = user.HolidayBalance,
                         CardNo = user.NationalID,
-                        Job = GetKeyByValue(jobs, user.JobTitleId),
-                        Department = GetKeyByValue(departments, user.DepartmentId),
-                        Degree = GetKeyByValue(degrees, user.DegreeId),
+                        Job = user.JobTitle.Name,
+                        Department = user.Department.Name,
+                        Degree = user.Degree.Name,
                         Salary = user.MainSalary,
                         Gender = (user.Gender == 'M') ? "ذكر" : "انثى",
-                        Insured = user.IsInsured ? "نعم" : "لا",
+                        Insured = user.InsuredId.HasValue ? Insurance.InsuranceName(user.InsuredId.Value) : "",
                         DateT = user.HireDate,
                         EndDate = user.FinishJob,
                         BirthD = user.BirthDate,
-                        Br = GetKeyByValue(branches, user.BranchId),
+                        Br = user.Branch.Name,
                         Phone = user.PhoneNumber,
                         Email = user.Email,
                         SSN = user.SSN,
@@ -517,10 +654,9 @@ namespace HR_Application
                         UnderTraining = user.UnderTraining ? "نعم" : "لا",
                         UnderEmployment = user.UnderEmployment ? "نعم" : "لا",
                         Blacklist = user.Blacklist ? "نعم" : "لا",
-                        Shift = GetKeyByValue(shifts, user.ShiftId),
-                        Break = GetKeyByValue(breaks, user.BreakId),
-                        WeekHoliday = GetKeyByValue(weekHolidays, user.WeekHolidayId),
-                        JobType = GetKeyByValue(jobTypes, user.JobTypeId),
+                        Shift = user.Shift.Name,
+                        WeekHoliday = user.WeekHoliday.Name,
+                        JobType = user.JobType.Name,
                         Age = CalculateAge(user.BirthDate),
                         WorkHours = user.WorkHours.ToString(@"hh\:mm") ?? "",
                         IsArchived = user.IsArchived,
@@ -603,13 +739,19 @@ namespace HR_Application
         private void ClearFilters()
         {
             code_box.Clear();
-            name_box.Clear();
+            user_box.SelectedIndex = -1;
             cardId_box.Clear();
+            employeeList.Clear();
             holiday_balance_box.Clear();
+            whatsAppNoBox.Clear();
             jobComboBox.SelectedItem = null;
             branchComboBox.SelectedItem = null;
+            deptComboBox.SelectedItem = null;
             inDutyComboBox.SelectedItem = null;
             insuredComboBox.SelectedItem = null;
+            recidenceComboBox.SelectedItem = null;
+            eduComboBox.SelectedItem = null;
+            maritalComboBox.SelectedItem = null;
             birth_picker.SelectedDate = null;
             from_picker.SelectedDate = null;
             end_to_picker.SelectedDate = null;
@@ -660,7 +802,7 @@ namespace HR_Application
             public string Insured { get; set; }
             public string Address { get; set; }
             public string Gender { get; set; }
-            public int Code { get; set; }
+            public string Code { get; set; }
             public int UserId { get; set; } // لحفظ معرف المستخدم
             public int? HolidayBalance { get; set; }
             public int? Age { get; set; }
@@ -669,7 +811,6 @@ namespace HR_Application
             public string Department { get; set; }
             public string Degree { get; set; }
             public string Shift { get; set; }
-            public string Break { get; set; }
             public string WeekHoliday { get; set; }
             public string JobType { get; set; }
             public DateOnly DateT { get; set; }

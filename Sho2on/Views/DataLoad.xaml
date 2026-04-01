@@ -5,7 +5,7 @@
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         Height="580" Width="900" MinHeight="580" MinWidth="900"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource SecondaryColor}">
+        Background="{DynamicResource InputBackground}">
 
     <Window.Resources>
         <!-- تدرج لوني للخلفية الرئيسية -->
@@ -28,7 +28,7 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="DarkRed"/>
-            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -56,8 +56,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -91,7 +91,7 @@
 
         <!-- نمط للـ TextBlock -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -100,10 +100,10 @@
 
         <!-- نمط للـ GroupBox -->
         <Style x:Key="SettingsGroupBoxStyle" TargetType="GroupBox">
-            <Setter Property="Foreground" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="10"/>
@@ -111,7 +111,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource SecondaryColor}"  >
+    <Border Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -125,12 +125,12 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم السفلي المحسن -->
-            <Border CornerRadius="10" Background="{StaticResource PrimaryColor}" Margin="5" Grid.Row="2"  >
+            <Border CornerRadius="10" Background="{DynamicResource PrimaryColor}" Margin="5" Grid.Row="2"  >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -141,12 +141,12 @@
                     <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10">
 
                         <!-- GroupBox للإعدادات -->
-                        <GroupBox FlowDirection="RightToLeft" Style="{StaticResource SettingsGroupBoxStyle}" Header="إعدادات التحميل">
+                        <GroupBox FlowDirection="RightToLeft" Style="{DynamicResource SettingsGroupBoxStyle}" Header="إعدادات التحميل">
                             <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center">
 
                                 <!-- تاريخ البدء -->
                                 <StackPanel Orientation="Vertical" Margin="10,0">
-                                    <TextBlock Text="تاريخ البدء:" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="تاريخ البدء:" Style="{DynamicResource LabelStyle}"/>
                                     <DatePicker x:Name="startDatePicker" 
                                                 SelectedDateFormat="Short"/>
                                 </StackPanel>
@@ -154,18 +154,18 @@
 
 
                                 <!-- زر تحميل بيانات الفرع -->
-                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button Style="{DynamicResource SecondaryButtonStyle}" 
                                 Width="180" 
                                 Margin="10,5" 
                                 Click="LoadBranch_Clicked">
                                     <StackPanel Orientation="Horizontal">
                                         <Icon:PackIconMaterial Kind="Download" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                        <TextBlock Text="تحميل بيانات الفرع" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
+                                        <TextBlock Text="تحميل بيانات الفرع" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                     </StackPanel>
                                 </Button>
 
                                 <!-- زر الخروج -->
-                                <Button Style="{StaticResource ActionButtonStyle}" 
+                                <Button Style="{DynamicResource ActionButtonStyle}" 
                                 Width="180" 
                                 Margin="10,5" 
                                 Click="exit_Clicked">

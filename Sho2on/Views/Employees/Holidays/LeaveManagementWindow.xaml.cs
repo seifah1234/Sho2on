@@ -19,6 +19,7 @@ namespace HR_Application.Views.Employees.Holidays
     {
         private readonly AppDbContext _context;
         private List<LeaveViewModel> _leaves = new List<LeaveViewModel>();
+        private List<LeaveViewModel> _ownLeaves = new List<LeaveViewModel>();
         private List<LeaveType> _leaveTypes = new List<LeaveType>();
 
         public LeaveManagementWindow()
@@ -39,7 +40,9 @@ namespace HR_Application.Views.Employees.Holidays
                     .ToListAsync();
 
                 cmbLeaveType.Items.Clear();
+                cmbOwnLeaveType.Items.Clear();
                 cmbLeaveType.Items.Add(new ComboBoxItem { Content = "جميع الأنواع", Tag = -1 });
+                cmbOwnLeaveType.Items.Add(new ComboBoxItem { Content = "جميع الأنواع", Tag = -1 });
 
                 foreach (var leaveType in _leaveTypes)
                 {
@@ -48,10 +51,18 @@ namespace HR_Application.Views.Employees.Holidays
                         Content = leaveType.Name,
                         Tag = leaveType.Id
                     });
+                    cmbOwnLeaveType.Items.Add(new ComboBoxItem
+                    {
+                        Content = leaveType.Name,
+                        Tag = leaveType.Id
+                    });
                 }
 
                 if (cmbLeaveType.Items.Count > 0)
                     cmbLeaveType.SelectedIndex = 0;
+
+                if (cmbOwnLeaveType.Items.Count > 0)
+                    cmbOwnLeaveType.SelectedIndex = 0;
 
                 List<StatusType> statuses = new List<StatusType>
                 {
@@ -64,8 +75,15 @@ namespace HR_Application.Views.Employees.Holidays
                 };
 
                 cmbStatus.ItemsSource = statuses;
+                cmbOwnStatus.ItemsSource = statuses;
 
                 await LoadLeaves();
+
+                if ((!App.CurrentUser.Department.IsHR.HasValue || !App.CurrentUser.Department.IsHR.Value) &&
+                   (!App.CurrentUser.JobTitle.IsManager.HasValue || !App.CurrentUser.JobTitle.IsManager.Value))
+                {
+                    employeesTab.Visibility = Visibility.Collapsed;
+                }
             }
             catch (Exception ex)
             {
@@ -85,8 +103,10 @@ namespace HR_Application.Views.Employees.Holidays
             {
                 var query = _context.Leaves
                     .Include(l => l.User)
+                    .Include(l => l.ReplacementUser)
                     .Include(l => l.LeaveType)
-                    .Where(l => l.ApprovedBy == App.CurrentUser.Id)
+                    .Where(l => l.ApprovedBy == App.CurrentUser.Id ||
+                               (l.Status == 5 && App.CurrentUser.Department.IsHR == true))
                     .AsQueryable();
 
                 // تطبيق الفلاتر
@@ -127,6 +147,7 @@ namespace HR_Application.Views.Employees.Holidays
                     Id = l.Id,
                     EmployeeId = l.UserId,
                     EmployeeName = l.User?.FullName ?? "غير معروف",
+                    ReplacementUserName = l.ReplacementUser?.FullName ?? "لا يوجد",
                     LeaveTypeId = l.LeaveTypeId,
                     LeaveTypeName = l.LeaveType?.Name ?? "غير معروف",
                     StartDate = l.StartDate,
@@ -139,6 +160,60 @@ namespace HR_Application.Views.Employees.Holidays
                 }).ToList();
 
                 dgLeaves.ItemsSource = _leaves;
+
+                query = _context.Leaves
+                    .Include(l => l.User)
+                    .Include(l => l.ReplacementUser)
+                    .Include(l => l.LeaveType)
+                    .Where(l => l.UserId == App.CurrentUser.Id)
+                    .AsQueryable();
+
+
+                if (cmbOwnLeaveType.SelectedItem is ComboBoxItem selectedOwnLeaveType &&
+                    selectedOwnLeaveType.Tag is int leaveTypeOwnId && leaveTypeOwnId > 0)
+                {
+                    query = query.Where(l => l.LeaveTypeId == leaveTypeOwnId);
+                }
+
+                if (dpOwnFromDate.SelectedDate.HasValue)
+                {
+                    query = query.Where(l => l.StartDate.Date >= dpOwnFromDate.SelectedDate.Value);
+                }
+
+                if (dpOwnToDate.SelectedDate.HasValue)
+                {
+                    query = query.Where(l => l.EndDate.Date <= dpOwnToDate.SelectedDate.Value);
+                }
+
+                if (cmbOwnStatus.SelectedItem is StatusType selectedOwnStatus && selectedOwnStatus.Code >= 0)
+                {
+                    query = query.Where(l => l.Status == selectedOwnStatus.Code);
+                }
+
+                // تنفيذ الاستعلام
+                leaves = await query
+                    .OrderByDescending(l => l.RequestDate)
+                    .ToListAsync();
+
+                // تحويل إلى ViewModel
+                _ownLeaves = leaves.Select(l => new LeaveViewModel
+                {
+                    Id = l.Id,
+                    EmployeeId = l.UserId,
+                    EmployeeName = l.User?.FullName ?? "غير معروف",
+                    ReplacementUserName = l.ReplacementUser?.FullName ?? "لا يوجد",
+                    LeaveTypeId = l.LeaveTypeId,
+                    LeaveTypeName = l.LeaveType?.Name ?? "غير معروف",
+                    StartDate = l.StartDate,
+                    EndDate = l.EndDate,
+                    Duration = l.Duration,
+                    Reason = l.Reason,
+                    StatusId = l.Status,
+                    Status = GetStatusText(l.Status),
+                    RequestDate = l.RequestDate
+                }).ToList();
+
+                dgOwnLeaves.ItemsSource = _ownLeaves;
             }
             catch (Exception ex)
             {
@@ -155,6 +230,7 @@ namespace HR_Application.Views.Employees.Holidays
                 2 => "موافق عليه",
                 3 => "مرفوض",
                 4 => "ملغى",
+                5 => "تحت المراجعة",
                 _ => "غير معروف"
             };
         }
@@ -207,28 +283,36 @@ namespace HR_Application.Views.Employees.Holidays
 
                 if (isApprove)
                 {
-                    // التحقق من الرصيد المتبقي
-                    var balance = await GetLeaveBalance(leave.UserId, leave.LeaveTypeId);
-                    if (balance.Remaining < leave.Duration && leave.LeaveType.DeductFromBalance)
+                    if (App.CurrentUser.Department != null && App.CurrentUser.Department.IsHR.HasValue && App.CurrentUser.Department.IsHR.Value)
                     {
-                        MessageBox.Show($"الرصيد المتبقي غير كافي. المتبقي: {balance.Remaining} يوم",
-                            "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
+                        leave.Status = 2;
+                        // التحقق من الرصيد المتبقي
+                        var balance = await GetLeaveBalance(leave.UserId, leave.LeaveTypeId);
+                        if (balance.Remaining < leave.Duration && leave.LeaveType.DeductFromBalance)
+                        {
+                            MessageBox.Show($"الرصيد المتبقي غير كافي. المتبقي: {balance.Remaining} يوم",
+                                "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+
+                        // تحديث الحالة
+                        leave.Status = 2; // Approved
+                        leave.ApprovalDate = DateTime.Now;
+
+                        // خصم من الرصيد إذا كان النوع يخصم
+                        if (leave.LeaveType.DeductFromBalance)
+                        {
+                            await DeductLeaveBalance(leave.UserId, leave.LeaveTypeId, leave.Duration);
+                        }
+
+                        // تحديث سجلات الحضور
+                        await UpdateAttendanceForLeave(leave);
                     }
-
-                    // تحديث الحالة
-                    leave.Status = 2; // Approved
-                    leave.ApprovalDate = DateTime.Now;
-                    leave.ApprovedBy = App.CurrentUser?.Id; // احصل على المستخدم الحالي
-
-                    // خصم من الرصيد إذا كان النوع يخصم
-                    if (leave.LeaveType.DeductFromBalance)
+                    else
                     {
-                        await DeductLeaveBalance(leave.UserId, leave.LeaveTypeId, leave.Duration);
+                        leave.Status = 5;
+                        leave.ApprovedBy = App.CurrentUser?.Id; // احصل على المستخدم الحالي
                     }
-
-                    // تحديث سجلات الحضور
-                    await UpdateAttendanceForLeave(leave);
 
                     MessageBox.Show("تم الموافقة على طلب الإجازة", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -515,8 +599,6 @@ namespace HR_Application.Views.Employees.Holidays
             this.Close();
         }
 
-
-
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             // السماح فقط بالأرقام
@@ -554,6 +636,21 @@ namespace HR_Application.Views.Employees.Holidays
                 }
             }
         }
+
+        private async void btnOwnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            await LoadLeaves();
+
+        }
+
+        private void btnOwnClearFilters_Click(object sender, RoutedEventArgs e)
+        {
+            cmbOwnLeaveType.SelectedIndex = 0;
+            dpOwnFromDate.SelectedDate = null;
+            dpOwnToDate.SelectedDate = null;
+            cmbOwnStatus.SelectedIndex = 0;
+        }
+
     }
 
     // فئات مساعدة
@@ -630,12 +727,23 @@ namespace HR_Application.Views.Employees.Holidays
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is int status && parameter is string paramStr && int.TryParse(paramStr, out int param))
+            if (value is int status)
             {
-                return status == param ? Visibility.Visible : Visibility.Collapsed;
+
+                // تحقق من صلاحيات المستخدم
+                bool isManager = App.CurrentUser?.JobTitle?.IsManager ?? false;
+                bool isHR = App.CurrentUser?.Department?.IsHR ?? false;
+
+                // إظهار الزر للمدير إذا كانت الحالة Pending
+                if (status == 1 && isManager)
+                    return Visibility.Visible;
+
+                // إظهار الزر للموارد البشرية إذا كانت الحالة Under Review
+                if (status == 5 && isHR)
+                    return Visibility.Visible;
             }
             return Visibility.Collapsed;
-        }
+    }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

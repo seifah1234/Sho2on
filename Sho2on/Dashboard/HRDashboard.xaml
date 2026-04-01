@@ -87,7 +87,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- الموظفين الجدد -->
-                    <Border Grid.Column="0" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="0" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="🆕" FontSize="24" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="NewEmployees" Text="0" 
@@ -101,7 +101,7 @@
                     </Border>
 
                     <!-- المغادرين -->
-                    <Border Grid.Column="1" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="1" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="👋" FontSize="24" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="LeavingEmployees" Text="0" 
@@ -115,7 +115,7 @@
                     </Border>
 
                     <!-- طلبات الإجازة -->
-                    <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="2" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="📅" FontSize="24" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="LeaveRequests" Text="0" 
@@ -129,7 +129,7 @@
                     </Border>
 
                     <!-- العقود المنتهية -->
-                    <Border Grid.Column="3" Style="{StaticResource StatCard}">
+                    <Border Grid.Column="3" Style="{DynamicResource StatCard}">
                         <StackPanel Margin="10" HorizontalAlignment="Center">
                             <TextBlock Text="📝" FontSize="24" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="ExpiringContracts" Text="0" 
@@ -151,7 +151,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- إدارة الموظفين -->
-                    <Border Grid.Column="0" Style="{StaticResource StatCard}" Margin="0,0,5,0">
+                    <Border Grid.Column="0" Style="{DynamicResource StatCard}" Margin="0,0,5,0">
                         <StackPanel Margin="10">
                             <TextBlock Text="👥 إدارة الموظفين" 
                                      FontSize="16" FontWeight="Bold"
@@ -159,19 +159,19 @@
 
                             <WrapPanel>
                                 <Button Content="إضافة موظف جديد" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenAddEmployee"
                                         Margin="2"/>
                                 <Button Content="تعديل بيانات الموظفين" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenEditEmployees"
                                         Margin="2"/>
                                 <Button Content="الترقيات والنقل" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenPromotions"
                                         Margin="2"/>
                                 <Button Content="إنهاء خدمات" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenTerminations"
                                         Margin="2"/>
                             </WrapPanel>
@@ -179,7 +179,7 @@
                     </Border>
 
                     <!-- المستحقات -->
-                    <Border Grid.Column="1" Style="{StaticResource StatCard}" Margin="5,0,0,0">
+                    <Border Grid.Column="1" Style="{DynamicResource StatCard}" Margin="5,0,0,0">
                         <StackPanel Margin="10">
                             <TextBlock Text="💰 المستحقات والمستقطعات" 
                                      FontSize="16" FontWeight="Bold"
@@ -187,19 +187,19 @@
 
                             <WrapPanel>
                                 <Button Content="إضافة مرتب أساسي" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenAddSalary"
                                         Margin="2"/>
                                 <Button Content="الإضافات والخصومات" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenBenefitsDeductions"
                                         Margin="2"/>
                                 <Button Content="تقرير المرتبات" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenSalaryReport"
                                         Margin="2"/>
                                 <Button Content="السلف والخصميات" 
-                                        Style="{StaticResource DashboardButton}"
+                                        Style="{DynamicResource DashboardButton}"
                                         Click="OpenLoans"
                                         Margin="2"/>
                             </WrapPanel>
@@ -208,7 +208,7 @@
                 </Grid>
 
                 <!-- Recent Employee Changes -->
-                <Border Grid.Row="2" Style="{StaticResource StatCard}" Margin="0,15,0,0">
+                <Border Grid.Row="2" Style="{DynamicResource StatCard}" Margin="0,15,0,0">
                     <StackPanel Margin="10">
                         <TextBlock Text="🔄 آخر التغييرات على الموظفين" 
                                  FontSize="16" FontWeight="Bold"

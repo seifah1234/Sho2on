@@ -6,7 +6,7 @@
         FlowDirection="RightToLeft"
         WindowStartupLocation="CenterScreen">
 
-    <Grid>
+    <Grid Background="{DynamicResource WindowRootBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- العنوان -->
-        <Border Grid.Row="0" Background="#1976D2" Padding="15">
+        <Border Grid.Row="0" Padding="15">
             <TextBlock Text="طلب سلفة من صندوق الزمالة" 
                        Foreground="White" 
                        FontSize="18" 
@@ -48,11 +48,12 @@
                         </Grid.RowDefinitions>
 
                         <Label Grid.Row="0" Grid.Column="0" Content="الكود:" Margin="5"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtCode" Width="150" Height="30" Margin="5"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="txtCode" Width="250" Margin="5"/>
                         <Button Grid.Row="0" Grid.Column="2" Content="بحث" Width="80" Height="30" Margin="5" Click="BtnSearch_Click"/>
 
                         <Label Grid.Row="1" Grid.Column="0" Content="الاسم:" Margin="5"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtName" VerticalAlignment="Center" Margin="5"/>
+                        <!--<TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtName" VerticalAlignment="Center" Margin="5"/>-->
+                        <ComboBox Grid.Row="1" Grid.Column="1" Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
 
                         <Label Grid.Row="0" Grid.Column="3" Content="الراتب الأساسي:" Margin="5"/>
                         <TextBlock Grid.Row="0" Grid.Column="4" x:Name="txtBasicSalary" VerticalAlignment="Center" Margin="5"/>
@@ -147,7 +148,7 @@
         </ScrollViewer>
 
         <!-- الأزرار -->
-        <Border Grid.Row="2" Background="#F5F5F5" Padding="10">
+        <Border Grid.Row="2" Background="{DynamicResource PrimaryColor}" Padding="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button x:Name="btnRequest" Content="إرسال الطلب للمدير" Width="150" Height="35" 
                         Margin="5" Background="#4CAF50" Foreground="White" FontWeight="Bold"

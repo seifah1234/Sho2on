@@ -29,8 +29,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -68,7 +68,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource InputBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -82,15 +82,15 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{DynamicResource PrimaryColor}"  >
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
                     <!-- زر الحفظ المحسن -->
-                        <Button Style="{StaticResource SaveButtonStyle}" IsDefault="True" x:Name="save_btn" Click="SaveButton_Click">
+                        <Button Style="{DynamicResource SaveButtonStyle}" IsDefault="True" x:Name="save_btn" Click="SaveButton_Click">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                 <TextBlock Text="حفظ" VerticalAlignment="Center"/>
@@ -100,7 +100,7 @@
                     <!-- ComboBox والـ Label المحسنين -->
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="10">
                         <ComboBox DisplayMemberPath="FullName" SelectedValuePath="Id" x:Name="userComboBox" SelectionChanged="UserComboBox_SelectionChanged"/>
-                        <Label Content="المستخدم :" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                        <Label Content="المستخدم :" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -110,9 +110,9 @@
                 <DataGrid Name="dataTable" AutoGenerateColumns="False" FlowDirection="RightToLeft" ItemsSource="{Binding BranchesList}" Margin="10">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="الفرع" Binding="{Binding Name}" Width="*"/>
-                        <DataGridCheckBoxColumn Binding="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{StaticResource DataGridCheckBoxStyle}">
+                        <DataGridCheckBoxColumn Binding="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource DataGridCheckBoxStyle}">
                             <DataGridCheckBoxColumn.Header>
-                                <CheckBox Name="All_check" Checked="All_check_Checked" Unchecked="All_check_Unchecked" Style="{StaticResource DataGridCheckBoxStyle}"/>
+                                <CheckBox Name="All_check" Checked="All_check_Checked" Unchecked="All_check_Unchecked" Style="{DynamicResource DataGridCheckBoxStyle}"/>
                             </DataGridCheckBoxColumn.Header>
                         </DataGridCheckBoxColumn>
                     </DataGrid.Columns>

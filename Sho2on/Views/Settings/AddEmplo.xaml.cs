@@ -1,4 +1,5 @@
-﻿using HR_Application.Views;
+﻿using HR_Application.Classes;
+using HR_Application.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Sho2on.Database;
@@ -75,10 +76,14 @@ namespace HR_Application
                 shift_box.DisplayMemberPath = "Name";
                 shift_box.SelectedValuePath = "Id";
 
-                /*var breaks = await _context.Breaks.ToListAsync();
-                break_box.ItemsSource = breaks;
-                break_box.DisplayMemberPath = "Name";
-                break_box.SelectedValuePath = "Id";*/
+                var recidences = Recidence.Recidences();
+                recidenceBox.ItemsSource = recidences;
+
+                var insures = Insurance.Insurances();
+                insuredComboBox.ItemsSource = insures;
+
+                var maritals = Marital.Maritals();
+                maritalBox.ItemsSource = maritals;
 
                 var managers = await _context.Users.Include(u => u.JobTitle).Where(u => u.JobTitle.IsManager.HasValue && u.JobTitle.IsManager.Value).ToListAsync();
                 manager_box.ItemsSource = managers;
@@ -87,6 +92,11 @@ namespace HR_Application
                 week_holi_box.ItemsSource = weekHolidays;
                 week_holi_box.DisplayMemberPath = "Name";
                 week_holi_box.SelectedValuePath = "Id";
+
+                var qualifications = await _context.Qualifications.ToListAsync();
+                qualificationBox.ItemsSource = qualifications;
+                qualificationBox.DisplayMemberPath = "Name";
+                qualificationBox.SelectedValuePath = "Id";
 
                 var jobTypes = await _context.JobTypes.ToListAsync();
                 job_type_box.ItemsSource = jobTypes;
@@ -198,7 +208,9 @@ namespace HR_Application
                     FinishJob = end_date_picker.SelectedDate.HasValue ?
                         DateOnly.FromDateTime(end_date_picker.SelectedDate.Value) : null,
                     Gender = male_box.IsChecked == true ? 'M' : 'F',
+                    MaritalId = (int)maritalBox.SelectedValue,
                     ManagerId = (int?)manager_box.SelectedValue,
+                    QualificationId = (int?)qualificationBox.SelectedValue,
 
                     // المعلومات الوظيفية
                     BranchId = (int)branch_box.SelectedValue,
@@ -206,8 +218,8 @@ namespace HR_Application
                     JobTitleId = (int)job_box.SelectedValue,
                     DegreeId = (int)degree_box.SelectedValue,
                     ShiftId = (int)shift_box.SelectedValue,
-                    //BreakId = (int)break_box.SelectedValue,
                     WeekHolidayId = (int)week_holi_box.SelectedValue,
+                    RecidenceId = (int?)recidenceBox.SelectedValue,
                     JobTypeId = (int?)job_type_box.SelectedValue,
 
                     // الإعفاءات
@@ -220,7 +232,7 @@ namespace HR_Application
                     // المعلومات الإضافية
                     WorkHours = TimeSpan.TryParse(work_hours_box.Text, out var workHours) ? workHours : TimeSpan.Zero,
                     InDuty = inDuty_check.IsChecked == true,
-                    IsInsured = insured_check.IsChecked == true,
+                    InsuredId = (int?)insuredComboBox.SelectedValue,
                     HolidayBalance = int.TryParse(holiday_balance_box.Text, out int balance) ? balance : 0,
 
                     // البلاك ليست
@@ -292,6 +304,7 @@ namespace HR_Application
                     .Include(u => u.JobTitle)
                     .Include(u => u.Degree)
                     .Include(u => u.Shift)
+                    .Include(u => u.Qualification)
                     //.Include(u => u.Break)
                     .Include(u => u.WeekHoliday)
                     .Include(u => u.JobType)
@@ -300,6 +313,11 @@ namespace HR_Application
                 if (!string.IsNullOrEmpty(emplo_code_box.Text))
                 {
                     users = users.Where(u => u.Code == emplo_code_box.Text).ToList();
+                }
+                
+                if (!string.IsNullOrEmpty(emplo_name_box.Text))
+                {
+                    users = users.Where(u => u.FullName.StartsWith(emplo_name_box.Text)).ToList();
                 }
 
                 if (branch_box.SelectedValue != null)
@@ -381,6 +399,12 @@ namespace HR_Application
                 if (user.ShiftId > 0)
                     shift_box.SelectedValue = user.ShiftId;
 
+                if (user.MaritalId > 0)
+                    maritalBox.SelectedValue = user.MaritalId;
+
+                if (user.QualificationId > 0)
+                    qualificationBox.SelectedValue = user.QualificationId;
+
                 if (user.ManagerId.HasValue && user.ManagerId > 0)
                     manager_box.SelectedValue = user.ManagerId;
 
@@ -389,6 +413,9 @@ namespace HR_Application
 
                 if (user.WeekHolidayId > 0)
                     week_holi_box.SelectedValue = user.WeekHolidayId;
+
+                if (user.RecidenceId > 0)
+                    recidenceBox.SelectedValue = user.RecidenceId;
 
                 if (user.JobTypeId.HasValue)
                     job_type_box.SelectedValue = user.JobTypeId;
@@ -402,7 +429,7 @@ namespace HR_Application
 
                 // الخيارات
                 inDuty_check.IsChecked = user.InDuty;
-                insured_check.IsChecked = user.IsInsured;
+                insuredComboBox.SelectedValue = user.InsuredId;
                 user_check.IsChecked = user.IsUser;
                 userMobile_check.IsChecked = user.IsMobileUser;
                 employee_check.IsChecked = user.UnderEmployment;
@@ -537,9 +564,12 @@ namespace HR_Application
             user.JobTitleId = (int)job_box.SelectedValue;
             user.DegreeId = (int)degree_box.SelectedValue;
             user.ShiftId = (int)shift_box.SelectedValue;
-            //user.BreakId = (int)break_box.SelectedValue;
+            user.RecidenceId = (int?)recidenceBox.SelectedValue;
             user.WeekHolidayId = (int)week_holi_box.SelectedValue;
             user.JobTypeId = (int?)job_type_box.SelectedValue;
+            user.InsuredId = (int?)insuredComboBox.SelectedValue;
+            user.MaritalId = (int?)maritalBox.SelectedValue;
+            user.QualificationId = (int?)qualificationBox.SelectedValue;
 
             user.ExemptLate = late_box.IsChecked == true;
             user.ExemptEarlyLeave = early_end.IsChecked == true;
@@ -550,7 +580,6 @@ namespace HR_Application
             user.WorkHours = TimeSpan.Parse(work_hours_box.Text);
 
             user.InDuty = inDuty_check.IsChecked == true;
-            user.IsInsured = insured_check.IsChecked == true;
             user.HolidayBalance = int.TryParse(holiday_balance_box.Text, out int balance) ? balance : 0;
 
             user.Blacklist = blacklist_check.IsChecked == true;
@@ -629,6 +658,10 @@ namespace HR_Application
                 break_box.SelectedIndex = -1;
                 week_holi_box.SelectedIndex = -1;
                 job_type_box.SelectedIndex = -1;
+                recidenceBox.SelectedIndex = -1;
+                insuredComboBox.SelectedIndex = -1;
+                maritalBox.SelectedIndex = -1;
+                qualificationBox.SelectedIndex = -1;
 
                 late_box.IsChecked = false;
                 early_end.IsChecked = false;
@@ -637,7 +670,6 @@ namespace HR_Application
                 absent_box.IsChecked = false;
 
                 inDuty_check.IsChecked = true;
-                insured_check.IsChecked = false;
                 user_check.IsChecked = false;
                 userMobile_check.IsChecked = false;
                 employee_check.IsChecked = false;
@@ -766,6 +798,13 @@ namespace HR_Application
                 return false;
             }
 
+            if (recidenceBox.SelectedItem == null)
+            {
+                MessageBox.Show("يرجى اختيار الاقامة", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
+                job_box.Focus();
+                return false;
+            }
+
             // التحقق من البلاك ليست
             if (blacklist_check.IsChecked == true && string.IsNullOrEmpty(blacklist_notes_box.Text))
             {
@@ -805,21 +844,6 @@ namespace HR_Application
                 var archiveWindow = new EmployeeArchiveWindow(_selectedUser.Id);
                 archiveWindow.Owner = this;
                 archiveWindow.ShowDialog();
-            }
-            else
-            {
-                MessageBox.Show("يرجى اختيار موظف أولاً", "تحذير",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
-        private void OpenEvaluation_Click(object sender, RoutedEventArgs e)
-        {
-            if (_selectedUser != null)
-            {
-                var evaluationWindow = new EmployeeEvaluationWindow(_selectedUser.Id);
-                evaluationWindow.Owner = this;
-                evaluationWindow.ShowDialog();
             }
             else
             {

@@ -10,6 +10,7 @@
         WindowState="Maximized"
         Background="Transparent"
         FlowDirection="RightToLeft"
+        Loaded="Window_Loaded"
         Title="طلب إجازة">
 
     <Window.Resources>
@@ -145,8 +146,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="BorderBrush" Value="#1976D2"/>
             <Setter Property="Template">
@@ -171,7 +172,7 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource SecondaryColor}"  >
+    <Border CornerRadius="15" Background="{DynamicResource WindowRootBackground}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -184,17 +185,17 @@
                        VerticalAlignment="Center" 
                        FontSize="22" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource PrimaryColor}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
                          
                        Grid.ColumnSpan="2"/>
 
             <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
+            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{DynamicResource PrimaryColor}"  >
                 <Grid>
                     <ScrollViewer>
                      <StackPanel Orientation="Vertical" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="20">
                         <!-- في قسم معلومات الموظف -->
-                        <GroupBox Style="{StaticResource GroupBoxStyle}" Header="بيانات الموظف" Margin="10">
+                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="بيانات الموظف" Margin="10">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
                                             <TextBox Name="employeeCode_box" Tag="كود الموظف" KeyDown="employeeCode_box_KeyDown"
@@ -202,24 +203,24 @@
                                         <TextBox Width="250" Name="employeeName_box" Tag="اسم الموظف" 
              FlowDirection="RightToLeft" Margin="10" />
 
-                                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                        <Button Style="{DynamicResource SecondaryButtonStyle}" 
             IsDefault="True" 
             x:Name="search_btn" 
             Click="search_btn_Click" 
             Margin="10">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Icon:PackIconMaterial Kind="AccountSearch" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                                <TextBlock Text="اختر الموظف" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
+                                                <TextBlock Text="اختر الموظف" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                                 </StackPanel>
                                             </Button>
 
                                         <!-- زر إدارة رصيد الإجازات -->
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button Style="{DynamicResource SecondaryButtonStyle}" 
                     x:Name="btnManageBalance" 
                     Click="btnManageBalance_Click" 
                     Margin="10" Background="#673AB7">
                                         <StackPanel Orientation="Horizontal">
-                                                <Icon:PackIconMaterial Kind="AccountCash" VerticalAlignment="Center" Foreground="{StaticResource ThirdColor}" Margin="0 0 5 0"/>
+                                                <Icon:PackIconMaterial Kind="AccountCash" VerticalAlignment="Center" Foreground="{DynamicResource ThirdColor}" Margin="0 0 5 0"/>
                                             <TextBlock Text="إدارة الرصيد" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
@@ -243,7 +244,8 @@
                             </StackPanel>
                         </GroupBox>
 
-                            <GroupBox Style="{StaticResource GroupBoxStyle}" Header="الموافقة على الإجازة" Margin="10">
+                            <StackPanel Orientation="Horizontal">
+                                 <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="الموافقة على الإجازة" Margin="10">
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
 
                                     <!-- فلترة المديرين بالمسمى الوظيفي -->
@@ -258,13 +260,13 @@
 
                                     <!-- زر اختيار المدير -->
                                     <Button x:Name="btnSelectManager" 
-                Style="{StaticResource SecondaryButtonStyle}"
+                Style="{DynamicResource SecondaryButtonStyle}"
                 Click="btnSelectManager_Click"
                                             Width="200"
                 Margin="0,0,0,10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="AccountTie" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="اختر الموافق على الإجازة" VerticalAlignment="Center" Foreground="{StaticResource PrimaryColor}"/>
+                                            <TextBlock Text="اختر الموافق على الإجازة" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                         </StackPanel>
                                     </Button>
 
@@ -310,9 +312,37 @@
                    HorizontalAlignment="Center" Margin="0,10,0,0"/>
                                 </StackPanel>
                             </GroupBox>
+                                 <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="القائم عن العمل" Margin="10">
+                                    <StackPanel>
+                                       <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBox VerticalAlignment="Bottom" Name="ReplaceEmployeeCode_box" Tag="كود الموظف" KeyDown="ReplaceEmployeeCode_box_KeyDown"
+ FlowDirection="RightToLeft" Margin="10" Width="120"/>
+                                            <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
+                                                <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                                <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
+                                            </StackPanel>
+
+
+
+                                        </StackPanel>
+                                        
+                                        <Button Style="{DynamicResource SecondaryButtonStyle}" 
+IsDefault="True" 
+x:Name="searchReplace_btn" 
+Click="searchReplace_btn_Click" 
+Margin="10">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="AccountSearch" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                <TextBlock Text="اختر الموظف" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </GroupBox>
+                                
+                            </StackPanel>
                          
                             <!-- في قسم بيانات الإجازة -->
-                        <GroupBox Style="{StaticResource GroupBoxStyle}" Header="بيانات الإجازة" Margin="10">
+                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="بيانات الإجازة" Margin="10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -393,21 +423,21 @@
                                  
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
 
-                                            <Button Style="{StaticResource ActionButtonStyle}" HorizontalAlignment="Center" Background="#4CAF50" Name="submit_btn" Click="submit_btn_Click" Margin="15">
+                                            <Button Style="{DynamicResource ActionButtonStyle}" HorizontalAlignment="Center" Background="#4CAF50" Name="submit_btn" Click="submit_btn_Click" Margin="15">
                                         <StackPanel Orientation="Horizontal">
-                                                <Icon:PackIconMaterial Kind="Send" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="{StaticResource ThirdColor}"/>
+                                                <Icon:PackIconMaterial Kind="Send" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="{DynamicResource ThirdColor}"/>
                                             <TextBlock Text="تقديم الطلب" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource ActionButtonStyle}" Background="#FFC107" Name="saveDraft_btn" Visibility="Collapsed" Click="saveDraft_btn_Click" Margin="15">
+                                    <Button Style="{DynamicResource ActionButtonStyle}" Background="#FFC107" Name="saveDraft_btn" Visibility="Collapsed" Click="saveDraft_btn_Click" Margin="15">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                             <TextBlock Text="حفظ كمسودة" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                            <Button Style="{StaticResource ActionButtonStyle}" Background="#F44336" Name="cancel_btn" Click="cancel_btn_Click" Margin="15">
+                                            <Button Style="{DynamicResource ActionButtonStyle}" Background="#F44336" Name="cancel_btn" Click="cancel_btn_Click" Margin="15">
                                                 <StackPanel Orientation="Horizontal">
-                                                <Icon:PackIconMaterial Foreground="{StaticResource ThirdColor}" Kind="Cancel" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Cancel" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                                     <TextBlock Text="إلغاء" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Button>

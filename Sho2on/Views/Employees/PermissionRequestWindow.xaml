@@ -5,10 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HR_Application.Views.Employees"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Height="700" Width="900" MinHeight="600" MinWidth="800"
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
+        Loaded="Window_Loaded"
         Title="طلب إذن">
 
     <Window.Resources>
@@ -16,11 +18,9 @@
         <Style x:Key="InputFieldStyle" TargetType="TextBox">
             <Setter Property="Width" Value="200"/>
             <Setter Property="Height" Value="35"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Padding" Value="5,0"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="#2196F3"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="White"/>
         </Style>
 
         <Style x:Key="WideInputFieldStyle" TargetType="TextBox">
@@ -28,16 +28,13 @@
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="#2196F3"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="White"/>
         </Style>
 
         <Style x:Key="DateTimePickerStyle" TargetType="DatePicker">
             <Setter Property="Width" Value="180"/>
             <Setter Property="Height" Value="35"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="#2196F3"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
@@ -57,14 +54,12 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="White"/>
         </Style>
 
         <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Width" Value="200"/>
             <Setter Property="Height" Value="35"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="#2196F3"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
@@ -72,7 +67,7 @@
         <local:DurationToTextConverter x:Key="DurationToTextConverter"/>
     </Window.Resources>
 
-    <Border Background="{StaticResource PrimaryColor}" Padding="20">
+    <Border Background="{DynamicResource WindowRootBackground}" Padding="20">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -86,12 +81,12 @@
                        HorizontalAlignment="Center" 
                        FontSize="24" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource ThirdColor}"
+                       Foreground="{DynamicResource TextPrimaryColor}"
                        Margin="0,0,0,20"/>
 
             <!-- المحتوى الرئيسي -->
             <Border Grid.Row="1" 
-                    Background="{StaticResource SecondaryColor}" 
+                    Background="{DynamicResource BorderColor}" 
                     CornerRadius="10" 
                     Padding="20">
                 <ScrollViewer>
@@ -101,7 +96,7 @@
                         <GroupBox Header="بيانات الموظف" 
                                   FontSize="16" 
                                   FontWeight="Bold" 
-                                  Foreground="{StaticResource PrimaryColor}"
+                                  Foreground="{DynamicResource TextPrimaryColor}"
                                   Padding="15"
                                   Margin="0,0,0,15">
                             <StackPanel Orientation="Vertical">
@@ -109,18 +104,16 @@
                                     <TextBox x:Name="txtEmployeeCode" 
                                              Tag="كود الموظف" 
                                              Width="120"
-                                             BorderBrush="{StaticResource PrimaryColor}"
-                                             Foreground="{StaticResource PrimaryColor}"
+                                             KeyDown="txtEmployeeCode_KeyDown"
+                                             VerticalAlignment="Bottom"
+                                             BorderBrush="{DynamicResource SecondaryColor}"
                                              Margin="5"/>
-                                    <TextBox x:Name="txtEmployeeName" 
-                                             Tag="اسم الموظف" 
-                                             Width="250"
-                                             BorderBrush="{StaticResource PrimaryColor}"
-                                             Foreground="{StaticResource PrimaryColor}"
-                                             Margin="5"
-                                             IsReadOnly="True"/>
+                                    <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
+                                        <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                        <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
+                                    </StackPanel>
                                     <Button x:Name="btnSelectEmployee" 
-                                            Background="{StaticResource PrimaryColor}"
+                                            Background="{DynamicResource PrimaryColor}"
                                             Click="btnSelectEmployee_Click"
                                             Margin="5">
                                         <StackPanel Orientation="Horizontal">
@@ -136,19 +129,19 @@
                                             HorizontalAlignment="Center"
                                             Visibility="Collapsed">
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الإدارة" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                                        <TextBlock Text="الإدارة" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtDepartment" Text="" Foreground="#666"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الفرع" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                                        <TextBlock Text="الفرع" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtBranch" Text="" Foreground="#666"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="المسمى الوظيفي" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                                        <TextBlock Text="المسمى الوظيفي" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtJobTitle" Text="" Foreground="#666"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الوردية" FontWeight="SemiBold" Foreground="{StaticResource PrimaryColor}"/>
+                                        <TextBlock Text="الوردية" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtShift" Text="" Foreground="#666"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -159,7 +152,7 @@
                         <GroupBox Header="بيانات الإذن" 
                                   FontSize="16" 
                                   FontWeight="Bold" 
-                                  Foreground="{StaticResource PrimaryColor}"
+                                  Foreground="{DynamicResource PrimaryColor}"
                                   Padding="15"
                                   Margin="0,0,0,15">
                             <StackPanel Orientation="Vertical">
@@ -191,16 +184,32 @@
 
                                     <StackPanel Orientation="Vertical" Margin="10">
                                         <TextBlock Text="وقت البداية" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                                        <TextBox x:Name="txtStartTime" 
-                                                 Style="{StaticResource TimePickerStyle}"
-                                                 TextChanged="Time_TextChanged"/>
+                                      
+                                        <materialDesign:TimePicker Name="txtStartTime" 
+                           BorderThickness="1"
+                           Padding="3"
+                           SelectedTimeChanged="txtStartTime_SelectedTimeChanged"
+                           HorizontalAlignment="Center"
+                                                                   FlowDirection="LeftToRight"
+                           VerticalContentAlignment="Center"
+                           BorderBrush="{DynamicResource SecondaryColor}"
+                           Foreground="{DynamicResource TextPrimaryColor}"
+                           Background="{DynamicResource SecondaryColor}"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Vertical" Margin="10">
                                         <TextBlock Text="وقت النهاية" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                                        <TextBox x:Name="txtEndTime" 
-                                                 Style="{StaticResource TimePickerStyle}"
-                                                 TextChanged="Time_TextChanged"/>
+                                        
+                                        <materialDesign:TimePicker Name="txtEndTime"
+BorderThickness="1"
+Padding="3"
+SelectedTimeChanged="txtStartTime_SelectedTimeChanged"
+HorizontalAlignment="Center"
+                                                                   FlowDirection="LeftToRight"
+VerticalContentAlignment="Center"
+BorderBrush="{DynamicResource SecondaryColor}"
+Foreground="{DynamicResource TextPrimaryColor}"
+Background="{DynamicResource SecondaryColor}"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Vertical" Margin="10">
@@ -208,7 +217,8 @@
                                         <TextBox x:Name="txtDuration" 
                                                  Width="100"
                                                  IsReadOnly="True"
-                                                 Style="{StaticResource InputFieldStyle}"
+                                                 VerticalContentAlignment="Center"
+                                                 Style="{DynamicResource InputFieldStyle}"
                                                  HorizontalContentAlignment="Center"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -220,9 +230,6 @@
                                              Width="500"
                                              MinHeight="80"
                                              TextWrapping="Wrap"
-                                             
-                                             BorderBrush="{StaticResource PrimaryColor}"
-                                             Foreground="{StaticResource PrimaryColor}"
                                              AcceptsReturn="True"
                                              FontSize="12"
                                              BorderThickness="1"/>
@@ -236,8 +243,6 @@
                                              MinHeight="60"
                                              TextWrapping="Wrap"
                                              
-                                             BorderBrush="{StaticResource PrimaryColor}"
-                                             Foreground="{StaticResource PrimaryColor}"
                                              AcceptsReturn="True"
                                              FontSize="12"
                                              BorderThickness="1"/>
@@ -250,7 +255,7 @@
                                   Header="الموافق على الإذن" 
                                   FontSize="16" 
                                   FontWeight="Bold" 
-                                  Foreground="{StaticResource PrimaryColor}"
+                                  Foreground="{DynamicResource PrimaryColor}"
                                   Padding="15"
                                   Margin="0,0,0,15">
                             <StackPanel Orientation="Vertical">
@@ -258,12 +263,12 @@
                                     <TextBox x:Name="txtApproverName" 
                                              Tag="اسم الموافق" 
                                              Width="300"
-                                             Style="{StaticResource WideInputFieldStyle}"
+                                             Style="{DynamicResource WideInputFieldStyle}"
                                              Margin="5"
                                              IsReadOnly="True"/>
                                     <Button x:Name="btnSelectApprover" 
-                                            Style="{StaticResource ActionButtonStyle}"
-                                            Background="{StaticResource ThirdColor}"
+                                            Background="{DynamicResource PrimaryColor}"
+                                            Foreground="{DynamicResource SecondaryColor}"
                                             Click="btnSelectApprover_Click"
                                             Margin="5">
                                         <StackPanel Orientation="Horizontal">
@@ -285,7 +290,7 @@
                     Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button x:Name="btnSubmit" 
-                            Style="{StaticResource ActionButtonStyle}"
+                            Style="{DynamicResource ActionButtonStyle}"
                             Background="#4CAF50"
                             Click="btnSubmit_Click"
                             Margin="10">
@@ -296,7 +301,7 @@
                     </Button>
 
                     <Button x:Name="btnSaveDraft" 
-                            Style="{StaticResource ActionButtonStyle}"
+                            Style="{DynamicResource ActionButtonStyle}"
                             Background="#FF9800"
                             Click="btnSaveDraft_Click"
                             Margin="10">
@@ -307,7 +312,7 @@
                     </Button>
 
                     <Button x:Name="btnCancel" 
-                            Style="{StaticResource ActionButtonStyle}"
+                            Style="{DynamicResource ActionButtonStyle}"
                             Background="#F44336"
                             Click="btnCancel_Click"
                             Margin="10">

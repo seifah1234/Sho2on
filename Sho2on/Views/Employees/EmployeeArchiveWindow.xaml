@@ -1,126 +1,479 @@
 ﻿<Window x:Class="HR_Application.Views.EmployeeArchiveWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="أرشيف الموظف" Height="800" Width="1400"
+        xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Title="أرشيف الموظف"
+        Height="800" Width="1400"
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
+        Loaded="Window_Loaded"
         WindowState="Maximized"
-        Background="WhiteSmoke"
-        FontFamily="Segoe UI">
+        Background="{DynamicResource MainBackgroundBrush}">
 
     <Window.Resources>
-        <!-- Card Style -->
-        <Style x:Key="DocumentCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+
+        <!-- ══ Effects ══ -->
+        <DropShadowEffect x:Key="CardShadow"   BlurRadius="18" ShadowDepth="0" Color="#000000" Opacity="0.25"/>
+        <DropShadowEffect x:Key="FolderGlow"   BlurRadius="12" ShadowDepth="0" Color="#00BCD4" Opacity="0.2"/>
+        <DropShadowEffect x:Key="HeaderShadow" BlurRadius="16" ShadowDepth="0" Color="#000000" Opacity="0.35"/>
+
+        <!-- ══ Document type accent colors (unchanged keys) ══ -->
+        <SolidColorBrush x:Key="SignedColor"      Color="#27AE60"/>
+        <SolidColorBrush x:Key="PersonalColor"    Color="#3498DB"/>
+        <SolidColorBrush x:Key="CVColor"          Color="#E74C3C"/>
+        <SolidColorBrush x:Key="CertificateColor" Color="#F39C12"/>
+        <SolidColorBrush x:Key="IDColor"          Color="#9B59B6"/>
+        <SolidColorBrush x:Key="InternshipColor"  Color="#FF2C7863"/>
+        <SolidColorBrush x:Key="DefaultColor"     Color="#95A5A6"/>
+
+        <!-- ══ Folder card style ══ -->
+        <Style x:Key="FolderCardStyle" TargetType="Border">
+            <Setter Property="Background"      Value="{DynamicResource SurfaceColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="15"/>
-            <Setter Property="Margin" Value="8"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+            <Setter Property="CornerRadius"    Value="16"/>
+            <Setter Property="Margin"          Value="8"/>
+            <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Color="Black" Opacity="0.1"/>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Color="#000000" Opacity="0.2"/>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- Document Type Colors -->
-        <SolidColorBrush x:Key="SignedColor" Color="#27ae60"/>
-        <SolidColorBrush x:Key="PersonalColor" Color="#3498db"/>
-        <SolidColorBrush x:Key="CVColor" Color="#e74c3c"/>
-        <SolidColorBrush x:Key="CertificateColor" Color="#f39c12"/>
-        <SolidColorBrush x:Key="IDColor" Color="#9b59b6"/>
-        <SolidColorBrush x:Key="DefaultColor" Color="#95a5a6"/>
+        <!-- ══ Document card style (inside folder) ══ -->
+        <Style x:Key="DocumentCardStyle" TargetType="Border">
+            <Setter Property="Background"      Value="{DynamicResource SurfaceColor}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius"    Value="12"/>
+            <Setter Property="Padding"         Value="15"/>
+            <Setter Property="Margin"          Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="0" Color="#000000" Opacity="0.18"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <!-- Icon Styles -->
-        <Style x:Key="IconStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
+        <!-- ══ Header action button ══ -->
+        <Style x:Key="HeaderActionButton" TargetType="Button">
+            <Setter Property="Height"          Value="40"/>
+            <Setter Property="Padding"         Value="16,0"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ══ Document action button (inside cards) ══ -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground"      Value="{DynamicResource MutedColor}"/>
+            <Setter Property="FontSize"        Value="12"/>
+            <Setter Property="Padding"         Value="8,4"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="6"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceLightColor}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ══ Back button ══ -->
+        <Style x:Key="BackButtonStyle" TargetType="Button">
+            <Setter Property="Background"      Value="{DynamicResource SurfaceLightColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Height"          Value="36"/>
+            <Setter Property="Padding"         Value="14,0"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Visibility"      Value="Collapsed"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceColor}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ══ Breadcrumb text ══ -->
+        <Style x:Key="BreadcrumbText" TargetType="TextBlock">
+            <Setter Property="Foreground"      Value="{DynamicResource MutedColor}"/>
+            <Setter Property="FontSize"        Value="13"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- Button Style -->
-        <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#666"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="#2c3e50"/>
-                    <Setter Property="Background" Value="#f8f9fa"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Grid Margin="15">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="62"/>
+            <!-- window header -->
+            <RowDefinition Height="64"/>
+            <!-- employee info bar -->
+            <RowDefinition Height="52"/>
+            <!-- breadcrumb / nav bar -->
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <!-- content -->
+            <RowDefinition Height="44"/>
+            <!-- status bar -->
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}"
-                Padding="20" CornerRadius="12" Margin="0,0,0,15">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+        <!-- ════════════ Row 0: Window Header ════════════ -->
+        <Border Grid.Row="0" Background="{DynamicResource HeaderBackground}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="14" ShadowDepth="0" Color="#000000" Opacity="0.3"/>
+            </Border.Effect>
+            <!-- Bottom hairline -->
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="Transparent" Offset="0"/>
+                    <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+            <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="📁" FontSize="24" Margin="0,0,15,0"/>
-                    <TextBlock Text="أرشيف الموظف" Foreground="{StaticResource ThirdColor}" FontSize="22" FontWeight="SemiBold"/>
+            <Grid Margin="20,0">
+                <!-- Title -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border CornerRadius="8" Width="34" Height="34" Margin="0,0,10,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#00838F" Offset="0"/>
+                                <GradientStop Color="#0D47A1" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Icon:PackIconMaterial Kind="FolderOpen" Width="17" Height="17"
+                                               Foreground="#FFFFFF"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="أرشيف الموظف"
+                               FontSize="19" FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryColor}"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button x:Name="showSigningModalBtn" Content="📝 توقيع وثائق" 
+                <!-- Action buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+
+                    <!-- Sign documents -->
+                    <Button x:Name="showSigningModalBtn"
                             Click="showSigningModalBtn_Click"
-                            Background="#e74c3c" Foreground="White" 
-                            Padding="15,8" FontSize="14" FontWeight="SemiBold"
-                            BorderThickness="0"
-                            Margin="0,0,10,0"/>
-                    <Button x:Name="addPersonalDocBtn" Content="➕ إضافة وثيقة" 
+                            Style="{StaticResource HeaderActionButton}"
+                            Background="#3B1010" BorderBrush="#4A1515" Foreground="#EF9A9A"
+                            Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="FileSign" Width="14" Height="14"
+                                                   Foreground="#EF5350" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="توقيع وثائق" VerticalAlignment="Center" Foreground="#EF5350"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Add document -->
+                    <Button x:Name="addPersonalDocBtn"
                             Click="addPersonalDocBtn_Click"
-                            Background="#3498db" Foreground="White" 
-                            Padding="15,8" FontSize="14" FontWeight="SemiBold"
-                            BorderThickness="0"/>
+                            Style="{StaticResource HeaderActionButton}"
+                            Background="#003843" BorderBrush="#005060" Foreground="{DynamicResource ThirdColor}">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="Plus" Width="14" Height="14"
+                                                   Foreground="{DynamicResource AccentColor}"
+                                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="إضافة وثيقة" VerticalAlignment="Center" Foreground="{DynamicResource AccentColor}"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Employee Info -->
-        <Border Grid.Row="1" Background="{StaticResource SecondaryColor}" CornerRadius="10" Padding="15" Margin="0,0,0,15">
-            <StackPanel Orientation="Horizontal">
-                <Border Background="{StaticResource PrimaryColor}" CornerRadius="8" Padding="10" Margin="0,0,15,0">
-                    <TextBlock Text="👤" FontSize="16" VerticalAlignment="Center"/>
+        <!-- ════════════ Row 1: Employee Info Bar ════════════ -->
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceColor}"
+                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1"
+                Padding="20,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Avatar -->
+                <Border Width="42" Height="42" CornerRadius="21" Margin="0,0,14,0"
+                        BorderThickness="2">
+                    <Border.BorderBrush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#00BCD4" Offset="0"/>
+                            <GradientStop Color="#0D47A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.BorderBrush>
+                    <Border CornerRadius="21" Background="{DynamicResource SurfaceLightColor}" Margin="2">
+                        <Icon:PackIconMaterial Kind="Account" Width="20" Height="20"
+                                               Foreground="{DynamicResource AccentColor}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
                 </Border>
-                <StackPanel>
-                    <TextBlock x:Name="txtEmployeeName" FontSize="16" FontWeight="SemiBold" 
-                               Foreground="{StaticResource PrimaryColor}" Text="جاري التحميل..."/>
-                    <TextBlock x:Name="txtEmployeeCode" FontSize="12" Foreground="{StaticResource PrimaryColor}"
-                               Text="كود: جاري التحميل..."/>
+
+                <!-- Name + code -->
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="txtEmployeeName"
+                               FontSize="16" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryColor}"
+                               Text="جاري التحميل..."/>
+                    <TextBlock x:Name="txtEmployeeCode"
+                               FontSize="12"
+                               Foreground="{DynamicResource MutedColor}"
+                               Text="كود: جاري التحميل..."
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Spacer -->
+                <Rectangle Width="1" Height="32" Margin="20,0"
+                           Fill="{DynamicResource BorderColor}" Opacity="0.5"/>
+
+                <!-- Document count badge -->
+                <Border CornerRadius="20" Padding="14,5"
+                        Background="{DynamicResource SurfaceLightColor}"
+                        BorderThickness="1" BorderBrush="{DynamicResource BorderColor}">
+                    <StackPanel Orientation="Horizontal">
+                        <Icon:PackIconMaterial Kind="FileCabinet" Width="14" Height="14"
+                                               Foreground="{DynamicResource AccentColor}"
+                                               VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="totalDocsCount" Text="0 وثيقة"
+                                   Foreground="{DynamicResource ThirdColor}"
+                                   FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- ════════════ Row 2: Breadcrumb / Nav Bar ════════════ -->
+        <Border Grid.Row="2" Background="{DynamicResource DataGridHeaderBackground}"
+                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1"
+                Padding="20,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <!-- Back button — shown when inside a folder -->
+                <Button x:Name="backToFoldersBtn"
+                        Style="{StaticResource BackButtonStyle}"
+                        Click="backToFoldersBtn_Click"
+                        Margin="0,0,14,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Icon:PackIconMaterial Kind="ArrowRight" Width="14" Height="14"
+                                               VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="رجوع" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Root crumb -->
+                <TextBlock Style="{StaticResource BreadcrumbText}">
+                    <Hyperlink x:Name="rootCrumbLink" Click="rootCrumbLink_Click"
+                               Foreground="{DynamicResource AccentColor}"
+                               TextDecorations="None">
+                        <Run Text="الأرشيف"/>
+                    </Hyperlink>
+                </TextBlock>
+
+                <!-- Folder crumb (collapsed when at root) -->
+                <StackPanel x:Name="folderCrumbPanel" Orientation="Horizontal"
+                            Visibility="Collapsed">
+                    <TextBlock Text=" / " Style="{StaticResource BreadcrumbText}"
+                               Margin="4,0"/>
+                    <Icon:PackIconMaterial Kind="Folder" Width="14" Height="14"
+                                           Foreground="{DynamicResource AccentColor}"
+                                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBlock x:Name="folderCrumbText"
+                               Style="{StaticResource BreadcrumbText}"
+                               Foreground="{DynamicResource TextPrimaryColor}"
+                               FontWeight="SemiBold"/>
                 </StackPanel>
             </StackPanel>
         </Border>
 
-        <!-- Main Content - Cards -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="5">
-            <ItemsControl x:Name="documentsItemsControl">
+        <!-- ════════════ Row 3: Content Area ════════════ -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto"
+                      Background="Transparent" Padding="12">
+
+            <!-- ── VIEW A: Folder grid (root level) ── -->
+            <ItemsControl x:Name="foldersItemsControl" Visibility="Visible">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                        <WrapPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource DocumentCardStyle}" Width="300" Height="180">
+                        <!--
+                            Each item represents a document TYPE / folder.
+                            Binding properties expected on each folder object:
+                              FolderColor      (SolidColorBrush or color hex string)
+                              FolderIconKind   (PackIconMaterialKind enum)
+                              FolderName       (string) — display name, e.g. "وثائق شخصية"
+                              DocumentCount    (int)    — number of docs inside
+                              TypeId           (int)    — used in Click handler to filter
+                        -->
+                        <Border Style="{StaticResource FolderCardStyle}"
+                                Width="200" Height="190"
+                                Tag="{Binding}"
+                                MouseLeftButtonUp="FolderCard_Click">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Folder icon area -->
+                                <Grid Grid.Row="0">
+                                    <!-- Colored top strip -->
+                                    <Border CornerRadius="16 16 0 0" Height="10"
+                                            VerticalAlignment="Top"
+                                            Background="{Binding FolderColor}"/>
+
+                                    <!-- Folder illustration -->
+                                    <StackPanel VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Margin="0,14,0,0">
+
+                                        <!-- Folder tab -->
+                                        <Border HorizontalAlignment="Center"
+                                                Width="90" Height="10"
+                                                CornerRadius="6 6 0 0"
+                                                Margin="0,0,60,0">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{Binding FolderColor.Color}"/>
+                                            </Border.Background>
+                                        </Border>
+
+                                        <!-- Folder body -->
+                                        <Border Width="140" Height="90"
+                                                CornerRadius="0 8 8 8">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{Binding FolderColor.Color}"/>
+                                            </Border.Background>
+                                            <Border.OpacityMask>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                                                    <GradientStop Color="#99FFFFFF" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.OpacityMask>
+
+                                            <!-- Icon inside folder -->
+                                            <Icon:PackIconMaterial Kind="{Binding FolderIconKind}"
+                                                                    Width="36" Height="36"
+                                                                    Foreground="White"
+                                                                    Opacity="0.9"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- Document count badge — top left corner -->
+                                    <Border CornerRadius="12" Padding="8,3"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Margin="10"
+                                            Background="{DynamicResource SurfaceLightColor}"
+                                            BorderThickness="1"
+                                            BorderBrush="{DynamicResource BorderColor}">
+                                        <TextBlock Text="{Binding DocumentCount}"
+                                                   FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentColor}"/>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Folder name footer -->
+                                <Border Grid.Row="1"
+                                        Background="{DynamicResource DataGridHeaderBackground}"
+                                        CornerRadius="0 0 14 14"
+                                        Padding="12,10">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding FolderName}"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                                   HorizontalAlignment="Center"
+                                                   TextAlignment="Center"/>
+                                        <TextBlock FontSize="11"
+                                                   Foreground="{DynamicResource MutedColor}"
+                                                   HorizontalAlignment="Center"
+                                                   TextAlignment="Center"
+                                                   Margin="0,2,0,0">
+                                            <Run Text="{Binding DocumentCount}"/>
+                                            <Run Text=" وثيقة"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </ScrollViewer>
+
+        <!-- ── VIEW B: Document cards inside a folder ── (placed in same Row 3, above scroll) -->
+        <ScrollViewer Grid.Row="3" x:Name="documentsScrollViewer"
+                      VerticalScrollBarVisibility="Auto"
+                      Background="Transparent"
+                      Visibility="Collapsed"
+                      Padding="12">
+            <ItemsControl x:Name="documentsItemsControl">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource DocumentCardStyle}" Width="300" Height="190">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -128,9 +481,12 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <!-- Header -->
-                                <Border Grid.Row="0" Background="{Binding DocumentTypeColor}" 
-                                        CornerRadius="8,8,0,0" Padding="10" Margin="-15,-15,-15,10">
+                                <!-- Card header -->
+                                <Border Grid.Row="0"
+                                        Background="{Binding DocumentTypeColor}"
+                                        CornerRadius="10 10 0 0"
+                                        Padding="12,8"
+                                        Margin="-15,-15,-15,10">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -138,58 +494,116 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding DocumentIcon}" 
-                                                   Style="{StaticResource IconStyle}" 
-                                                   Foreground="White" Margin="0,0,8,0"/>
+                                        <Icon:PackIconMaterial Grid.Column="0"
+                                                               Kind="{Binding DocumentIconKind}"
+                                                               Width="16" Height="16"
+                                                               Foreground="White"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,8,0"/>
 
-                                        <TextBlock Grid.Column="1" Text="{Binding DocumentTypeName}" 
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding DocumentTypeName}"
                                                    Foreground="White" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" FontSize="12"/>
 
-                                        <Border Grid.Column="2" Background="White" CornerRadius="10" 
-                                                Padding="4,2" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding StatusName}" FontSize="10" 
-                                                       FontWeight="Bold" Foreground="{Binding StatusColor}"/>
+                                        <!-- Status pill -->
+                                        <Border Grid.Column="2"
+                                                Background="White"
+                                                CornerRadius="10"
+                                                Padding="6,2"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding StatusName}"
+                                                       FontSize="10" FontWeight="Bold"
+                                                       Foreground="{Binding StatusColor}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
 
-                                <!-- Content -->
-                                <StackPanel Grid.Row="1" Margin="0,0,0,10">
-                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" 
-                                               FontSize="14" Foreground="#2c3e50" 
-                                               TextWrapping="Wrap" MaxHeight="40"
+                                <!-- Card body -->
+                                <StackPanel Grid.Row="1" Margin="0,0,0,8">
+                                    <TextBlock Text="{Binding Title}"
+                                               FontWeight="SemiBold" FontSize="14"
+                                               Foreground="{DynamicResource TextPrimaryColor}"
+                                               TextWrapping="Wrap" MaxHeight="42"
                                                TextTrimming="CharacterEllipsis"/>
 
-                                    <TextBlock Text="{Binding Description}" FontSize="11" 
-                                               Foreground="#7f8c8d" TextWrapping="Wrap"
-                                               Margin="0,5,0,0" MaxHeight="30"
+                                    <TextBlock Text="{Binding Description}"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource MutedColor}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0" MaxHeight="30"
                                                TextTrimming="CharacterEllipsis"/>
 
+                                    <!-- Date row -->
                                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                        <TextBlock Text="📅" FontSize="10" Margin="0,0,5,0"/>
-                                        <TextBlock Text="{Binding UploadDate, StringFormat='yyyy/MM/dd'}" 
-                                                   FontSize="10" Foreground="#95a5a6"/>
+                                        <Icon:PackIconMaterial Kind="CalendarOutline"
+                                                               Width="12" Height="12"
+                                                               Foreground="{DynamicResource MutedColor}"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding UploadDate, StringFormat='yyyy/MM/dd'}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource MutedColor}"
+                                                   VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </StackPanel>
 
-                                <!-- Actions -->
-                                <StackPanel Grid.Row="2" Orientation="Horizontal" 
-                                            HorizontalAlignment="Center">
-                                    <Button Style="{StaticResource ActionButtonStyle}" 
-                                            Tag="{Binding}" Click="CardView_Click"
-                                            Content="👁️ عرض"/>
-                                    <Button Style="{StaticResource ActionButtonStyle}" 
-                                            Tag="{Binding}" Click="CardDownload_Click"
-                                            Content="📥 تحميل"/>
-                                    <Button Style="{StaticResource ActionButtonStyle}" 
-                                            Tag="{Binding}" Click="CardPrint_Click" Visibility="Collapsed"
-                                            Content="🖨️ طباعة"/>
-                                    <Button Style="{StaticResource ActionButtonStyle}" 
-                                            Tag="{Binding}" Click="CardDelete_Click"
-                                            Content="🗑️ حذف"
-                                            Foreground="#e74c3c"/>
-                                </StackPanel>
+                                <!-- Card actions -->
+                                <Border Grid.Row="2"
+                                        BorderBrush="{DynamicResource BorderColor}"
+                                        BorderThickness="0,1,0,0"
+                                        Padding="0,8,0,0">
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center">
+
+                                        <!-- View -->
+                                        <Button Style="{StaticResource ActionButtonStyle}"
+                                                Tag="{Binding}" Click="CardView_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="Eye" Width="13" Height="13"
+                                                                       Foreground="{DynamicResource AccentColor}"
+                                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBlock Text="عرض" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Download -->
+                                        <Button Style="{StaticResource ActionButtonStyle}"
+                                                Tag="{Binding}" Click="CardDownload_Click"
+                                                Margin="4,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="Download" Width="13" Height="13"
+                                                                       Foreground="{DynamicResource AccentColor}"
+                                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBlock Text="تحميل" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Print (collapsed) -->
+                                        <Button Style="{StaticResource ActionButtonStyle}"
+                                                Tag="{Binding}" Click="CardPrint_Click"
+                                                Visibility="Collapsed" Margin="4,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="Printer" Width="13" Height="13"
+                                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBlock Text="طباعة" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <!-- Delete -->
+                                        <Button Style="{StaticResource ActionButtonStyle}"
+                                                Tag="{Binding}" Click="CardDelete_Click"
+                                                Foreground="#EF5350">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="Delete" Width="13" Height="13"
+                                                                       Foreground="#EF5350"
+                                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -197,10 +611,22 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- Status Bar -->
-        <Border Grid.Row="3" Background="{StaticResource PrimaryColor}" CornerRadius="8" Padding="10" Margin="0,15,0,0">
-            <TextBlock x:Name="statusText" Text="جاهز" Foreground="{StaticResource ThirdColor}" 
-                       HorizontalAlignment="Center" FontSize="12"/>
+        <!-- ════════════ Row 4: Status Bar ════════════ -->
+        <Border Grid.Row="4"
+                Background="{DynamicResource DataGridHeaderBackground}"
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="0,1,0,0"
+                Padding="20,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Icon:PackIconMaterial Kind="InformationOutline" Width="13" Height="13"
+                                       Foreground="{DynamicResource MutedColor}"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock x:Name="statusText"
+                           Text="جاهز"
+                           Foreground="{DynamicResource MutedColor}"
+                           FontSize="12" VerticalAlignment="Center"/>
+            </StackPanel>
         </Border>
+
     </Grid>
 </Window>

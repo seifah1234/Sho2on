@@ -7,6 +7,7 @@ using HR_Application.Views.Employees;
 using HR_Application.Views.Employees.Holidays;
 using HR_Application.Views.Salaries;
 using HR_Application.Views.Settings;
+using MahApps.Metro.IconPacks;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
@@ -18,6 +19,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
@@ -27,6 +29,7 @@ using static FastReport.Export.Html.HTMLExport;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using MahApps.Metro.IconPacks;
 
 namespace HR_Application
 {
@@ -73,6 +76,7 @@ namespace HR_Application
         public bool MachineP => UserPerm.Contains("FingerPrints");
         public bool SettingsP => UserPerm.Contains("Settings");
         public bool EmploDataP => UserPerm.Contains("بيانات العاملين");
+        public bool EmploSalaryDataP => UserPerm.Contains("بيانات و مرتبات الموظفين");
         public bool HoliReqP => true;
         public bool BulkSalaryPaymentP => UserPerm.Contains("صرف المرتبات الجماعي");
         public bool LoanRequestP => UserPerm.Contains("طلب سلفة");
@@ -93,6 +97,7 @@ namespace HR_Application
         public bool BranchP => UserPerm.Contains("الفروع");
         public bool RoleP => UserPerm.Contains("الجروبات");
         public bool DepartP => UserPerm.Contains("الادارات");
+        public bool QualificationP => UserPerm.Contains("المؤهلات");
         public bool JobP => UserPerm.Contains("الوظائف");
         public bool DegreeP => UserPerm.Contains("الدرجة الوظيفية");
         public bool AddEmploP => UserPerm.Contains("اضافة موظف");
@@ -104,6 +109,7 @@ namespace HR_Application
         public bool LateP => UserPerm.Contains("التأخيرات");
         public bool WHP => UserPerm.Contains("الاجازات الاسبوعية");
         public bool HTypeP => UserPerm.Contains("أنواع الاجازات");
+        public bool EmpEvalP => UserPerm.Contains("تقييم موظف");
         public bool PermissionP => UserPerm.Contains("صلاحيات البرنامج");
         public bool MonthSettingP => UserPerm.Contains("اعدادات الشهر");
         public bool UserPermissionP => UserPerm.Contains("صلاحيات المستخدم");
@@ -119,8 +125,23 @@ namespace HR_Application
         public bool NewRequestP => UserPerm.Contains("طلب إجازة");
         public bool ManageLeaveTypesP => UserPerm.Contains("أنواع الإجازات");
         public bool BalanceReportP => UserPerm.Contains("تقرير الرصيد");
+        public bool NewMissionP => UserPerm.Contains("طلب مأمورية");
+        public bool ManageMissionP => UserPerm.Contains("طلبات المأموريات");
         public bool StorageP => true;
 
+        private void ThemeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            ThemeManager.Toggle();
+            // Update icon & label to reflect NEW state
+            if (ThemeManager.IsDark)
+            {
+                ThemeModeIcon.Kind = PackIconMaterialKind.WeatherSunny;
+            }
+            else
+            {
+                ThemeModeIcon.Kind = PackIconMaterialKind.WeatherNight;
+            }
+        }
 
         private async Task LoadGIFAsync()
         {
@@ -163,6 +184,13 @@ namespace HR_Application
         {
             var holidayRequestWindow = new HolidayRequestWindow();
             holidayRequestWindow.Show();
+        }
+
+
+        private void OpenEvaluation_Click(object sender, RoutedEventArgs e)
+        {
+            var evaluationWindow = new EmployeeEvaluationWindow();
+            evaluationWindow.Show();
         }
 
 
@@ -248,6 +276,7 @@ namespace HR_Application
         private void GetDataClicked(object sender, RoutedEventArgs e) => OpenWindow<DataLoad>();
 
         private void AddDepartOpen(object sender, RoutedEventArgs e) => OpenWindow<AddDepart>();
+        private void AddQualificationOpen(object sender, RoutedEventArgs e) => OpenWindow<AddQualification>();
 
         private void AddJobOpen(object sender, RoutedEventArgs e) => OpenWindow<AddJob>();
         private void AddMainSalary(object sender, RoutedEventArgs e) => OpenWindow<MainSalaryWindow>();
@@ -256,11 +285,16 @@ namespace HR_Application
         private void ErrandsOpen(object sender, RoutedEventArgs e)
         {
             ErrandsWindow window = new ErrandsWindow();
-            window.Owner = this;
+            window.Show();
+        }
+        private void ErrandsRequestsOpen(object sender, RoutedEventArgs e)
+        {
+            MissionsRequestWindow window = new MissionsRequestWindow();
             window.Show();
         }
 
         private void AddBreakOpen(object sender, RoutedEventArgs e) => OpenWindow<AddBreak>();
+        private void EmployeeSalaryDataOpen(object sender, RoutedEventArgs e) => OpenWindow<EmployeeSalaryData>();
         private void HoliReqOpen(object sender, RoutedEventArgs e) => OpenWindow<HolidayRequestWindow>();
         private void ArchiveOpen(object sender, RoutedEventArgs e) => OpenWindow<CompanyDocumentsWindow>();
         private void StorageOpen(object sender, RoutedEventArgs e) => OpenWindow<NetworkSettingsWindow>();
@@ -1396,13 +1430,28 @@ namespace HR_Application
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
+            ThemeManager.Initialize();
             InitializeFlags();
             LoadGIFAsync();
             DashboardManager dashboardManager = new DashboardManager();
             dashboardControl.Children.Add(dashboardManager.GetDashboardWindow());
-            
-            
+            UpdateThemeButton();
+            if (Properties.Settings.Default.Logo != null)
+                GIFBack.Source = new BitmapImage(new Uri(Properties.Settings.Default.Logo));
+
+
+        }
+
+        private void UpdateThemeButton()
+        {
+            if (ThemeManager.IsDark)
+            {
+                ThemeModeIcon.Kind = PackIconMaterialKind.WeatherSunny;
+            }
+            else
+            {
+                ThemeModeIcon.Kind = PackIconMaterialKind.WeatherNight;
+            }
         }
 
         private void btnPermissionRequests_Click(object sender, RoutedEventArgs e)
@@ -1413,6 +1462,32 @@ namespace HR_Application
         private void btnPermissionNewRequest_Click(object sender, RoutedEventArgs e)
         {
             new PermissionRequestWindow().Show();
+        }
+
+        private void DashboardDisplay_Click(object sender, RoutedEventArgs e)
+        {
+            if (dashboardControl.Visibility == Visibility.Visible)
+            {
+                GIFBack.Visibility = Visibility.Visible;
+                dashboardControl.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                GIFBack.Visibility = Visibility.Collapsed;
+                dashboardControl.Visibility = Visibility.Visible;
+            }
+        }
+    }
+    public class BooleanToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return (value is bool && (bool)value) ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

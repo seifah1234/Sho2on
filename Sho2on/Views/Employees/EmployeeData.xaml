@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:uc="clr-namespace:HR_Application.UserControls"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Height="650" Width="1200" MinHeight="650" MinWidth="800"
+        Height="650" Width="1300" MinHeight="650" MinWidth="800"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
+        FlowDirection="RightToLeft"
         Background="Transparent"
-        Title="بيانات العاملين">
+        Title="بيانات الموظفين">
 
     <Window.Resources>
         <!-- تدرج للقسم العلوي -->
@@ -58,12 +59,12 @@
         </Style>
         <!-- نمط للأزرار -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="110"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Style.Triggers>
@@ -80,34 +81,10 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <!-- نمط للـ DataGrid -->
-        <Style x:Key="EmployeeDataGridStyle" TargetType="DataGrid">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="{StaticResource ThirdColor}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#FFFFFF"/>
-            <Setter Property="AlternatingRowBackground" Value="#F5F5F5"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="SelectionUnit" Value="FullRow"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="CanUserAddRows" Value="False"/>
-            <Setter Property="CanUserDeleteRows" Value="False"/>
-            <Setter Property="CanUserReorderColumns" Value="False"/>
-            <Setter Property="CanUserResizeRows" Value="False"/>
-            <Setter Property="CanUserSortColumns" Value="True"/>
-            <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="RowDetailsVisibilityMode" Value="Collapsed"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-        </Style>
-        <!-- نمط لعناوين DataGrid -->
-        
         <!-- نمط لصفوف DataGrid -->
         <Style x:Key="EmployeeRowStyle" TargetType="DataGridRow">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -125,224 +102,261 @@
         </Style>
     </Window.Resources>
 
-    <Border CornerRadius="15" Background="{StaticResource MainBackgroundBrush}"  >
+    <Border CornerRadius="15" Background="{DynamicResource MainBackgroundBrush}"  >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
+            
+            
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="بيانات العاملين" 
+            <TextBlock Text="بيانات الموظفين" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="14" 
                        FontWeight="Bold" 
-                         Foreground="{StaticResource PrimaryColor}"
+                         Foreground="{DynamicResource TextPrimaryColor}"
                        Grid.ColumnSpan="2"/>
 
-            <!-- القسم العلوي المحسن -->
-            <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{StaticResource PrimaryColor}"  >
-                <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="10">
-                            <!-- الفلاتر الرئيسية -->
-                            <StackPanel>
-                                <StackPanel Margin="10" Orientation="Horizontal">
-                                    <TextBox  VerticalAlignment="Bottom" Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="5 0"/>
-                                    <TextBox  VerticalAlignment="Bottom" Name="cardId_box" Tag="الرقم القومي" FlowDirection="RightToLeft" Margin="5 0"/>
-                                    <TextBox VerticalAlignment="Bottom" Width="390" Name="name_box" Tag="الاسم" FlowDirection="RightToLeft" Margin="5 0"/>
-                                    <TextBox VerticalAlignment="Bottom" Name="holiday_balance_box" Tag="رصيد الاجازات" FlowDirection="RightToLeft" Margin="0 0 0 0"/>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                                    <StackPanel Orientation="Horizontal" Margin="5 0">
-                                        <Label VerticalAlignment="Center" Content="تاريخ الميلاد" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                        <DatePicker Width="120" Name="birth_picker" FlowDirection="RightToLeft" />
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <!-- DatePickers للتعيين -->
+                <!-- القسم العلوي المحسن -->
+                <Border Grid.Column="0" CornerRadius="0 0 20 20" Background="{DynamicResource PrimaryColor}"  >
+                    <Grid>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+                                <!-- الفلاتر الرئيسية -->
+                                <StackPanel Orientation="Vertical">
                                     <StackPanel Orientation="Horizontal">
-                                    <GroupBox BorderBrush="{StaticResource ThirdColor}" Foreground="{StaticResource ThirdColor}" Header="انتهاء" Margin="5">
-
-                                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
-                                            <StackPanel>
-                                                <Label Content="التعيين من" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                            <DatePicker Width="120"  Name="from_picker" FlowDirection="RightToLeft" Margin="5"/>
+                                        <StackPanel Margin="10" Orientation="Vertical" HorizontalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Margin="5">
+                                                <TextBox Width="100" Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="2" VerticalAlignment="Bottom"/>
+                                                <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
+                                                    <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                                    <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
+                                                </StackPanel>
                                             </StackPanel>
-                                            <StackPanel>
-                                                <Label Content="الى" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                            <DatePicker Width="120" Name="to_picker" FlowDirection="RightToLeft" Margin="5"/>
-                                                
-                                            </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5">
+                                            <TextBox Width="100" Name="holiday_balance_box" Tag="رصيد الاجازات" FlowDirection="RightToLeft" Margin="2"/>
+                                            <TextBox Width="250" Name="cardId_box" Tag="الرقم القومي" FlowDirection="RightToLeft" Margin="2"/>
+                                            
                                         </StackPanel>
-                                    </GroupBox>
-                                    <!-- DatePickers للانتهاء -->
-                                    <GroupBox BorderBrush="{StaticResource ThirdColor}" Foreground="{StaticResource ThirdColor}" Header="انتهاء" Margin="5">
-                                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
-                                            <StackPanel>
-                                                <Label Content="من" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                            <DatePicker Width="120" Name="end_from_picker" FlowDirection="RightToLeft" Margin="5"/>
-                                            </StackPanel>
-                                            <StackPanel>
-                                                <Label Content="الى" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                            <DatePicker Width="120" Name="end_to_picker" FlowDirection="RightToLeft" Margin="5"/>
-                                                
-                                            </StackPanel>
-                                        </StackPanel>
-                                        
-                                    </GroupBox>
 
-                                    <!-- ComboBoxes والفلاتر الأخرى -->
-                                    <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="10" HorizontalAlignment="Right">
-                                        <StackPanel Orientation="Horizontal">
-                                            <StackPanel>
-                                                <Label Content="الفرع" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                                <ComboBox x:Name="branchComboBox"  FlowDirection="RightToLeft" Margin="5"/>
-                                            </StackPanel>
-                                            <StackPanel>
-                                                <Label Content="الوظيفة" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                                <ComboBox x:Name="jobComboBox"  FlowDirection="RightToLeft" Margin="5"/>
-                                            </StackPanel>
-
-                                            <StackPanel Orientation="Vertical">
-                                                <Label Content="في الخدمة" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                                <ComboBox x:Name="inDutyComboBox" FlowDirection="RightToLeft" Margin="5"/>
-                                            </StackPanel>
-                                            <StackPanel Orientation="Vertical">
-                                                <Label Content="مؤمن عليه" FlowDirection="RightToLeft" Foreground="{StaticResource ThirdColor}"/>
-                                                <ComboBox x:Name="insuredComboBox"  FlowDirection="RightToLeft" Margin="5"/>
-                                            </StackPanel>
-
-                                        </StackPanel>
                                     </StackPanel>
+                                        <!-- الأزرار -->
+                                        <UniformGrid Columns="2" HorizontalAlignment="Center" Margin="5" VerticalAlignment="Center">
+                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="2" ToolTip="بحث في بيانات الموظفين">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                    <TextBlock Text="بحث" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="clear_btn" Click="clear_btn_Click" Margin="2" ToolTip="مسح جميع الفلاتر">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Icon:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="0 0 5 0"/>
+
+                                                    <TextBlock Text="جديد" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="2" ToolTip="تصدير البيانات إلى Excel">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                    <TextBlock Text="Excel" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </UniformGrid>
+                                    </StackPanel>
+
+                                    <!-- DatePickers للتعيين -->
+                                    <StackPanel Orientation="Horizontal">
+                                        <GroupBox BorderBrush="{DynamicResource ThirdColor}" Foreground="{DynamicResource ThirdColor}" Header="التعيين" Margin="5" Padding="5">
+
+                                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
+                                                <StackPanel>
+                                                    <Label Content="من" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <DatePicker Width="120"  Name="from_picker" Margin="2"/>
+                                                </StackPanel>
+                                                <StackPanel>
+                                                    <Label Content="الى" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <DatePicker Width="120" Name="to_picker" Margin="2"/>
+
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+                                        <!-- DatePickers للانتهاء -->
+                                        <GroupBox BorderBrush="{DynamicResource ThirdColor}" Foreground="{DynamicResource ThirdColor}" Header="انتهاء" Margin="5" Padding="5">
+                                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
+                                                <StackPanel>
+                                                    <Label Content="من" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <DatePicker Width="120" Name="end_from_picker" Margin="2"/>
+                                                </StackPanel>
+                                                <StackPanel>
+                                                    <Label Content="الى" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <DatePicker Width="120" Name="end_to_picker" Margin="2"/>
+
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                        </GroupBox>
+
+                                        <!-- ComboBoxes والفلاتر الأخرى -->
+                                    </StackPanel>
+                                        <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="10">
+                                        <UniformGrid Columns="3" HorizontalAlignment="Left">
+                                                <StackPanel Margin="5">
+                                                    <Label Content="الفرع" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <ComboBox x:Name="branchComboBox" Width="150"/>
+                                                </StackPanel>
+                                                
+                                                <StackPanel Margin="5">
+                                                    <Label Content="الوظيفة" Foreground="{DynamicResource ThirdColor}"/>
+                                                <ComboBox x:Name="jobComboBox" Width="150"/>
+                                                </StackPanel>
+
+                                                <StackPanel Margin="5">
+                                                    <Label Content="في الخدمة" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <ComboBox x:Name="inDutyComboBox" Width="150"/>
+                                                </StackPanel>
+                                                
+                                                <StackPanel Margin="5">
+                                                    <Label Content="مؤمن عليه" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <ComboBox x:Name="insuredComboBox" DisplayMemberPath="Name" SelectedValuePath="Id" Width="150"/>
+                                                </StackPanel>
+
+                                                <StackPanel Margin="5">
+                                                    <Label Content="الادارة" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="deptComboBox" Width="150"/>
+                                                </StackPanel>
+
+                                                <StackPanel Margin="5">
+                                                    <Label Content="الاقامة" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="recidenceComboBox" Width="150"/>
+                                                </StackPanel>
+
+                                                <StackPanel Margin="5">
+                                                    <Label Content="الحالة الاجتماعية" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="maritalComboBox" Width="150"/>
+                                                </StackPanel>
+
+
+                                            <StackPanel Margin="5">
+                                                <Label Content="المؤهل" Foreground="{DynamicResource ThirdColor}"/>
+                                                <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="eduComboBox" Width="150"/>
+                                            </StackPanel>
+
+                                            <StackPanel Margin="5">
+                                                    <Label Content="تاريخ الميلاد" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <DatePicker Name="birth_picker" Width="150"/>
+                                                </StackPanel>
+
+                                                <StackPanel Margin="5">
+                                                    <TextBox Tag="رقم الواتساب" x:Name="whatsAppNoBox" Width="150"/>
+                                                </StackPanel>
+                                            </UniformGrid>
+                                        </StackPanel>
+
+                                  
                                 </StackPanel>
 
-                                <!-- الأزرار -->
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5" VerticalAlignment="Center">
-                                    <Button Style="{StaticResource ActionButtonStyle}" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="5" ToolTip="بحث في بيانات الموظفين">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="بحث" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Style="{StaticResource ActionButtonStyle}" x:Name="clear_btn" Click="clear_btn_Click" Margin="5" ToolTip="مسح جميع الفلاتر">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Icon:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="0 0 5 0"/>
-
-                                            <TextBlock Text="جديد" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Style="{StaticResource ActionButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="5" ToolTip="تصدير البيانات إلى Excel">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="Excel" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
                             </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
 
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
+                <!-- DataGrid المحسن -->
+                <Border Grid.Column="1" Margin="20" BorderBrush="{DynamicResource AccentColor}" BorderThickness="2" Opacity="0.95" CornerRadius="10"  >
+                    <DataGrid x:Name="list"
+              AutoGenerateColumns="False"
+              Margin="10"
+              HorizontalScrollBarVisibility="Visible"
+              SelectionChanged="list_SelectionChanged"
+              MouseDoubleClick="list_MouseDoubleClick">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="م" Width="40" Binding="{Binding RowNumber}"/>
+                            <DataGridTextColumn Header="الكود" Width="60" Binding="{Binding Code}"/>
+                            <DataGridTextColumn Header="الاسم" Width="200" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="الوظيفة" Width="150" Binding="{Binding Job}"/>
+                            <DataGridTextColumn Header="الفرع" Width="120" Binding="{Binding Br}"/>
+                            <DataGridTextColumn Header="الإدارة" Width="150" Binding="{Binding Department}"/>
+                            <DataGridTextColumn Header="الرقم القومي" Width="120" Binding="{Binding CardNo}"/>
+                            <DataGridTextColumn Header="النوع" Width="60" Binding="{Binding Gender}"/>
+                            <DataGridTextColumn Header="تاريخ الميلاد" Width="100" Binding="{Binding BirthD, StringFormat=dd/MM/yyyy}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="العمر" Width="60" Binding="{Binding Age}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="تاريخ التعيين" Width="100" Binding="{Binding DateT, StringFormat=dd/MM/yyyy}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="تاريخ نهاية العمل" Width="100" Binding="{Binding EndDate, StringFormat=dd/MM/yyyy}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="العنوان" Width="200" Binding="{Binding Address}"/>
+                            <DataGridTextColumn Header="رصيد الاجازات" Width="100" Binding="{Binding HolidayBalance}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="مؤمن عليه" Width="80" Binding="{Binding Insured}"/>
+                            <DataGridTextColumn Header="الهاتف" Width="120" Binding="{Binding Phone}"/>
+                            <DataGridTextColumn Header="البريد الإلكتروني" Width="180" Binding="{Binding Email}"/>
+                            <DataGridTextColumn Header="الرقم التأميني" Width="120" Binding="{Binding SSN}"/>
+                            <DataGridTextColumn Header="التأمين الصحي" Width="120" Binding="{Binding HealthInsurance}"/>
+                            <DataGridTextColumn Header="في الخدمة" Width="80" Binding="{Binding InDuty}"/>
+                            <DataGridTextColumn Header="تحت التدريب" Width="90" Binding="{Binding UnderTraining}"/>
+                            <DataGridTextColumn Header="تحت التوظيف" Width="90" Binding="{Binding UnderEmployment}"/>
+                            <DataGridTextColumn Header="القائمة السوداء" Width="90" Binding="{Binding Blacklist}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
 
-            <!-- DataGrid المحسن -->
-            <Border Grid.Row="2" Margin="20" BorderBrush="{StaticResource AccentColor}" BorderThickness="2" Opacity="0.95" CornerRadius="10"  >
-                <DataGrid x:Name="list"
-                          Style="{StaticResource EmployeeDataGridStyle}"
-                          AutoGenerateColumns="False"
-                          FlowDirection="RightToLeft"
-                          Margin="10"
-                          SelectionChanged="list_SelectionChanged"
-                          MouseDoubleClick="list_MouseDoubleClick"
-                          RowStyle="{StaticResource EmployeeRowStyle}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="م" Width="40" Binding="{Binding RowNumber}"/>
-                        <DataGridTextColumn Header="الكود" Width="60" Binding="{Binding Code}"/>
-                        <DataGridTextColumn Header="الاسم" Width="200" Binding="{Binding Name}"/>
-                        <DataGridTextColumn Header="الوظيفة" Width="150" Binding="{Binding Job}"/>
-                        <DataGridTextColumn Header="الفرع" Width="120" Binding="{Binding Br}"/>
-                        <DataGridTextColumn Header="الإدارة" Width="150" Binding="{Binding Department}"/>
-                        <DataGridTextColumn Header="الرقم القومي" Width="120" Binding="{Binding CardNo}"/>
-                        <DataGridTextColumn Header="النوع" Width="60" Binding="{Binding Gender}"/>
-                        <DataGridTextColumn Header="تاريخ الميلاد" Width="100" Binding="{Binding BirthD, StringFormat=dd/MM/yyyy}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="العمر" Width="60" Binding="{Binding Age}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="تاريخ التعيين" Width="100" Binding="{Binding DateT, StringFormat=dd/MM/yyyy}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="تاريخ نهاية العمل" Width="100" Binding="{Binding EndDate, StringFormat=dd/MM/yyyy}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="العنوان" Width="200" Binding="{Binding Address}"/>
-                        <DataGridTextColumn Header="المرتب" Width="100" Binding="{Binding Salary, StringFormat={}{0:N0}}" Visibility="Visible">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Right"/>
-                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="رصيد الاجازات" Width="100" Binding="{Binding HolidayBalance}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="مؤمن عليه" Width="80" Binding="{Binding Insured}"/>
-                        <DataGridTextColumn Header="الهاتف" Width="120" Binding="{Binding Phone}"/>
-                        <DataGridTextColumn Header="البريد الإلكتروني" Width="180" Binding="{Binding Email}"/>
-                        <DataGridTextColumn Header="الرقم التأميني" Width="120" Binding="{Binding SSN}"/>
-                        <DataGridTextColumn Header="التأمين الصحي" Width="120" Binding="{Binding HealthInsurance}"/>
-                        <DataGridTextColumn Header="في الخدمة" Width="80" Binding="{Binding InDuty}"/>
-                        <DataGridTextColumn Header="تحت التدريب" Width="90" Binding="{Binding UnderTraining}"/>
-                        <DataGridTextColumn Header="تحت التوظيف" Width="90" Binding="{Binding UnderEmployment}"/>
-                        <DataGridTextColumn Header="القائمة السوداء" Width="90" Binding="{Binding Blacklist}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
 
+            </Grid>
+            
             <!-- Footer مع العدد الإجمالي -->
-            <Border Grid.Row="3" Background="{StaticResource PrimaryColor}" CornerRadius="0,0,15,15">
+            <Border Grid.Row="3" Background="{DynamicResource PrimaryColor}" CornerRadius="0,0,15,15">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
+                    <TextBlock Grid.Column="1" 
                                Text="معلومات: اضغط مرتين على الصف لفتح بيانات الموظف للتعديل"
                                FontSize="11"
                                VerticalAlignment="Center"
-                               HorizontalAlignment="Right"
                                Margin="10,0"/>
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10,0">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10,0">
                         <TextBlock Text="العدد الإجمالي: " VerticalAlignment="Center"/>
                         <TextBlock x:Name="txtTotalCount" Text="0"  FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>

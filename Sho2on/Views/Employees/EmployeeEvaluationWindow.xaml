@@ -1,13 +1,13 @@
 ﻿<Window x:Class="HR_Application.Views.EmployeeEvaluationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="تقييم موظف تحت التوظيف" 
+        Title="تقييم موظف" 
         Height="800" 
         Loaded="Window_Loaded"
         Width="1400"
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
-        Background="{StaticResource SecondaryColor}"
+        Background="{DynamicResource WindowRootBackground}"
         WindowState="Maximized"
         FontFamily="Segoe UI">
 
@@ -20,7 +20,7 @@
         </Style>
 
         <Style x:Key="SectionStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
@@ -32,14 +32,14 @@
         </Style>
 
         <Style x:Key="TabSectionStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
 
         <Style x:Key="TabHeaderStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="CornerRadius" Value="4,4,0,0"/>
             <Setter Property="Padding" Value="10"/>
         </Style>
@@ -137,25 +137,52 @@
         </Grid.RowDefinitions>
 
         <!-- Employee Info -->
-        <Border Grid.Row="0" Style="{StaticResource SectionStyle}">
-            <StackPanel Orientation="Horizontal">
-                <Border Background="{StaticResource ThirdColor}" CornerRadius="8" VerticalAlignment="Center" Padding="10" Margin="0,0,15,0">
-                    <TextBlock Text="👤" FontSize="16" Foreground="{StaticResource PrimaryColor}" VerticalAlignment="Center"/>
-                </Border>
-                <StackPanel Margin="10" VerticalAlignment="Center">
-                    <TextBlock x:Name="txtEmployeeName" 
-                               FontSize="16" 
-                               FontWeight="SemiBold" 
-                               Foreground="#2c3e50"/>
-                    <TextBlock x:Name="txtEmployeeCode" 
-                               FontSize="12" 
-                               Foreground="#7f8c8d"/>
+        <Border Grid.Row="0" Style="{DynamicResource SectionStyle}">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <Border Background="{DynamicResource ThirdColor}" CornerRadius="8" VerticalAlignment="Center" Padding="10" Margin="0,0,15,0">
+                        <TextBlock Text="👤" FontSize="16" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="10" VerticalAlignment="Center">
+                        <TextBlock x:Name="txtEmployeeName" 
+                                   FontSize="16" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="{DynamicResource ThirdColor}"/>
+                        <TextBlock x:Name="txtEmployeeCode" 
+                                   FontSize="12" 
+                                   Foreground="{DynamicResource ThirdColor}"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Border Background="{DynamicResource ThirdColor}" CornerRadius="8" VerticalAlignment="Center" Padding="10">
+                        <TextBlock Text="🔍" FontSize="16" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" Margin="10" VerticalAlignment="Center">
+                        <TextBox x:Name="txtEmployeeCodeSearch" 
+                                 Margin="5"
+                                 Tag="الكود"
+                                 KeyDown="txtEmployeeCodeSearch_KeyDown"
+                                 Width="100"
+                                   Foreground="{DynamicResource ThirdColor}"/>
+                        <!--<TextBox x:Name="txtEmployeeNameSearch" 
+                                 Margin="5"
+                                 Tag="الاسم"
+                                 KeyDown="txtEmployeeNameSearch_KeyDown"
+                                   FontWeight="SemiBold" 
+                                 Width="300" Visibility="Collapsed"
+                                   Foreground="{DynamicResource ThirdColor}"/>-->
+                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                            <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
+                            <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                
+            </Grid>
         </Border>
 
         <!-- Tabs for Evaluation Types -->
-        <Border Grid.Row="1" Style="{StaticResource SectionStyle}" Margin="0,10,0,10" Visibility="Collapsed">
+        <Border Grid.Row="1" Style="{DynamicResource SectionStyle}" Margin="0,10,0,10" Visibility="Collapsed">
             <StackPanel>
                 <TextBlock Text="نوع التقييم" 
                            FontWeight="SemiBold" 
@@ -164,13 +191,13 @@
                 <StackPanel Orientation="Horizontal">
                     <RadioButton x:Name="rbAdministrative" 
                                  Content="📋 تقييم إداري" 
-                                 Style="{StaticResource TabButtonStyle}"
+                                 Style="{DynamicResource TabButtonStyle}"
                                  GroupName="EvaluationType"
                                 IsChecked="True"
                                  Checked="EvaluationType_Changed"/>
                     <RadioButton x:Name="rbTechnical" 
                                  Content="⚙️ تقييم فني" 
-                                 Style="{StaticResource TabButtonStyle}"
+                                 Style="{DynamicResource TabButtonStyle}"
                                  GroupName="EvaluationType"
                                  Margin="10,0,0,0"
                                  Checked="EvaluationType_Changed"/>
@@ -187,7 +214,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Administrative Evaluation Section -->
-            <Border Grid.Column="0" Style="{StaticResource TabSectionStyle}">
+            <Border Grid.Column="0" Style="{DynamicResource TabSectionStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -195,13 +222,13 @@
                     </Grid.RowDefinitions>
 
                     <!-- Administrative Header -->
-                    <Border Grid.Row="0" Style="{StaticResource TabHeaderStyle}">
+                    <Border Grid.Row="0" Style="{DynamicResource TabHeaderStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📋" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="التقييم الإداري" 
                                        FontSize="14" 
                                        FontWeight="SemiBold" 
-                                       Foreground="{StaticResource ThirdColor}"
+                                       Foreground="{DynamicResource ThirdColor}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -215,7 +242,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- Add New Administrative Criteria -->
-                            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBox x:Name="txtNewAdministrativeCriteria" 
@@ -228,7 +255,7 @@
                                         <Button x:Name="btnAddAdministrative" 
                                                 Content="➕ إضافة" 
                                                 Click="AddAdministrativeCriteria_Click"
-                                                Style="{StaticResource PrimaryButtonStyle}"/>
+                                                Style="{DynamicResource PrimaryButtonStyle}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -265,7 +292,7 @@
                                                     <!-- Success Radio -->
                                                     <RadioButton Grid.Column="1" 
                                                                  IsChecked="{Binding IsSuccessful, Mode=OneWay}"
-                                                                 Style="{StaticResource SuccessRadioStyle}"
+                                                                 Style="{DynamicResource SuccessRadioStyle}"
                                                                  Content="موفق"
                                                                  GroupName="{Binding GroupName}"
                                                                  Tag="{Binding}"
@@ -274,7 +301,7 @@
                                                     <!-- Unsuccess Radio -->
                                                     <RadioButton Grid.Column="2" 
                                                                  IsChecked="{Binding IsUnsuccessful, Mode=OneWay}"
-                                                                 Style="{StaticResource UnsuccessRadioStyle}"
+                                                                 Style="{DynamicResource UnsuccessRadioStyle}"
                                                                  Content="غير موفق"
                                                                  GroupName="{Binding GroupName}"
                                                                  Tag="{Binding}"
@@ -313,7 +340,7 @@
                                                     <!-- Delete -->
                                                     <Button Grid.Column="4" 
                                                             Content="X" 
-                                                            Style="{StaticResource DeleteButtonStyle}"
+                                                            Style="{DynamicResource DeleteButtonStyle}"
                                                             Click="DeleteAdministrativeCriteria_Click"
                                                             Tag="{Binding}"
                                                             Width="30"
@@ -334,7 +361,7 @@
             <Border Grid.Column="1" Background="#ecf0f1" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
 
             <!-- Technical Evaluation Section -->
-            <Border Grid.Column="2" Style="{StaticResource TabSectionStyle}">
+            <Border Grid.Column="2" Style="{DynamicResource TabSectionStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -342,13 +369,13 @@
                     </Grid.RowDefinitions>
 
                     <!-- Technical Header -->
-                    <Border Grid.Row="0" Style="{StaticResource TabHeaderStyle}">
+                    <Border Grid.Row="0" Style="{DynamicResource TabHeaderStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⚙️" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="التقييم الفني" 
                                        FontSize="14" 
                                        FontWeight="SemiBold" 
-                                       Foreground="{StaticResource ThirdColor}"
+                                       Foreground="{DynamicResource ThirdColor}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -362,7 +389,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- Add New Technical Criteria -->
-                            <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBox x:Name="txtNewTechnicalCriteria" 
@@ -375,7 +402,7 @@
                                         <Button x:Name="btnAddTechnical" 
                                                 Content="➕ إضافة" 
                                                 Click="AddTechnicalCriteria_Click"
-                                                Style="{StaticResource PrimaryButtonStyle}"/>
+                                                Style="{DynamicResource PrimaryButtonStyle}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -405,7 +432,6 @@
                                                              VerticalAlignment="Center"
                                                              Margin="5,0"
                                                              Padding="5"
-                                                             Width="40"
                                                              BorderThickness="0"
                                                              Background="Transparent"
                                                              TextChanged="CriteriaName_TextChanged"
@@ -414,7 +440,7 @@
                                                     <!-- Success Radio -->
                                                     <RadioButton Grid.Column="1" 
                                                                  IsChecked="{Binding IsSuccessful, Mode=OneWay}"
-                                                                 Style="{StaticResource SuccessRadioStyle}"
+                                                                 Style="{DynamicResource SuccessRadioStyle}"
                                                                  Content="موفق"
                                                                  
                                                                  GroupName="{Binding GroupName}"
@@ -424,7 +450,7 @@
                                                     <!-- Unsuccess Radio -->
                                                     <RadioButton Grid.Column="2" 
                                                                  IsChecked="{Binding IsUnsuccessful, Mode=OneWay}"
-                                                                 Style="{StaticResource UnsuccessRadioStyle}"
+                                                                 Style="{DynamicResource UnsuccessRadioStyle}"
                                                                  Content="غير موفق"
                                                                  GroupName="{Binding GroupName}"
                                                                  Tag="{Binding}"
@@ -463,7 +489,7 @@
                                                     <!-- Delete -->
                                                     <Button Grid.Column="4" 
                                                             Content="X" 
-                                                            Style="{StaticResource DeleteButtonStyle}"
+                                                            Style="{DynamicResource DeleteButtonStyle}"
                                                             Click="DeleteTechnicalCriteria_Click"
                                                             Tag="{Binding}"
                                                             Width="30"
@@ -491,7 +517,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Administrative Summary -->
-                <Border Grid.Column="0" Style="{StaticResource TabSectionStyle}" Margin="5">
+                <Border Grid.Column="0" Style="{DynamicResource TabSectionStyle}" Margin="5">
                     <StackPanel>
                         <TextBlock Text="ملخص التقييم الإداري" 
                                    FontWeight="SemiBold" 
@@ -515,10 +541,10 @@
                             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtAdministrativeTotal" Text="0" FontWeight="SemiBold" Margin="0,0,10,5"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="المعايير الناجحة:" Margin="0,0,10,5"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtAdministrativeSuccess" Text="0" Style="{StaticResource SuccessTextStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtAdministrativeSuccess" Text="0" Style="{DynamicResource SuccessTextStyle}"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="المعايير غير الناجحة:" Margin="0,0,10,5"/>
-                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtAdministrativeUnsuccess" Text="0" Style="{StaticResource UnsuccessTextStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtAdministrativeUnsuccess" Text="0" Style="{DynamicResource UnsuccessTextStyle}"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="النسبة الإجمالية:" Margin="0,0,10,5"/>
                             <TextBlock Grid.Row="1" Grid.Column="3" x:Name="txtAdministrativePercentage" Text="0%" FontWeight="Bold" FontSize="16"/>
@@ -542,7 +568,7 @@
                 </Border>
 
                 <!-- Technical Summary -->
-                <Border Grid.Column="1" Style="{StaticResource TabSectionStyle}" Margin="5">
+                <Border Grid.Column="1" Style="{DynamicResource TabSectionStyle}" Margin="5">
                     <StackPanel>
                         <TextBlock Text="ملخص التقييم الفني" 
                                    FontWeight="SemiBold" 
@@ -566,10 +592,10 @@
                             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtTechnicalTotal" Margin="0,0,10,5" Text="0" FontWeight="SemiBold"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="المعايير الناجحة:" Margin="0,0,10,5"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtTechnicalSuccess" Text="0" Style="{StaticResource SuccessTextStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtTechnicalSuccess" Text="0" Style="{DynamicResource SuccessTextStyle}"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="المعايير غير الناجحة:" Margin="0,0,10,5"/>
-                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtTechnicalUnsuccess" Text="0" Style="{StaticResource UnsuccessTextStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtTechnicalUnsuccess" Text="0" Style="{DynamicResource UnsuccessTextStyle}"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="النسبة الإجمالية:" Margin="0,0,10,5"/>
                             <TextBlock Grid.Row="1" Grid.Column="3" x:Name="txtTechnicalPercentage" Text="0%" FontWeight="Bold" FontSize="16"/>
@@ -592,7 +618,7 @@
                 </Border>
 
                 <!-- Final Result and Actions -->
-                <Border Grid.Column="2" Style="{StaticResource TabSectionStyle}" Margin="5">
+                <Border Grid.Column="2" Style="{DynamicResource TabSectionStyle}" Margin="5">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -655,11 +681,11 @@
                         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
                             <Button x:Name="btnSave" 
                                     Content="💾 حفظ التقييم" 
-                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Style="{DynamicResource PrimaryButtonStyle}"
                                     Click="btnSave_Click"/>
                             <Button x:Name="btnCancel" 
                                     Content="❌ إلغاء" 
-                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Style="{DynamicResource PrimaryButtonStyle}"
                                     Background="#95a5a6"
                                     Click="btnCancel_Click"
                                     Margin="10,0,0,0"/>

@@ -1,22 +1,30 @@
 ﻿// EmployeeArchiveWindow.xaml.cs
+using DocumentFormat.OpenXml.Wordprocessing;
+using MahApps.Metro.IconPacks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Windows.Media;
-using MessageBox = System.Windows.MessageBox;
-using Color = System.Windows.Media.Color;
+using static HR_Application.Views.EmployeeArchiveWindow;
 using Brush = System.Windows.Media.Brush;
 using Button = System.Windows.Controls.Button;
-using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using Color = System.Windows.Media.Color;
+using MessageBox = System.Windows.MessageBox;
 using PrintDialog = System.Windows.Controls.PrintDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using MahApps.Metro.IconPacks;
+using Border = System.Windows.Controls.Border;
 
 namespace HR_Application.Views
 {
@@ -24,12 +32,155 @@ namespace HR_Application.Views
     {
         private AppDbContext _context = new AppDbContext(App.ConnectionString);
         private int _employeeId;
-        private List<DocumentCardModel> _documents;
+        private List<DocumentCardModel> _documents = new List<DocumentCardModel>();
+
+        public class FolderItem
+        {
+            /// <summary>Display name shown under the folder icon.</summary>
+            public string FolderName { get; set; }
+
+            /// <summary>SolidColorBrush used for folder body + accent strip.</summary>
+            public SolidColorBrush FolderColor { get; set; }
+
+            /// <summary>PackIconMaterialKind drawn inside the folder body.</summary>
+            public PackIconMaterialKind FolderIconKind { get; set; }
+
+            /// <summary>Total documents in this category.</summary>
+            public int DocumentCount { get; set; }
+
+            /// <summary>
+            /// The DocumentType integer that matches your existing data model.
+            /// Used in FolderCard_Click to filter documentsItemsControl.
+            /// </summary>
+            public int TypeId { get; set; }
+        }
 
         public EmployeeArchiveWindow(int employeeId)
         {
             InitializeComponent();
             _employeeId = employeeId;
+        }
+
+        // ── Navigation state ──────────────────────────────────────────
+        private int _currentFolderTypeId = -1;
+
+        // ── Build folder list from your existing document collection ──
+        private void LoadFolders()
+        {
+            // Adjust this list to match your actual DocumentType enum/ids.
+            // FolderColor uses the same named brushes already in XAML Resources.
+            var folders = new System.Collections.Generic.List<FolderItem>
+            {
+                new FolderItem
+                {
+                    TypeId        = 1,
+                    FolderName    = "وثائق موقعة",
+                    FolderColor   = (SolidColorBrush)FindResource("SignedColor"),
+                    FolderIconKind= PackIconMaterialKind.FileSign,
+                    DocumentCount = CountDocsOfType(1)
+                },
+                new FolderItem
+                {
+                    TypeId        = 7,
+                    FolderName    = "وثاق العمل",
+                    FolderColor   = (SolidColorBrush)FindResource("CVColor"),
+                    FolderIconKind= PackIconMaterialKind.FileAccount,
+                    DocumentCount = CountDocsOfType(7)
+                },
+                new FolderItem
+                {
+                    TypeId        = 6,
+                    FolderName    = "وثائق التدريب",
+                    FolderColor   = (SolidColorBrush)FindResource("CertificateColor"),
+                    FolderIconKind= PackIconMaterialKind.Certificate,
+                    DocumentCount = CountDocsOfType(6)
+                },
+                new FolderItem
+                {
+                    TypeId        = 99,
+                    FolderName    = "أخرى",
+                    FolderColor   = (SolidColorBrush)FindResource("DefaultColor"),
+                    FolderIconKind= PackIconMaterialKind.FolderMultiple,
+                    DocumentCount = CountDocsOfType(99)
+                },
+            };
+
+            // Update total badge
+            int total = 0;
+            foreach (var f in folders) total += f.DocumentCount;
+            totalDocsCount.Text = $"{total} وثيقة";
+
+            foldersItemsControl.ItemsSource = folders;
+        }
+
+
+        /// <summary>Count documents matching a type id from your data source.</summary>
+        private int CountDocsOfType(int typeId)
+        {
+            // Replace with your actual data access:
+             return _documents.Count(d => d.DocumentTypeId == typeId);
+        }
+
+        // ── Folder card clicked → drill into folder ───────────────────
+        private void FolderCard_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is Border border && border.Tag is FolderItem folder)
+            {
+                _currentFolderTypeId = folder.TypeId;
+
+                // Update breadcrumb
+                folderCrumbText.Text = folder.FolderName;
+                folderCrumbPanel.Visibility = Visibility.Visible;
+                backToFoldersBtn.Visibility = Visibility.Visible;
+
+                // Load filtered documents
+                LoadDocumentsForFolder(folder.TypeId);
+
+                // Switch views
+                foldersItemsControl.Visibility = Visibility.Collapsed;
+                documentsScrollViewer.Visibility = Visibility.Visible;
+
+                statusText.Text = $"عرض وثائق: {folder.FolderName}";
+            }
+        }
+
+        /// <summary>Populate documentsItemsControl with docs of a given type.</summary>
+        private void LoadDocumentsForFolder(int typeId)
+        {
+            // Replace with your actual data access:
+            var filtered = _documents.Where(d => ((int)d.DocumentType) == typeId).ToList();
+            documentsItemsControl.ItemsSource = filtered;
+        }
+
+        // ── Back button → return to folder grid ───────────────────────
+        private void backToFoldersBtn_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateToRoot();
+        }
+
+        // ── Root breadcrumb clicked ────────────────────────────────────
+        private void rootCrumbLink_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateToRoot();
+        }
+
+        private void NavigateToRoot()
+        {
+            _currentFolderTypeId = -1;
+
+            folderCrumbPanel.Visibility = Visibility.Collapsed;
+            backToFoldersBtn.Visibility = Visibility.Collapsed;
+
+            documentsScrollViewer.Visibility = Visibility.Collapsed;
+            foldersItemsControl.Visibility = Visibility.Visible;
+
+            statusText.Text = "جاهز";
+        }
+
+        // ── Call LoadFolders() from your existing Window_Loaded or constructor ──
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
             LoadEmployeeInfo();
             LoadArchiveDocuments();
         }
@@ -83,6 +234,8 @@ namespace HR_Application.Views
 
                 documentsItemsControl.ItemsSource = _documents;
                 statusText.Text = $"تم تحميل {_documents.Count} وثيقة من المسار المركزي";
+                LoadFolders();
+
             }
             catch (Exception ex)
             {
@@ -316,6 +469,7 @@ namespace HR_Application.Views
 
         // الخصائص المحسوبة للعرض
         public string DocumentTypeName => GetDocumentTypeName(DocumentType);
+        public int DocumentTypeId => GetDocumentTypeInt(DocumentType);
         public string DocumentIcon => GetDocumentIcon(DocumentType);
         public Brush DocumentTypeColor => GetDocumentTypeColor(DocumentType);
         public string StatusName => GetStatusName(Status);
@@ -336,22 +490,25 @@ namespace HR_Application.Views
             return $"{len:0.##} {sizes[order]}";
         }
 
+
+        private int GetDocumentTypeInt(EmployeeDocumentType type)
+        {
+            return type switch
+            {
+                EmployeeDocumentType.SignedCompanyDocument => 1,
+                EmployeeDocumentType.TrainingCertificate => 6,
+                EmployeeDocumentType.WorkPermit => 7,
+                _ => 99
+            };
+        }
+
         private string GetDocumentTypeName(EmployeeDocumentType type)
         {
             return type switch
             {
-                EmployeeDocumentType.SignedCompanyDocument => "وثيقة موقعة",
-                EmployeeDocumentType.CV => "السيرة الذاتية",
-                EmployeeDocumentType.NationalID => "البطاقة الشخصية",
-                EmployeeDocumentType.DrivingLicense => "رخصة القيادة",
-                EmployeeDocumentType.DegreeCertificate => "شهادة المؤهل",
-                EmployeeDocumentType.TrainingCertificate => "شهادات التدريب",
-                EmployeeDocumentType.WorkPermit => "تصريح العمل",
-                EmployeeDocumentType.Insurance => "التأمين",
-                EmployeeDocumentType.MilitaryCertificate => "الشهادة العسكرية",
-                EmployeeDocumentType.Passport => "الجواز",
-                EmployeeDocumentType.PersonalContract => "العقد الشخصي",
-                EmployeeDocumentType.Photo => "صورة شخصية",
+                EmployeeDocumentType.SignedCompanyDocument => "وثائق موقعه",
+                EmployeeDocumentType.TrainingCertificate => "وثائق التدريب",
+                EmployeeDocumentType.WorkPermit => "وثائق التعيين",
                 _ => "وثيقة أخرى"
             };
         }
@@ -361,37 +518,20 @@ namespace HR_Application.Views
             return type switch
             {
                 EmployeeDocumentType.SignedCompanyDocument => "📄",
-                EmployeeDocumentType.CV => "📝",
-                EmployeeDocumentType.NationalID => "🆔",
-                EmployeeDocumentType.DrivingLicense => "🚗",
-                EmployeeDocumentType.DegreeCertificate => "🎓",
                 EmployeeDocumentType.TrainingCertificate => "📜",
                 EmployeeDocumentType.WorkPermit => "💼",
-                EmployeeDocumentType.Insurance => "🛡️",
-                EmployeeDocumentType.MilitaryCertificate => "🎖️",
-                EmployeeDocumentType.Passport => "🌍",
-                EmployeeDocumentType.PersonalContract => "📃",
-                EmployeeDocumentType.Photo => "📸",
                 _ => "📎"
             };
         }
+        
 
         private Brush GetDocumentTypeColor(EmployeeDocumentType type)
         {
             return type switch
             {
                 EmployeeDocumentType.SignedCompanyDocument => new SolidColorBrush(Color.FromRgb(39, 174, 96)),
-                EmployeeDocumentType.CV => new SolidColorBrush(Color.FromRgb(231, 76, 60)),
-                EmployeeDocumentType.NationalID => new SolidColorBrush(Color.FromRgb(155, 89, 182)),
-                EmployeeDocumentType.DrivingLicense => new SolidColorBrush(Color.FromRgb(52, 152, 219)),
-                EmployeeDocumentType.DegreeCertificate => new SolidColorBrush(Color.FromRgb(243, 156, 18)),
                 EmployeeDocumentType.TrainingCertificate => new SolidColorBrush(Color.FromRgb(230, 126, 34)),
                 EmployeeDocumentType.WorkPermit => new SolidColorBrush(Color.FromRgb(46, 204, 113)),
-                EmployeeDocumentType.Insurance => new SolidColorBrush(Color.FromRgb(41, 128, 185)),
-                EmployeeDocumentType.MilitaryCertificate => new SolidColorBrush(Color.FromRgb(142, 68, 173)),
-                EmployeeDocumentType.Passport => new SolidColorBrush(Color.FromRgb(22, 160, 133)),
-                EmployeeDocumentType.PersonalContract => new SolidColorBrush(Color.FromRgb(44, 62, 80)),
-                EmployeeDocumentType.Photo => new SolidColorBrush(Color.FromRgb(149, 165, 166)),
                 _ => new SolidColorBrush(Color.FromRgb(149, 165, 166))
             };
         }
