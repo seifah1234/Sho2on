@@ -22,13 +22,13 @@ namespace HR_Application
     /// <summary>
     /// Interaction logic for AddBranch.xaml
     /// </summary>
-    public partial class AddBranch : Window
+    public partial class AddArea : Window
     {
         private AppDbContext _context = new AppDbContext(App.ConnectionString);
 
-        private List<Branch> _branches = new List<Branch>();
+        private List<Area> _areas= new List<Area>();
 
-        public AddBranch()
+        public AddArea()
         {
             InitializeComponent();
         }
@@ -39,13 +39,10 @@ namespace HR_Application
             {
                 code_box.Clear();
                 name_box.Clear();
-                area_box.SelectedIndex = -1;
-                _branches.Clear();
+                _areas.Clear();
 
-                _branches = _context.Branches.ToList();
-                var areas = _context.Areas.ToList();
-                area_box.ItemsSource = areas;
-                branch_list.ItemsSource = _branches;
+                _areas = _context.Areas.ToList();
+                area_list.ItemsSource = _areas;
             
             }
             catch (Exception e)
@@ -57,25 +54,23 @@ namespace HR_Application
 
         
 
-        private async void save_Branch(object sender, EventArgs e)
+        private async void save_Area(object sender, EventArgs e)
         {
 
             try
             {
                 
                 string name = name_box.Text;
-                int id = int.Parse(code_box.Text);
-                int areaId = (area_box.SelectedItem as Area)?.Id ?? 0;
-                if (_context.Branches.Any(b => b.Id == id))
+                if (_context.Areas.Any(b => b.Name == name))
                 {
-                    MessageBox.Show("الفرع موجود بالفعل!");
+                    MessageBox.Show("المنطقة موجودة بالفعل!");
                     return;
                 }
-                var branch = new Branch { Id = id, Name = name, AreaId = areaId };
-                _context.Branches.Add(branch);
+                var area = new Area { Name = name };
+                _context.Areas.Add(area);
                 _context.SaveChanges();
 
-                System.Windows.MessageBox.Show("تم اضافة الفرع", "تم", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("تم اضافة المنطقة", "تم", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
 
             }
@@ -86,24 +81,24 @@ namespace HR_Application
             }
         }
 
-        private void exit_Branch(object sender, EventArgs e)
+        private void exit_Area(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        private async void delete_branch(object sender, EventArgs e)
+        private async void delete_area(object sender, EventArgs e)
         { 
-            if (branch_list.SelectedItem is not Branch branch)
+            if (area_list.SelectedItem is not Area area)
             {
-                System.Windows.MessageBox.Show("لم يتم اختيار الفرع", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show("لم يتم اختيار المنطقة", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
                 try
                 {
-                    _context.Branches.Remove(branch);
+                    _context.Areas.Remove(area);
                     await _context.SaveChangesAsync();
-                    System.Windows.MessageBox.Show("تم حذف الفرع", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show("تم حذف المنطقة", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 catch
@@ -113,26 +108,24 @@ namespace HR_Application
             }
         }
 
-        private async void edit_Branch(object sender, EventArgs e)
+        private async void edit_Area(object sender, EventArgs e)
         {
 
             try
             {
-                if (branch_list.SelectedItem is Branch branch)
+                if (area_list.SelectedItem is Area area)
                 {
                     
                     string name = name_box.Text;
-                    int areaId = (area_box.SelectedItem as Area)?.Id ?? 0;
-                    branch.Name = name;
-                    branch.AreaId = areaId;
-                    _context.Branches.Update(branch);
+                    area.Name = name;
+                    _context.Areas.Update(area);
                     await  _context.SaveChangesAsync();
-                    System.Windows.MessageBox.Show("تم تعديل الفرع", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show("تم تعديل المنطقة", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show("لم تختار اي فرع", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show("لم تختار اي منطقة", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
             }
@@ -142,15 +135,14 @@ namespace HR_Application
             }
         }
 
-        private void branch_list_SelectedIndexChanged(object sender, EventArgs e)
+        private void area_list_SelectedIndexChanged(object sender, EventArgs e)
         {
 
-            if (branch_list.SelectedItem is Branch branch)
+            if (area_list.SelectedItem is Area area)
             {
                 
-                name_box.Text = branch.Name;
-                area_box.SelectedValue = branch.AreaId;
-                code_box.Text = branch.Id.ToString();
+                name_box.Text = area.Name;
+                code_box.Text = area.Id.ToString();
                        
             }
 

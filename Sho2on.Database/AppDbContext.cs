@@ -240,7 +240,7 @@ namespace Sho2on.Database
 
         public AppDbContext() : base(
                 new DbContextOptionsBuilder<AppDbContext>()
-                    .UseSqlServer($"Server=197.44.171.27,1433;Database=Original;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;", sqlServerOptions =>
+                    .UseSqlServer($"Server=192.168.100.3,1433;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;", sqlServerOptions =>
                     //.UseSqlServer($"Server=192.168.100.3,1433;Database=Original;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;", sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure(
@@ -251,7 +251,7 @@ namespace Sho2on.Database
                     .Options)
         {
             //_connectionString = $"Server=192.168.100.3,1433;Database=Original;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;";
-            _connectionString = $"Server=197.44.171.27,1433;Database=Original;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;";
+            _connectionString = $"Server=192.168.100.3,1433;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;";
         }
 
         public AppDbContext(string connectionString) : base(
@@ -269,6 +269,12 @@ namespace Sho2on.Database
             }
 
             // DbSets
+            public DbSet<Area> Areas { get; set; }
+            public DbSet<Chat> Chats { get; set; }
+        public DbSet<ChatAttachment> ChatAttachments { get; set; }
+
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+            public DbSet<UserTask> UserTasks { get; set; }
             public DbSet<Branch> Branches { get; set; }
             public DbSet<Break> Breaks { get; set; }
             public DbSet<Degree> Degrees { get; set; }
@@ -366,6 +372,31 @@ namespace Sho2on.Database
                 .WithMany(p => p.MyEmployees)
                 .HasForeignKey(rp => rp.ManagerId);
 
+            modelBuilder.Entity<UserTask>()
+                .HasOne(rp => rp.AssignedToUser)
+                .WithMany(p => p.AssignedToTasks)
+                .HasForeignKey(rp => rp.AssignedToUserId);
+
+            modelBuilder.Entity<Chat>()
+                .HasOne(rp => rp.FirstUser)
+                .WithMany(p => p.SenderChats)
+                .HasForeignKey(rp => rp.FirstUserId);
+
+            modelBuilder.Entity<Chat>()
+                .HasOne(rp => rp.SecondUser)
+                .WithMany(p => p.ReceiverChats)
+                .HasForeignKey(rp => rp.SecondUserId);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(rp => rp.Chat)
+                .WithMany(p => p.Messages)
+                .HasForeignKey(rp => rp.ChatId);
+
+            modelBuilder.Entity<UserTask>()
+                .HasOne(rp => rp.AssignedByUser)
+                .WithMany(p => p.AssignedByTasks)
+                .HasForeignKey(rp => rp.AssignedByUserId);
+
 
             modelBuilder.Entity<UserRole>()
                 .HasOne(ur => ur.User)
@@ -436,7 +467,13 @@ namespace Sho2on.Database
                 .HasOne(ub => ub.Branch)
                 .WithMany(b => b.UserBranches)
                 .HasForeignKey(ub => ub.BranchId);
-        
+
+            modelBuilder.Entity<Branch>()
+                .HasOne(b => b.Area)
+                .WithMany(a => a.Branches)
+                .HasForeignKey(b => b.AreaId);
+
+
 
         // =======================
         // Branch

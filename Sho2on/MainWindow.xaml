@@ -173,6 +173,42 @@
                                 </StackPanel>
                             </Button>
                             <Button HorizontalAlignment="Right"
+            Margin="2"
+            Style="{DynamicResource HoverButtonStyle}"
+                                    Name="TasksBtn"
+            Click="TasksBtn_Click">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="{DynamicResource SurfaceLightColor}" CornerRadius="12" 
+            Height="50"
+                                    Width="50">
+
+                                        <Icon:PackIconMaterial
+                                       Kind="CheckboxMarkedCircle"
+                                       Width="20" Height="20"
+                                       Foreground="{DynamicResource AccentColor}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                            </Button>
+                            <Button HorizontalAlignment="Right"
+            Margin="2"
+            Style="{DynamicResource HoverButtonStyle}"
+                                    Name="ChatsBtn"
+            Click="ChatsBtn_Click">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="{DynamicResource SurfaceLightColor}" CornerRadius="12" 
+            Height="50"
+                                    Width="50">
+
+                                        <Icon:PackIconMaterial
+                                       Kind="Chat"
+                                       Width="20" Height="20"
+                                       Foreground="{DynamicResource AccentColor}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                            </Button>
+                            <Button HorizontalAlignment="Right"
         Margin="2"
         Style="{DynamicResource HoverButtonStyle}"
         Click="ThemeToggle_Click">
@@ -191,6 +227,12 @@
                         </Button>
                             
                         </StackPanel>
+
+
+                        <TextBlock x:Name="WelcomeText"
+                                   HorizontalAlignment="Left"
+                                       FontSize="24" Foreground="{DynamicResource MutedColor}"
+                                       Margin="48,4,0,0"/>
 
                     </Grid>
                     
@@ -577,6 +619,7 @@
                                 <Button Margin="3" Click="AddQualificationOpen"  IsEnabled="{Binding QualificationP}"  Width="140" FlowDirection="RightToLeft" Content="المؤهلات"/>
                                 <Button Margin="3" Click="AddJobOpen"     IsEnabled="{Binding JobP}"     Width="140" FlowDirection="RightToLeft" Content="الوظائف"/>
                                 <Button Margin="3" Click="AddJobDegreeOpen" IsEnabled="{Binding DegreeP}" Width="140" FlowDirection="RightToLeft" Content="القطاعات"/>
+                                <Button Margin="3" Click="AddAreaOpen" IsEnabled="{Binding AreaP}" Width="140" FlowDirection="RightToLeft" Content="المناطق"/>
                                 <Button Margin="3" Click="AddShiftOpen"   IsEnabled="{Binding ShiftP}"   Width="140" FlowDirection="RightToLeft" Content="الورديات"/>
                                 <Button Margin="3" Visibility="Collapsed" Click="AddBreakOpen" IsEnabled="{Binding BreakP}" Width="140" FlowDirection="RightToLeft" Content="الراحات"/>
                                 <Button Margin="3" FontSize="12" Click="AddLateOpen" IsEnabled="{Binding LateP}" Width="140" FlowDirection="RightToLeft" Content="التأخير و الاضافي"/>

@@ -30,6 +30,7 @@ using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using MahApps.Metro.IconPacks;
+using HR_Application.Views.Conversations;
 
 namespace HR_Application
 {
@@ -99,7 +100,8 @@ namespace HR_Application
         public bool DepartP => UserPerm.Contains("الادارات");
         public bool QualificationP => UserPerm.Contains("المؤهلات");
         public bool JobP => UserPerm.Contains("الوظائف");
-        public bool DegreeP => UserPerm.Contains("الدرجة الوظيفية");
+        public bool DegreeP => UserPerm.Contains("القطاعات");
+        public bool AreaP => UserPerm.Contains("المناطق");
         public bool AddEmploP => UserPerm.Contains("اضافة موظف");
         public bool AllDatasP => UserPerm.Contains("اضافة البيانات");
         public bool AllPermissionP => UserPerm.Contains("الصلاحيات");
@@ -263,6 +265,7 @@ namespace HR_Application
         private void EmployeeMonthOpen(object sender, RoutedEventArgs e) => OpenWindow<EmployeeMonthReport>();
 
         private void AddShiftOpen(object sender, RoutedEventArgs e) => OpenWindow<AddShift>();
+        private void AddAreaOpen(object sender, RoutedEventArgs e) => OpenWindow<AddArea>();
 
         private void MonthlyDataOpen(object sender, RoutedEventArgs e) => OpenWindow<MonthlyData>();
         private void MonthlySalaryDataOpen(object sender, RoutedEventArgs e) => OpenWindow<MonthlySalaryData>();
@@ -1438,6 +1441,7 @@ namespace HR_Application
             UpdateThemeButton();
             if (Properties.Settings.Default.Logo != null)
                 GIFBack.Source = new BitmapImage(new Uri(Properties.Settings.Default.Logo));
+            WelcomeText.Text = $"مرحباً بك، {App.CurrentUser.FullName}";
 
 
         }
@@ -1477,6 +1481,19 @@ namespace HR_Application
                 dashboardControl.Visibility = Visibility.Visible;
             }
         }
+
+        private void TasksBtn_Click(object sender, RoutedEventArgs e)
+        {
+            TasksWindow tasksWindow = new TasksWindow();
+            tasksWindow.Show();
+        }
+
+        private void ChatsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ChatWindow chatWindow = new ChatWindow(App.CurrentUser);
+            chatWindow.Show();
+        }
+
     }
     public class BooleanToVisibilityConverter : IValueConverter
     {

@@ -51,6 +51,8 @@ namespace Sho2on.Database.Models
         public bool CanTakeLoan { get; set; } = true; // هل يمكن أخذ سلفة أم لا
 
         // Work Information
+        [ForeignKey(nameof(Area))]
+        public int? AreaId { get; set; }
         [ForeignKey(nameof(Branch))]
         public int BranchId { get; set; }
         [ForeignKey(nameof(Manager))]
@@ -128,6 +130,7 @@ namespace Sho2on.Database.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         // Navigation Properties
+        public Area? Area { get; set; } = null!;
         public Branch? Branch { get; set; } = null!;
         public User? Manager { get; set; } = null!;
         public Department? Department { get; set; } = null!;
@@ -153,5 +156,11 @@ namespace Sho2on.Database.Models
         public ICollection<EmployeePermission>? EmployeePermissions { get; internal set; }
 
         public ICollection<User>? MyEmployees { get; internal set; }
+
+        public ICollection<UserTask>? AssignedByTasks { get; internal set; }
+        public ICollection<UserTask>? AssignedToTasks { get; internal set; }
+
+        public ICollection<Chat>? SenderChats { get; internal set; }
+        public ICollection<Chat>? ReceiverChats { get; internal set; }
     }
 }

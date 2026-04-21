@@ -405,7 +405,7 @@ namespace HR_Application
 
             if (filters.ContainsKey("code"))
             {
-                query = query.Where(u => u.Id.ToString() == filters["code"]);
+                query = query.Where(u => u.Code.ToString() == filters["code"]);
             }
 
             if (filters.ContainsKey("cardNo"))

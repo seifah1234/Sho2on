@@ -5,7 +5,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         WindowStyle="SingleBorderWindow"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Height="750" Width="1150" MinHeight="750" MinWidth="1050"
+        Height="750" Width="1150" MinHeight="950" MinWidth="1050"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
         WindowState="Maximized"
@@ -222,9 +222,9 @@
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="58"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="100"/>
             </Grid.RowDefinitions>
 
             <!-- ════ Header ════ -->
@@ -246,7 +246,7 @@
                 <Grid>
                     <!-- Title -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border CornerRadius="8" Width="32" Height="32" Margin="0,0,10,0">
+                        <Border CornerRadius="8" Width="32" Height="32" Margin="10">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                     <GradientStop Color="#00838F" Offset="0"/>
@@ -292,11 +292,11 @@
             </Border>
 
             <!-- ════ Main content ════ -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" MaxHeight="550"
                           Background="Transparent" Padding="16,14">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
@@ -545,6 +545,8 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <Label Content="المنطقة المسؤول عنها"   Style="{StaticResource FieldLabel}"/>
+                                        <ComboBox x:Name="area_box" Margin="0,0,0,10"/>
                                         <Label Content="الفرع"   Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="branch_box" Margin="0,0,0,10"/>
                                         <Label Content="الإدارة" Style="{StaticResource FieldLabel}"/>
@@ -704,7 +706,7 @@
             </ScrollViewer>
 
             <!-- ════ Footer action bar ════ -->
-            <Border Grid.Row="2" CornerRadius="0,0,15,15"
+            <Border Grid.Row="1" CornerRadius="0,0,15,15" Margin="5" Padding="10"
                     Background="{DynamicResource HeaderBackground}">
                 <Border.BorderBrush>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -713,7 +715,7 @@
                         <GradientStop Color="Transparent" Offset="1"/>
                     </LinearGradientBrush>
                 </Border.BorderBrush>
-                <Border.BorderThickness>0,1,0,0</Border.BorderThickness>
+                <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
 

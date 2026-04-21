@@ -1,0 +1,224 @@
+﻿<Window x:Class="HR_Application.Views.Conversations.TasksWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HR_Application.Views.Conversations"
+        mc:Ignorable="d"
+        FlowDirection="RightToLeft"
+        WindowState="Maximized"
+        Loaded="Window_Loaded"
+        xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Background="{DynamicResource MainBackground}"
+        Title="TasksWindow" Height="850" Width="1200">
+    
+    <Window.Resources>
+        <local:StatusToColorConverter x:Key="StatusToColorConverter"/>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"  Margin="10" Background="{DynamicResource PrimaryColor}">
+                <Grid>
+                    <TextBlock Text="شاشة المهام" FontSize="36" FontWeight="Bold" VerticalAlignment="Center" Margin="10"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        
+                    <Button Margin="5" Width="50" Height="50" Name="addTaskBtn" Click="addTaskBtn_Click" ToolTip="اضافة مهمه"
+                            >
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="5">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                        
+                            </Style>
+                        </Button.Style>
+                        <Button.Content>
+                            <Icon:PackIconMaterial
+                                       Kind="Plus"
+                                       Width="20" Height="20"
+                                       Foreground="{DynamicResource SecondaryColor}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Margin="5" Width="50" Height="50" Name="refreshTaskBtn" Click="refreshTaskBtn_Click" ToolTip="تحديث"
+                            >
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SecondaryColor}"/>
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="5">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                        
+                            </Style>
+                        </Button.Style>
+                        <Button.Content>
+                            <Icon:PackIconMaterial
+                                       Kind="Refresh"
+                                       Width="20" Height="20"
+                                       Foreground="{DynamicResource SecondaryColor}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button.Content>
+                    </Button>
+                    </StackPanel>
+
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+           
+                <StackPanel Grid.Row="0" Margin="5">
+                    <Grid>
+                        <TextBlock Text="قائمة الموكلة إليّ" FontSize="24" FontWeight="Bold" Margin="20,5" HorizontalAlignment="Left"/>
+                        <StackPanel HorizontalAlignment="Right" Margin="20,0">
+                            
+                        <TextBlock Text="تصفية حسب الحالة" VerticalAlignment="Center" Margin="0,0,5,5"/>
+                        <ComboBox Name="statusFilterBox" Width="150" SelectionChanged="statusFilterBox_SelectionChanged">
+                            <ComboBoxItem Content="الكل"/>
+                            <ComboBoxItem Content="استلمت"/>
+                            <ComboBoxItem Content="معلقة"/>
+                            <ComboBoxItem Content="قيد التنفيذ"/>
+                            <ComboBoxItem Content="مكتملة"/>
+                        </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <DataGrid Name="MyTasksDataGrid" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" ItemsSource="{Binding MyTasks}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="المرسل" Binding="{Binding AssignedByUser.FullName}" Width="*" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="المهمة" Binding="{Binding Description}" Width="2*" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Header="الحالة" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}" 
+                                                CornerRadius="5" Padding="5" HorizontalAlignment="Center" Margin="5">
+                                            <TextBlock Text="{Binding StatusText}" Foreground="White" FontWeight="Bold"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedIndex="{Binding Status, Mode=TwoWay}" Width="80" SelectionChanged="statusBox_SelectionChanged" Name="statusBox">
+                                            <ComboBoxItem Content="استلمت"/>
+                                            <ComboBoxItem Content="معلقة"/>
+                                            <ComboBoxItem Content="قيد التنفيذ"/>
+                                            <ComboBoxItem Content="مكتملة"/>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="موعد التسليم" Binding="{Binding DueDate, StringFormat=dd/MM/yyyy}" Width="*" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Margin="5">
+                    <Grid>
+                        <TextBlock Text="قائمة المهام التي قمت بتكليفها" FontSize="24" FontWeight="Bold" Margin="20, 5" HorizontalAlignment="Left"/>
+                        <StackPanel HorizontalAlignment="Right" Margin="20,0">
+                            <TextBlock Text="تصفية حسب الحالة" VerticalAlignment="Center" Margin="0,0,5,5"/>
+                            <ComboBox Name="assignedStatusFilterBox" Width="150" SelectionChanged="assignedStatusFilterBox_SelectionChanged">
+                                <ComboBoxItem Content="الكل"/>
+                                <ComboBoxItem Content="استلمت"/>
+                                <ComboBoxItem Content="معلقة"/>
+                                <ComboBoxItem Content="قيد التنفيذ"/>
+                                <ComboBoxItem Content="مكتملة"/>
+                                <ComboBoxItem Content="ارسلت"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+                    <DataGrid HorizontalContentAlignment="Center" Name="TasksDataGrid" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" ItemsSource="{Binding AssignedTasks}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="المستلم" Binding="{Binding AssignedToUser.FullName}" Width="*"/>
+                            <DataGridTextColumn Header="المهمة" Binding="{Binding Description}" Width="2*"/>
+                            <DataGridTemplateColumn Header="الحالة" Width="*" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}"  Margin="5"
+                                                CornerRadius="5" Padding="5" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding StatusText}" Foreground="White" FontWeight="Bold"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="موعد التسليم" Binding="{Binding DueDate, StringFormat=dd/MM/yyyy}" Width="*"/>
+                            <DataGridTemplateColumn Header="الاجراءات" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="تعديل" Margin="5" Padding="5,2" Width="60" Click="EditTaskButton_Click"/>
+                                            <Button Content="حذف" Margin="5" Padding="5,2" Width="60" Click="DeleteTaskButton_Click"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            
+            </Grid>
+        </Grid>
+
+        <Grid Background="#77000000" Name="manageTaskGrid" Visibility="Collapsed">
+            <Border Background="{DynamicResource MainBackground}" Padding="20" CornerRadius="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="اضافة مهمة" Name="manageTaskTitle" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+                    <Label Content="تعيين إلى" Margin="0,0,0,5"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBox Name="assignToCodeBox" Tag="الكود" VerticalAlignment="Bottom" Margin="5" KeyDown="assignToCodeBox_KeyDown"/>
+                        
+                        <ComboBox Width="350" SelectionChanged="userComboBox_SelectionChanged" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="assignToBox" Margin="5" Loaded="searchComboBox_Loaded"  ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+                    </StackPanel> 
+                    <Label Content="تاريخ التسليم" Margin="0,0,0,5"/>
+                    <DatePicker Name="dueDatePicker" Margin="0,0,0,10" Tag="موعد التسليم"/>
+                    <TextBox TextWrapping="Wrap" MinWidth="500" MaxWidth="500" MinHeight="100" Name="taskDescriptionBox" Margin="0,0,0,10" Tag="وصف المهمة" VerticalContentAlignment="Top"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="حفظ" Width="80" Margin="5" Click="SaveTaskButton_Click"/>
+                        <Button Content="إلغاء" Width="80" Margin="5" Click="CancelEditButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

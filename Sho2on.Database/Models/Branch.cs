@@ -13,8 +13,14 @@ namespace Sho2on.Database.Models
         [StringLength(100)]
         public string Name { get; set; }
 
+        [ForeignKey("Area")]
+        public int? AreaId { get; set; }
+
+        public virtual Area Area { get; set; }
+
         public DateTime? EditedAt { get; set; } = DateTime.Now;
 
         public virtual ICollection<UserBranch> UserBranches { get; set; } = new List<UserBranch>();
+
     }
 }

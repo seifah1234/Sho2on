@@ -72,21 +72,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="DarkDataGrid" TargetType="DataGrid">
-            <Setter Property="Background"               Value="Transparent"/>
-            <Setter Property="Foreground"               Value="{DynamicResource TextSecondaryColor}"/>
-            <Setter Property="BorderThickness"          Value="0"/>
-            <Setter Property="RowBackground"            Value="Transparent"/>
-            <Setter Property="AlternatingRowBackground" Value="{DynamicResource DataGridAltRow}"/>
-            <Setter Property="GridLinesVisibility"      Value="Horizontal"/>
-            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource BorderColor}"/>
-            <Setter Property="VerticalGridLinesBrush"   Value="Transparent"/>
-            <Setter Property="ColumnHeaderHeight"       Value="36"/>
-            <Setter Property="FontFamily"               Value="{DynamicResource Mada}"/>
-            <Setter Property="FontSize"                 Value="13"/>
-        </Style>
-
-        <!-- Branch Card Style — clickable, animated -->
+        <!-- Section Card Style — clickable -->
         <Style x:Key="SectionCard" TargetType="Border">
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Margin"          Value="6"/>
@@ -112,13 +98,10 @@
 
     </UserControl.Resources>
 
-    <!-- Root -->
     <Border Background="{DynamicResource MainBackgroundBrush}">
-
-        <!-- Master/Detail container — Grid with 2 layers -->
         <Grid>
 
-            <!-- ══════════ MASTER VIEW (Dashboard) ══════════ -->
+            <!-- ══════════ LAYER 0: Sectors (Master) ══════════ -->
             <Grid x:Name="MasterView">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -159,9 +142,6 @@
                                            Foreground="{DynamicResource SecondaryColor}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock x:Name="WelcomeText"
-                                       FontSize="14" Foreground="{DynamicResource MutedColor}"
-                                       Margin="48,4,0,0"/>
                         </StackPanel>
 
                         <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -192,189 +172,10 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- ══ Row 0: Company-wide KPIs ══ -->
-                        <Grid Grid.Row="0" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- إجمالي الموظفين -->
-                            <Border Grid.Column="0" Style="{DynamicResource MetricCard}">
-                                <Grid>
-                                    <Rectangle Height="4" VerticalAlignment="Top" RadiusX="16" RadiusY="16">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="#00BCD4" Offset="0"/>
-                                                <GradientStop Color="#0D47A1" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <StackPanel Margin="16,20,16,16" HorizontalAlignment="Center">
-                                        <Border Width="44" Height="44" CornerRadius="12" HorizontalAlignment="Center" Margin="0,0,0,10">
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="#003843" Offset="0"/>
-                                                    <GradientStop Color="#00838F" Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <Icon:PackIconMaterial Kind="AccountGroup" Width="22" Height="22"
-                                                                   Foreground="#80DEEA"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <TextBlock x:Name="TotalEmployees" Text="0"
-                                                   FontSize="30" FontWeight="Bold"
-                                                   Foreground="{DynamicResource TextPrimaryColor}"
-                                                   HorizontalAlignment="Center"/>
-                                        <TextBlock Text="إجمالي الموظفين"
-                                                   FontSize="12" Foreground="{DynamicResource MutedColor}"
-                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- الحضور اليوم -->
-                            <Border Grid.Column="1" Style="{DynamicResource MetricCard}">
-                                <Grid>
-                                    <Rectangle Height="4" VerticalAlignment="Top" RadiusX="16" RadiusY="16">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="#2E7D32" Offset="0"/>
-                                                <GradientStop Color="#66BB6A" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <StackPanel Margin="16,20,16,16" HorizontalAlignment="Center">
-                                        <Border Width="44" Height="44" CornerRadius="12" HorizontalAlignment="Center" Margin="0,0,0,10">
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="#1B3A1C" Offset="0"/>
-                                                    <GradientStop Color="#2E7D32" Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <Icon:PackIconMaterial Kind="CheckCircle" Width="22" Height="22"
-                                                                   Foreground="#A5D6A7"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <TextBlock x:Name="TodayAttendance" Text="0"
-                                                   FontSize="30" FontWeight="Bold"
-                                                   Foreground="#A5D6A7" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="الحضور اليوم"
-                                                   FontSize="11" Foreground="{DynamicResource MutedColor}"
-                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- الغياب -->
-                            <Border Grid.Column="2" Style="{DynamicResource MetricCard}">
-                                <Grid>
-                                    <Rectangle Height="4" VerticalAlignment="Top" RadiusX="16" RadiusY="16">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="#B71C1C" Offset="0"/>
-                                                <GradientStop Color="#EF5350" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <StackPanel Margin="16,20,16,16" HorizontalAlignment="Center">
-                                        <Border Width="44" Height="44" CornerRadius="12" HorizontalAlignment="Center" Margin="0,0,0,10">
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="#3B1010" Offset="0"/>
-                                                    <GradientStop Color="#B71C1C" Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <Icon:PackIconMaterial Kind="CloseCircle" Width="22" Height="22"
-                                                                   Foreground="#EF9A9A"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <TextBlock x:Name="TodayAbsence" Text="0"
-                                                   FontSize="30" FontWeight="Bold"
-                                                   Foreground="#EF9A9A" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="الغياب اليوم"
-                                                   FontSize="11" Foreground="{DynamicResource MutedColor}"
-                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- المرتبات المستحقة -->
-                            <Border Grid.Column="3" Style="{DynamicResource MetricCard}">
-                                <Grid>
-                                    <Rectangle Height="4" VerticalAlignment="Top" RadiusX="16" RadiusY="16">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="#E65100" Offset="0"/>
-                                                <GradientStop Color="#FFA726" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <StackPanel Margin="16,20,16,16" HorizontalAlignment="Center">
-                                        <Border Width="44" Height="44" CornerRadius="12" HorizontalAlignment="Center" Margin="0,0,0,10">
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="#3A1F00" Offset="0"/>
-                                                    <GradientStop Color="#E65100" Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <Icon:PackIconMaterial Kind="CashMultiple" Width="22" Height="22"
-                                                                   Foreground="#FFCC80"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <TextBlock x:Name="PendingSalaries" Text="0"
-                                                   FontSize="30" FontWeight="Bold"
-                                                   Foreground="#FFCC80" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="مرتبات مستحقة"
-                                                   FontSize="12" Foreground="{DynamicResource MutedColor}"
-                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- طلبات الإجازة -->
-                            <Border Grid.Column="4" Style="{DynamicResource MetricCard}">
-                                <Grid>
-                                    <Rectangle Height="4" VerticalAlignment="Top" RadiusX="16" RadiusY="16">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="#6A1B9A" Offset="0"/>
-                                                <GradientStop Color="#AB47BC" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <StackPanel Margin="16,20,16,16" HorizontalAlignment="Center">
-                                        <Border Width="44" Height="44" CornerRadius="12" HorizontalAlignment="Center" Margin="0,0,0,10">
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="#2A0A3A" Offset="0"/>
-                                                    <GradientStop Color="#6A1B9A" Offset="1"/>
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <Icon:PackIconMaterial Kind="CalendarClock" Width="22" Height="22"
-                                                                   Foreground="#CE93D8"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <TextBlock x:Name="PendingLeaves" Text="0"
-                                                   FontSize="30" FontWeight="Bold"
-                                                   Foreground="#CE93D8" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="طلبات إجازة"
-                                                   FontSize="12" Foreground="{DynamicResource MutedColor}"
-                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </Grid>
-
-                        <!-- ══ Row 1: Branches Overview (NEW) ══ -->
-                        <Border Grid.Row="1" Style="{DynamicResource StatCard}" Margin="0,16,0,0" Padding="0">
+                        <!-- ══ Row 0: Sectors Overview ══ -->
+                        <Border Grid.Row="0" Style="{DynamicResource StatCard}" Margin="0,0,0,0" Padding="0">
                             <StackPanel>
                                 <!-- Section header -->
                                 <Border Style="{DynamicResource CardHeaderBrush}">
@@ -383,16 +184,15 @@
                                             <Icon:PackIconMaterial Kind="OfficeBuildingMarker" Width="18" Height="18"
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <TextBlock Text="إجماليات القطاعات — اضغط على أي قطاع للتفاصيل"
+                                            <TextBlock Text="القطاعات — اضغط على أي قطاع لعرض فروعه"
                                                        FontSize="15" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimaryColor}"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
-                                        <!-- Total branches badge -->
                                         <Border HorizontalAlignment="Right" CornerRadius="12" Padding="10,3"
                                                 Background="#1A00BCD4" BorderThickness="1" BorderBrush="#3300BCD4">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock x:Name="BranchCountLabel" Text="0"
+                                                <TextBlock x:Name="SectorCountLabel" Text="0"
                                                            FontSize="13" FontWeight="Bold"
                                                            Foreground="#00BCD4"/>
                                                 <TextBlock Text=" قطاع" FontSize="13"
@@ -412,23 +212,22 @@
                                     </Rectangle.Fill>
                                 </Rectangle>
 
-                                <!-- Branches cards scroll -->
+                                <!-- Sectors cards -->
                                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                               VerticalScrollBarVisibility="Disabled"
                                               Padding="12,12,12,16">
-                                    <ItemsControl x:Name="SectionsPanel" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
+                                    <ItemsControl x:Name="SectorsPanel" HorizontalAlignment="Center">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal"/>
+                                                <WrapPanel Orientation="Horizontal"/>
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <!-- Section Card -->
                                                 <Border Style="{StaticResource SectionCard}"
-                                                        Width="210"
-                                                        MouseLeftButtonUp="SectionCard_Click"
-                                                        Tag="{Binding SectionId}">
+                                                        Width="220"
+                                                        MouseLeftButtonUp="SectorCard_Click"
+                                                        Tag="{Binding SectorId}">
                                                     <Border.Background>
                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                                             <GradientStop Color="{Binding GradientFrom}" Offset="0"/>
@@ -437,25 +236,22 @@
                                                     </Border.Background>
 
                                                     <Grid>
-                                                        <!-- Top accent bar -->
                                                         <Rectangle Height="4" VerticalAlignment="Top"
                                                                    RadiusX="16" RadiusY="16"
                                                                    Fill="{Binding AccentBrush}"/>
 
                                                         <StackPanel Margin="16,18,16,14">
-
-                                                            <!-- Branch name + icon -->
-                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                                                <Border Width="36" Height="36" CornerRadius="10"
-                                                                        Background="#22FFFFFF"
-                                                                        Margin="0,0,10,0">
+                                                            <!-- Icon + Name -->
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                                <Border Width="38" Height="38" CornerRadius="10"
+                                                                        Background="#22FFFFFF" Margin="0,0,10,0">
                                                                     <Icon:PackIconMaterial Kind="OfficeBuildingOutline"
-                                                                                           Width="18" Height="18"
+                                                                                           Width="20" Height="20"
                                                                                            Foreground="White"
                                                                                            HorizontalAlignment="Center"
                                                                                            VerticalAlignment="Center"/>
                                                                 </Border>
-                                                                <TextBlock Text="{Binding SectionName}"
+                                                                <TextBlock Text="{Binding SectorName}"
                                                                            FontSize="14" FontWeight="Bold"
                                                                            Foreground="White"
                                                                            VerticalAlignment="Center"
@@ -463,19 +259,14 @@
                                                                            MaxWidth="140"/>
                                                             </StackPanel>
 
-                                                            <!-- KPI mini-grid -->
+                                                            <!-- Stats -->
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
                                                                 </Grid.ColumnDefinitions>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                </Grid.RowDefinitions>
 
-                                                                <!-- موظفين -->
-                                                                <StackPanel Grid.Row="0" Grid.Column="0"
-                                                                            HorizontalAlignment="Center"
-                                                                            Margin="0,0,0,10">
+                                                                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
                                                                     <TextBlock Text="{Binding TotalEmployees}"
                                                                                FontSize="22" FontWeight="Bold"
                                                                                Foreground="White"
@@ -484,12 +275,20 @@
                                                                                FontSize="10" Foreground="#CCFFFFFF"
                                                                                HorizontalAlignment="Center"/>
                                                                 </StackPanel>
-                                                                
+
+                                                                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                                                    <TextBlock Text="{Binding TotalBranches}"
+                                                                               FontSize="22" FontWeight="Bold"
+                                                                               Foreground="White"
+                                                                               HorizontalAlignment="Center"/>
+                                                                    <TextBlock Text="فرع"
+                                                                               FontSize="10" Foreground="#CCFFFFFF"
+                                                                               HorizontalAlignment="Center"/>
+                                                                </StackPanel>
                                                             </Grid>
 
-
-                                                            <!-- "تفاصيل" hint -->
-                                                            <Border Margin="0,10,0,0" CornerRadius="8"
+                                                            <!-- View hint -->
+                                                            <Border Margin="0,12,0,0" CornerRadius="8"
                                                                     Background="#22FFFFFF" Padding="8,4"
                                                                     HorizontalAlignment="Center">
                                                                 <StackPanel Orientation="Horizontal">
@@ -498,11 +297,10 @@
                                                                                            Foreground="White"
                                                                                            VerticalAlignment="Center"
                                                                                            Margin="0,0,5,0"/>
-                                                                    <TextBlock Text="عرض التفاصيل"
+                                                                    <TextBlock Text="عرض الفروع"
                                                                                FontSize="10" Foreground="White"/>
                                                                 </StackPanel>
                                                             </Border>
-
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -513,90 +311,8 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- ══ Row 2: Charts ══ -->
-                        <Grid Visibility="Collapsed" Grid.Row="2" Margin="0,16,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Border Grid.Column="0" Style="{DynamicResource StatCard}" Margin="0,0,8,0">
-                                <StackPanel>
-                                    <Border Style="{DynamicResource CardHeaderBrush}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Icon:PackIconMaterial Kind="ChartDonut" Width="18" Height="18"
-                                                                   Foreground="{DynamicResource AccentColor}"
-                                                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <TextBlock Text="نسبة الحضور الشهرية"
-                                                       FontSize="15" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource TextPrimaryColor}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <Rectangle Height="1" Opacity="0.15">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="Transparent" Offset="0"/>
-                                                <GradientStop Color="#00BCD4" Offset="0.5"/>
-                                                <GradientStop Color="Transparent" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <lvc:PieChart x:Name="AttendanceChart"
-                                                  Series="{Binding AttendanceSeries}"
-                                                  LegendLocation="Bottom"
-                                                  Foreground="{DynamicResource TextSecondaryColor}"
-                                                  Height="250" Margin="12"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Grid.Column="1" Style="{DynamicResource StatCard}" Margin="8,0,0,0">
-                                <StackPanel>
-                                    <Border Style="{DynamicResource CardHeaderBrush}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Icon:PackIconMaterial Kind="ChartBar" Width="18" Height="18"
-                                                                   Foreground="{DynamicResource AccentColor}"
-                                                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <TextBlock Text="توزيع الموظفين حسب الإدارات"
-                                                       FontSize="15" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource TextPrimaryColor}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <Rectangle Height="1" Opacity="0.15">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="Transparent" Offset="0"/>
-                                                <GradientStop Color="#00BCD4" Offset="0.5"/>
-                                                <GradientStop Color="Transparent" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <lvc:CartesianChart x:Name="DepartmentChart"
-                                                        Foreground="{DynamicResource TextSecondaryColor}"
-                                                        Series="{Binding DepartmentSeries}"
-                                                        Height="250" Margin="12">
-                                        <lvc:CartesianChart.AxisX>
-                                            <lvc:Axis Title="الإدارات"
-                                                      Foreground="{DynamicResource MutedColor}"
-                                                      Labels="{Binding DepartmentLabels}"
-                                                      ShowLabels="True" LabelsRotation="-45"
-                                                      FontSize="10" MinWidth="30">
-                                                <lvc:Axis.Separator>
-                                                    <lvc:Separator Step="1"/>
-                                                </lvc:Axis.Separator>
-                                            </lvc:Axis>
-                                        </lvc:CartesianChart.AxisX>
-                                        <lvc:CartesianChart.AxisY>
-                                            <lvc:Axis Title="العدد" Foreground="{DynamicResource MutedColor}"/>
-                                        </lvc:CartesianChart.AxisY>
-                                    </lvc:CartesianChart>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <!-- ══ Row 3: Quick Actions + Alerts ══ -->
-                        <Grid Grid.Row="3" Margin="0,16,0,0">
+                        <!-- ══ Row 1: Quick Actions + Alerts ══ -->
+                        <Grid Grid.Row="1" Margin="0,16,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -665,11 +381,6 @@
                                                 <Setter Property="Background"      Value="Transparent"/>
                                                 <Setter Property="BorderThickness" Value="0"/>
                                                 <Setter Property="Padding"         Value="0"/>
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="Transparent"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
                                             </Style>
                                         </ListView.ItemContainerStyle>
                                         <ListView.ItemTemplate>
@@ -697,10 +408,17 @@
                 </ScrollViewer>
             </Grid>
 
-            <!-- ══════════ DETAIL VIEW (Branch) — overlays master ══════════ -->
-            <Grid x:Name="DetailView" Visibility="Collapsed">
-                <local:SectionDetailView x:Name="SectionDetail"
-                                        BackRequested="SectionDetail_BackRequested"/>
+            <!-- ══════════ LAYER 1: Branches Detail ══════════ -->
+            <Grid x:Name="BranchView" Visibility="Collapsed">
+                <local:BranchListView x:Name="BranchDetail"
+                                      BackRequested="BranchView_BackRequested"
+                                      BranchSelected="BranchView_BranchSelected"/>
+            </Grid>
+
+            <!-- ══════════ LAYER 2: Department Detail ══════════ -->
+            <Grid x:Name="DepartmentView" Visibility="Collapsed">
+                <local:DepartmentDetailView x:Name="DepartmentDetail"
+                                            BackRequested="DepartmentView_BackRequested"/>
             </Grid>
 
         </Grid>

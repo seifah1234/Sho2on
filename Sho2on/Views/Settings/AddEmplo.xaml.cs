@@ -51,6 +51,11 @@ namespace HR_Application
             try
             {
                 // تحميل البيانات من قاعدة البيانات
+                var areas = await _context.Areas.ToListAsync();
+                area_box.ItemsSource = areas;
+                area_box.DisplayMemberPath = "Name";
+                area_box.SelectedValuePath = "Id";
+
                 var branches = await _context.Branches.ToListAsync();
                 branch_box.ItemsSource = branches;
                 branch_box.DisplayMemberPath = "Name";
@@ -213,6 +218,7 @@ namespace HR_Application
                     QualificationId = (int?)qualificationBox.SelectedValue,
 
                     // المعلومات الوظيفية
+                    AreaId = (int?)area_box.SelectedValue,
                     BranchId = (int)branch_box.SelectedValue,
                     DepartmentId = (int)depart_box.SelectedValue,
                     JobTitleId = (int)job_box.SelectedValue,
@@ -299,6 +305,7 @@ namespace HR_Application
                 _currentEmployee = 0;
                 var context = new AppDbContext(App.ConnectionString);
                 users = await context.Users
+                    .Include(u => u.Area)
                     .Include(u => u.Branch)
                     .Include(u => u.Department)
                     .Include(u => u.JobTitle)
@@ -384,6 +391,9 @@ namespace HR_Application
                 female_box.IsChecked = user.Gender == 'F';
 
                 // القوائم المنسدلة
+                if (user.AreaId.HasValue)
+                    area_box.SelectedValue = user.AreaId;
+
                 if (user.BranchId > 0)
                     branch_box.SelectedValue = user.BranchId;
 
@@ -558,6 +568,7 @@ namespace HR_Application
 
             user.Gender = male_box.IsChecked == true ? 'M' : 'F';
 
+            user.AreaId = (int?)area_box.SelectedValue;
             user.BranchId = (int)branch_box.SelectedValue;
             user.DepartmentId = (int)depart_box.SelectedValue;
             user.ManagerId = (int?)manager_box.SelectedValue;
@@ -649,6 +660,7 @@ namespace HR_Application
                 national_id_expiration.SelectedDate = null;
                 army_certificate_expiration.SelectedDate = null;
 
+                area_box.SelectedIndex = -1;
                 branch_box.SelectedIndex = -1;
                 depart_box.SelectedIndex = -1;
                 job_box.SelectedIndex = -1;

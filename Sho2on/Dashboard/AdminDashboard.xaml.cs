@@ -1,11 +1,9 @@
 ﻿// AdminDashboard.xaml.cs
 using HR_Application.Views;
-using LiveCharts;
-using LiveCharts.Wpf;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
-using Sho2on.Database.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -24,55 +22,30 @@ using UserControl = System.Windows.Controls.UserControl;
 namespace HR_Application.Dashboard
 {
     // ─────────────────────────────────────────────────────────────
-    // Branch card ViewModel
+    // Sector card ViewModel  (Level 1)
     // ─────────────────────────────────────────────────────────────
-    public class SectionCardViewModel
+    public class SectorCardViewModel
     {
-        public int SectionId { get; set; }
-        public string SectionName { get; set; }
+        public int SectorId { get; set; }
+        public string SectorName { get; set; }
         public int TotalEmployees { get; set; }
-        public int TodayPresent { get; set; }
-        public int TodayAbsent { get; set; }
-        public int PendingLeaves { get; set; }
+        public int TotalBranches { get; set; }
 
-        // Attendance rate (0–1)
-        public double AttendanceRate =>
-            TotalEmployees > 0 ? (double)TodayPresent / TotalEmployees : 0;
-
-        public string AttendanceRateText =>
-            $"نسبة الحضور: {AttendanceRate:P0}";
-
-        // Bar width in px (max 178 = card 210 – 2×16 padding)
-        public double AttendanceBarWidth =>
-            Math.Min(AttendanceRate * 178, 178);
-
-        // Each card gets a colour from the palette
         public string GradientFrom { get; set; }
         public string GradientTo { get; set; }
         public Brush AccentBrush { get; set; }
     }
 
     // ─────────────────────────────────────────────────────────────
-    // Dashboard UserControl
+    // AdminDashboard
     // ─────────────────────────────────────────────────────────────
     public partial class AdminDashboard : UserControl, INotifyPropertyChanged
     {
         private readonly AppDbContext _context;
         private DispatcherTimer _timer;
         private string _currentDateTime;
-        private string _userBranch;
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public SeriesCollection AttendanceSeries { get; set; }
-        public SeriesCollection DepartmentSeries { get; set; }
-
-        private ObservableCollection<string> _departmentLabels;
-        public ObservableCollection<string> DepartmentLabels
-        {
-            get => _departmentLabels;
-            set { _departmentLabels = value; OnPropertyChanged(nameof(DepartmentLabels)); }
-        }
 
         public string CurrentDateTime
         {
@@ -80,16 +53,9 @@ namespace HR_Application.Dashboard
             set { _currentDateTime = value; OnPropertyChanged(nameof(CurrentDateTime)); }
         }
 
-        public string UserBranch
-        {
-            get => _userBranch;
-            set { _userBranch = value; OnPropertyChanged(nameof(UserBranch)); }
-        }
-
         public ObservableCollection<Alert> Alerts { get; set; }
-        public ObservableCollection<Activity> RecentActivities { get; set; }
 
-        // Branch card colour palette
+        // Colour palette for sector cards
         private static readonly (string From, string To, string Accent)[] _palette =
         {
             ("#003843", "#00838F", "#00BCD4"),
@@ -108,37 +74,21 @@ namespace HR_Application.Dashboard
             DataContext = this;
             _context = new AppDbContext(App.ConnectionString);
 
-            InitializeDashboard();
+            Alerts = new ObservableCollection<Alert>();
+            AlertsList.ItemsSource = Alerts;
+
+
             _ = LoadDashboardDataAsync();
             StartTimer();
         }
 
-        // ── Init ──────────────────────────────────────────────────
-        private void InitializeDashboard()
-        {
-            WelcomeText.Text = $"مرحباً بك، {App.CurrentUser.FullName}";
+        // ── Data ──────────────────────────────────────────────────
 
-            Alerts = new ObservableCollection<Alert>();
-            RecentActivities = new ObservableCollection<Activity>();
-
-            AlertsList.ItemsSource = Alerts;
-
-            AttendanceSeries = new SeriesCollection();
-            DepartmentSeries = new SeriesCollection();
-        }
-
-        // ── Data loading ──────────────────────────────────────────
         private async Task LoadDashboardDataAsync()
         {
             try
             {
-                var userBranch = await _context.Branches
-                    .FirstOrDefaultAsync(b => b.Id == App.CurrentUser.BranchId);
-                UserBranch = userBranch?.Name ?? "غير محدد";
-
-                await LoadStatistics();
-                await LoadSectionCards();
-                await LoadCharts();
+                await LoadSectorCards();
                 await LoadAlerts();
             }
             catch (Exception ex)
@@ -148,133 +98,46 @@ namespace HR_Application.Dashboard
             }
         }
 
-        private async Task LoadStatistics()
+        /// <summary>Load all sectors (Degrees) with employee + branch counts.</summary>
+        private async Task LoadSectorCards()
         {
-            var today = DateTime.Today;
+            // Degrees = القطاعات
+            var sectors = await _context.Degrees.OrderBy(d => d.Name).ToListAsync();
 
-            TotalEmployees.Text = (await _context.Users
-                .Where(u => !u.IsArchived).CountAsync()).ToString();
+            SectorCountLabel.Text = sectors.Count.ToString();
 
-            TodayAttendance.Text = (await _context.Attendances
-                .Where(a => a.AttendanceDate.Date == today &&
-                            a.CheckInTime.HasValue && !a.IsAbsence)
-                .CountAsync()).ToString();
+            var cards = new List<SectorCardViewModel>();
 
-            TodayAbsence.Text = (await _context.Attendances
-                .Where(a => a.AttendanceDate.Date == today && a.IsAbsence)
-                .CountAsync()).ToString();
-
-            PendingSalaries.Text = (await _context.Users
-                .Where(u => !u.IsArchived).CountAsync()).ToString();
-
-            PendingLeaves.Text = (await _context.Leaves
-                .Where(l => l.Status == 0).CountAsync()).ToString();
-        }
-
-        /// <summary>Load per-branch summary cards.</summary>
-        private async Task LoadSectionCards()
-        {
-            var today = DateTime.Today;
-            var sections = await _context.Degrees.OrderBy(b => b.Name).ToListAsync();
-
-            BranchCountLabel.Text = sections.Count.ToString();
-
-            var cards = new System.Collections.Generic.List<SectionCardViewModel>();
-
-            for (int i = 0; i < sections.Count; i++)
+            for (int i = 0; i < sectors.Count; i++)
             {
-                var section = sections[i];
+                var sector = sectors[i];
                 var palette = _palette[i % _palette.Length];
 
-                var totalEmp = await _context.Users
-                    .Where(u => !u.IsArchived && u.DegreeId == section.Id)
+                var empCount = await _context.Users
+                    .Where(u => !u.IsArchived && u.DegreeId == sector.Id)
                     .CountAsync();
 
-                var present = await _context.Attendances
-                    .Where(a => a.AttendanceDate.Date == today &&
-                                a.CheckInTime.HasValue && !a.IsAbsence &&
-                                a.User.DegreeId == section.Id)
+                // Count distinct branches that have at least one employee in this sector
+                var branchCount = await _context.Users
+                    .Where(u => !u.IsArchived && u.DegreeId == sector.Id && u.BranchId != null)
+                    .Select(u => u.BranchId)
+                    .Distinct()
                     .CountAsync();
 
-                var absent = await _context.Attendances
-                    .Where(a => a.AttendanceDate.Date == today &&
-                                a.IsAbsence &&
-                                a.User.DegreeId == section.Id)
-                    .CountAsync();
-
-                var pendingLeaves = await _context.Leaves
-                    .Where(l => l.Status == 0 && l.User.DegreeId == section.Id)
-                    .CountAsync();
-
-                cards.Add(new SectionCardViewModel
+                cards.Add(new SectorCardViewModel
                 {
-                    SectionId = section.Id,
-                    SectionName = section.Name,
-                    TotalEmployees = totalEmp,
-                    TodayPresent = present,
-                    TodayAbsent = absent,
-                    PendingLeaves = pendingLeaves,
+                    SectorId = sector.Id,
+                    SectorName = sector.Name,
+                    TotalEmployees = empCount,
+                    TotalBranches = branchCount,
                     GradientFrom = palette.From,
                     GradientTo = palette.To,
                     AccentBrush = new SolidColorBrush(
-                                          (Color)ColorConverter.ConvertFromString(palette.Accent))
+                                         (Color)ColorConverter.ConvertFromString(palette.Accent))
                 });
             }
 
-            SectionsPanel.ItemsSource = cards;
-        }
-
-        private async Task LoadCharts()
-        {
-            var today = DateTime.Today;
-
-            var present = await _context.Attendances
-                .Where(a => a.AttendanceDate.Date == today &&
-                            a.CheckInTime.HasValue && !a.IsAbsence).CountAsync();
-            var absent = await _context.Attendances
-                .Where(a => a.AttendanceDate.Date == today && a.IsAbsence).CountAsync();
-            var late = await _context.Attendances
-                .Where(a => a.AttendanceDate.Date == today && a.Late.HasValue).CountAsync();
-
-            AttendanceSeries.Clear();
-            AttendanceSeries.Add(new PieSeries
-            {
-                Title = "حاضر",
-                Values = new ChartValues<int> { present },
-                DataLabels = true,
-                LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
-            });
-            AttendanceSeries.Add(new PieSeries
-            {
-                Title = "غائب",
-                Values = new ChartValues<int> { absent },
-                DataLabels = true,
-                LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
-            });
-            AttendanceSeries.Add(new PieSeries
-            {
-                Title = "متأخر",
-                Values = new ChartValues<int> { late },
-                DataLabels = true,
-                LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
-            });
-
-            var departments = await _context.Departments.ToListAsync();
-            DepartmentLabels = new ObservableCollection<string>(
-                departments.Select(d => d.Name).ToList());
-
-            var deptCounts = new ChartValues<int>();
-            foreach (var dept in departments)
-                deptCounts.Add(await _context.Users
-                    .Where(u => u.DepartmentId == dept.Id && !u.IsArchived).CountAsync());
-
-            DepartmentSeries.Clear();
-            DepartmentSeries.Add(new ColumnSeries
-            {
-                Title = "الموظفين",
-                Values = deptCounts,
-                DataLabels = true
-            });
+            SectorsPanel.ItemsSource = cards;
         }
 
         private async Task LoadAlerts()
@@ -288,63 +151,57 @@ namespace HR_Application.Dashboard
                 .ToListAsync();
 
             foreach (var user in expiredDocs.Take(5))
-                Alerts.Add(new Alert
-                {
-                    Icon = "⚠️",
-                    Message = $"رقم قومي منتهي للموظف {user.FullName}"
-                });
+                Alerts.Add(new Alert { Icon = "⚠️", Message = $"رقم قومي منتهي للموظف {user.FullName}" });
 
             var pendingLoans = await _context.Loans
                 .Where(l => l.Status == "SentToManager").CountAsync();
             if (pendingLoans > 0)
-                Alerts.Add(new Alert
-                {
-                    Icon = "💰",
-                    Message = $"{pendingLoans} طلب سلفة بانتظار الموافقة"
-                });
+                Alerts.Add(new Alert { Icon = "💰", Message = $"{pendingLoans} طلب سلفة بانتظار الموافقة" });
 
             var totalUsers = await _context.Users.CountAsync();
             var attendanceCount = await _context.Attendances
-                .Where(a => a.AttendanceDate.Date == DateTime.Today)
-                .Select(a => a.CheckInTime.HasValue).CountAsync();
+                .Where(a => a.AttendanceDate.Date == DateTime.Today && a.CheckInTime.HasValue)
+                .CountAsync();
 
-            if (attendanceCount < totalUsers * 0.8)
-                Alerts.Add(new Alert
-                {
-                    Icon = "📊",
-                    Message = "معدل الحضور اليومي منخفض"
-                });
+            if (totalUsers > 0 && attendanceCount < totalUsers * 0.8)
+                Alerts.Add(new Alert { Icon = "📊", Message = "معدل الحضور اليومي منخفض" });
         }
 
-        // ── Navigation: Master → Detail ───────────────────────────
+        // ── Navigation ────────────────────────────────────────────
 
-        /// <summary>Clicked on a branch card → open detail view.</summary>
-        private void SectionCard_Click(object sender, MouseButtonEventArgs e)
+        /// <summary>Level 1 → Level 2: open branches of selected sector.</summary>
+        private void SectorCard_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border &&
-                border.DataContext is SectionCardViewModel vm)
+                border.DataContext is SectorCardViewModel vm)
             {
-                NavigateToSection(vm.SectionId, vm.SectionName);
+                BranchDetail.LoadSector(vm.SectorId, vm.SectorName);
+                MasterView.Visibility = Visibility.Collapsed;
+                BranchView.Visibility = Visibility.Visible;
             }
         }
 
-        private void NavigateToSection(int sectionId, string sectionName)
+        /// <summary>Back from Branch view → return to Master.</summary>
+        private void BranchView_BackRequested(object sender, EventArgs e)
         {
-            SectionDetail.LoadSection(sectionId, sectionName);
-
-            // Slide-in animation: fade MasterView out, DetailView in
-            MasterView.Visibility = Visibility.Collapsed;
-            DetailView.Visibility = Visibility.Visible;
+            BranchView.Visibility = Visibility.Collapsed;
+            MasterView.Visibility = Visibility.Visible;
+            _ = LoadSectorCards();
         }
 
-        /// <summary>Back button raised by SectionDetailView.</summary>
-        private void SectionDetail_BackRequested(object sender, EventArgs e)
+        /// <summary>Branch selected inside BranchListView → go to Department detail.</summary>
+        private void BranchView_BranchSelected(object sender, BranchSelectedEventArgs e)
         {
-            DetailView.Visibility = Visibility.Collapsed;
-            MasterView.Visibility = Visibility.Visible;
+            DepartmentDetail.LoadBranch(e.BranchId, e.BranchName, e.SectorId, e.SectorName);
+            BranchView.Visibility = Visibility.Collapsed;
+            DepartmentView.Visibility = Visibility.Visible;
+        }
 
-            // Refresh branch cards in background
-            _ = LoadSectionCards();
+        /// <summary>Back from Department view → return to Branch list.</summary>
+        private void DepartmentView_BackRequested(object sender, EventArgs e)
+        {
+            DepartmentView.Visibility = Visibility.Collapsed;
+            BranchView.Visibility = Visibility.Visible;
         }
 
         // ── Timer ─────────────────────────────────────────────────
@@ -359,7 +216,7 @@ namespace HR_Application.Dashboard
         protected virtual void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-        // ── Quick Action Handlers ─────────────────────────────────
+        // ── Quick actions ─────────────────────────────────────────
         private void OpenSalaryReport(object sender, RoutedEventArgs e) => new SalaryReport().Show();
         private void OpenEmployeeManagement(object sender, RoutedEventArgs e) => new AddEmplo().Show();
         private void OpenMonthlyAttendance(object sender, RoutedEventArgs e) => new MonthlyData().Show();
@@ -368,9 +225,7 @@ namespace HR_Application.Dashboard
         private void OpenBackup(object sender, RoutedEventArgs e) => MainWindow.CreateBackup(App.ConnectionString);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // Shared model classes
-    // ─────────────────────────────────────────────────────────────
+    // ── Shared models ─────────────────────────────────────────────
     public class Alert
     {
         public string Icon { get; set; }
@@ -383,5 +238,14 @@ namespace HR_Application.Dashboard
         public string ActivityType { get; set; }
         public string User { get; set; }
         public string Details { get; set; }
+    }
+
+    /// <summary>Event args carrying the branch the user tapped.</summary>
+    public class BranchSelectedEventArgs : EventArgs
+    {
+        public int BranchId { get; set; }
+        public string BranchName { get; set; }
+        public int SectorId { get; set; }
+        public string SectorName { get; set; }
     }
 }

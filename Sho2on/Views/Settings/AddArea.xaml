@@ -1,4 +1,4 @@
-﻿<Window x:Class="HR_Application.AddBranch"
+﻿<Window x:Class="HR_Application.AddArea"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:uc="clr-namespace:HR_Application.UserControls"
@@ -32,7 +32,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان مع تحسين الخط والظل -->
-            <TextBlock Text="بيانات الفروع" 
+            <TextBlock Text="بيانات المناطق" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="20" 
@@ -48,49 +48,33 @@
                     <!-- حقل الكود -->
                     <TextBox x:Name="code_box" 
                              Margin="0 20 0 0" 
-                             Tag="كود الفرع" 
+                             Tag="كود المنطقة" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 
                              HorizontalAlignment="Center" 
                              FontSize="14" 
-                             Padding="2,0"
+                             Padding="2,0" 
+                             IsReadOnly="True"
                              BorderThickness="2" 
                              />
 
                     <!-- حقل الاسم -->
                     <TextBox x:Name="name_box" 
                              Margin="0 20 0 0" 
-                             Tag="اسم الفرع" 
+                             Tag="اسم المنطقة" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 
                              HorizontalAlignment="Center" 
-                             Padding="2,0"
                              FontSize="14" 
+                             Padding="2,0" 
                              BorderThickness="2" 
                              />
 
-                    <Label Content="المنطقة" 
-                           Margin="0 20 0 0" 
-                           HorizontalAlignment="Right" 
-                           FontSize="14" 
-                           Foreground="{DynamicResource TextPrimaryColor}"/>
-                    <ComboBox Name="area_box"
-                              SelectedValuePath="Id"
-                              DisplayMemberPath="Name"
-                                Width="250"
-                                Height="40"
-                                FlowDirection="RightToLeft"
-                                HorizontalAlignment="Center"
-                                FontSize="14"
-                                Padding="10"
-                                BorderThickness="2"
-                              />
-
                     <!-- أزرار التعديل والحفظ -->
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,30,10,10" Orientation="Horizontal">
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="edit_Branch">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="edit_Area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
@@ -98,7 +82,7 @@
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="save_Branch">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="save_Area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
@@ -110,7 +94,7 @@
 
                     <!-- أزرار الخروج والحذف -->
                     <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Width="110" Margin="5" Height="45" Click="exit_Branch">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Width="110" Margin="5" Height="45" Click="exit_Area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
@@ -118,7 +102,7 @@
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}"  Width="110" Margin="5" Height="45" Click="delete_branch">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}"  Width="110" Margin="5" Height="45" Click="delete_area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
@@ -135,9 +119,9 @@
                 <ListView DisplayMemberPath="Name" 
                           SelectedValuePath="Id" 
                           FlowDirection="RightToLeft" 
-                          SelectionChanged="branch_list_SelectedIndexChanged" 
+                          SelectionChanged="area_list_SelectedIndexChanged" 
                           Margin="10" 
-                          x:Name="branch_list" 
+                          x:Name="area_list" 
                           Background="Transparent" 
                           BorderBrush="#1976D2" 
                           BorderThickness="1" 

@@ -1,0 +1,536 @@
+<!-- DepartmentDetailView.xaml -->
+<UserControl x:Class="HR_Application.Dashboard.DepartmentDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             Background="Transparent"
+             FlowDirection="RightToLeft">
+
+    <UserControl.Resources>
+
+        <Style x:Key="DetailCard" TargetType="Border">
+            <Setter Property="Background"      Value="{DynamicResource SurfaceColor}"/>
+            <Setter Property="CornerRadius"    Value="14"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+            <Setter Property="Margin"          Value="6"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="14" ShadowDepth="0" Color="#000000" Opacity="0.18"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DetailCardHeader" TargetType="Border">
+            <Setter Property="CornerRadius" Value="14 14 0 0"/>
+            <Setter Property="Padding"      Value="14,10"/>
+            <Setter Property="Background"   Value="{DynamicResource DataGridHeaderBackground}"/>
+        </Style>
+
+        <Style x:Key="KpiMini" TargetType="Border">
+            <Setter Property="CornerRadius"    Value="12"/>
+            <Setter Property="Padding"         Value="14,12"/>
+            <Setter Property="Margin"          Value="5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
+        </Style>
+
+        <Style x:Key="BackBtn" TargetType="Button">
+            <Setter Property="Background"      Value="#1A00BCD4"/>
+            <Setter Property="Foreground"      Value="#00BCD4"/>
+            <Setter Property="BorderBrush"     Value="#4400BCD4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding"         Value="14,7"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3300BCD4"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DetailGrid" TargetType="DataGrid">
+            <Setter Property="Background"               Value="Transparent"/>
+            <Setter Property="Foreground"               Value="{DynamicResource TextSecondaryColor}"/>
+            <Setter Property="BorderThickness"          Value="0"/>
+            <Setter Property="RowBackground"            Value="Transparent"/>
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource DataGridAltRow}"/>
+            <Setter Property="GridLinesVisibility"      Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="VerticalGridLinesBrush"   Value="Transparent"/>
+            <Setter Property="ColumnHeaderHeight"       Value="34"/>
+            <Setter Property="FontSize"                 Value="12"/>
+        </Style>
+
+        <Style x:Key="AreaManagerTag" TargetType="Border">
+            <Setter Property="CornerRadius"    Value="6"/>
+            <Setter Property="Padding"         Value="6,2"/>
+            <Setter Property="Background"      Value="#1AFFCA28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="#44FFCA28"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource MainBackgroundBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ── Header ── -->
+            <Border Grid.Row="0" CornerRadius="0 0 20 20" Padding="24,16"
+                    Background="{DynamicResource HeaderBackground}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="0" Color="#000000" Opacity="0.28"/>
+                </Border.Effect>
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="Transparent" Offset="0"/>
+                        <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
+
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource BackBtn}" Click="BackBtn_Click" Margin="0,0,16,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="ArrowRight" Width="14" Height="14"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="رجوع للفروع"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Border CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#00838F" Offset="0"/>
+                                    <GradientStop Color="#0D47A1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Icon:PackIconMaterial Kind="OfficeBuildingMarker" Width="18" Height="18"
+                                                   Foreground="#FFFFFF"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="SectorBreadcrumb"
+                                           FontSize="13" Foreground="{DynamicResource MutedColor}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text=" ← " FontSize="13"
+                                           Foreground="{DynamicResource MutedColor}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="BranchTitleText"
+                                           FontSize="20" FontWeight="Bold"
+                                           Foreground="{DynamicResource SecondaryColor}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                <!-- Area badge -->
+                                <Border x:Name="AreaBadge" Visibility="Collapsed"
+                                        CornerRadius="10" Padding="8,3"
+                                        Background="#1AFFCA28" BorderThickness="1" BorderBrush="#44FFCA28">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Icon:PackIconMaterial Kind="MapMarkerRadius" Width="11" Height="11"
+                                                               Foreground="#FFCA28"
+                                                               VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                        <TextBlock x:Name="AreaNameText"
+                                                   FontSize="11" Foreground="#FFCA28"/>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock x:Name="BranchSubtitleText"
+                                           FontSize="12" Foreground="{DynamicResource MutedColor}"
+                                           Margin="8,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Style="{StaticResource BackBtn}" Click="RefreshBtn_Click" Padding="10,7">
+                        <Icon:PackIconMaterial Kind="Refresh" Width="16" Height="16"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- ── Scrollable content ── -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                <Grid Margin="20,16,20,24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Row 0: KPIs            -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Row 1: Dept filter chips-->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Row 2: Area managers    -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Row 3: Employees+Chart  -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Row 4: Pending leaves   -->
+                    </Grid.RowDefinitions>
+
+                    <!-- ══ Row 0: KPIs ══ -->
+                    <Grid Grid.Row="1" Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{DynamicResource KpiMini}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#003843" Offset="0"/>
+                                    <GradientStop Color="#00838F" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock x:Name="KpiTotalEmp" Text="0"
+                                           FontSize="28" FontWeight="Bold"
+                                           Foreground="#80DEEA" HorizontalAlignment="Center"/>
+                                <TextBlock Text="إجمالي الموظفين" FontSize="11" Foreground="#AAFFFFFF"
+                                           HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Style="{DynamicResource KpiMini}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#1B3A1C" Offset="0"/>
+                                    <GradientStop Color="#2E7D32" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                <Icon:PackIconMaterial Foreground="#A5D6A7" Kind="HumanMale"
+                                                       Height="40" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="KpiMale" Text="0" FontSize="28" FontWeight="Bold"
+                                           VerticalAlignment="Center" Margin="10,0,0,0" Foreground="#A5D6A7"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Style="{DynamicResource KpiMini}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#3B1010" Offset="0"/>
+                                    <GradientStop Color="#B71C1C" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                <Icon:PackIconMaterial Foreground="#EF9A9A" Kind="HumanFemale"
+                                                       Height="40" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="KpiFemale" Text="0" FontSize="28" FontWeight="Bold"
+                                           Margin="10,0,0,0" VerticalAlignment="Center" Foreground="#EF9A9A"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="3" Style="{DynamicResource KpiMini}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#2A0A3A" Offset="0"/>
+                                    <GradientStop Color="#6A1B9A" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock x:Name="KpiPendingLeaves" Text="0"
+                                           FontSize="28" FontWeight="Bold"
+                                           Foreground="#CE93D8" HorizontalAlignment="Center"/>
+                                <TextBlock Text="إجازات معلقة" FontSize="11" Foreground="#AAFFFFFF"
+                                           HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="4" Style="{DynamicResource KpiMini}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#0D2137" Offset="0"/>
+                                    <GradientStop Color="#0D47A1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock x:Name="KpiApprovedLeaves" Text="0"
+                                           FontSize="28" FontWeight="Bold"
+                                           Foreground="#90CAF9" HorizontalAlignment="Center"/>
+                                <TextBlock Text="إجازات مقبولة" FontSize="11" Foreground="#AAFFFFFF"
+                                           HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="5" Style="{DynamicResource KpiMini}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#3A1F00" Offset="0"/>
+                                    <GradientStop Color="#E65100" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock x:Name="KpiSalaries" Text="0"
+                                           FontSize="28" FontWeight="Bold"
+                                           Foreground="#FFCC80" HorizontalAlignment="Center"/>
+                                <TextBlock Text="مرتبات مستحقة" FontSize="11" Foreground="#AAFFFFFF"
+                                           HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- ══ Row 1: Department filter chips ══ -->
+                    <Border Grid.Row="0" Style="{DynamicResource DetailCard}" Padding="0">
+                        <StackPanel>
+                            <Border Style="{DynamicResource DetailCardHeader}">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Icon:PackIconMaterial Kind="FilterVariant" Width="16" Height="16"
+                                                               Foreground="{DynamicResource AccentColor}"
+                                                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="تصفية حسب الإدارة"
+                                                   FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                                   VerticalAlignment="Center"/>
+                                        <!-- Active filter badge -->
+                                        <Border x:Name="ActiveFilterBadge" Visibility="Collapsed"
+                                                Margin="10,0,0,0" CornerRadius="10" Padding="8,3"
+                                                Background="#1A00BCD4" BorderThickness="1" BorderBrush="#3300BCD4">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="Filter" Width="10" Height="10"
+                                                                       Foreground="#00BCD4"
+                                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBlock x:Name="ActiveFilterText"
+                                                           FontSize="11" Foreground="#00BCD4"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Rectangle Height="1" Opacity="0.15">
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="Transparent" Offset="0"/>
+                                        <GradientStop Color="#00BCD4"     Offset="0.5"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <!-- Filter chips — built dynamically in code-behind -->
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          Padding="12,10,12,14">
+                                <WrapPanel x:Name="DeptChipsPanel" Orientation="Horizontal"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ══ Row 2: Area managers (hidden when no area) ══ -->
+                    <Border x:Name="AreaManagersCard" Grid.Row="2"
+                            Style="{DynamicResource DetailCard}" Margin="0,14,0,0"
+                            Padding="0" Visibility="Collapsed">
+                        <StackPanel>
+                            <Border Style="{DynamicResource DetailCardHeader}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Kind="MapMarkerRadius" Width="16" Height="16"
+                                                           Foreground="#FFCA28"
+                                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="AreaManagersTitle"
+                                               Text="مسؤولو المنطقة"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryColor}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text=" — مسؤولون عن جميع فروع المنطقة"
+                                               FontSize="12" Foreground="{DynamicResource MutedColor}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <DataGrid x:Name="AreaManagersGrid"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True" MaxHeight="180"
+                                      Margin="10,8,10,10"
+                                      Style="{DynamicResource DetailGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="الاسم"
+                                                        Binding="{Binding FullName}" Width="*"/>
+                                    <DataGridTextColumn Header="الإدارة"
+                                                        Binding="{Binding Department.Name}" Width="120"/>
+                                    <DataGridTextColumn Header="الوظيفة"
+                                                        Binding="{Binding JobTitle.Name}" Width="120"/>
+                                    <DataGridTemplateColumn Header="نطاق العمل" Width="130">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource AreaManagerTag}"
+                                                        HorizontalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Icon:PackIconMaterial Kind="MapMarkerRadius"
+                                                                               Width="10" Height="10"
+                                                                               Foreground="#FFCA28"
+                                                                               VerticalAlignment="Center"
+                                                                               Margin="0,0,4,0"/>
+                                                        <TextBlock Text="{Binding AreaName}"
+                                                                   FontSize="11" Foreground="#FFCA28"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="الراتب الأساسي"
+                                                        Binding="{Binding BasicSalary, StringFormat='{}{0:N0} ج'}"
+                                                        Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ══ Row 3: Employees + Chart ══ -->
+                    <Grid Grid.Row="3" Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{DynamicResource DetailCard}" Margin="0,0,8,0">
+                            <StackPanel>
+                                <Border Style="{DynamicResource DetailCardHeader}">
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Icon:PackIconMaterial Kind="AccountGroup" Width="16" Height="16"
+                                                                   Foreground="{DynamicResource AccentColor}"
+                                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock x:Name="EmployeesGridTitle"
+                                                       Text="موظفو الفرع"
+                                                       FontSize="14" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource TextPrimaryColor}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <Border HorizontalAlignment="Right" CornerRadius="10" Padding="8,3"
+                                                Background="#1A00BCD4" BorderThickness="1" BorderBrush="#3300BCD4">
+                                            <TextBlock x:Name="EmployeeCountBadge"
+                                                       FontSize="12" FontWeight="Bold" Foreground="#00BCD4"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <DataGrid x:Name="EmployeesGrid"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True" Height="260"
+                                          Margin="10,8,10,10"
+                                          Style="{DynamicResource DetailGrid}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="الاسم"
+                                                            Binding="{Binding FullName}" Width="*"/>
+                                        <DataGridTextColumn Header="الإدارة"
+                                                            Binding="{Binding Department.Name}" Width="120"/>
+                                        <DataGridTextColumn Header="الوظيفة"
+                                                            Binding="{Binding JobTitle.Name}" Width="110"/>
+                                        <DataGridTextColumn Header="الراتب الأساسي"
+                                                            Binding="{Binding BasicSalary, StringFormat='{}{0:N0} ج'}"
+                                                            Width="100"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Style="{DynamicResource DetailCard}" Margin="8,0,0,0">
+                            <StackPanel>
+                                <Border Style="{DynamicResource DetailCardHeader}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Icon:PackIconMaterial Kind="ChartBar" Width="16" Height="16"
+                                                               Foreground="{DynamicResource AccentColor}"
+                                                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="توزيع الموظفين بالإدارات"
+                                                   FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <lvc:CartesianChart x:Name="DeptBarChart"
+                                                    Foreground="{DynamicResource TextSecondaryColor}"
+                                                    Height="260" Margin="10">
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis x:Name="DeptAxisX"
+                                                  Foreground="{DynamicResource MutedColor}"
+                                                  ShowLabels="True" LabelsRotation="-45"
+                                                  FontSize="10" MinWidth="30">
+                                            <lvc:Axis.Separator>
+                                                <lvc:Separator Step="1"/>
+                                            </lvc:Axis.Separator>
+                                        </lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="العدد"
+                                                  Foreground="{DynamicResource MutedColor}"/>
+                                    </lvc:CartesianChart.AxisY>
+                                </lvc:CartesianChart>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- ══ Row 4: Pending Leaves ══ -->
+                    <Border Grid.Row="4" Style="{DynamicResource DetailCard}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <Border Style="{DynamicResource DetailCardHeader}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Kind="CalendarClock" Width="16" Height="16"
+                                                           Foreground="#CE93D8"
+                                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="LeavesGridTitle"
+                                               Text="طلبات الإجازة المعلقة"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryColor}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <DataGrid x:Name="LeavesGrid"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True" Height="180"
+                                      Margin="10,8,10,10"
+                                      Style="{DynamicResource DetailGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="الموظف"
+                                                        Binding="{Binding User.FullName}" Width="*"/>
+                                    <DataGridTextColumn Header="الإدارة"
+                                                        Binding="{Binding User.Department.Name}" Width="110"/>
+                                    <DataGridTextColumn Header="نوع الإجازة"
+                                                        Binding="{Binding LeaveType.Name}" Width="120"/>
+                                    <DataGridTextColumn Header="من"
+                                                        Binding="{Binding StartDate, StringFormat=yyyy/MM/dd}"
+                                                        Width="90"/>
+                                    <DataGridTextColumn Header="إلى"
+                                                        Binding="{Binding EndDate, StringFormat=yyyy/MM/dd}"
+                                                        Width="90"/>
+                                    <DataGridTextColumn Header="الأيام"
+                                                        Binding="{Binding TotalDays}" Width="55"/>
+                                    <DataGridTextColumn Header="ملاحظات"
+                                                        Binding="{Binding Notes}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl>
