@@ -104,11 +104,11 @@ namespace HR_Application.Views.Conversations
                 var chat = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
                 if (chat != null)
                 {
-                    chat.LastMessage =  e.Message;
+                    chat.LastMessage = (e != null && string.IsNullOrEmpty(e.Message)) ? "مرفق" : e?.Message ?? "لا توجد رسائل بعد";
                     chat.LastMessageTime = e.Timestamp;
 
                     // تحديث العداد
-                    chat.UnreadCount = !IsActive ? _unreadMessagesCount[e.FromUserId] : 0;
+                    chat.UnreadCount = SelectedUserId != e.FromUserId ? _unreadMessagesCount[e.FromUserId] - 1 : 0;
 
                     MoveChatToTop(chat);
 
@@ -121,7 +121,7 @@ namespace HR_Application.Views.Conversations
                         // تغيير Placement إلى BottomRight
                         Helpers.NotificationsHelper.ShowPopupNotification(
                             $"رسالة جديدة من {userName}",
-                            shortMessage,
+                            !string.IsNullOrEmpty(shortMessage) ? shortMessage : "مرفق",
                             this,
                             () => OpenSpecificChat(e.FromUserId)
                         );
@@ -131,7 +131,7 @@ namespace HR_Application.Views.Conversations
                 {
                     AddNewChatFromUser(e.FromUserId, e.Message, e.Timestamp);
                     var newChat = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
-                    if (newChat != null)
+                    if (newChat != null && !IsActive)
                     {
                         newChat.UnreadCount = 1;
 
@@ -142,7 +142,7 @@ namespace HR_Application.Views.Conversations
 
                             Helpers.NotificationsHelper.ShowPopupNotification(
                                 $"رسالة جديدة من {userName}",
-                                shortMessage,
+                                !string.IsNullOrEmpty(shortMessage) ? shortMessage : "مرفق",
                                 this,
                                 () => OpenSpecificChat(e.FromUserId)
                             );
@@ -181,7 +181,7 @@ namespace HR_Application.Views.Conversations
                 var chat = ChatList.FirstOrDefault(c => c.UserId == e.ToUserId);
                 if (chat != null)
                 {
-                    chat.LastMessage = e.Message;
+                    chat.LastMessage = (e != null && string.IsNullOrEmpty(e.Message)) ? "مرفق" : e?.Message ?? "لا توجد رسائل بعد";
                     chat.LastMessageTime = e.Timestamp;
 
                     // نقل المحادثة إلى الأعلى
@@ -285,7 +285,7 @@ namespace HR_Application.Views.Conversations
                         UserName = otherUser.FullName,
                         UserCode = otherUser.Code,
                         UserId = otherUser.Id,
-                        LastMessage = (lastMessage != null && !string.IsNullOrEmpty(lastMessage.Message)) ? "مرفق" : lastMessage?.Message ?? "لا توجد رسائل بعد",
+                        LastMessage = (lastMessage != null && string.IsNullOrEmpty(lastMessage.Message)) ? "مرفق" : lastMessage?.Message ?? "لا توجد رسائل بعد",
                         LastMessageTime = lastMessage?.SentAt ?? DateTime.Now,
                         ProfileImageData = otherUser.ProfileImageData  // مباشرة byte[]
                     });
@@ -497,6 +497,7 @@ namespace HR_Application.Views.Conversations
         private void CloseAddChatDialog(object sender, RoutedEventArgs e)
         {
             ChatBoxControl.ClearChat();
+            SelectedUserId = -1;
         }
 
 

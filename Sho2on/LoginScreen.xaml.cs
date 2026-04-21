@@ -97,7 +97,7 @@ namespace HR_Application
                 await _retryPolicy.ExecuteAsync(async () =>
                 {
                     App.ConnectionString = connectionString;
-                    Sho2on.Database.App.ServerIP = ip;
+                    App.ServerIP = ip;
                     _context = new AppDbContext(App.ConnectionString);
 
                     // اختبار الاتصال بالـ Context

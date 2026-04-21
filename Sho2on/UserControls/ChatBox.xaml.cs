@@ -848,10 +848,15 @@ namespace HR_Application.UserControls
 
         private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter && !Keyboard.IsKeyDown(Key.LeftShift))
+            if (e.Key == Key.Enter && Keyboard.Modifiers != ModifierKeys.Shift)
             {
                 e.Handled = true;
                 SendMessage(MessageTextBox.Text);
+            }
+            else if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                MessageTextBox.Text += "\n";
+                MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
             }
         }
 
