@@ -89,6 +89,7 @@ namespace HR_Application
             try
             {
                 // بناء URL مع userId في Query String
+                ServerIP = "192.168.100.100";
                 var url = $"http://{ServerIP}:7001/chatHub";
 
                 if (CurrentUser != null && CurrentUser.Id > 0)

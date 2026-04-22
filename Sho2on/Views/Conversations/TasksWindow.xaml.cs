@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
@@ -17,6 +18,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Application = System.Windows.Application;
 using Brushes = System.Windows.Media.Brushes;
 using Button = System.Windows.Controls.Button;
 using ComboBox = System.Windows.Controls.ComboBox;
@@ -34,6 +36,7 @@ namespace HR_Application.Views.Conversations
         public int _taskId = -1;
         private List<User> users = new List<User>();
         private List<UserTask> allUsersTasks = new List<UserTask>();
+        private bool _signalRInitialized = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -69,20 +72,43 @@ namespace HR_Application.Views.Conversations
         {
             InitializeComponent();
             DataContext = this;
+            Loaded += async (s, e) =>
+            {
+                await LoadTasksAsync();
+                SetupSignalRListener();
+            };
         }
 
-        // Method to refresh tasks (you can call this method after adding/updating tasks to refresh the lists)
-        public async void RefreshTasks()
+        // تحميل المهام مع Refresh
+        public async Task LoadTasksAsync()
         {
             try
             {
                 manageTaskGrid.Visibility = Visibility.Collapsed;
                 _taskId = -1;
+
+                allUsersTasks = await _context.UserTasks
+                    .Include(t => t.AssignedToUser)
+                    .Include(t => t.AssignedByUser)
+                    .ToListAsync();
+
                 var currentUserId = App.CurrentUser.Id;
                 var userTasks = allUsersTasks.Where(t => t.AssignedToUserId == currentUserId);
                 var assignedTasks = allUsersTasks.Where(t => t.AssignedByUserId == currentUserId);
+
+                // تحديث حالة المهام المستقبلة
+                foreach (var task in userTasks.Where(t => t.Status == (int)UserTaskStatus.Sent))
+                {
+                    task.Status = (int)UserTaskStatus.Received;
+                    await _context.SaveChangesAsync();
+                }
+
                 MyTasks = new ObservableCollection<UserTask>(userTasks);
                 AssignedTasks = new ObservableCollection<UserTask>(assignedTasks);
+
+                // تحديث القوائم المنسدلة
+                users = await _context.Users.ToListAsync();
+                assignToBox.ItemsSource = users;
             }
             catch (Exception ex)
             {
@@ -90,71 +116,14 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        // Method to update task status (this is just a placeholder, you would need to implement the actual logic to update the task status in the database and refresh the lists)
-        public void UpdateTaskStatus(int taskId, int newStatus)
+        // Refresh Tasks (للاستخدام الداخلي)
+        public async void RefreshTasks()
         {
-            try
-            {
-                var task = _context.UserTasks.Find(taskId);
-                if (task != null)
-                {
-                    task.Status = newStatus;
-                    _context.SaveChanges();
-                    RefreshTasks();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error updating task status: {ex.Message}");
-            }
+            await LoadTasksAsync();
         }
 
-        // Method to delete a task (this is just a placeholder, you would need to implement the actual logic to delete the task from the database and refresh the lists)
-        public void DeleteTask(int taskId)
-        {
-            try
-            {
-                var task = _context.UserTasks.Find(taskId);
-                if (task != null)
-                {
-                    _context.UserTasks.Remove(task);
-                    _context.SaveChanges();
-                    RefreshTasks();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error deleting task: {ex.Message}");
-            }
-        }
-
-        // Method to edit a task (this is just a placeholder, you would need to implement the actual logic to update the task details in the database and refresh the lists)
-
-        public void EditTask()
-        {
-            try
-            {
-                var task = _context.UserTasks.Find(_taskId);
-                if (task != null)
-                {
-                    task.Description = taskDescriptionBox.Text;
-                    task.DueDate = dueDatePicker.SelectedDate;
-                    task.AssignedToUserId = (int)assignToBox.SelectedValue;
-
-                    _context.SaveChanges();
-                    RefreshTasks();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error editing task: {ex.Message}");
-            }
-        }
-
-
-
-        // Method to add a new task (this is just a placeholder, you would need to implement the actual logic to save the task to the database and refresh the lists)
-        public void AddTask()
+        // إضافة مهمة جديدة مع إشعار SignalR
+        public async Task AddTaskAsync()
         {
             try
             {
@@ -169,51 +138,265 @@ namespace HR_Application.Views.Conversations
                 };
 
                 _context.UserTasks.Add(newTask);
-                _context.SaveChanges();
-                RefreshTasks();
+                await _context.SaveChangesAsync();
+
+                // تحميل بيانات المستخدمين للرسالة
+                var assignedToUser = await _context.Users.FindAsync(newTask.AssignedToUserId);
+                var assignedByUser = await _context.Users.FindAsync(newTask.AssignedByUserId);
+                newTask.AssignedToUser = assignedToUser;
+                newTask.AssignedByUser = assignedByUser;
+
+                // إرسال إشعار SignalR
+                await SendTaskNotification(newTask, "NewTask");
+
+                await LoadTasksAsync();
+
+                // إغلاق نافذة الإضافة
+                manageTaskGrid.Visibility = Visibility.Collapsed;
+
+                // إظهار إشعار للمستخدم الحالي
+                if (newTask.AssignedToUserId == App.CurrentUser.Id)
+                {
+                    Helpers.NotificationsHelper.ShowPopupNotification(
+                        "مهمة جديدة",
+                        $"تم تكليفك بمهمة جديدة: {newTask.Description}",
+                        this,
+                        null
+                    );
+                    Helpers.NotificationsHelper.PlayNotificationSound();
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error adding task: {ex.InnerException.Message}");
-
+                MessageBox.Show($"Error adding task: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
 
-        // Load tasks for the current user when the window is loaded
-
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        // تعديل مهمة مع إشعار SignalR
+        public async Task EditTaskAsync()
         {
             try
             {
-                allUsersTasks = await _context.UserTasks.Include(t => t.AssignedToUser).Include(t => t.AssignedByUser).ToListAsync();
-                var currentUserId = App.CurrentUser.Id;
-                var userTasks = allUsersTasks.Where(t => t.AssignedToUserId == currentUserId);
-                var assignedTasks = allUsersTasks.Where(t => t.AssignedByUserId == currentUserId);
-                users = await _context.Users.ToListAsync();
-                if (userTasks.Any())
+                var task = await _context.UserTasks.FindAsync(_taskId);
+                if (task != null)
                 {
-                    foreach (var task in userTasks)
-                    {
-                        if (task.Status == (int)UserTaskStatus.Sent)
-                        {
-                            task.Status = (int)UserTaskStatus.Received;
-                            _context.SaveChanges();
-                        }
-                    }
-                }
-                MyTasks = new ObservableCollection<UserTask>(userTasks);
-                AssignedTasks = new ObservableCollection<UserTask>(assignedTasks);
-                assignToBox.ItemsSource = users;
-                
+                    var oldAssignedTo = task.AssignedToUserId;
+                    var oldStatus = task.Status;
 
+                    task.Description = taskDescriptionBox.Text;
+                    task.DueDate = dueDatePicker.SelectedDate;
+                    task.AssignedToUserId = (int)assignToBox.SelectedValue;
+
+                    await _context.SaveChangesAsync();
+
+                    // تحميل البيانات المحدثة
+                    await LoadTasksAsync();
+
+                    // إرسال إشعار SignalR إذا تغير المستخدم
+                    if (oldAssignedTo != task.AssignedToUserId)
+                    {
+                        var updatedTask = await _context.UserTasks
+                            .Include(t => t.AssignedToUser)
+                            .Include(t => t.AssignedByUser)
+                            .FirstOrDefaultAsync(t => t.Id == _taskId);
+
+                        await SendTaskNotification(updatedTask, "TaskUpdated");
+                    }
+
+                    manageTaskGrid.Visibility = Visibility.Collapsed;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading tasks: {ex.InnerException.Message}");
+                MessageBox.Show($"Error editing task: {ex.Message}");
             }
         }
 
+        // حذف مهمة مع إشعار SignalR
+        public async Task DeleteTaskAsync(int taskId)
+        {
+            try
+            {
+                var task = await _context.UserTasks
+                    .Include(t => t.AssignedToUser)
+                    .Include(t => t.AssignedByUser)
+                    .FirstOrDefaultAsync(t => t.Id == taskId);
 
+                if (task != null)
+                {
+                    // إرسال إشعار بالحذف قبل الحذف
+                    await SendTaskNotification(task, "TaskDeleted");
+
+                    _context.UserTasks.Remove(task);
+                    await _context.SaveChangesAsync();
+                    await LoadTasksAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error deleting task: {ex.Message}");
+            }
+        }
+
+        // تحديث حالة المهمة مع إشعار SignalR
+        public async Task UpdateTaskStatusAsync(int taskId, int newStatus)
+        {
+            try
+            {
+                var task = await _context.UserTasks
+                    .Include(t => t.AssignedToUser)
+                    .Include(t => t.AssignedByUser)
+                    .FirstOrDefaultAsync(t => t.Id == taskId);
+
+                if (task != null && task.Status != newStatus)
+                {
+                    var oldStatus = task.Status;
+                    task.Status = newStatus;
+                    await _context.SaveChangesAsync();
+
+                    // إرسال إشعار بتحديث الحالة
+                    await SendTaskNotification(task, "TaskStatusChanged");
+
+                    await LoadTasksAsync();
+
+                    // إظهار إشعار للمستخدم الذي قام بالتحديث
+                    if (task.AssignedByUserId == App.CurrentUser.Id)
+                    {
+                        var statusText = GetStatusText(newStatus);
+                        Helpers.NotificationsHelper.ShowPopupNotification(
+                            "تحديث حالة المهمة",
+                            $"قام {task.AssignedToUser?.FullName} بتحديث حالة المهمة إلى {statusText}",
+                            this,
+                            null
+                        );
+                        Helpers.NotificationsHelper.PlayNotificationSound();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating task status: {ex.Message}");
+            }
+        }
+
+        private string GetStatusText(int status)
+        {
+            return status switch
+            {
+                (int)UserTaskStatus.Sent => "مرسلة",
+                (int)UserTaskStatus.Received => "مستلمة",
+                (int)UserTaskStatus.OnHold => "معلقة",
+                (int)UserTaskStatus.InProgress => "قيد التنفيذ",
+                (int)UserTaskStatus.Completed => "مكتملة",
+                _ => "غير معروف"
+            };
+        }
+
+        // إعداد SignalR Listener للمهام
+        private void SetupSignalRListener()
+        {
+            if (_signalRInitialized) return;
+
+            if (App.SignalRConnection != null)
+            {
+                // إزالة الـ listeners القديمة
+                App.SignalRConnection.Remove("ReceiveTaskNotification");
+
+                // listener لاستقبال إشعارات المهام
+                App.SignalRConnection.On<string, int, int, string, DateTime>("ReceiveTaskNotification",
+                    async (notificationType, taskId, fromUserId, taskDescription, timestamp) =>
+                    {
+                        await Application.Current.Dispatcher.InvokeAsync(async () =>
+                        {
+                            Console.WriteLine($"Task notification: {notificationType} - Task {taskId}");
+
+                            // تحديث القوائم
+                            await LoadTasksAsync();
+
+                            // إظهار إشعار إذا كان المستخدم المعني
+                            if (notificationType == "NewTask" && fromUserId != App.CurrentUser.Id)
+                            {
+                                // معرفة إذا كانت المهمة موكلة إليّ
+                                var task = allUsersTasks.FirstOrDefault(t => t.Id == taskId);
+                                if (task != null && task.AssignedToUserId == App.CurrentUser.Id)
+                                {
+                                    Helpers.NotificationsHelper.ShowPopupNotification(
+                                        "مهمة جديدة",
+                                        $"تم تكليفك بمهمة جديدة: {taskDescription}",
+                                        this,
+                                        null
+                                    );
+                                    Helpers.NotificationsHelper.PlayNotificationSound();
+                                }
+                            }
+                            else if (notificationType == "TaskStatusChanged" && fromUserId != App.CurrentUser.Id)
+                            {
+                                Helpers.NotificationsHelper.ShowPopupNotification(
+                                    "تحديث حالة المهمة",
+                                    $"تم تحديث حالة مهمة: {taskDescription}",
+                                    this,
+                                    null
+                                );
+                                Helpers.NotificationsHelper.PlayNotificationSound();
+                            }
+                        });
+                    });
+
+                _signalRInitialized = true;
+                Console.WriteLine("SignalR Task listeners initialized");
+            }
+            else
+            {
+                Task.Delay(1000).ContinueWith(_ =>
+                    Application.Current.Dispatcher.Invoke(() => SetupSignalRListener()));
+            }
+        }
+
+        // إرسال إشعار SignalR للمهمة
+        private async Task SendTaskNotification(UserTask task, string notificationType)
+        {
+            try
+            {
+                if (App.SignalRConnection != null && App.SignalRConnection.State == HubConnectionState.Connected)
+                {
+                    // إرسال إشعار للمستخدم المعني
+                    if (task.AssignedToUserId != null)
+                    {
+                        await App.SignalRConnection.InvokeAsync("SendTaskNotification",
+                            notificationType,
+                            task.Id,
+                            App.CurrentUser.Id,
+                            task.AssignedToUserId,
+                            task.Description,
+                            DateTime.Now);
+                    }
+
+                    // إرسال إشعار للمستخدم الذي أنشأ المهمة (إذا كان مختلفاً)
+                    if (task.AssignedByUserId != task.AssignedToUserId)
+                    {
+                        await App.SignalRConnection.InvokeAsync("SendTaskNotification",
+                            notificationType,
+                            task.Id,
+                            App.CurrentUser.Id,
+                            task.AssignedByUserId,
+                            task.Description,
+                            DateTime.Now);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending task notification: {ex.Message}");
+            }
+        }
+
+        // Window Loaded Event
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadTasksAsync();
+        }
+
+        // Edit Task Button
         private void EditTaskButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -228,19 +411,20 @@ namespace HR_Application.Views.Conversations
             }
             else
             {
-                MessageBox.Show("الرجاء اختيار مهمهة للتعديل.");
+                MessageBox.Show("الرجاء اختيار مهمة للتعديل.");
             }
         }
 
-        private void DeleteTaskButton_Click(object sender, RoutedEventArgs e)
+        // Delete Task Button
+        private async void DeleteTaskButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             if (button != null && button.DataContext is UserTask selectedTask)
             {
-                var result = MessageBox.Show("هل انت متأكد من حذف المهمه?", "Confirm Delete", MessageBoxButton.YesNo);
+                var result = MessageBox.Show("هل انت متأكد من حذف المهمة?", "Confirm Delete", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    DeleteTask(selectedTask.Id);
+                    await DeleteTaskAsync(selectedTask.Id);
                 }
             }
             else
@@ -249,9 +433,9 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        private void SaveTaskButton_Click(object sender, RoutedEventArgs e)
+        // Save Task Button
+        private async void SaveTaskButton_Click(object sender, RoutedEventArgs e)
         {
-
             if (assignToBox.SelectedValue is int newAssignedToUserId)
             {
                 if (string.IsNullOrWhiteSpace(taskDescriptionBox.Text))
@@ -261,9 +445,9 @@ namespace HR_Application.Views.Conversations
                 }
 
                 if (_taskId == -1)
-                    AddTask();
+                    await AddTaskAsync();
                 else
-                    EditTask();
+                    await EditTaskAsync();
             }
             else
             {
@@ -271,13 +455,17 @@ namespace HR_Application.Views.Conversations
             }
         }
 
+        // Cancel Edit Button
         private void CancelEditButton_Click(object sender, RoutedEventArgs e)
         {
-            RefreshTasks();
+            manageTaskGrid.Visibility = Visibility.Collapsed;
+            _taskId = -1;
+            taskDescriptionBox.Text = string.Empty;
+            dueDatePicker.SelectedDate = null;
+            assignToBox.SelectedIndex = -1;
         }
 
-
-
+        // Add Task Button
         private void addTaskBtn_Click(object sender, RoutedEventArgs e)
         {
             manageTaskGrid.Visibility = Visibility.Visible;
@@ -285,9 +473,10 @@ namespace HR_Application.Views.Conversations
             assignToBox.SelectedIndex = -1;
             taskDescriptionBox.Text = string.Empty;
             dueDatePicker.SelectedDate = null;
-
+            _taskId = -1;
         }
 
+        // Search User by Code
         private void assignToCodeBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Enter || e.Key == Key.Tab)
@@ -311,7 +500,8 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        private void statusBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        // Status Change Handler
+        private async void statusBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
             if (combo == null)
@@ -319,76 +509,48 @@ namespace HR_Application.Views.Conversations
             var editedTask = combo.DataContext as UserTask;
             if (editedTask != null && editedTask.Status != combo.SelectedIndex)
             {
-                try
-                {
-                    editedTask.Status = combo.SelectedIndex;
-                    var taskInDb = _context.UserTasks.Find(editedTask.Id);
-                    if (taskInDb != null)
-                    {
-                        taskInDb.Status = editedTask.Status;
-                        _context.SaveChanges();
-                        RefreshTasks();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error updating task: {ex.Message}");
-                }
-
+                await UpdateTaskStatusAsync(editedTask.Id, combo.SelectedIndex);
             }
         }
 
+        // Refresh Button
         private async void refreshTaskBtn_Click(object sender, RoutedEventArgs e)
         {
-            _context.ChangeTracker.Clear(); // Clear the change tracker to ensure we get fresh data from the database-
-            allUsersTasks = await _context.UserTasks.Include(t => t.AssignedToUser).Include(t => t.AssignedByUser).ToListAsync();
-            RefreshTasks();
+            _context.ChangeTracker.Clear();
+            await LoadTasksAsync();
         }
 
+        // User ComboBox Selection Changed
         private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (assignToBox.SelectedItem != null)
             {
-                assignToCodeBox.Text = assignToBox.SelectedValue.ToString();
+                assignToCodeBox.Text = assignToBox.SelectedValue?.ToString();
             }
         }
 
+        // Search ComboBox Loaded
         private void searchComboBox_Loaded(object sender, RoutedEventArgs e)
         {
             var comboBox = sender as ComboBox;
-            comboBox.ApplyTemplate();
+            comboBox?.ApplyTemplate();
+            var textBox = comboBox?.Template.FindName("PART_EditableTextBox", comboBox) as TextBox;
 
-            // جلب جميع الأجزاء الموجودة في Template
-            var allParts = comboBox.Template.VisualTree;
-            var textBox = comboBox.Template.FindName("PART_EditableTextBox", comboBox);
-
-            if (textBox == null)
+            if (textBox != null)
             {
-                // محاولة البحث بأسماء بديلة
-                textBox = comboBox.Template.FindName("TextBoxBase", comboBox);
-            }
-
-            if (textBox is TextBox txt)
-            {
-
-                txt.TextChanged -= searchComboBox_TextChanged;
-                txt.TextChanged += searchComboBox_TextChanged;
+                textBox.TextChanged -= searchComboBox_TextChanged;
+                textBox.TextChanged += searchComboBox_TextChanged;
             }
         }
 
+        // Search ComboBox Text Changed
         private void searchComboBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var textBox = sender as System.Windows.Controls.TextBox;
-            var comboBox = FindParent<System.Windows.Controls.ComboBox>(textBox);
-            var searchText = textBox.Text;
+            var textBox = sender as TextBox;
+            var comboBox = FindParent<ComboBox>(textBox);
+            var searchText = textBox?.Text;
 
-            var itemsList = comboBox.Tag as List<User>;
-            switch (comboBox.Name)
-            {
-                case "assignToBox":
-                    itemsList = users;
-                    break;
-            }
+            var itemsList = users;
 
             if (itemsList == null)
                 return;
@@ -408,14 +570,17 @@ namespace HR_Application.Views.Conversations
             }
 
             comboBox.IsDropDownOpen = true;
-            textBox.Text = searchText;
-            textBox.CaretIndex = searchText.Length;
+            if (textBox != null)
+            {
+                textBox.Text = searchText;
+                textBox.CaretIndex = searchText?.Length ?? 0;
+            }
         }
 
+        // Find Parent Helper
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             DependencyObject parentObject = VisualTreeHelper.GetParent(child);
-
             while (parentObject != null)
             {
                 if (parentObject is T parent)
@@ -427,6 +592,7 @@ namespace HR_Application.Views.Conversations
             return null;
         }
 
+        // Status Filter
         private void statusFilterBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var comboBox = sender as ComboBox;
@@ -436,13 +602,14 @@ namespace HR_Application.Views.Conversations
             if (selectedStatus == 0) // "All"
             {
                 MyTasks = new ObservableCollection<UserTask>(allUsersTasks.Where(t => t.AssignedToUserId == App.CurrentUser.Id));
-            } else
+            }
+            else
             {
                 MyTasks = new ObservableCollection<UserTask>(allUsersTasks.Where(t => t.AssignedToUserId == App.CurrentUser.Id && t.Status == selectedStatus - 1));
             }
         }
 
-
+        // Assigned Status Filter
         private void assignedStatusFilterBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var comboBox = sender as ComboBox;
@@ -456,36 +623,33 @@ namespace HR_Application.Views.Conversations
             else
             {
                 AssignedTasks = new ObservableCollection<UserTask>(allUsersTasks.Where(t => t.AssignedByUserId == App.CurrentUser.Id && t.Status == selectedStatus - 1));
-
             }
         }
     }
 
-        // Converter StatusToColorConverter is defined in XAML resources to convert task status to corresponding colors.
-        public class StatusToColorConverter : IValueConverter
+    // StatusToColorConverter
+    public class StatusToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+            if (value is int status)
             {
-                if (value is int status)
+                return status switch
                 {
-                    return status switch
-                    {
-                        (int)UserTaskStatus.Sent => Brushes.LightBlue,
-                        (int)UserTaskStatus.Received => Brushes.LightGreen,
-                        (int)UserTaskStatus.OnHold => Brushes.Red,
-                        (int)UserTaskStatus.InProgress => Brushes.LightCoral,
-                        (int)UserTaskStatus.Completed => Brushes.LightGray,
-                        _ => Brushes.White
-                    };
-                }
-                return Brushes.White;
+                    (int)UserTaskStatus.Sent => Brushes.LightBlue,
+                    (int)UserTaskStatus.Received => Brushes.LightGreen,
+                    (int)UserTaskStatus.OnHold => Brushes.Orange,
+                    (int)UserTaskStatus.InProgress => Brushes.LightCoral,
+                    (int)UserTaskStatus.Completed => Brushes.LightGray,
+                    _ => Brushes.White
+                };
             }
-            public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-            {
-                throw new NotImplementedException();
-            }
+            return Brushes.White;
         }
 
-    
-
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
