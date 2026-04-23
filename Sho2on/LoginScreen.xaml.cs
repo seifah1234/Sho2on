@@ -275,6 +275,7 @@ namespace HR_Application
 
             App.CurrentUser = user;
 
+            await App.InitializeSignalRAfterLogin();
             // Load Roles & Permissions باستخدام Retry Policy
             await LoadUserPermissionsAndBranchesAsync(user.Id);
 

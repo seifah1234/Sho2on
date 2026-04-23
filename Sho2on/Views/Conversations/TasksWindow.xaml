@@ -123,7 +123,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <DataGrid Name="MyTasksDataGrid" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" ItemsSource="{Binding MyTasks}">
+                    <DataGrid MaxHeight="200" Name="MyTasksDataGrid" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" ItemsSource="{Binding MyTasks}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="المرسل" Binding="{Binding AssignedByUser.FullName}" Width="*" IsReadOnly="True"/>
                             <DataGridTextColumn Header="المهمة" Binding="{Binding Description}" Width="2*" IsReadOnly="True"/>
@@ -168,7 +168,7 @@
                             </ComboBox>
                         </StackPanel>
                     </Grid>
-                    <DataGrid HorizontalContentAlignment="Center" Name="TasksDataGrid" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" ItemsSource="{Binding AssignedTasks}">
+                    <DataGrid MaxHeight="200" HorizontalContentAlignment="Center" Name="TasksDataGrid" Margin="10" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" ItemsSource="{Binding AssignedTasks}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="المستلم" Binding="{Binding AssignedToUser.FullName}" Width="*"/>
                             <DataGridTextColumn Header="المهمة" Binding="{Binding Description}" Width="2*"/>

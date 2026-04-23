@@ -81,75 +81,94 @@ namespace HR_Application.Views.Conversations
 
         private void ChatBoxControl_NewMessageReceived(object sender, NewMessageEventArgs e)
         {
-
-            Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(async () =>
             {
-                // تشغيل الصوت فقط إذا لم يكن الشات مفتوحاً
-                if (!IsActive || SelectedUserId != e.FromUserId)
+                bool chatIsOpen = SelectedUserId == e.FromUserId;
+
+                // ✅ حدّث DB لو الشات مش مفتوح
+                if (!chatIsOpen)
                 {
-                    Helpers.NotificationsHelper.PlayNotificationSound();
+                    await IncrementUnreadCountInDbAsync(e.FromUserId);
                 }
 
-                // تحديث عداد الرسائل غير المقروءة
-                if (_unreadMessagesCount.ContainsKey(e.FromUserId))
-                {
+                // حدّث الـ dictionary
+                if (!_unreadMessagesCount.ContainsKey(e.FromUserId))
+                    _unreadMessagesCount[e.FromUserId] = 0;
+
+                if (!chatIsOpen)
                     _unreadMessagesCount[e.FromUserId]++;
-                }
-                else
-                {
-                    _unreadMessagesCount[e.FromUserId] = 1;
-                }
 
-                // تحديث الـ ChatItem للمرسل
                 var chat = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
                 if (chat != null)
                 {
-                    chat.LastMessage =  e.Message;
+                    chat.LastMessage = string.IsNullOrEmpty(e.Message) ? "📎 مرفق" : e.Message;
                     chat.LastMessageTime = e.Timestamp;
-
-                    // تحديث العداد
-                    chat.UnreadCount = !IsActive ? _unreadMessagesCount[e.FromUserId] : 0;
-
+                    chat.UnreadCount = chatIsOpen ? 0 : _unreadMessagesCount[e.FromUserId];
                     MoveChatToTop(chat);
-
-                    // إظهار الإشعار فقط إذا كانت النافذة غير نشطة أو الشات مختلف
-                    if (!IsActive || SelectedUserId != e.FromUserId)
-                    {
-                        var userName = chat.UserName;
-                        var shortMessage = e.Message.Length > 50 ? e.Message.Substring(0, 50) + "..." : e.Message;
-
-                        // تغيير Placement إلى BottomRight
-                        Helpers.NotificationsHelper.ShowPopupNotification(
-                            $"رسالة جديدة من {userName}",
-                            shortMessage,
-                            this,
-                            () => OpenSpecificChat(e.FromUserId)
-                        );
-                    }
                 }
                 else
                 {
-                    AddNewChatFromUser(e.FromUserId, e.Message, e.Timestamp);
+                    await AddNewChatFromUser(e.FromUserId, e.Message, e.Timestamp);
                     var newChat = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
                     if (newChat != null)
-                    {
-                        newChat.UnreadCount = 1;
+                        newChat.UnreadCount = chatIsOpen ? 0 : 1;
+                }
 
-                        if (!IsActive || SelectedUserId != e.FromUserId)
-                        {
-                            var userName = newChat.UserName;
-                            var shortMessage = e.Message.Length > 50 ? e.Message.Substring(0, 50) + "..." : e.Message;
+                if (!chatIsOpen)
+                {
+                    var chatItem = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
+                    var userName = chatItem?.UserName ?? "مستخدم";
+                    var shortMessage = string.IsNullOrEmpty(e.Message)
+                        ? "📎 مرفق"
+                        : (e.Message.Length > 50 ? e.Message[..50] + "..." : e.Message);
 
-                            Helpers.NotificationsHelper.ShowPopupNotification(
-                                $"رسالة جديدة من {userName}",
-                                shortMessage,
-                                this,
-                                () => OpenSpecificChat(e.FromUserId)
-                            );
-                        }
-                    }
+                    Helpers.NotificationsHelper.ShowPopupNotification(
+                        $"رسالة جديدة من {userName}",
+                        shortMessage,
+                        this,
+                        () => OpenSpecificChat(e.FromUserId)
+                    );
+                    Helpers.NotificationsHelper.PlayNotificationSound();
                 }
             });
+        }
+
+        // ✅ دالة جديدة لتحديث UnreadCount في DB
+        private async Task IncrementUnreadCountInDbAsync(int fromUserId)
+        {
+            try
+            {
+                using var context = new AppDbContext(App.ConnectionString);
+
+                var chat = await context.Chats.FirstOrDefaultAsync(c =>
+                    (c.FirstUserId == _currentUser.Id && c.SecondUserId == fromUserId) ||
+                    (c.FirstUserId == fromUserId && c.SecondUserId == _currentUser.Id));
+
+                if (chat == null) return;
+
+                var status = await context.ChatUserStatuses
+                    .FirstOrDefaultAsync(s => s.ChatId == chat.Id && s.UserId == _currentUser.Id);
+
+                if (status == null)
+                {
+                    context.ChatUserStatuses.Add(new ChatUserStatus
+                    {
+                        ChatId = chat.Id,
+                        UserId = _currentUser.Id,
+                        UnreadCount = 1
+                    });
+                }
+                else
+                {
+                    status.UnreadCount++;
+                }
+
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"IncrementUnreadCount error: {ex.Message}");
+            }
         }
 
         private void OpenSpecificChat(int userId)
@@ -157,17 +176,15 @@ namespace HR_Application.Views.Conversations
             var chat = ChatList.FirstOrDefault(c => c.UserId == userId);
             if (chat != null)
             {
-                SelectedUserId = userId; // تعيين المعرف المفتوح
+                SelectedUserId = userId;
+                ChatBoxControl.LoadChat(
+                    chat.UserName, chat.UserCode,
+                    chat.ProfileImageData, chat.UserId);
 
-                ChatBoxControl.LoadChat(chat.UserName, chat.UserCode, chat.ProfileImageData, chat.UserId);
+                _unreadMessagesCount[userId] = 0;
+                chat.UnreadCount = 0;
 
-                // مسح العداد
-                if (_unreadMessagesCount.ContainsKey(userId))
-                {
-                    _unreadMessagesCount[userId] = 0;
-                    chat.UnreadCount = 0;
-                }
-
+                _ = ResetUnreadCountInDbAsync(userId);  // ✅
                 _ = MarkMessagesAsReadAsync(userId);
             }
         }
@@ -198,7 +215,7 @@ namespace HR_Application.Views.Conversations
             ChatList.Insert(0, chat);
         }
 
-        private async void AddNewChatFromUser(int userId, string lastMessage, DateTime timestamp)
+        private async Task AddNewChatFromUser(int userId, string lastMessage, DateTime timestamp)
         {
             try
             {
@@ -261,40 +278,71 @@ namespace HR_Application.Views.Conversations
                         UserId = user.Id,
                         UserName = user.FullName,
                         UserCode = user.Code,
-                        ProfileImageData = user.ProfileImageData  // مباشرة byte[]
+                        ProfileImageData = user.ProfileImageData
                     });
                 }
 
-                // جلب جميع المحادثات للمستخدم الحالي
                 var chats = await _context.Chats
                     .Include(c => c.FirstUser)
                     .Include(c => c.SecondUser)
                     .Include(c => c.Messages)
-                    .Where(c => c.FirstUserId == _currentUser.Id || c.SecondUserId == _currentUser.Id)
-                    .OrderByDescending(c => c.Messages.Max(m => m.SentAt))
+                    .Where(c => c.FirstUserId == _currentUser.Id
+                             || c.SecondUserId == _currentUser.Id)
+                    .OrderByDescending(c => c.Messages.Max(m => (DateTime?)m.SentAt))
+                    .ToListAsync();
+
+                // جيب كل الـ UnreadCounts للـ currentUser دفعة واحدة
+                var chatIds = chats.Select(c => c.Id).ToList();
+                var unreadStatuses = await _context.ChatUserStatuses
+                    .Where(s => s.UserId == _currentUser.Id && chatIds.Contains(s.ChatId))
                     .ToListAsync();
 
                 ChatList.Clear();
                 foreach (var chat in chats)
                 {
-                    var otherUser = chat.FirstUserId == _currentUser.Id ? chat.SecondUser : chat.FirstUser;
-                    var lastMessage = chat.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                    var otherUser = chat.FirstUserId == _currentUser.Id
+                        ? chat.SecondUser
+                        : chat.FirstUser;
+
+                    var lastMessage = chat.Messages
+                        .OrderByDescending(m => m.SentAt)
+                        .FirstOrDefault();
+
+                    // ✅ الشرط الصح
+                    string lastMessageText;
+                    if (lastMessage == null)
+                        lastMessageText = "لا توجد رسائل بعد";
+                    else if (string.IsNullOrEmpty(lastMessage.Message))
+                        lastMessageText = "📎 مرفق";
+                    else
+                        lastMessageText = lastMessage.Message;
+
+                    // ✅ جيب UnreadCount من DB
+                    var unreadStatus = unreadStatuses
+                        .FirstOrDefault(s => s.ChatId == chat.Id);
+                    var unreadCount = unreadStatus?.UnreadCount ?? 0;
+
+                    // sync مع الـ dictionary
+                    if (unreadCount > 0)
+                        _unreadMessagesCount[otherUser.Id] = unreadCount;
 
                     ChatList.Add(new ChatItemData
                     {
                         UserName = otherUser.FullName,
                         UserCode = otherUser.Code,
                         UserId = otherUser.Id,
-                        LastMessage = (lastMessage != null && !string.IsNullOrEmpty(lastMessage.Message)) ? "مرفق" : lastMessage?.Message ?? "لا توجد رسائل بعد",
+                        LastMessage = lastMessageText,
                         LastMessageTime = lastMessage?.SentAt ?? DateTime.Now,
-                        ProfileImageData = otherUser.ProfileImageData  // مباشرة byte[]
+                        ProfileImageData = otherUser.ProfileImageData,
+                        UnreadCount = unreadCount  // ✅ بدل ما يبدأ بصفر
                     });
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل المحادثات: {ex.InnerException?.Message ?? ex.Message}", "خطأ",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"خطأ في تحميل المحادثات: {ex.InnerException?.Message ?? ex.Message}",
+                    "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -303,30 +351,48 @@ namespace HR_Application.Views.Conversations
         {
             var button = sender as Button;
             var chatItem = button?.Tag as ChatItemData;
+            if (chatItem == null) return;
 
-            if (chatItem != null)
-            {
-                SelectedUserId = chatItem.UserId; // تعيين المعرف المفتوح
+            SelectedUserId = chatItem.UserId;
 
-                // مسح عداد الرسائل غير المقروءة
-                if (_unreadMessagesCount.ContainsKey(chatItem.UserId))
-                {
-                    _unreadMessagesCount[chatItem.UserId] = 0;
-                    chatItem.UnreadCount = 0;
-                }
+            _unreadMessagesCount[chatItem.UserId] = 0;
+            chatItem.UnreadCount = 0;
 
-                ChatBoxControl.LoadChat(
-                    chatItem.UserName,
-                    chatItem.UserCode,
-                    chatItem.ProfileImageData,
-                    chatItem.UserId
-                );
+            ChatBoxControl.LoadChat(
+                chatItem.UserName, chatItem.UserCode,
+                chatItem.ProfileImageData, chatItem.UserId);
 
-                _ = MarkMessagesAsReadAsync(chatItem.UserId);
-            }
+            _ = ResetUnreadCountInDbAsync(chatItem.UserId);  // ✅
+            _ = MarkMessagesAsReadAsync(chatItem.UserId);
         }
 
+        private async Task ResetUnreadCountInDbAsync(int otherUserId)
+        {
+            try
+            {
+                using var context = new AppDbContext(App.ConnectionString);
 
+                var chat = await context.Chats.FirstOrDefaultAsync(c =>
+                    (c.FirstUserId == _currentUser.Id && c.SecondUserId == otherUserId) ||
+                    (c.FirstUserId == otherUserId && c.SecondUserId == _currentUser.Id));
+
+                if (chat == null) return;
+
+                var status = await context.ChatUserStatuses
+                    .FirstOrDefaultAsync(s => s.ChatId == chat.Id && s.UserId == _currentUser.Id);
+
+                if (status != null && status.UnreadCount > 0)
+                {
+                    status.UnreadCount = 0;
+                    status.LastReadAt = DateTime.Now;
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ResetUnreadCount error: {ex.Message}");
+            }
+        }
 
         private async Task MarkMessagesAsReadAsync(int otherUserId)
         {

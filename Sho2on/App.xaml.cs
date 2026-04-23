@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using HR_Application.Services;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sho2on.Database;
@@ -31,7 +32,6 @@ namespace HR_Application
 
             base.OnStartup(e);
             LoadServerSettings();
-            InitializeSignalR();
             // Set the culture to English
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
@@ -84,38 +84,9 @@ namespace HR_Application
             SignalRPort = port;
         }
 
-        private async void InitializeSignalR()
+        public static async Task InitializeSignalRAfterLogin()
         {
-            try
-            {
-                // بناء URL مع userId في Query String
-                ServerIP = "192.168.100.100";
-                var url = $"http://{ServerIP}:7001/chatHub";
-
-                if (CurrentUser != null && CurrentUser.Id > 0)
-                {
-                    url += $"?userId={CurrentUser.Id}";
-                }
-
-
-                SignalRConnection = new HubConnectionBuilder()
-                    .WithUrl(url)
-                    .WithAutomaticReconnect()
-                    .Build();
-
-                // تسجيل الـ listener قبل الاتصال
-                SignalRConnection.On<int, int, string, DateTime>("ReceiveMessage",
-                    (fromUserId, toUserId, message, timestamp) =>
-                    {
-                        // معالجة الرسالة...
-                    });
-
-                await SignalRConnection.StartAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"SignalR connection failed: {ex.Message}");
-            }
+            await SignalRManager.Instance.InitializeAsync(CurrentUser.Id);
         }
 
         public static async Task<bool> TestServerConnection(string ip, int port)

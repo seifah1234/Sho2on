@@ -48,6 +48,7 @@ namespace HR_Application
         private ExcelReaderService _excelReader;
         private CommissionProcessorService _commissionProcessor;
 
+        private int _totalUnreadCount = 0;
         public MainWindow()
         {
             Language = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag);
@@ -56,6 +57,114 @@ namespace HR_Application
 
             _excelReader = new ExcelReaderService();
             _commissionProcessor = new CommissionProcessorService(_context);
+        }
+
+        protected override async void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            await SetupGlobalNotifications();
+            await RefreshUnreadBadge();
+        }
+
+        private async Task SetupGlobalNotifications()
+        {
+            var manager = SignalRManager.Instance;
+
+            // ReceiveMessage — always active regardless of which window is open
+            manager.OnMessageReceived += async (fromUserId, toUserId, message, timestamp) =>
+            {
+                if (toUserId != App.CurrentUser.Id) return;
+
+                // Is the ChatWindow open AND showing this user?
+                bool chatIsOpen = IsChatWindowOpenFor(fromUserId);
+
+                if (!chatIsOpen)
+                {
+                    // Show popup notification
+                    var sender = await GetUserNameAsync(fromUserId);
+                    Helpers.NotificationsHelper.ShowPopupNotification(
+                        $"رسالة من {sender}",
+                        message.Length > 60 ? message[..60] + "..." : message,
+                        this,
+                        () => OpenChatWith(fromUserId)
+                    );
+                    Helpers.NotificationsHelper.PlayNotificationSound();
+                }
+            };
+
+            // UnreadCount badge on the chat nav button
+            manager.OnUnreadCountChanged += async (userId) =>
+            {
+                if (userId == App.CurrentUser.Id)
+                    await RefreshUnreadBadge();
+            };
+
+            // Task notifications
+            manager.OnTaskNotification += (notificationType, taskId, fromUserId, desc, ts) =>
+            {
+                if (fromUserId == App.CurrentUser.Id) return;
+
+                string title = notificationType switch
+                {
+                    "NewTask" => "مهمة جديدة",
+                    "TaskStatusChanged" => "تحديث حالة مهمة",
+                    "TaskDeleted" => "تم حذف مهمة",
+                    _ => "إشعار مهمة"
+                };
+
+                Helpers.NotificationsHelper.ShowPopupNotification(
+                    title, desc, this,
+                    () => OpenTasksWindow()
+                );
+                Helpers.NotificationsHelper.PlayNotificationSound();
+            };
+        }
+
+        private async Task RefreshUnreadBadge()
+        {
+            _totalUnreadCount = await SignalRManager.Instance
+                .GetTotalUnreadAsync(App.CurrentUser.Id);
+
+            // Update your badge UI element — غيّر "ChatBadge" لاسم الـ element بتاعك
+            ChatBadge.Visibility = _totalUnreadCount > 0
+                ? Visibility.Visible : Visibility.Collapsed;
+            ChatBadgeText.Text = _totalUnreadCount > 99
+                ? "99+" : (_totalUnreadCount - 1).ToString();
+        }
+
+        private bool IsChatWindowOpenFor(int userId)
+        {
+            foreach (Window w in Application.Current.Windows)
+            {
+                if (w is ChatWindow cw
+                    && cw.IsVisible
+                    && cw.ChatBoxControl.SelectedUserId == userId)
+                    return true;
+            }
+            return false;
+        }
+
+        private async Task<string> GetUserNameAsync(int userId)
+        {
+            try
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+                var user = await ctx.Users.FindAsync(userId);
+                return user?.FullName ?? "مستخدم";
+            }
+            catch { return "مستخدم"; }
+        }
+
+        private void OpenChatWith(int userId)
+        {
+            // افتح أو انتقل لـ ConversationsWindow مع هذا اليوزر
+            // غيّر حسب structure الـ navigation بتاعتك
+        }
+
+        private void OpenTasksWindow()
+        {
+            var w = new Views.Conversations.TasksWindow();
+            w.Show();
         }
 
         protected override void OnClosing(CancelEventArgs e)

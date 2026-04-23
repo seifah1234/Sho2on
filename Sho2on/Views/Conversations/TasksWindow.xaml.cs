@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using HR_Application.Services;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
@@ -123,7 +124,7 @@ namespace HR_Application.Views.Conversations
         }
 
         // إضافة مهمة جديدة مع إشعار SignalR
-        public async Task AddTaskAsync()
+        public async Task AddTaskAsync(User user)
         {
             try
             {
@@ -131,7 +132,7 @@ namespace HR_Application.Views.Conversations
                 {
                     Description = taskDescriptionBox.Text,
                     AssignedByUserId = App.CurrentUser.Id,
-                    AssignedToUserId = (int)assignToBox.SelectedValue,
+                    AssignedToUserId = user.Id,
                     DueDate = dueDatePicker.SelectedDate,
                     CreatedAt = DateTime.Now,
                     Status = (int)UserTaskStatus.Sent
@@ -141,9 +142,8 @@ namespace HR_Application.Views.Conversations
                 await _context.SaveChangesAsync();
 
                 // تحميل بيانات المستخدمين للرسالة
-                var assignedToUser = await _context.Users.FindAsync(newTask.AssignedToUserId);
                 var assignedByUser = await _context.Users.FindAsync(newTask.AssignedByUserId);
-                newTask.AssignedToUser = assignedToUser;
+                newTask.AssignedToUser = user;
                 newTask.AssignedByUser = assignedByUser;
 
                 // إرسال إشعار SignalR
@@ -297,58 +297,30 @@ namespace HR_Application.Views.Conversations
         {
             if (_signalRInitialized) return;
 
-            if (App.SignalRConnection != null)
+            SignalRManager.Instance.OnTaskNotification += HandleTaskNotification;
+            _signalRInitialized = true;
+
+            Closed += (s, e) =>
+                SignalRManager.Instance.OnTaskNotification -= HandleTaskNotification;
+        }
+
+        private async void HandleTaskNotification(
+            string notificationType, int taskId, int fromUserId,
+            string taskDescription, DateTime timestamp)
+        {
+            await LoadTasksAsync();
+
+            if (notificationType == "NewTask" && fromUserId != App.CurrentUser.Id)
             {
-                // إزالة الـ listeners القديمة
-                App.SignalRConnection.Remove("ReceiveTaskNotification");
-
-                // listener لاستقبال إشعارات المهام
-                App.SignalRConnection.On<string, int, int, string, DateTime>("ReceiveTaskNotification",
-                    async (notificationType, taskId, fromUserId, taskDescription, timestamp) =>
-                    {
-                        await Application.Current.Dispatcher.InvokeAsync(async () =>
-                        {
-                            Console.WriteLine($"Task notification: {notificationType} - Task {taskId}");
-
-                            // تحديث القوائم
-                            await LoadTasksAsync();
-
-                            // إظهار إشعار إذا كان المستخدم المعني
-                            if (notificationType == "NewTask" && fromUserId != App.CurrentUser.Id)
-                            {
-                                // معرفة إذا كانت المهمة موكلة إليّ
-                                var task = allUsersTasks.FirstOrDefault(t => t.Id == taskId);
-                                if (task != null && task.AssignedToUserId == App.CurrentUser.Id)
-                                {
-                                    Helpers.NotificationsHelper.ShowPopupNotification(
-                                        "مهمة جديدة",
-                                        $"تم تكليفك بمهمة جديدة: {taskDescription}",
-                                        this,
-                                        null
-                                    );
-                                    Helpers.NotificationsHelper.PlayNotificationSound();
-                                }
-                            }
-                            else if (notificationType == "TaskStatusChanged" && fromUserId != App.CurrentUser.Id)
-                            {
-                                Helpers.NotificationsHelper.ShowPopupNotification(
-                                    "تحديث حالة المهمة",
-                                    $"تم تحديث حالة مهمة: {taskDescription}",
-                                    this,
-                                    null
-                                );
-                                Helpers.NotificationsHelper.PlayNotificationSound();
-                            }
-                        });
-                    });
-
-                _signalRInitialized = true;
-                Console.WriteLine("SignalR Task listeners initialized");
-            }
-            else
-            {
-                Task.Delay(1000).ContinueWith(_ =>
-                    Application.Current.Dispatcher.Invoke(() => SetupSignalRListener()));
+                var task = allUsersTasks.FirstOrDefault(t => t.Id == taskId);
+                if (task?.AssignedToUserId == App.CurrentUser.Id)
+                {
+                    Helpers.NotificationsHelper.ShowPopupNotification(
+                        "مهمة جديدة",
+                        $"تم تكليفك بمهمة: {taskDescription}",
+                        this, null);
+                    Helpers.NotificationsHelper.PlayNotificationSound();
+                }
             }
         }
 
@@ -436,16 +408,21 @@ namespace HR_Application.Views.Conversations
         // Save Task Button
         private async void SaveTaskButton_Click(object sender, RoutedEventArgs e)
         {
-            if (assignToBox.SelectedValue is int newAssignedToUserId)
+            if (int.TryParse(assignToCodeBox.Text, out int code))
             {
                 if (string.IsNullOrWhiteSpace(taskDescriptionBox.Text))
                 {
                     MessageBox.Show("الرجاء إدخال وصف للمهمة.");
                     return;
                 }
-
+                var user = users.FirstOrDefault(u => u.Code == code.ToString());
+                if (user == null)
+                {
+                    MessageBox.Show("الرجاء إدخال رقم مستخدم صالح.");
+                    return;
+                }
                 if (_taskId == -1)
-                    await AddTaskAsync();
+                    await AddTaskAsync(user);
                 else
                     await EditTaskAsync();
             }
@@ -463,6 +440,7 @@ namespace HR_Application.Views.Conversations
             taskDescriptionBox.Text = string.Empty;
             dueDatePicker.SelectedDate = null;
             assignToBox.SelectedIndex = -1;
+            assignToCodeBox.Clear();
         }
 
         // Add Task Button

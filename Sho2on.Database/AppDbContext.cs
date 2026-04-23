@@ -315,6 +315,7 @@ namespace Sho2on.Database
 
         public DbSet<FriendshipBox> FriendshipBoxes { get; set; }
 
+        public DbSet<ChatUserStatus> ChatUserStatuses { get; set; }
         public DbSet<FriendshipBoxTransaction> FriendshipBoxTransactions { get; set; }
         public DbSet<EmployeePermission> EmployeePermissions { get; set; }
         public DbSet<Qualification> Qualifications { get; set; }
@@ -361,6 +362,22 @@ namespace Sho2on.Database
        .HasOne(rp => rp.Role)
        .WithMany(r => r.RolePermissions)
        .HasForeignKey(rp => rp.RoleID);
+
+            modelBuilder.Entity<ChatUserStatus>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.ChatId, e.UserId }).IsUnique();
+
+                entity.HasOne(e => e.Chat)
+                      .WithMany()
+                      .HasForeignKey(e => e.ChatId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
             modelBuilder.Entity<RolePermission>()
                 .HasOne(rp => rp.Permission)

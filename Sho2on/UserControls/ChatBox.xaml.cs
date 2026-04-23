@@ -1,4 +1,5 @@
-﻿using MahApps.Metro.IconPacks;
+﻿using HR_Application.Services;
+using MahApps.Metro.IconPacks;
 using MaterialDesignThemes.Wpf;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
@@ -601,97 +602,78 @@ namespace HR_Application.UserControls
             }
         }
 
+        // في SetupSignalRListener — استبدل الكود القديم بده:
+
         private void SetupSignalRListener()
         {
             if (_signalRInitialized) return;
 
-            if (App.SignalRConnection != null)
+            var manager = SignalRManager.Instance;
+
+            manager.OnMessageReceived += HandleIncomingMessage;
+            manager.OnMessageDelivered += HandleMessageDelivered;
+            manager.OnMessageRead += HandleMessageRead;
+
+            _signalRInitialized = true;
+
+            // Unsubscribe when control is unloaded
+            Unloaded += (s, e) =>
             {
-                // إزالة الـ listeners القديمة
-                App.SignalRConnection.Remove("ReceiveMessage");
-                App.SignalRConnection.Remove("MessageDelivered");
+                manager.OnMessageReceived -= HandleIncomingMessage;
+                manager.OnMessageDelivered -= HandleMessageDelivered;
+                manager.OnMessageRead -= HandleMessageRead;
+            };
+        }
 
-                // listener لاستقبال الرسائل
-                App.SignalRConnection.On<int, int, string, DateTime>("ReceiveMessage",
-                    async (fromUserId, toUserId, message, timestamp) =>
-                    {
-                        await Application.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            Console.WriteLine($"ReceiveMessage: From={fromUserId}, To={toUserId}, Msg={message}");
+        private async void HandleIncomingMessage(
+            int fromUserId, int toUserId, string message, DateTime timestamp)
+        {
+            if (fromUserId != SelectedUserId) return;
 
-                            NewMessageReceived?.Invoke(this, new NewMessageEventArgs
-                            {
-                                FromUserId = fromUserId,
-                                ToUserId = toUserId,
-                                Message = message,
-                                Timestamp = timestamp,
-                                IsFromMe = false
-                            });
-
-                            if (fromUserId == SelectedUserId)
-                            {
-                                Messages.Add(new ChatMessage
-                                {
-                                    MessageText = message,
-                                    IsFromMe = false,
-                                    Time = timestamp.ToString("hh:mm tt"),
-                                    SentAt = timestamp,
-                                    IsRead = false,
-                                    IsDelivered = true
-                                });
-
-                                ScrollToBottom();
-                                _ = MarkMessageAsRead(fromUserId);
-                                _ = UpdateMessageDeliveredStatus(fromUserId);
-                            }
-                        });
-                    });
-
-                // listener لاستقبال إشعار التسليم
-                App.SignalRConnection.On<int, int>("MessageDelivered", async (fromUserId, toUserId) =>
-                {
-                    await Application.Current.Dispatcher.InvokeAsync(() =>
-                    {
-                        Console.WriteLine($"MessageDelivered received: From={fromUserId}, To={toUserId}");
-
-                        // إذا كانت الرسالة مرسلة مني إلى المستخدم الحالي
-                        if (toUserId == SelectedUserId || fromUserId == SelectedUserId)
-                        {
-                            foreach (var msg in Messages.Where(m => m.IsFromMe && !m.IsDelivered))
-                            {
-                                msg.IsDelivered = true;
-                                Console.WriteLine($"Message marked as delivered");
-                            }
-                        }
-                    });
-                });
-
-                App.SignalRConnection.On<int, int>("MessageRead", async (fromUserId, toUserId) =>
-                {
-                    await Application.Current.Dispatcher.InvokeAsync(() =>
-                    {
-                        Console.WriteLine($"MessageRead received: From={fromUserId}, To={toUserId}");
-
-                        // إذا كنت أرسلت الرسائل للمستخدم الذي قرأها
-                        if (toUserId == SelectedUserId || fromUserId == SelectedUserId)
-                        {
-                            foreach (var msg in Messages.Where(m => m.IsFromMe && !m.IsRead))
-                            {
-                                msg.IsRead = true;
-                                Console.WriteLine($"Message marked as read");
-                            }
-                        }
-                    });
-                });
-
-                _signalRInitialized = true;
-                Console.WriteLine("SignalR listeners initialized");
-            }
-            else
+            Messages.Add(new ChatMessage
             {
-                Task.Delay(1000).ContinueWith(_ =>
-                    Application.Current.Dispatcher.Invoke(() => SetupSignalRListener()));
-            }
+                MessageText = message,
+                IsFromMe = false,
+                Time = timestamp.ToString("hh:mm tt"),
+                SentAt = timestamp,
+                IsRead = false,
+                IsDelivered = true
+            });
+
+            ScrollToBottom();
+            _ = MarkMessageAsRead(fromUserId);
+            _ = UpdateMessageDeliveredStatus(fromUserId);
+
+            // Reset unread for this chat
+            using var ctx = new AppDbContext(App.ConnectionString);
+            var chat = await ctx.Chats.FirstOrDefaultAsync(c =>
+                (c.FirstUserId == App.CurrentUser.Id && c.SecondUserId == fromUserId) ||
+                (c.FirstUserId == fromUserId && c.SecondUserId == App.CurrentUser.Id));
+            if (chat != null)
+                await SignalRManager.Instance.ResetUnreadCountAsync(chat.Id, App.CurrentUser.Id);
+
+            NewMessageReceived?.Invoke(this, new NewMessageEventArgs
+            {
+                FromUserId = fromUserId,
+                ToUserId = toUserId,
+                Message = message,
+                Timestamp = timestamp,
+                IsFromMe = false
+            });
+        }
+
+        private void HandleMessageDelivered(int fromUserId, int toUserId)
+        {
+            if (toUserId != SelectedUserId && fromUserId != SelectedUserId) return;
+            foreach (var msg in Messages.Where(m => m.IsFromMe && !m.IsDelivered))
+                msg.IsDelivered = true;
+        }
+
+        private void HandleMessageRead(int fromUserId, int toUserId)
+        {
+            if (toUserId != SelectedUserId && fromUserId != SelectedUserId) return;
+            foreach (var msg in Messages.Where(m => m.IsFromMe && !m.IsRead))
+                msg.IsRead = true;
         }
 
         private async Task MarkMessageAsRead(int fromUserId)
