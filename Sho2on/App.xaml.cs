@@ -23,7 +23,7 @@ namespace HR_Application
         public static User CurrentUser { get; set; }
         public static IServiceProvider ServiceProvider { get; private set; }
         public static HubConnection SignalRConnection { get; set; }
-        public static string ServerIP { get; set; }
+        public static string ServerIP { get; private set; }
         public static int SignalRPort { get; private set; }
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -74,7 +74,7 @@ namespace HR_Application
             }
         }
 
-        public void SaveServerSettings(string ip, int port)
+        public static void SaveServerSettings(string ip, int port)
         {
             HR_Application.Properties.Settings.Default.LastIPDB = ip;
             HR_Application.Properties.Settings.Default.SignalRPort = port;
@@ -114,7 +114,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show($"SignalR connection failed: {ex.Message}");
             }
         }
 
