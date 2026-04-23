@@ -1,0 +1,212 @@
+﻿<Window x:Class="HR_Application.Views.Conversations.GroupMembersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HR_Application.Views.Conversations"
+        xmlns:controls="clr-namespace:HR_Application.UserControls"
+        xmlns:converters="clr-namespace:HR_Application.Converters"
+        xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        mc:Ignorable="d"
+        Title="أعضاء المجموعة"
+        Height="500" Width="450"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource MainBackground}"
+        FlowDirection="RightToLeft">
+
+    <Window.Resources>
+        <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:AdminColorConverter x:Key="AdminColorConverter"/>
+        <converters:AdminIconColorConverter x:Key="AdminIconColorConverter"/>
+        <converters:AdminIconConverter x:Key="AdminIconConverter"/>
+        <converters:AdminToggleTooltipConverter x:Key="AdminToggleTooltipConverter"/>
+
+        <DataTemplate x:Key="MemberItemTemplate">
+            <Border Background="{DynamicResource PrimaryColor}" 
+                    CornerRadius="8" 
+                    Margin="0,0,0,5"
+                    Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- صورة العضو -->
+                    <Border Width="40" Height="40" 
+                            CornerRadius="20" 
+                            Margin="0,0,10,0">
+                        <Border.Clip>
+                            <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20"/>
+                        </Border.Clip>
+                        <Image>
+                            <Image.Source>
+                                <Binding Path="ProfileImageData" Converter="{StaticResource ByteArrayToImageConverter}"/>
+                            </Image.Source>
+                        </Image>
+                    </Border>
+
+                    <!-- معلومات العضو -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding UserName}" 
+                                   FontWeight="Bold" 
+                                   FontSize="14"
+                                   Foreground="{DynamicResource TextPrimaryColor}"/>
+                        <TextBlock Text="{Binding UserCode}" 
+                                   FontSize="10" 
+                                   Opacity="0.5"
+                                   Foreground="{DynamicResource TextPrimaryColor}"/>
+                    </StackPanel>
+
+                    <!-- حالة العضو (Admin/عضو) -->
+                    <Border Grid.Column="2"
+                            Background="{Binding IsAdmin, Converter={StaticResource AdminColorConverter}}"
+                            CornerRadius="10"
+                            Padding="8,3"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,0">
+                        <TextBlock Text="{Binding AdminLabel}" 
+                                   FontSize="10" 
+                                   Foreground="White"
+                                   FontWeight="SemiBold"/>
+                    </Border>
+
+                    <!-- أزرار التحكم (للمسؤول فقط) -->
+                    <StackPanel Grid.Column="3" 
+                                Orientation="Horizontal"
+                                Visibility="{Binding CanManage, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <!-- تبديل صلاحية المشرف -->
+                        <Button ToolTip="{Binding IsAdmin, Converter={StaticResource AdminToggleTooltipConverter}}"
+                                Click="ToggleAdmin_Click"
+                                Tag="{Binding}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Margin="0,0,5,0">
+                            <icons:PackIconMaterial Kind="{Binding IsAdmin, Converter={StaticResource AdminIconConverter}}"
+                                                    Width="18" Height="18"
+                                                    Foreground="{Binding IsAdmin, Converter={StaticResource AdminIconColorConverter}}"/>
+                        </Button>
+
+                        <!-- إزالة من المجموعة -->
+                        <Button ToolTip="إزالة من المجموعة"
+                                Click="RemoveMember_Click"
+                                Tag="{Binding}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Visibility="{Binding CanRemove, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <icons:PackIconMaterial Kind="Delete" 
+                                                    Width="18" Height="18"
+                                                    Foreground="#FF4444"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- العنوان -->
+        <TextBlock Grid.Row="0" 
+                   Text="أعضاء المجموعة" 
+                   FontSize="20" 
+                   FontWeight="Bold" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,15,0,15"/>
+
+        <!-- قسم البحث (للمسؤول فقط) -->
+        <Border Grid.Row="1" 
+                Background="{DynamicResource PrimaryColor}"
+                Margin="10,0,10,10"
+                Padding="10"
+                CornerRadius="8"
+                Visibility="{Binding IsCurrentUserAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="إضافة عضو جديد" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,8"
+                           Foreground="{DynamicResource TextPrimaryColor}"/>
+
+                <TextBox x:Name="SearchMemberBox" 
+                         Tag="ابحث باسم المستخدم أو الكود..."
+                         KeyDown="SearchUser_KeyDown"
+                         MinHeight="35"
+                         Width="Auto"
+                         Padding="10,5"
+                         Background="{DynamicResource SecondaryColor}"
+                         Foreground="{DynamicResource TextPrimaryColor}"
+                         BorderThickness="0"/>
+
+                <!-- نتائج البحث -->
+                <ScrollViewer MaxHeight="200" 
+                              Margin="0,10,0,0"
+                              Visibility="{Binding HasSearchResults, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding SearchResults}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource SecondaryColor}" 
+                                        CornerRadius="6" 
+                                        Padding="8" 
+                                        Margin="0,0,0,5"
+                                        Cursor="Hand"
+                                        MouseLeftButtonUp="AddMember_Click"
+                                        Tag="{Binding}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Width="35" Height="35" 
+                                                CornerRadius="17.5" 
+                                                Margin="0,0,10,0">
+                                            <Border.Clip>
+                                                <EllipseGeometry Center="17.5,17.5" RadiusX="17.5" RadiusY="17.5"/>
+                                            </Border.Clip>
+                                            <Image>
+                                                <Image.Source>
+                                                    <Binding Path="ProfileImageData" Converter="{StaticResource ByteArrayToImageConverter}"/>
+                                                </Image.Source>
+                                            </Image>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding UserName}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding UserCode}" FontSize="10" Opacity="0.5"/>
+                                        </StackPanel>
+
+                                        <icons:PackIconMaterial Kind="Plus" 
+                                                                Grid.Column="2"
+                                                                Width="18" Height="18" 
+                                                                Foreground="Green"
+                                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <!-- قائمة الأعضاء -->
+        <ScrollViewer Grid.Row="2" 
+                      Margin="10"
+                      VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Members}" 
+                          ItemTemplate="{StaticResource MemberItemTemplate}"/>
+        </ScrollViewer>
+    </Grid>
+</Window>

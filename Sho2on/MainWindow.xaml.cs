@@ -129,7 +129,7 @@ namespace HR_Application
             ChatBadge.Visibility = _totalUnreadCount > 0
                 ? Visibility.Visible : Visibility.Collapsed;
             ChatBadgeText.Text = _totalUnreadCount > 99
-                ? "99+" : (_totalUnreadCount - 1).ToString();
+                ? "99+" : (_totalUnreadCount).ToString();
         }
 
         private bool IsChatWindowOpenFor(int userId)

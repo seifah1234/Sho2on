@@ -52,7 +52,24 @@
                 </Border>
 
                 <!-- قائمة المحادثات -->
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                    <ToggleButton x:Name="ChatsTab" 
+                  Content="محادثات" 
+                                  
+                  IsChecked="True"
+                  Click="ChatsTab_Click"
+                  Style="{StaticResource TabToggleButtonStyle}"/>
+                    <ToggleButton x:Name="GroupsTab" 
+                  Content="مجموعات" 
+                  Click="GroupsTab_Click"
+                  Style="{StaticResource TabToggleButtonStyle}"/>
+                    <ToggleButton x:Name="ArchiveTab" 
+                  Content="أرشيف" 
+                  Click="ArchiveTab_Click"
+                  Style="{StaticResource TabToggleButtonStyle}"/>
+                </StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="ChatsScrollViewer">
                     <ItemsControl x:Name="ChatListControl" ItemsSource="{Binding ChatList}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -159,10 +176,187 @@ Margin="5"
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+
+                <!-- قائمة المجموعات -->
+                <ScrollViewer x:Name="GroupsScrollViewer" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Button Content="+ إنشاء مجموعة جديدة" 
+                Click="ShowCreateGroupDialog"
+                Style="{StaticResource CreateGroupButtonStyle}"
+                Margin="10"/>
+                        <ItemsControl ItemsSource="{Binding GroupList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource TransparentButtonStyle}" 
+                            Click="GroupItem_Click"
+                            Tag="{Binding}"
+                            HorizontalContentAlignment="Stretch">
+                                        <Border>
+                                            <Border.BorderBrush>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="Transparent" Offset="0"/>
+                                                    <GradientStop Color="#00BCD4" Offset="0.5"/>
+                                                    <GradientStop Color="Transparent" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.BorderBrush>
+                                            <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
+
+                                            <Grid Height="80">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Width="60" Height="60" Margin="10,10,5,10">
+                                                    <Border.Clip>
+                                                        <EllipseGeometry Center="30,30" RadiusX="30" RadiusY="30"/>
+                                                    </Border.Clip>
+                                                    <Border BorderBrush="{DynamicResource SecondaryColor}" 
+                                            BorderThickness="1"
+                                            Background="{DynamicResource SecondaryColor}">
+                                                        <Image Source="{Binding GroupImageSource, FallbackValue=/assets/images/group_avatar.jpg}"
+                                               Stretch="UniformToFill"/>
+                                                    </Border>
+                                                </Border>
+
+                                                <Grid Grid.Column="1" Margin="10,10,10,10">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <Grid Grid.Row="0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding GroupName}" Grid.Column="0"
+                                                   FontWeight="Bold" 
+                                                   HorizontalAlignment="Left"
+                                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                                   FontSize="14"/>
+                                                        <TextBlock Text="{Binding LastMessageTime, StringFormat='HH:mm tt'}" 
+                                                   Grid.Column="1"
+                                                   FontSize="10"
+                                                   Opacity="0.5"
+                                                   FlowDirection="LeftToRight"
+                                                   Margin="10,0,0,0"/>
+                                                    </Grid>
+
+                                                    <Grid Grid.Row="1">
+                                                        <TextBlock Text="{Binding LastMessage}"
+                                                   Foreground="{DynamicResource TextPrimaryColor}"
+                                                   FontSize="12"
+                                                   Opacity="0.8"
+                                                   TextTrimming="WordEllipsis"/>
+                                                        <Border Background="#FF4444" 
+                                                CornerRadius="10" 
+                                                Width="20" 
+                                                Height="20" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Right"
+                                                Margin="5"
+                                                Visibility="{Binding ShowUnreadBadge, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <TextBlock Text="{Binding UnreadCountText}" 
+                                                       Foreground="White" 
+                                                       FontSize="10" 
+                                                       FontWeight="Bold" 
+                                                       TextAlignment="Center" 
+                                                       VerticalAlignment="Center" 
+                                                       HorizontalAlignment="Center"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- قائمة الأرشيف -->
+                <ScrollViewer x:Name="ArchiveScrollViewer" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding ArchivedChatList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource TransparentButtonStyle}" 
+                        Click="ArchivedChatItem_Click"
+                        Tag="{Binding}"
+                        HorizontalContentAlignment="Stretch">
+                                    <Border>
+                                        <Border.BorderBrush>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="Transparent" Offset="0"/>
+                                                <GradientStop Color="#00BCD4" Offset="0.5"/>
+                                                <GradientStop Color="Transparent" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.BorderBrush>
+                                        <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
+
+                                        <Grid Height="80">
+                                            <!-- نفس تنسيق ChatItem -->
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Width="60" Height="60" Margin="10,10,5,10">
+                                                <Border.Clip>
+                                                    <EllipseGeometry Center="30,30" RadiusX="30" RadiusY="30"/>
+                                                </Border.Clip>
+                                                <Border BorderBrush="{DynamicResource SecondaryColor}" 
+                                        BorderThickness="1"
+                                        Background="{DynamicResource SecondaryColor}">
+                                                    <Image Source="{Binding ProfileImageSource, FallbackValue=/assets/images/avatar.jpg}"
+                                           Stretch="UniformToFill"/>
+                                                </Border>
+                                            </Border>
+
+                                            <Grid Grid.Column="1" Margin="10,10,10,10">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <Grid Grid.Row="0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding UserName}" Grid.Column="0"
+                                               FontWeight="Bold" 
+                                               HorizontalAlignment="Left"
+                                               Foreground="{DynamicResource TextPrimaryColor}"
+                                               FontSize="14"/>
+                                                    <TextBlock Text="{Binding LastMessageTime, StringFormat='HH:mm tt'}" 
+                                               Grid.Column="1"
+                                               FontSize="10"
+                                               Opacity="0.5"
+                                               FlowDirection="LeftToRight"
+                                               Margin="10,0,0,0"/>
+                                                </Grid>
+
+                                                <TextBlock Grid.Row="1" 
+                                           Text="{Binding LastMessage}"
+                                           Foreground="{DynamicResource TextPrimaryColor}"
+                                           FontSize="12"
+                                           Opacity="0.8"
+                                           TextTrimming="WordEllipsis"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </StackPanel>
 
             <!-- العمود الأيسر - نافذة الشات -->
             <controls:ChatBox x:Name="ChatBoxControl" Grid.Column="1"/>
+            <controls:GroupChatBox x:Name="GroupChatBoxControl" Grid.Column="1" Visibility="Collapsed"/>
         </Grid>
 
         <Grid Background="#77000000" Name="addChatGrid" Visibility="Collapsed">

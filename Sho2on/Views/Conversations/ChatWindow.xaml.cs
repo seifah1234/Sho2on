@@ -44,6 +44,8 @@ namespace HR_Application.Views.Conversations
                 OnPropertyChanged();
             }
         }
+        public ObservableCollection<GroupItemData> GroupList { get; set; } = new();
+        public ObservableCollection<ChatItemData> ArchivedChatList { get; set; } = new();
 
         public ObservableCollection<UserSearchResult> SearchResults
         {
@@ -66,7 +68,272 @@ namespace HR_Application.Views.Conversations
             ChatBoxControl.NewMessageReceived += ChatBoxControl_NewMessageReceived;
             ChatBoxControl.NewMessageSent += ChatBoxControl_NewMessageSent;
 
-            Loaded += async (s, e) => await LoadChatsAsync();
+            Loaded += async (s, e) =>
+            {
+                await LoadChatsAsync();          // بيفلتر IsArchived = false تلقائياً
+                await LoadGroupsAsync();
+                await LoadArchivedChatsAsync();
+                SetupGroupSignalRListener();
+            };
+        }
+
+        private void ChatsTab_Click(object sender, RoutedEventArgs e)
+        {
+            ChatsScrollViewer.Visibility = Visibility.Visible;
+            GroupsScrollViewer.Visibility = Visibility.Collapsed;
+            ArchiveScrollViewer.Visibility = Visibility.Collapsed;
+            ChatBoxControl.Visibility = Visibility.Visible;
+            GroupChatBoxControl.Visibility = Visibility.Collapsed;
+            GroupsTab.IsChecked = false;
+            ArchiveTab.IsChecked = false;
+        }
+
+        private void GroupsTab_Click(object sender, RoutedEventArgs e)
+        {
+            ChatsScrollViewer.Visibility = Visibility.Collapsed;
+            GroupsScrollViewer.Visibility = Visibility.Visible;
+            ArchiveScrollViewer.Visibility = Visibility.Collapsed;
+            ChatBoxControl.Visibility = Visibility.Collapsed;
+            GroupChatBoxControl.Visibility = Visibility.Visible;
+            ChatsTab.IsChecked = false;
+            ArchiveTab.IsChecked = false;
+        }
+
+        private void ArchiveTab_Click(object sender, RoutedEventArgs e)
+        {
+            ChatsScrollViewer.Visibility = Visibility.Collapsed;
+            GroupsScrollViewer.Visibility = Visibility.Collapsed;
+            ArchiveScrollViewer.Visibility = Visibility.Visible;
+            // الأرشيف يستخدم ChatBoxControl العادي
+            ChatBoxControl.Visibility = Visibility.Visible;
+            GroupChatBoxControl.Visibility = Visibility.Collapsed;
+            GroupsTab.IsChecked = false;
+            ChatsTab.IsChecked = false;
+        }
+
+        // ── Archive ───────────────────────────────────────────────────────────────
+
+        private async Task LoadArchivedChatsAsync()
+        {
+            try
+            {
+                var chats = await _context.Chats
+                    .Include(c => c.FirstUser)
+                    .Include(c => c.SecondUser)
+                    .Include(c => c.Messages)
+                    .Where(c => (c.FirstUserId == _currentUser.Id
+                              || c.SecondUserId == _currentUser.Id)
+                             && c.IsArchived)
+                    .ToListAsync();
+
+                ArchivedChatList.Clear();
+                foreach (var chat in chats)
+                {
+                    var other = chat.FirstUserId == _currentUser.Id
+                                 ? chat.SecondUser : chat.FirstUser;
+                    var lastMsg = chat.Messages
+                        .OrderByDescending(m => m.SentAt).FirstOrDefault();
+
+                    ArchivedChatList.Add(new ChatItemData
+                    {
+                        UserName = other.FullName,
+                        UserCode = other.Code,
+                        UserId = other.Id,
+                        LastMessage = string.IsNullOrEmpty(lastMsg?.Message)
+                                          ? "📎 مرفق"
+                                          : lastMsg?.Message ?? "لا توجد رسائل",
+                        LastMessageTime = lastMsg?.SentAt ?? DateTime.Now,
+                        ProfileImageData = other.ProfileImageData
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"LoadArchived error: {ex.Message}");
+            }
+        }
+
+        private async Task ArchiveChatAsync(int otherUserId)
+        {
+            var chat = await _context.Chats.FirstOrDefaultAsync(c =>
+                (c.FirstUserId == _currentUser.Id && c.SecondUserId == otherUserId) ||
+                (c.FirstUserId == otherUserId && c.SecondUserId == _currentUser.Id));
+            if (chat == null) return;
+
+            chat.IsArchived = true;
+            await _context.SaveChangesAsync();
+
+            var item = ChatList.FirstOrDefault(c => c.UserId == otherUserId);
+            if (item != null) ChatList.Remove(item);
+
+            if (SelectedUserId == otherUserId)
+                ChatBoxControl.ClearChat();
+
+            await LoadArchivedChatsAsync();
+        }
+
+        private async Task UnarchiveChatAsync(int otherUserId)
+        {
+            var chat = await _context.Chats.FirstOrDefaultAsync(c =>
+                (c.FirstUserId == _currentUser.Id && c.SecondUserId == otherUserId) ||
+                (c.FirstUserId == otherUserId && c.SecondUserId == _currentUser.Id));
+            if (chat == null) return;
+
+            chat.IsArchived = false;
+            await _context.SaveChangesAsync();
+
+            var item = ArchivedChatList.FirstOrDefault(c => c.UserId == otherUserId);
+            if (item != null) ArchivedChatList.Remove(item);
+
+            await LoadChatsAsync();
+        }
+
+        private async void ArchiveChat_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as MenuItem)?.Tag as ChatItemData;
+            if (item == null) return;
+            await ArchiveChatAsync(item.UserId);
+        }
+
+        private async void UnarchiveChat_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as MenuItem)?.Tag as ChatItemData;
+            if (item == null) return;
+            await UnarchiveChatAsync(item.UserId);
+        }
+
+        private void ArchivedChatItem_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as Button)?.Tag as ChatItemData;
+            if (item == null) return;
+            SelectedUserId = item.UserId;
+            ChatBoxControl.LoadChat(item.UserName, item.UserCode,
+                                    item.ProfileImageData, item.UserId);
+            _ = MarkMessagesAsReadAsync(item.UserId);
+        }
+
+        // ── Groups ────────────────────────────────────────────────────────────────
+
+        private async Task LoadGroupsAsync()
+        {
+            try
+            {
+                var memberships = await _context.ChatGroupMembers
+                    .Include(m => m.Group)
+                        .ThenInclude(g => g.Messages)
+                    .Where(m => m.UserId == _currentUser.Id && m.Group.IsActive)
+                    .ToListAsync();
+
+                GroupList.Clear();
+                foreach (var ms in memberships)
+                {
+                    var lastMsg = ms.Group.Messages?
+                        .Where(m => !m.IsDeleted)
+                        .OrderByDescending(m => m.SentAt)
+                        .FirstOrDefault();
+
+                    GroupList.Add(new GroupItemData
+                    {
+                        GroupId = ms.Group.Id,
+                        GroupName = ms.Group.Name,
+                        GroupImageData = ms.Group.GroupImageData,
+                        LastMessage = string.IsNullOrEmpty(lastMsg?.Message)
+                                         ? "📎 مرفق"
+                                         : lastMsg?.Message ?? "لا توجد رسائل",
+                        LastMessageTime = lastMsg?.SentAt ?? ms.Group.CreatedAt,
+                        UnreadCount = ms.UnreadCount,
+                        IsAdmin = ms.IsAdmin
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"LoadGroups error: {ex.Message}");
+            }
+        }
+
+        private async void ShowCreateGroupDialog(object sender, RoutedEventArgs e)
+        {
+            var win = new CreateGroupWindow(_currentUser.Id);
+            win.Owner = this;
+            if (win.ShowDialog() == true)
+                await LoadGroupsAsync();
+        }
+
+        private void GroupItem_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as Button)?.Tag as GroupItemData;
+            if (item == null) return;
+
+            item.UnreadCount = 0;
+            GroupChatBoxControl.LoadGroup(
+                item.GroupId, item.GroupName, item.GroupImageData);
+        }
+
+        private void SetupGroupSignalRListener()
+        {
+            if (App.SignalRConnection == null) return;
+
+            // الـ GroupChatBox عنده listener خاص بيه
+            // هنا بس بنعمل handle للإشعارات لما الجروب مش مفتوح
+            GroupChatBoxControl.NewGroupMessageReceived += async (s, e) =>
+            {
+                await Dispatcher.InvokeAsync(async () =>
+                {
+                    if (e.FromUserId == _currentUser.Id) return;
+
+                    bool groupIsOpen =
+                        GroupChatBoxControl.SelectedGroupId == e.GroupId;
+
+                    var groupItem = GroupList.FirstOrDefault(g => g.GroupId == e.GroupId);
+                    if (groupItem != null)
+                    {
+                        groupItem.LastMessage = e.Message;
+                        groupItem.LastMessageTime = e.Timestamp;
+
+                        if (!groupIsOpen)
+                            groupItem.UnreadCount++;
+                    }
+
+                    // إشعار بس لو الجروب مش مفتوح
+                    if (!groupIsOpen)
+                    {
+                        using var ctx = new AppDbContext(App.ConnectionString);
+                        var group = await ctx.ChatGroups.FindAsync(e.GroupId);
+                        var sender = await ctx.Users.FindAsync(e.FromUserId);
+
+                        var shortMsg = e.Message?.Length > 50
+                            ? e.Message[..50] + "..." : e.Message ?? "📎 مرفق";
+
+                        Helpers.NotificationsHelper.ShowPopupNotification(
+                            $"{group?.Name ?? "جروب"}: {sender?.FullName}",
+                            shortMsg, this,
+                            () =>
+                            {
+                                GroupsTab_Click(null, null);
+                                groupItem = GroupList.FirstOrDefault(
+                                    g => g.GroupId == e.GroupId);
+                                if (groupItem != null)
+                                {
+                                    groupItem.UnreadCount = 0;
+                                    GroupChatBoxControl.LoadGroup(
+                                        groupItem.GroupId,
+                                        groupItem.GroupName,
+                                        groupItem.GroupImageData);
+                                }
+                            });
+                        Helpers.NotificationsHelper.PlayNotificationSound();
+                    }
+                });
+            };
+        }
+
+        // في OnClosed — بدّله بده
+        protected override void OnClosed(EventArgs e)
+        {
+            ChatBoxControl.NewMessageReceived -= ChatBoxControl_NewMessageReceived;
+            ChatBoxControl.NewMessageSent -= ChatBoxControl_NewMessageSent;
+            base.OnClosed(e);
         }
 
         public ChatWindow(User currentUser) : this()
@@ -242,14 +509,6 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        // تأكد من إلغاء الاشتراك عند إغلاق النافذة
-        protected override void OnClosed(EventArgs e)
-        {
-            ChatBoxControl.NewMessageReceived -= ChatBoxControl_NewMessageReceived;
-            ChatBoxControl.NewMessageSent -= ChatBoxControl_NewMessageSent;
-            base.OnClosed(e);
-        }
-
         private async Task RegisterUserWithSignalR()
         {
             if (App.SignalRConnection != null && App.SignalRConnection.State == HubConnectionState.Connected)
@@ -286,8 +545,9 @@ namespace HR_Application.Views.Conversations
                     .Include(c => c.FirstUser)
                     .Include(c => c.SecondUser)
                     .Include(c => c.Messages)
-                    .Where(c => c.FirstUserId == _currentUser.Id
-                             || c.SecondUserId == _currentUser.Id)
+                    .Where(c => (c.FirstUserId == _currentUser.Id
+                      || c.SecondUserId == _currentUser.Id)
+                     && !c.IsArchived)
                     .OrderByDescending(c => c.Messages.Max(m => (DateTime?)m.SentAt))
                     .ToListAsync();
 
@@ -710,4 +970,98 @@ namespace HR_Application.Views.Conversations
         }
     }
 
+    public class GroupItemData : INotifyPropertyChanged
+    {
+        private int _groupId;
+        private string _groupName;
+        private byte[] _groupImageData;
+        private string _lastMessage;
+        private DateTime _lastMessageTime;
+        private int _unreadCount;
+        private bool _isAdmin;
+
+        public int GroupId
+        {
+            get => _groupId;
+            set { _groupId = value; OnPropertyChanged(); }
+        }
+
+        public string GroupName
+        {
+            get => _groupName;
+            set { _groupName = value; OnPropertyChanged(); }
+        }
+
+        public byte[] GroupImageData
+        {
+            get => _groupImageData;
+            set
+            {
+                _groupImageData = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GroupImageSource));
+            }
+        }
+
+        public BitmapImage GroupImageSource
+        {
+            get
+            {
+                if (GroupImageData != null && GroupImageData.Length > 0)
+                {
+                    using (var stream = new System.IO.MemoryStream(GroupImageData))
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.StreamSource = stream;
+                        bitmap.DecodePixelWidth = 60;
+                        bitmap.EndInit();
+                        bitmap.Freeze();
+                        return bitmap;
+                    }
+                }
+                return new BitmapImage(new Uri("/assets/images/group_avatar.jpg", UriKind.Relative));
+            }
+        }
+
+        public string LastMessage
+        {
+            get => _lastMessage;
+            set { _lastMessage = value; OnPropertyChanged(); }
+        }
+
+        public DateTime LastMessageTime
+        {
+            get => _lastMessageTime;
+            set { _lastMessageTime = value; OnPropertyChanged(); }
+        }
+
+        public int UnreadCount
+        {
+            get => _unreadCount;
+            set
+            {
+                _unreadCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowUnreadBadge));
+                OnPropertyChanged(nameof(UnreadCountText));
+            }
+        }
+
+        public bool IsAdmin
+        {
+            get => _isAdmin;
+            set { _isAdmin = value; OnPropertyChanged(); }
+        }
+
+        public bool ShowUnreadBadge => UnreadCount > 0;
+        public string UnreadCountText => UnreadCount > 99 ? "99+" : UnreadCount.ToString();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+    }
 }

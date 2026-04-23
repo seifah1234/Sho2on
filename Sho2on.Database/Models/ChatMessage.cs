@@ -29,7 +29,6 @@ namespace Sho2on.Database.Models
 
         public DateTime? ReadAt { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
-
         public virtual Chat Chat { get; set; }
 
         public virtual User Sender { get; set; }

@@ -910,6 +910,12 @@ namespace HR_Application.UserControls
         private bool _isDelivered; 
         private ObservableCollection<ChatAttachmentItem> _attachments;
 
+        private string _senderName;
+        public string SenderName
+        {
+            get => _senderName;
+            set { _senderName = value; OnPropertyChanged(); }
+        }
         public ObservableCollection<ChatAttachmentItem> Attachments
         {
             get => _attachments ??= new ObservableCollection<ChatAttachmentItem>();

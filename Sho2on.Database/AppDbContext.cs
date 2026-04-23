@@ -320,6 +320,12 @@ namespace Sho2on.Database
         public DbSet<EmployeePermission> EmployeePermissions { get; set; }
         public DbSet<Qualification> Qualifications { get; set; }
 
+        // أضف الـ DbSets دول
+        public DbSet<ChatGroup> ChatGroups { get; set; }
+        public DbSet<ChatGroupMember> ChatGroupMembers { get; set; }
+        public DbSet<ChatGroupMessage> ChatGroupMessages { get; set; }
+        public DbSet<ChatGroupAttachment> ChatGroupAttachments { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 if (!optionsBuilder.IsConfigured && !string.IsNullOrEmpty(_connectionString))

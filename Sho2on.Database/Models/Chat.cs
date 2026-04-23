@@ -21,7 +21,7 @@ namespace Sho2on.Database.Models
         public DateTime? UpdatedAt { get; set; }
 
         public DateTime CreatedAt { get; set; }
-
+        public bool IsArchived { get; set; } = false;
         public bool IsActive { get; set; } = true;
 
         public virtual ICollection<ChatMessage> Messages { get; set; }

@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using HR_Application.UserControls;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using Application = System.Windows.Application;
 
 namespace HR_Application.Services
@@ -25,7 +26,10 @@ namespace HR_Application.Services
         public event Action<int, int> OnMessageDelivered;
         public event Action<int, int> OnMessageRead;
         public event Action<string, int, int, string, DateTime> OnTaskNotification;
-        public event Action<int> OnUnreadCountChanged; // broadcasts userId
+        public event Action<int> OnUnreadCountChanged;
+
+        // ✅ أحداث المجموعات
+        public event Action<int, int, string, DateTime> OnGroupMessageReceived;
 
         public async Task InitializeAsync(int userId)
         {
@@ -34,13 +38,11 @@ namespace HR_Application.Services
                 if (App.SignalRConnection != null &&
                     App.SignalRConnection.State == HubConnectionState.Connected)
                 {
-                    // Already connected — re-register identity only
                     await App.SignalRConnection.InvokeAsync("SetUserIdentifier", userId.ToString());
                     return;
                 }
 
                 var url = $"http://192.168.100.140:7001/chatHub?userId={userId}";
-                //var url = $"http://{App.ServerIP}:7001/chatHub?userId={userId}";
 
                 App.SignalRConnection = new HubConnectionBuilder()
                     .WithUrl(url)
@@ -51,14 +53,11 @@ namespace HR_Application.Services
 
                 App.SignalRConnection.Reconnected += async (connectionId) =>
                 {
-                    // Re-register after reconnect
-                    await App.SignalRConnection.InvokeAsync(
-                        "SetUserIdentifier", userId.ToString());
+                    await App.SignalRConnection.InvokeAsync("SetUserIdentifier", userId.ToString());
                 };
 
                 await App.SignalRConnection.StartAsync();
-                await App.SignalRConnection.InvokeAsync(
-                    "SetUserIdentifier", userId.ToString());
+                await App.SignalRConnection.InvokeAsync("SetUserIdentifier", userId.ToString());
             }
             catch (Exception ex)
             {
@@ -74,17 +73,26 @@ namespace HR_Application.Services
             App.SignalRConnection.Remove("MessageDelivered");
             App.SignalRConnection.Remove("MessageRead");
             App.SignalRConnection.Remove("ReceiveTaskNotification");
+            App.SignalRConnection.Remove("ReceiveGroupMessage"); // ✅ إضافة
 
+            // رسائل خاصة
             App.SignalRConnection.On<int, int, string, DateTime>(
                 "ReceiveMessage",
                 async (fromUserId, toUserId, message, timestamp) =>
                 {
-                    // 1. Update UnreadCount in DB
                     await UpdateUnreadCountAsync(fromUserId, toUserId);
 
-                    // 2. Broadcast to all subscribers (MainWindow, ChatBox, etc.)
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                         OnMessageReceived?.Invoke(fromUserId, toUserId, message, timestamp));
+                });
+
+            // ✅ رسائل المجموعات
+            App.SignalRConnection.On<int, int, string, DateTime>(
+                "ReceiveGroupMessage",
+                async (groupId, senderId, message, timestamp) =>
+                {
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                        OnGroupMessageReceived?.Invoke(groupId, senderId, message, timestamp));
                 });
 
             App.SignalRConnection.On<int, int>(
@@ -108,14 +116,62 @@ namespace HR_Application.Services
                 async (notificationType, taskId, fromUserId, taskDescription, timestamp) =>
                 {
                     await Application.Current.Dispatcher.InvokeAsync(() =>
-                        OnTaskNotification?.Invoke(
-                            notificationType, taskId, fromUserId, taskDescription, timestamp));
+                        OnTaskNotification?.Invoke(notificationType, taskId, fromUserId, taskDescription, timestamp));
                 });
 
             _listenersRegistered = true;
         }
 
-        // Updates ChatUserStatus.UnreadCount in DB
+        // ✅ دالة للانضمام إلى مجموعة
+        public async Task JoinGroupAsync(int groupId)
+        {
+            try
+            {
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                {
+                    await App.SignalRConnection.InvokeAsync("JoinGroup", groupId);
+                    Console.WriteLine($"Joined group {groupId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"JoinGroup error: {ex.Message}");
+            }
+        }
+
+        // ✅ دالة لمغادرة مجموعة
+        public async Task LeaveGroupAsync(int groupId)
+        {
+            try
+            {
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                {
+                    await App.SignalRConnection.InvokeAsync("LeaveGroup", groupId);
+                    Console.WriteLine($"Left group {groupId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"LeaveGroup error: {ex.Message}");
+            }
+        }
+
+        // ✅ إرسال رسالة مجموعة
+        public async Task SendGroupMessageAsync(int groupId, int senderId, string message)
+        {
+            try
+            {
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                {
+                    await App.SignalRConnection.InvokeAsync("SendGroupMessage", groupId, senderId, message);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SendGroupMessage error: {ex.Message}");
+            }
+        }
+
         private async Task UpdateUnreadCountAsync(int fromUserId, int toUserId)
         {
             try
@@ -128,7 +184,6 @@ namespace HR_Application.Services
 
                 if (chat == null) return;
 
-                // toUserId is the RECEIVER — increment their unread count
                 var status = await context.ChatUserStatuses
                     .FirstOrDefaultAsync(s => s.ChatId == chat.Id && s.UserId == toUserId);
 
@@ -149,7 +204,6 @@ namespace HR_Application.Services
 
                 await context.SaveChangesAsync();
 
-                // Notify UI that unread count changed for toUserId
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                     OnUnreadCountChanged?.Invoke(toUserId));
             }
@@ -159,7 +213,6 @@ namespace HR_Application.Services
             }
         }
 
-        // Call this when user opens a chat — resets unread count
         public async Task ResetUnreadCountAsync(int chatId, int userId)
         {
             try
@@ -184,7 +237,6 @@ namespace HR_Application.Services
             }
         }
 
-        // Returns total unread for current user across all chats
         public async Task<int> GetTotalUnreadAsync(int userId)
         {
             try
@@ -197,7 +249,6 @@ namespace HR_Application.Services
             catch { return 0; }
         }
 
-        // Returns unread for a specific chat
         public async Task<int> GetUnreadForChatAsync(int chatId, int userId)
         {
             try
