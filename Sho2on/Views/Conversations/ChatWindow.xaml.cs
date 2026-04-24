@@ -133,6 +133,7 @@ namespace HR_Application.Views.Conversations
                     var other = chat.FirstUserId == _currentUser.Id
                                  ? chat.SecondUser : chat.FirstUser;
                     var lastMsg = chat.Messages
+                        .Where(cm => !cm.IsDeleted)
                         .OrderByDescending(m => m.SentAt).FirstOrDefault();
 
                     ArchivedChatList.Add(new ChatItemData
@@ -300,7 +301,8 @@ namespace HR_Application.Views.Conversations
         }
 
         private async void HandleGroupMessage(int groupId, int senderId,
-                                               string message, DateTime timestamp)
+                                       string message, DateTime timestamp,
+                                       string senderName)  // ✅ أضف senderName
         {
             if (senderId == _currentUser.Id) return;
 
@@ -312,22 +314,25 @@ namespace HR_Application.Views.Conversations
             {
                 groupItem.LastMessage = string.IsNullOrEmpty(message) ? "📎 مرفق" : message;
                 groupItem.LastMessageTime = timestamp;
-
                 if (!groupIsOpen)
-                    groupItem.UnreadCount++;  // UI فقط — DB اتعمل في SignalRManager
+                    groupItem.UnreadCount++;
             }
 
             if (!groupIsOpen)
             {
                 using var ctx = new AppDbContext(App.ConnectionString);
                 var group = await ctx.ChatGroups.FindAsync(groupId);
-                var sender = await ctx.Users.FindAsync(senderId);
+
+                // استخدم senderName مباشرةً بدل ما نعمل DB query
+                var displayName = !string.IsNullOrEmpty(senderName)
+                    ? senderName
+                    : (await ctx.Users.FindAsync(senderId))?.FullName ?? "مستخدم";
 
                 var shortMsg = string.IsNullOrEmpty(message) ? "📎 مرفق"
                     : (message.Length > 50 ? message[..50] + "..." : message);
 
                 Helpers.NotificationsHelper.ShowPopupNotification(
-                    $"{group?.Name ?? "جروب"}: {sender?.FullName}",
+                    $"{group?.Name ?? "جروب"}: {displayName}",
                     shortMsg, this,
                     () =>
                     {
@@ -582,6 +587,7 @@ namespace HR_Application.Views.Conversations
                         : chat.FirstUser;
 
                     var lastMessage = chat.Messages
+                        .Where(cm => !cm.IsDeleted)
                         .OrderByDescending(m => m.SentAt)
                         .FirstOrDefault();
 

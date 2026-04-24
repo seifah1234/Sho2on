@@ -99,6 +99,27 @@ namespace HR_Application
                     await RefreshUnreadBadge();
             };
 
+            manager.OnGroupMessageReceived += async (groupId, senderId, message, timestamp, senderName) =>
+            {
+                if (senderId == App.CurrentUser.Id) return;
+
+                bool groupIsOpen = IsChatWindowGroupOpenFor(groupId);
+                if (!groupIsOpen)
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+                    var group = await ctx.ChatGroups.FindAsync(groupId);
+
+                    var shortMsg = string.IsNullOrEmpty(message) ? "📎 مرفق"
+                        : (message.Length > 60 ? message[..60] + "..." : message);
+
+                    Helpers.NotificationsHelper.ShowPopupNotification(
+                        $"{group?.Name ?? "جروب"}: {senderName}",
+                        shortMsg, this, null
+                    );
+                    Helpers.NotificationsHelper.PlayNotificationSound();
+                }
+            };
+
             // Task notifications
             manager.OnTaskNotification += (notificationType, taskId, fromUserId, desc, ts) =>
             {
@@ -118,6 +139,19 @@ namespace HR_Application
                 );
                 Helpers.NotificationsHelper.PlayNotificationSound();
             };
+        }
+
+        private bool IsChatWindowGroupOpenFor(int groupId)
+        {
+            foreach (Window w in Application.Current.Windows)
+            {
+                if (w is ChatWindow cw
+                    && cw.IsVisible
+                    && cw.GroupChatBoxControl.SelectedGroupId == groupId
+                    && cw.GroupChatBoxControl.IsVisible)
+                    return true;
+            }
+            return false;
         }
 
         private async Task RefreshUnreadBadge()

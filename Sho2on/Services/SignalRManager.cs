@@ -31,7 +31,7 @@ namespace HR_Application.Services
         public event Action<int> OnMessageDeleted;
         public event Action<int, string> OnMessageEdited;
         // ✅ أحداث المجموعات
-        public event Action<int, int, string, DateTime> OnGroupMessageReceived;
+        public event Action<int, int, string, DateTime, string> OnGroupMessageReceived;
 
         public async Task InitializeAsync(int userId)
         {
@@ -89,18 +89,6 @@ namespace HR_Application.Services
                         OnMessageReceived?.Invoke(fromUserId, toUserId, message, timestamp));
                 });
 
-            // ✅ رسائل المجموعات
-            App.SignalRConnection.On<int, int, string, DateTime, string>(
-                "ReceiveGroupMessage",
-                async (groupId, senderId, message, timestamp, senderName) =>
-                {
-                    // زوّد UnreadCount في DB لو المرسل مش أنا
-                    if (senderId != App.CurrentUser?.Id)
-                        await UpdateGroupUnreadCountAsync(groupId, senderId);
-
-                    await Application.Current.Dispatcher.InvokeAsync(() =>
-                        OnGroupMessageReceived?.Invoke(groupId, senderId, message, timestamp));
-                });
 
             App.SignalRConnection.On<int, int>(
                 "MessageDelivered",
@@ -145,6 +133,18 @@ namespace HR_Application.Services
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                     OnMessageEdited?.Invoke(messageId, newText));
             });
+
+            App.SignalRConnection.On<int, int, string, DateTime, string>(
+                "ReceiveGroupMessage",
+                async (groupId, senderId, message, timestamp, senderName) =>
+                {
+                    if (senderId != App.CurrentUser?.Id)
+                        await UpdateGroupUnreadCountAsync(groupId, senderId);
+
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                        OnGroupMessageReceived?.Invoke(
+                            groupId, senderId, message, timestamp, senderName));
+                });
 
             _listenersRegistered = true;
         }

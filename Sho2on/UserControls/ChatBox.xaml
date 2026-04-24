@@ -76,8 +76,7 @@
                       VerticalScrollBarVisibility="Auto">
             <ScrollViewer.Background>
                 <ImageBrush x:Name="ChatBackgroundBrush" 
-                    Stretch="UniformToFill"
-                    Opacity="0.3"/>
+                    Stretch="UniformToFill"/>
             </ScrollViewer.Background>
             <ItemsControl x:Name="MessagesItemsControl" Margin="10">
                 <ItemsControl.ItemTemplate>

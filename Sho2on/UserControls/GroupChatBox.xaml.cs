@@ -29,7 +29,7 @@ namespace HR_Application.UserControls
         public int SelectedGroupId { get; private set; }
         public bool CurrentUserIsAdmin { get; private set; }
 
-        public ObservableCollection<ChatMessage> Messages { get; set; }
+        public ObservableCollection<UIChatMessage> Messages { get; set; }
         public ObservableCollection<ChatAttachmentItem> SelectedAttachments { get; set; }
 
         private List<ChatAttachmentItem> _pendingAttachments = new();
@@ -41,7 +41,7 @@ namespace HR_Application.UserControls
         public GroupChatBox()
         {
             InitializeComponent();
-            Messages = new ObservableCollection<ChatMessage>();
+            Messages = new ObservableCollection<UIChatMessage>();
             SelectedAttachments = new ObservableCollection<ChatAttachmentItem>();
             MessagesItemsControl.ItemsSource = Messages;
             DataContext = this;
@@ -55,7 +55,7 @@ namespace HR_Application.UserControls
                 if (e.GroupId != SelectedGroupId) return;
                 if (e.FromUserId == App.CurrentUser.Id) return;
 
-                Messages.Add(new ChatMessage
+                Messages.Add(new UIChatMessage
                 {
                     MessageText = e.Message,
                     IsFromMe = false,
@@ -180,7 +180,7 @@ namespace HR_Application.UserControls
 
                 foreach (var msg in messages)
                 {
-                    var uiMsg = new ChatMessage
+                    var uiMsg = new UIChatMessage
                     {
                         MessageText = msg.Message ?? "",
                         IsFromMe = msg.SenderId == App.CurrentUser.Id,
@@ -247,7 +247,7 @@ namespace HR_Application.UserControls
                 return;
             if (SelectedGroupId == 0) return;
 
-            var tempMsg = new ChatMessage
+            var tempMsg = new UIChatMessage
             {
                 MessageText = message ?? "",
                 IsFromMe = true,
@@ -351,66 +351,54 @@ namespace HR_Application.UserControls
 
         private void SetupSignalRListener()
         {
-            if (_signalRInitialized || App.SignalRConnection == null)
-            {
-                if (App.SignalRConnection == null)
-                {
-                    Task.Delay(1000).ContinueWith(_ =>
-                        Application.Current.Dispatcher.Invoke(SetupSignalRListener));
-                }
-                return;
-            }
+            if (_signalRInitialized) return;
 
-            App.SignalRConnection.Remove("ReceiveGroupMessage");
-            App.SignalRConnection.On<int, int, string, DateTime, string>(
-                "ReceiveGroupMessage",
-                async (groupId, senderId, message, timestamp, senderName) =>
-                {
-                    await Application.Current.Dispatcher.InvokeAsync(async () =>
-                    {
-                        // أطلع الـ event للـ ChatWindow
-                        NewGroupMessageReceived?.Invoke(this, new GroupMessageEventArgs
-                        {
-                            GroupId = groupId,
-                            FromUserId = senderId,
-                            SenderName = senderName,
-                            Message = message,
-                            Timestamp = timestamp
-                        });
-
-                        // لو الجروب ده هو المفتوح حالياً
-                        if (groupId == SelectedGroupId
-                            && senderId != App.CurrentUser.Id)
-                        {
-                            using var ctx = new AppDbContext(App.ConnectionString);
-                            var sender = await ctx.Users.FindAsync(senderId);
-
-                            Messages.Add(new ChatMessage
-                            {
-                                MessageText = message,
-                                IsFromMe = false,
-                                SenderName = sender?.FullName ?? "",
-                                Time = timestamp.ToString("hh:mm tt"),
-                                SentAt = timestamp,
-                                IsDelivered = true,
-                                IsRead = true
-                            });
-
-                            ScrollToBottom();
-                            await ResetUnreadCountAsync(groupId);
-                        }
-                    });
-                });
+            // ✅ اشترك في الـ event بتاع SignalRManager بدل ما تعمل listener مباشر
+            SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
 
             _signalRInitialized = true;
 
             Unloaded += (s, e) =>
             {
-                App.SignalRConnection?.Remove("ReceiveGroupMessage");
+                SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
                 _signalRInitialized = false;
             };
         }
 
+        private async void HandleGroupMessage(int groupId, int senderId,
+                                       string message, DateTime timestamp,
+                                       string senderName)  // ✅ أضف senderName
+        {
+            if (senderId == App.CurrentUser.Id) return;
+
+            NewGroupMessageReceived?.Invoke(this, new GroupMessageEventArgs
+            {
+                GroupId = groupId,
+                FromUserId = senderId,
+                SenderName = senderName,  // ✅ استخدم المباشر
+                Message = message,
+                Timestamp = timestamp
+            });
+
+            if (groupId != SelectedGroupId) return;
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Messages.Add(new UIChatMessage
+                {
+                    MessageText = message,
+                    IsFromMe = false,
+                    SenderName = senderName,  // ✅ مباشر بدون DB query
+                    Time = timestamp.ToString("hh:mm tt"),
+                    SentAt = timestamp,
+                    IsDelivered = true,
+                    IsRead = true
+                });
+
+                ScrollToBottom();
+                _ = ResetUnreadCountAsync(groupId);
+            });
+        }
         // ── Members Management ───────────────────────────────────────────────
 
         private void ManageMembers_Click(object sender, RoutedEventArgs e)

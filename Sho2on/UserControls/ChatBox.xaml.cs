@@ -77,7 +77,7 @@ namespace HR_Application.UserControls
             set => SetValue(SelectedUserCodeProperty, value);
         }
 
-        public ObservableCollection<ChatMessage> Messages { get; set; }
+        public ObservableCollection<UIChatMessage> Messages { get; set; }
         private bool _signalRInitialized = false;
         public event EventHandler<NewMessageEventArgs> NewMessageReceived;
         public event EventHandler<NewMessageEventArgs> NewMessageSent;
@@ -88,13 +88,14 @@ namespace HR_Application.UserControls
         public ChatBox()
         {
             InitializeComponent();
-            Messages = new ObservableCollection<ChatMessage>();
+            Messages = new ObservableCollection<UIChatMessage>();
             SelectedAttachments = new ObservableCollection<ChatAttachmentItem>();
             MessagesItemsControl.ItemsSource = Messages;
             DataContext = this;
 
             // استدعاء إعداد SignalR
             Loaded += (s, e) => SetupSignalRListener();
+            LoadSavedBackground();
         }
 
         private void CancelEdit_Click(object sender, RoutedEventArgs e)
@@ -363,7 +364,7 @@ namespace HR_Application.UserControls
                         Messages.Clear();
                         foreach (var msg in messages)
                         {
-                            var uiMessage = new ChatMessage
+                            var uiMessage = new UIChatMessage
                             {
                                 MessageDbId = msg.Id,      // ✅ أضف
                                 MessageText = msg.Message,
@@ -431,7 +432,7 @@ namespace HR_Application.UserControls
             }
 
             // إضافة الرسالة لقائمة الرسائل مؤقتاً
-            var tempMessage = new ChatMessage
+            var tempMessage = new UIChatMessage
             {
                 MessageText = message ?? "",
                 IsFromMe = true,
@@ -474,6 +475,7 @@ namespace HR_Application.UserControls
             {
                 using var ctx = new AppDbContext(App.ConnectionString);
                 var dbMsg = await ctx.ChatMessages.FindAsync(messageDbId);
+                MessageBox.Show($"{messageDbId}");
                 if (dbMsg == null) return;
 
                 dbMsg.Message = newText;
@@ -508,14 +510,14 @@ namespace HR_Application.UserControls
         }
 
         // helper
-        private ChatMessage GetMessageFromContextMenu(object sender)
+        private UIChatMessage GetMessageFromContextMenu(object sender)
         {
             if (sender is MenuItem mi)
             {
-                if (mi.Tag is ChatMessage msg) return msg;
+                if (mi.Tag is UIChatMessage msg) return msg;
                 if (mi.Parent is ContextMenu cm &&
                     cm.PlacementTarget is Border border)
-                    return border.Tag as ChatMessage;
+                    return border.Tag as UIChatMessage;
             }
             return null;
         }
@@ -566,6 +568,14 @@ namespace HR_Application.UserControls
 
                     context.ChatMessages.Add(chatMessage);
                     await context.SaveChangesAsync();
+
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        // آخر رسالة أضفناها هي الـ tempMessage
+                        var lastMsg = Messages.LastOrDefault(m => m.IsFromMe && m.MessageDbId == 0);
+                        if (lastMsg != null)
+                            lastMsg.MessageDbId = chatMessage.Id;
+                    });
 
                     // حفظ المرفقات - استخدم attachments بدلاً من _pendingAttachments
                     foreach (var attachment in attachments)  // تم التصحيح هنا
@@ -638,7 +648,7 @@ namespace HR_Application.UserControls
         }
 
         // تحميل المرفقات مع الرسائل
-        private async Task LoadAttachmentsForMessage(int messageId, ChatMessage uiMessage)
+        private async Task LoadAttachmentsForMessage(int messageId, UIChatMessage uiMessage)
         {
             try
             {
@@ -745,18 +755,24 @@ namespace HR_Application.UserControls
 
         private void HandleMessageDeleted(int messageId)
         {
-            var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
-            if (msg != null) Messages.Remove(msg);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                if (msg != null) Messages.Remove(msg);
+            });
         }
 
         private void HandleMessageEdited(int messageId, string newText)
         {
-            var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
-            if (msg != null)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                msg.MessageText = newText;
-                msg.IsEdited = true;
-            }
+                var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                if (msg != null)
+                {
+                    msg.MessageText = newText;
+                    msg.IsEdited = true;
+                }
+            });
         }
 
         private async void HandleIncomingMessage(
@@ -764,7 +780,7 @@ namespace HR_Application.UserControls
         {
             if (fromUserId != SelectedUserId) return;
 
-            Messages.Add(new ChatMessage
+            Messages.Add(new UIChatMessage
             {
                 MessageText = message,
                 IsFromMe = false,
@@ -1079,7 +1095,7 @@ namespace HR_Application.UserControls
 
 
     // نموذج الرسالة
-    public class ChatMessage : INotifyPropertyChanged
+    public class UIChatMessage : INotifyPropertyChanged
     {
         private string _messageText;
         private bool _isFromMe;
@@ -1128,10 +1144,13 @@ namespace HR_Application.UserControls
             get => _isEdited;
             set
             {
-                _isEdited = value; OnPropertyChanged();
+                _isEdited = value;
+                OnPropertyChanged();
                 OnPropertyChanged(nameof(EditedLabel));
+                OnPropertyChanged(nameof(ShowEditedLabel)); 
             }
         }
+
         public bool IsFromMe
         {
             get => _isFromMe;
