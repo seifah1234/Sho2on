@@ -253,85 +253,115 @@ namespace HR_Application.UserControls
                 }
             }
 
-            // ── Send ─────────────────────────────────────────────────────────────
+        // ── Send ─────────────────────────────────────────────────────────────
 
-            private async void SendMessage(string message)
+        private async void SendMessage(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message) && _pendingAttachments.Count == 0)
+                return;
+            if (SelectedGroupId == 0) return;
+
+            // Handle edit mode
+            if (_editingMessageId != -1)
             {
-                if (string.IsNullOrWhiteSpace(message) && _pendingAttachments.Count == 0)
-                    return;
-                if (SelectedGroupId == 0) return;
+                await SaveGroupEditAsync(_editingMessageId, message);
+                return;
+            }
 
-                // FIX BUG #4: Handle edit in groups
-                if (_editingMessageId != -1)
+            var tempMsg = new UIChatMessage
+            {
+                MessageDbId = 0,
+                MessageText = message ?? "",
+                IsFromMe = true,
+                SenderName = App.CurrentUser.FullName,
+                Time = DateTime.Now.ToString("hh:mm tt"),
+                SentAt = DateTime.Now,
+                IsDelivered = true,
+                IsRead = false
+            };
+
+            foreach (var a in _pendingAttachments)
+                tempMsg.Attachments.Add(a);
+
+            Messages.Add(tempMsg);
+            MessageTextBox.Text = "";
+
+            var attachments = _pendingAttachments.ToList();
+            _pendingAttachments.Clear();
+            SelectedAttachments.Clear();
+            AttachmentsScrollViewer.Visibility = Visibility.Collapsed;
+            ScrollToBottom();
+
+            await SendToServerAsync(message ?? "", attachments);
+        }
+
+        // FIX BUG #4: Save edit for group messages
+        private async Task SaveGroupEditAsync(int messageId, string newText)
+        {
+            try
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+                var dbMsg = await ctx.ChatGroupMessages.FindAsync(messageId);
+
+                if (dbMsg == null || dbMsg.SenderId != App.CurrentUser.Id)
                 {
-                    await SaveGroupEditAsync(_editingMessageId, message);
+                    MessageBox.Show("لا يمكن تعديل هذه الرسالة", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                var tempMsg = new UIChatMessage
-                {
-                    MessageText = message ?? "",
-                    IsFromMe = true,
-                    SenderName = "",
-                    Time = DateTime.Now.ToString("hh:mm tt"),
-                    SentAt = DateTime.Now,
-                    IsDelivered = true,
-                    IsRead = false
-                };
-                foreach (var a in _pendingAttachments)
-                    tempMsg.Attachments.Add(a);
+                dbMsg.Message = newText;
+                dbMsg.IsEdited = true;
+                dbMsg.EditedAt = DateTime.Now;
+                await ctx.SaveChangesAsync();
 
-                Messages.Add(tempMsg);
+                // Update UI
+                var uiMsg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                if (uiMsg != null)
+                {
+                    uiMsg.MessageText = newText;
+                    uiMsg.IsEdited = true;
+
+                    // Force UI refresh
+                    var index = Messages.IndexOf(uiMsg);
+                    if (index >= 0)
+                    {
+                        Messages.RemoveAt(index);
+                        Messages.Insert(index, uiMsg);
+                    }
+
+                    // ✅ FIX: Check if this is the last message and notify parent
+                    var lastMsg = Messages.LastOrDefault();
+                    if (lastMsg != null && lastMsg.MessageDbId == messageId)
+                    {
+                        GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
+                        {
+                            GroupId = SelectedGroupId,
+                            LastMessage = GetLastMessageText(),
+                            LastMessageTime = GetLastMessageTime(),
+                            UpdateType = "Edit"
+                        });
+                    }
+                }
+
+                // Send notification
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                {
+                    await App.SignalRConnection.InvokeAsync(
+                        "GroupMessageEdited", messageId, SelectedGroupId, newText);
+                }
+
+                _editingMessageId = -1;
                 MessageTextBox.Text = "";
-
-                var attachments = _pendingAttachments.ToList();
-                _pendingAttachments.Clear();
-                SelectedAttachments.Clear();
-                AttachmentsScrollViewer.Visibility = Visibility.Collapsed;
-                ScrollToBottom();
-
-                await SendToServerAsync(message ?? "", attachments);
+                EditBar.Visibility = Visibility.Collapsed;
             }
-
-            // FIX BUG #4: Save edit for group messages
-            private async Task SaveGroupEditAsync(int messageId, string newText)
+            catch (Exception ex)
             {
-                try
-                {
-                    using var ctx = new AppDbContext(App.ConnectionString);
-                    var dbMsg = await ctx.ChatGroupMessages.FindAsync(messageId);
-
-                    if (dbMsg == null || dbMsg.SenderId != App.CurrentUser.Id) return;
-
-                    dbMsg.Message = newText;
-                    dbMsg.IsEdited = true;
-                    dbMsg.EditedAt = DateTime.Now;
-                    await ctx.SaveChangesAsync();
-
-                    var uiMsg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
-                    if (uiMsg != null)
-                    {
-                        uiMsg.MessageText = newText;
-                        uiMsg.IsEdited = true;
-                    }
-
-                    if (App.SignalRConnection?.State == HubConnectionState.Connected)
-                    {
-                        await App.SignalRConnection.InvokeAsync(
-                            "GroupMessageEdited", messageId, SelectedGroupId, newText);
-                    }
-
-                    _editingMessageId = -1;
-                    MessageTextBox.Text = "";
-                    EditBar.Visibility = Visibility.Collapsed;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"EditGroupMessage error: {ex.Message}");
-                }
+                Console.WriteLine($"EditGroupMessage error: {ex.Message}");
+                MessageBox.Show($"خطأ في تعديل الرسالة: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
 
-            private async Task SendToServerAsync(string message,
+        private async Task SendToServerAsync(string message,
                                                   List<ChatAttachmentItem> attachments)
             {
                 try
@@ -398,85 +428,90 @@ namespace HR_Application.UserControls
                 }
             }
 
-            // FIX BUG #4: Delete group message
-            private async void DeleteGroupMessage_Click(object sender, RoutedEventArgs e)
+        // FIX BUG #4: Delete group message
+        private async void DeleteGroupMessage_Click(object sender, RoutedEventArgs e)
+        {
+            var msg = GetGroupMessageFromContextMenu(sender);
+            if (msg == null || !msg.IsFromMe) return;
+
+            var confirm = MessageBox.Show("هل تريد حذف هذه الرسالة؟", "تأكيد",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirm != MessageBoxResult.Yes) return;
+
+            try
             {
-                var msg = GetGroupMessageFromContextMenu(sender);
-                if (msg == null || !msg.IsFromMe) return;
-
-                var confirm = MessageBox.Show("هل تريد حذف هذه الرسالة؟", "تأكيد",
-                    MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (confirm != MessageBoxResult.Yes) return;
-
-                try
+                using var ctx = new AppDbContext(App.ConnectionString);
+                var dbMsg = await ctx.ChatGroupMessages.FindAsync(msg.MessageDbId);
+                if (dbMsg != null)
                 {
-                    using var ctx = new AppDbContext(App.ConnectionString);
-                    var dbMsg = await ctx.ChatGroupMessages.FindAsync(msg.MessageDbId);
-                    if (dbMsg != null)
-                    {
-                        dbMsg.IsDeleted = true;
-                        await ctx.SaveChangesAsync();
-                    }
-
-                    Messages.Remove(msg);
-
-                    if (App.SignalRConnection?.State == HubConnectionState.Connected)
-                    {
-                        await App.SignalRConnection.InvokeAsync(
-                            "GroupMessageDeleted", msg.MessageDbId, SelectedGroupId);
-                    }
-
-                    // FIX BUG #3 & #5: Notify parent about updated last message
-                    GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
-                    {
-                        GroupId = SelectedGroupId,
-                        LastMessage = GetLastMessageText(),
-                        LastMessageTime = GetLastMessageTime(),
-                        UpdateType = "Delete"
-                    });
+                    dbMsg.IsDeleted = true;
+                    await ctx.SaveChangesAsync();
                 }
-                catch (Exception ex)
+
+                Messages.Remove(msg);
+
+                // Send notification via SignalR
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
-                    Console.WriteLine($"DeleteGroupMessage error: {ex.Message}");
+                    await App.SignalRConnection.InvokeAsync(
+                        "GroupMessageDeleted", msg.MessageDbId, SelectedGroupId);
                 }
+
+                // Update group item's last message
+                GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
+                {
+                    GroupId = SelectedGroupId,
+                    LastMessage = GetLastMessageText(),
+                    LastMessageTime = GetLastMessageTime(),
+                    UpdateType = "Delete"
+                });
             }
-
-            // FIX BUG #4: Edit group message UI handler
-            private void EditGroupMessage_Click(object sender, RoutedEventArgs e)
+            catch (Exception ex)
             {
-                var msg = GetGroupMessageFromContextMenu(sender);
-                if (msg == null || !msg.IsFromMe) return;
-
-                _editingMessageId = msg.MessageDbId;
-                MessageTextBox.Text = msg.MessageText;
-                MessageTextBox.Focus();
-                MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
-
-                EditBar.Visibility = Visibility.Visible;
-                EditingLabel.Text = $"✏️ تعديل: {msg.MessageText[..Math.Min(30, msg.MessageText.Length)]}...";
+                Console.WriteLine($"DeleteGroupMessage error: {ex.Message}");
             }
+        }
 
-            private void CancelGroupEdit_Click(object sender, RoutedEventArgs e)
+        // FIX BUG #4: Edit group message UI handler
+        private async void EditGroupMessage_Click(object sender, RoutedEventArgs e)
+        {
+            var msg = GetGroupMessageFromContextMenu(sender);
+            if (msg == null || !msg.IsFromMe) return;
+
+            // Show edit bar
+            _editingMessageId = msg.MessageDbId;
+            MessageTextBox.Text = msg.MessageText;
+            MessageTextBox.Focus();
+            MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
+
+            EditBar.Visibility = Visibility.Visible;
+            EditingLabel.Text = $"✏️ تعديل: {(msg.MessageText?.Length > 30 ? msg.MessageText[..30] + "..." : msg.MessageText)}";
+        }
+
+        private void CancelGroupEdit_Click(object sender, RoutedEventArgs e)
             {
                 _editingMessageId = -1;
                 MessageTextBox.Text = "";
                 EditBar.Visibility = Visibility.Collapsed;
             }
 
-            // Helper methods
-            private UIChatMessage GetGroupMessageFromContextMenu(object sender)
+        // Helper methods
+        private UIChatMessage GetGroupMessageFromContextMenu(object sender)
+        {
+            if (sender is MenuItem mi && mi.Tag is UIChatMessage msg)
+                return msg;
+
+            if (sender is MenuItem menuItem &&
+                menuItem.Parent is ContextMenu cm &&
+                cm.PlacementTarget is FrameworkElement element)
             {
-                if (sender is MenuItem mi)
-                {
-                    if (mi.Tag is UIChatMessage msg) return msg;
-                    if (mi.Parent is ContextMenu cm &&
-                        cm.PlacementTarget is Border border)
-                        return border.Tag as UIChatMessage;
-                }
-                return null;
+                return element.Tag as UIChatMessage;
             }
 
-            private string GetLastMessageText()
+            return null;
+        }
+
+        private string GetLastMessageText()
             {
                 var lastMsg = Messages.LastOrDefault();
                 if (lastMsg == null) return "لا توجد رسائل";
@@ -527,70 +562,89 @@ namespace HR_Application.UserControls
         // ── SignalR ──────────────────────────────────────────────────────────
 
         private void SetupSignalRListener()
+        {
+            if (_signalRInitialized) return;
+
+            SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
+
+            // FIX: Add listeners for edit and delete events
+            SignalRManager.Instance.OnGroupMessageEdited += HandleGroupMessageEdited;
+            SignalRManager.Instance.OnGroupMessageDeleted += HandleGroupMessageDeleted;
+
+            _signalRInitialized = true;
+
+            Unloaded += (s, e) =>
             {
-                if (_signalRInitialized) return;
+                SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
+                SignalRManager.Instance.OnGroupMessageEdited -= HandleGroupMessageEdited;
+                SignalRManager.Instance.OnGroupMessageDeleted -= HandleGroupMessageDeleted;
+                _signalRInitialized = false;
+            };
+        }
 
-                SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
-                SignalRManager.Instance.OnGroupMessageEdited += HandleGroupMessageEdited;
-                SignalRManager.Instance.OnGroupMessageDeleted += HandleGroupMessageDeleted;
+        // FIX BUG #1 & #6: Handle edited group messages in real-time
+        private void HandleGroupMessageEdited(int messageId, int groupId, string newText)
+        {
+            if (groupId != SelectedGroupId) return;
 
-                _signalRInitialized = true;
-
-                Unloaded += (s, e) =>
-                {
-                    SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
-                    SignalRManager.Instance.OnGroupMessageEdited -= HandleGroupMessageEdited;
-                    SignalRManager.Instance.OnGroupMessageDeleted -= HandleGroupMessageDeleted;
-                    _signalRInitialized = false;
-                };
-            }
-
-            // FIX BUG #1 & #6: Handle edited group messages in real-time
-            private void HandleGroupMessageEdited(int messageId, int groupId, string newText)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                if (groupId != SelectedGroupId) return;
-
-                Application.Current.Dispatcher.Invoke(() =>
+                var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                if (msg != null)
                 {
-                    var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
-                    if (msg != null)
+                    msg.MessageText = newText;
+                    msg.IsEdited = true;
+
+                    // Force UI refresh
+                    var index = Messages.IndexOf(msg);
+                    if (index >= 0)
                     {
-                        msg.MessageText = newText;
-                        msg.IsEdited = true;
-
-                        // Force UI refresh
-                        var index = Messages.IndexOf(msg);
                         Messages.RemoveAt(index);
                         Messages.Insert(index, msg);
                     }
-                });
-            }
 
-            // FIX BUG #6: Handle deleted group messages in real-time
-            private void HandleGroupMessageDeleted(int messageId, int groupId)
-            {
-                if (groupId != SelectedGroupId) return;
-
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
-                    if (msg != null)
+                    // ✅ FIX: Check if this is the last message and notify parent
+                    var lastMsg = Messages.LastOrDefault();
+                    if (lastMsg != null && lastMsg.MessageDbId == messageId)
                     {
-                        Messages.Remove(msg);
-
-                        // FIX BUG #3: Update group item's last message
                         GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                         {
                             GroupId = SelectedGroupId,
                             LastMessage = GetLastMessageText(),
                             LastMessageTime = GetLastMessageTime(),
-                            UpdateType = "Delete"
+                            UpdateType = "Edit"
                         });
                     }
-                });
-            }
+                }
+            });
+        }
 
-            private async void HandleGroupMessage(int groupId, int senderId,
+        // FIX BUG #6: Handle deleted group messages in real-time
+        private void HandleGroupMessageDeleted(int messageId, int groupId)
+        {
+            // Check if this is for the currently open group
+            if (groupId != SelectedGroupId) return;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                if (msg != null)
+                {
+                    Messages.Remove(msg);
+
+                    // Update group item's last message
+                    GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
+                    {
+                        GroupId = SelectedGroupId,
+                        LastMessage = GetLastMessageText(),
+                        LastMessageTime = GetLastMessageTime(),
+                        UpdateType = "Delete"
+                    });
+                }
+            });
+        }
+
+        private async void HandleGroupMessage(int groupId, int senderId,
                                            string message, DateTime timestamp,
                                            string senderName)
             {
@@ -683,21 +737,49 @@ namespace HR_Application.UserControls
                         ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            // ── UI Helpers ───────────────────────────────────────────────────────
+        private async void DownloadAttachment_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var attachment = button?.Tag as ChatAttachmentItem;
 
-            private void SendButton_Click(object sender, RoutedEventArgs e) =>
-                SendMessage(MessageTextBox.Text);
-
-            private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
+            if (attachment != null)
             {
-                if (e.Key == Key.Enter && Keyboard.Modifiers != ModifierKeys.Shift)
+                var dialog = new Microsoft.Win32.SaveFileDialog
                 {
-                    e.Handled = true;
-                    SendMessage(MessageTextBox.Text);
+                    FileName = attachment.FileName,
+                    Filter = "All files (*.*)|*.*"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    try
+                    {
+                        File.WriteAllBytes(dialog.FileName, attachment.FileData);
+                        MessageBox.Show("تم حفظ الملف بنجاح", "تم", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"خطأ في حفظ الملف: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
+        }
 
-            private void ScrollToBottom() =>
+        // ── UI Helpers ───────────────────────────────────────────────────────
+
+        private void SendButton_Click(object sender, RoutedEventArgs e) =>
+                SendMessage(MessageTextBox.Text);
+
+        private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && !Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                e.Handled = true;
+                SendMessage(MessageTextBox.Text);
+            }
+        }
+
+        private void ScrollToBottom() =>
                 MessagesScrollViewer?.Dispatcher.Invoke(() =>
                     MessagesScrollViewer?.ScrollToEnd());
 

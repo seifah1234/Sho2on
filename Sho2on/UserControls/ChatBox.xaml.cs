@@ -507,12 +507,20 @@ namespace HR_Application.UserControls
                 dbMsg.EditedAt = DateTime.Now;
                 await ctx.SaveChangesAsync();
 
-                // FIX BUG #1: Update UI immediately for sender
+                // Update UI immediately for sender
                 var uiMsg = Messages.FirstOrDefault(m => m.MessageDbId == messageDbId);
                 if (uiMsg != null)
                 {
                     uiMsg.MessageText = newText;
                     uiMsg.IsEdited = true;
+
+                    // Force UI refresh
+                    var index = Messages.IndexOf(uiMsg);
+                    if (index >= 0)
+                    {
+                        Messages.RemoveAt(index);
+                        Messages.Insert(index, uiMsg);
+                    }
                 }
 
                 // إبلغ الطرف الآخر
@@ -520,6 +528,18 @@ namespace HR_Application.UserControls
                 {
                     await App.SignalRConnection.InvokeAsync(
                         "MessageEdited", messageDbId, SelectedUserId, newText);
+                }
+
+                // ✅ FIX: Check if this is the last message and notify parent
+                var lastMsg = Messages.LastOrDefault();
+                if (lastMsg != null && lastMsg.MessageDbId == messageDbId)
+                {
+                    MessageUpdated?.Invoke(this, new MessageUpdatedEventArgs
+                    {
+                        OtherUserId = SelectedUserId,
+                        LastMessage = GetLastMessageText(),
+                        LastMessageTime = GetLastMessageTime()
+                    });
                 }
 
                 // reset
@@ -757,6 +777,7 @@ namespace HR_Application.UserControls
 
             var manager = SignalRManager.Instance;
 
+            // Use local methods to ensure proper event handling
             manager.OnMessageReceived += HandleIncomingMessage;
             manager.OnMessageDelivered += HandleMessageDelivered;
             manager.OnMessageRead += HandleMessageRead;
@@ -765,7 +786,7 @@ namespace HR_Application.UserControls
 
             _signalRInitialized = true;
 
-            // Unsubscribe when control is unloaded
+            // Ensure cleanup on unload
             Unloaded += (s, e) =>
             {
                 manager.OnMessageReceived -= HandleIncomingMessage;
@@ -773,6 +794,7 @@ namespace HR_Application.UserControls
                 manager.OnMessageRead -= HandleMessageRead;
                 manager.OnMessageDeleted -= HandleMessageDeleted;
                 manager.OnMessageEdited -= HandleMessageEdited;
+                _signalRInitialized = false;
             };
         }
 
@@ -786,7 +808,7 @@ namespace HR_Application.UserControls
                 {
                     Messages.Remove(msg);
 
-                    // FIX BUG #5: Notify parent about message update
+                    // Notify parent about the change for last message update
                     MessageUpdated?.Invoke(this, new MessageUpdatedEventArgs
                     {
                         OtherUserId = SelectedUserId,
@@ -808,10 +830,25 @@ namespace HR_Application.UserControls
                     msg.MessageText = newText;
                     msg.IsEdited = true;
 
-                    // Force UI refresh
+                    // Force UI refresh by replacing the item
                     var index = Messages.IndexOf(msg);
-                    Messages.RemoveAt(index);
-                    Messages.Insert(index, msg);
+                    if (index >= 0)
+                    {
+                        Messages.RemoveAt(index);
+                        Messages.Insert(index, msg);
+                    }
+
+                    // ✅ FIX: Check if this is the last message and notify parent
+                    var lastMsg = Messages.LastOrDefault();
+                    if (lastMsg != null && lastMsg.MessageDbId == messageId)
+                    {
+                        MessageUpdated?.Invoke(this, new MessageUpdatedEventArgs
+                        {
+                            OtherUserId = SelectedUserId,
+                            LastMessage = GetLastMessageText(),
+                            LastMessageTime = GetLastMessageTime()
+                        });
+                    }
                 }
             });
         }

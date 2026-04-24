@@ -91,22 +91,12 @@ namespace HR_Application.Views.Conversations
         {
             try
             {
-                // Reset all individual chat unread counts
-                foreach (var chat in ChatList)
-                {
-                    chat.UnreadCount = 0;
-                    if (_unreadMessagesCount.ContainsKey(chat.UserId))
-                        _unreadMessagesCount[chat.UserId] = 0;
-                }
-
-                // Reset all group unread counts
-                foreach (var group in GroupList)
-                {
-                    group.UnreadCount = 0;
-                }
-
-                // Notify MainWindow to update badge
+                // Keep individual chat unread counts for display in ChatWindow
+                // Just reset the MainWindow badge
                 await SignalRManager.Instance.ResetAllUnreadCountsAsync(App.CurrentUser.Id);
+
+                // But keep the visual indicators in ChatWindow
+                // (don't reset _unreadMessagesCount dictionary)
             }
             catch (Exception ex)
             {
@@ -125,10 +115,21 @@ namespace HR_Application.Views.Conversations
                     chat.LastMessage = e.LastMessage;
                     chat.LastMessageTime = e.LastMessageTime;
 
-                    // Force UI refresh for the chat item
+                    // ✅ FIX: Force complete UI refresh
                     var index = ChatList.IndexOf(chat);
-                    ChatList.RemoveAt(index);
-                    ChatList.Insert(index, chat);
+                    if (index >= 0)
+                    {
+                        ChatList.RemoveAt(index);
+                        ChatList.Insert(index, chat);
+                    }
+
+                    // Also update archived chats if present
+                    var archivedChat = ArchivedChatList.FirstOrDefault(c => c.UserId == e.OtherUserId);
+                    if (archivedChat != null)
+                    {
+                        archivedChat.LastMessage = e.LastMessage;
+                        archivedChat.LastMessageTime = e.LastMessageTime;
+                    }
                 }
             });
         }
@@ -362,6 +363,29 @@ namespace HR_Application.Views.Conversations
             item.UnreadCount = 0;
             GroupChatBoxControl.LoadGroup(
                 item.GroupId, item.GroupName, item.GroupImageData);
+
+            // Reset group unread in DB
+            _ = ResetGroupUnreadInDbAsync(item.GroupId);
+        }
+
+        private async Task ResetGroupUnreadInDbAsync(int groupId)
+        {
+            try
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+                var member = await ctx.ChatGroupMembers
+                    .FirstOrDefaultAsync(m => m.GroupId == groupId
+                                           && m.UserId == App.CurrentUser.Id);
+                if (member != null && member.UnreadCount > 0)
+                {
+                    member.UnreadCount = 0;
+                    await ctx.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ResetGroupUnread error: {ex.Message}");
+            }
         }
 
         private void SetupGroupSignalRListener()
@@ -698,7 +722,9 @@ namespace HR_Application.Views.Conversations
 
             SelectedUserId = chatItem.UserId;
 
-            _unreadMessagesCount[chatItem.UserId] = 0;
+            // Reset unread for this specific chat
+            if (_unreadMessagesCount.ContainsKey(chatItem.UserId))
+                _unreadMessagesCount[chatItem.UserId] = 0;
             chatItem.UnreadCount = 0;
 
             ChatBoxControl.LoadChat(

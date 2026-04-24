@@ -120,7 +120,7 @@ namespace HR_Application
                     Helpers.NotificationsHelper.PlayNotificationSound();
                 }
 
-                // FIX BUG #2: Update badge for group messages too
+                // Always refresh badge for group messages
                 await RefreshUnreadBadge();
             };
 
@@ -167,14 +167,24 @@ namespace HR_Application
         // FIX BUG #2: Refresh badge including group unread counts
         private async Task RefreshUnreadBadge()
         {
-            _totalUnreadCount = await SignalRManager.Instance
-                .GetTotalUnreadAsync(App.CurrentUser.Id);
+            try
+            {
+                _totalUnreadCount = await SignalRManager.Instance
+                    .GetTotalUnreadAsync(App.CurrentUser.Id);
 
-            // Update badge UI
-            ChatBadge.Visibility = _totalUnreadCount > 0
-                ? Visibility.Visible : Visibility.Collapsed;
-            ChatBadgeText.Text = _totalUnreadCount > 99
-                ? "99+" : (_totalUnreadCount).ToString();
+                // Update badge UI on the main thread
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    ChatBadge.Visibility = _totalUnreadCount > 0
+                        ? Visibility.Visible : Visibility.Collapsed;
+                    ChatBadgeText.Text = _totalUnreadCount > 99
+                        ? "99+" : _totalUnreadCount.ToString();
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RefreshUnreadBadge error: {ex.Message}");
+            }
         }
 
         private bool IsChatWindowOpenFor(int userId)
