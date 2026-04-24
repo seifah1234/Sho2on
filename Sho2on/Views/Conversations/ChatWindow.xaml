@@ -44,7 +44,7 @@
                             <Button Click="ShowAddChatDialog" ToolTip="إضافة محادثة" Background="Transparent" BorderThickness="0" Margin="5">
                                 <icons:PackIconMaterial Kind="Plus" Width="20" Height="20"/>
                             </Button>
-                            <Button Click="CloseAddChatDialog" ToolTip="إغلاق" Background="Transparent" BorderThickness="0" Margin="5">
+                            <Button x:Name="CloseCurrentChatBtn" Click="CloseCurrentChatBtn_Click" ToolTip="إغلاق" Background="Transparent" BorderThickness="0" Margin="5">
                                 <icons:PackIconMaterial Kind="Close" Width="20" Height="20"/>
                             </Button>
                         </StackPanel>

@@ -15,6 +15,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
@@ -84,6 +85,12 @@
                                 <Border Background="#00BCD4"
                                         CornerRadius="0,12,12,12"
                                         Padding="10,7" MaxWidth="400">
+                                    <Border.ContextMenu>
+                                        <ContextMenu FlowDirection="RightToLeft">
+                                            <MenuItem Header="✏️ تعديل" Click="EditGroupMessage_Click" Tag="{Binding}"/>
+                                            <MenuItem Header="🗑️ حذف"   Click="DeleteGroupMessage_Click" Tag="{Binding}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
                                     <StackPanel>
                                         <TextBlock Text="{Binding MessageText}"
                                                    Foreground="White" TextWrapping="Wrap"/>
@@ -161,8 +168,31 @@
             </ItemsControl>
         </ScrollViewer>
 
+        <Border Grid.Row="3" x:Name="EditBar"
+Background="#1A00BCD4" 
+BorderBrush="#00BCD4"
+BorderThickness="0,2,0,0"
+Padding="10,5"
+Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="EditingLabel" 
+           Text="✏️ تعديل رسالة..."
+           Foreground="#00BCD4" FontSize="12"
+           VerticalAlignment="Center"/>
+                <Button Grid.Column="1" 
+        Content="✕ إلغاء"
+        Background="Transparent" BorderThickness="0"
+        Foreground="#00BCD4"
+        Click="CancelEdit_Click"/>
+            </Grid>
+        </Border>
+        
         <!-- Input -->
-        <Border Grid.Row="3"
+        <Border Grid.Row="4"
                 Background="{DynamicResource PrimaryColor}"
                 Padding="10">
             <Grid>

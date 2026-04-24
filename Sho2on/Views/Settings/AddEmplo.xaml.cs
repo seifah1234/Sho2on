@@ -519,12 +519,13 @@ namespace HR_Application
 
             try
             {
+                
                 if (!ValidateInput())
                     return;
 
                 // البحث عن المستخدم في قاعدة البيانات
-                int code = int.Parse(emplo_code_box.Text);
-                var user = await _context.Users.FindAsync(code);
+                string code = emplo_code_box.Text;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Code == code);
 
                 if (user != null)
                 {

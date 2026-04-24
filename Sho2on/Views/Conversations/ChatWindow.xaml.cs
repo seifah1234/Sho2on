@@ -16,6 +16,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
 using TextBox = System.Windows.Controls.TextBox;
@@ -69,13 +70,86 @@ namespace HR_Application.Views.Conversations
             ChatBoxControl.NewMessageReceived += ChatBoxControl_NewMessageReceived;
             ChatBoxControl.NewMessageSent += ChatBoxControl_NewMessageSent;
 
+            // FIX BUG #5: Subscribe to message updates (edit/delete)
+            ChatBoxControl.MessageUpdated += ChatBoxControl_MessageUpdated;
+            GroupChatBoxControl.GroupMessageUpdated += GroupChatBoxControl_GroupMessageUpdated;
+
             Loaded += async (s, e) =>
             {
-                await LoadChatsAsync();          // بيفلتر IsArchived = false تلقائياً
+                await LoadChatsAsync();
                 await LoadGroupsAsync();
                 await LoadArchivedChatsAsync();
                 SetupGroupSignalRListener();
+
+                // FIX BUG #2: Reset unread counts when window opens
+                await RefreshUnreadCounts();
             };
+        }
+
+        // FIX BUG #2: Reset unread counts when chat window opens
+        private async Task RefreshUnreadCounts()
+        {
+            try
+            {
+                // Reset all individual chat unread counts
+                foreach (var chat in ChatList)
+                {
+                    chat.UnreadCount = 0;
+                    if (_unreadMessagesCount.ContainsKey(chat.UserId))
+                        _unreadMessagesCount[chat.UserId] = 0;
+                }
+
+                // Reset all group unread counts
+                foreach (var group in GroupList)
+                {
+                    group.UnreadCount = 0;
+                }
+
+                // Notify MainWindow to update badge
+                await SignalRManager.Instance.ResetAllUnreadCountsAsync(App.CurrentUser.Id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RefreshUnreadCounts error: {ex.Message}");
+            }
+        }
+
+        // FIX BUG #5: Handle message updates (edit/delete) to update last message
+        private void ChatBoxControl_MessageUpdated(object sender, MessageUpdatedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var chat = ChatList.FirstOrDefault(c => c.UserId == e.OtherUserId);
+                if (chat != null)
+                {
+                    chat.LastMessage = e.LastMessage;
+                    chat.LastMessageTime = e.LastMessageTime;
+
+                    // Force UI refresh for the chat item
+                    var index = ChatList.IndexOf(chat);
+                    ChatList.RemoveAt(index);
+                    ChatList.Insert(index, chat);
+                }
+            });
+        }
+
+        // FIX BUG #3: Handle group message updates
+        private void GroupChatBoxControl_GroupMessageUpdated(object sender, GroupMessageUpdatedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var group = GroupList.FirstOrDefault(g => g.GroupId == e.GroupId);
+                if (group != null)
+                {
+                    group.LastMessage = e.LastMessage;
+                    group.LastMessageTime = e.LastMessageTime;
+
+                    // Force UI refresh
+                    var index = GroupList.IndexOf(group);
+                    GroupList.RemoveAt(index);
+                    GroupList.Insert(index, group);
+                }
+            });
         }
 
         private void ChatsTab_Click(object sender, RoutedEventArgs e)
@@ -105,14 +179,11 @@ namespace HR_Application.Views.Conversations
             ChatsScrollViewer.Visibility = Visibility.Collapsed;
             GroupsScrollViewer.Visibility = Visibility.Collapsed;
             ArchiveScrollViewer.Visibility = Visibility.Visible;
-            // الأرشيف يستخدم ChatBoxControl العادي
             ChatBoxControl.Visibility = Visibility.Visible;
             GroupChatBoxControl.Visibility = Visibility.Collapsed;
             GroupsTab.IsChecked = false;
             ChatsTab.IsChecked = false;
         }
-
-        // ── Archive ───────────────────────────────────────────────────────────────
 
         private async Task LoadArchivedChatsAsync()
         {
@@ -192,14 +263,12 @@ namespace HR_Application.Views.Conversations
 
         private async void ArchiveChat_Click(object sender, RoutedEventArgs e)
         {
-            // ContextMenu بيفقد الـ DataContext — نجيب الـ Tag من PlacementTarget
             ChatItemData item = null;
 
             if (sender is MenuItem menuItem)
             {
                 item = menuItem.Tag as ChatItemData;
 
-                // لو Tag فاضي — جيبه من الـ ContextMenu
                 if (item == null && menuItem.Parent is ContextMenu contextMenu)
                 {
                     item = (contextMenu.PlacementTarget as Button)?.Tag as ChatItemData;
@@ -302,13 +371,14 @@ namespace HR_Application.Views.Conversations
 
         private async void HandleGroupMessage(int groupId, int senderId,
                                        string message, DateTime timestamp,
-                                       string senderName)  // ✅ أضف senderName
+                                       string senderName)
         {
             if (senderId == _currentUser.Id) return;
 
             bool groupIsOpen = GroupChatBoxControl.SelectedGroupId == groupId
                                && GroupChatBoxControl.IsVisible;
 
+            // FIX BUG #3: Update group item's last message immediately
             var groupItem = GroupList.FirstOrDefault(g => g.GroupId == groupId);
             if (groupItem != null)
             {
@@ -316,6 +386,11 @@ namespace HR_Application.Views.Conversations
                 groupItem.LastMessageTime = timestamp;
                 if (!groupIsOpen)
                     groupItem.UnreadCount++;
+
+                // Force UI refresh
+                var index = GroupList.IndexOf(groupItem);
+                GroupList.RemoveAt(index);
+                GroupList.Insert(0, groupItem); // Move to top
             }
 
             if (!groupIsOpen)
@@ -323,7 +398,6 @@ namespace HR_Application.Views.Conversations
                 using var ctx = new AppDbContext(App.ConnectionString);
                 var group = await ctx.ChatGroups.FindAsync(groupId);
 
-                // استخدم senderName مباشرةً بدل ما نعمل DB query
                 var displayName = !string.IsNullOrEmpty(senderName)
                     ? senderName
                     : (await ctx.Users.FindAsync(senderId))?.FullName ?? "مستخدم";
@@ -349,23 +423,23 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        // في OnClosed — أضف:
+        // In OnClosed
         protected override void OnClosed(EventArgs e)
         {
             SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
             ChatBoxControl.NewMessageReceived -= ChatBoxControl_NewMessageReceived;
             ChatBoxControl.NewMessageSent -= ChatBoxControl_NewMessageSent;
+            ChatBoxControl.MessageUpdated -= ChatBoxControl_MessageUpdated;
+            GroupChatBoxControl.GroupMessageUpdated -= GroupChatBoxControl_GroupMessageUpdated;
             base.OnClosed(e);
         }
 
         public ChatWindow(User currentUser) : this()
         {
-            _currentUser = currentUser; 
-            App.CurrentUser = currentUser;  // تأكد من تعيينها
+            _currentUser = currentUser;
+            App.CurrentUser = currentUser;
 
-            // إعادة تسجيل المستخدم في SignalR
             _ = RegisterUserWithSignalR();
-
         }
 
         private void ChatBoxControl_NewMessageReceived(object sender, NewMessageEventArgs e)
@@ -374,13 +448,11 @@ namespace HR_Application.Views.Conversations
             {
                 bool chatIsOpen = SelectedUserId == e.FromUserId;
 
-                // ✅ حدّث DB لو الشات مش مفتوح
                 if (!chatIsOpen)
                 {
                     await IncrementUnreadCountInDbAsync(e.FromUserId);
                 }
 
-                // حدّث الـ dictionary
                 if (!_unreadMessagesCount.ContainsKey(e.FromUserId))
                     _unreadMessagesCount[e.FromUserId] = 0;
 
@@ -422,7 +494,6 @@ namespace HR_Application.Views.Conversations
             });
         }
 
-        // ✅ دالة جديدة لتحديث UnreadCount في DB
         private async Task IncrementUnreadCountInDbAsync(int fromUserId)
         {
             try
@@ -460,7 +531,7 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        private void OpenSpecificChat(int userId)
+        public void OpenSpecificChat(int userId)
         {
             var chat = ChatList.FirstOrDefault(c => c.UserId == userId);
             if (chat != null)
@@ -473,7 +544,7 @@ namespace HR_Application.Views.Conversations
                 _unreadMessagesCount[userId] = 0;
                 chat.UnreadCount = 0;
 
-                _ = ResetUnreadCountInDbAsync(userId);  // ✅
+                _ = ResetUnreadCountInDbAsync(userId);
                 _ = MarkMessagesAsReadAsync(userId);
             }
         }
@@ -482,15 +553,11 @@ namespace HR_Application.Views.Conversations
         {
             Dispatcher.Invoke(() =>
             {
-
-                // تحديث الـ ChatItem للمستقبل
                 var chat = ChatList.FirstOrDefault(c => c.UserId == e.ToUserId);
                 if (chat != null)
                 {
                     chat.LastMessage = e.Message;
                     chat.LastMessageTime = e.Timestamp;
-
-                    // نقل المحادثة إلى الأعلى
                     MoveChatToTop(chat);
                 }
             });
@@ -498,9 +565,7 @@ namespace HR_Application.Views.Conversations
 
         private void MoveChatToTop(ChatItemData chat)
         {
-            // إزالة العنصر من مكانه الحالي
             ChatList.Remove(chat);
-            // إضافته في البداية
             ChatList.Insert(0, chat);
         }
 
@@ -508,7 +573,6 @@ namespace HR_Application.Views.Conversations
         {
             try
             {
-                // جلب بيانات المستخدم من قاعدة البيانات
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null)
                 {
@@ -573,7 +637,6 @@ namespace HR_Application.Views.Conversations
                     .OrderByDescending(c => c.Messages.Max(m => (DateTime?)m.SentAt))
                     .ToListAsync();
 
-                // جيب كل الـ UnreadCounts للـ currentUser دفعة واحدة
                 var chatIds = chats.Select(c => c.Id).ToList();
                 var unreadStatuses = await _context.ChatUserStatuses
                     .Where(s => s.UserId == _currentUser.Id && chatIds.Contains(s.ChatId))
@@ -591,7 +654,6 @@ namespace HR_Application.Views.Conversations
                         .OrderByDescending(m => m.SentAt)
                         .FirstOrDefault();
 
-                    // ✅ الشرط الصح
                     string lastMessageText;
                     if (lastMessage == null)
                         lastMessageText = "لا توجد رسائل بعد";
@@ -600,12 +662,10 @@ namespace HR_Application.Views.Conversations
                     else
                         lastMessageText = lastMessage.Message;
 
-                    // ✅ جيب UnreadCount من DB
                     var unreadStatus = unreadStatuses
                         .FirstOrDefault(s => s.ChatId == chat.Id);
                     var unreadCount = unreadStatus?.UnreadCount ?? 0;
 
-                    // sync مع الـ dictionary
                     if (unreadCount > 0)
                         _unreadMessagesCount[otherUser.Id] = unreadCount;
 
@@ -617,7 +677,7 @@ namespace HR_Application.Views.Conversations
                         LastMessage = lastMessageText,
                         LastMessageTime = lastMessage?.SentAt ?? DateTime.Now,
                         ProfileImageData = otherUser.ProfileImageData,
-                        UnreadCount = unreadCount  // ✅ بدل ما يبدأ بصفر
+                        UnreadCount = unreadCount
                     });
                 }
             }
@@ -645,7 +705,7 @@ namespace HR_Application.Views.Conversations
                 chatItem.UserName, chatItem.UserCode,
                 chatItem.ProfileImageData, chatItem.UserId);
 
-            _ = ResetUnreadCountInDbAsync(chatItem.UserId);  // ✅
+            _ = ResetUnreadCountInDbAsync(chatItem.UserId);
             _ = MarkMessagesAsReadAsync(chatItem.UserId);
         }
 
@@ -669,6 +729,10 @@ namespace HR_Application.Views.Conversations
                     status.UnreadCount = 0;
                     status.LastReadAt = DateTime.Now;
                     await context.SaveChangesAsync();
+
+                    // FIX BUG #2: Notify MainWindow about unread count change
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                        SignalRManager.Instance.ResetUnreadCountAsync(chat.Id, _currentUser.Id));
                 }
             }
             catch (Exception ex)
@@ -727,7 +791,7 @@ namespace HR_Application.Views.Conversations
             {
                 var users = await _context.Users
                     .Where(u => u.FullName.Contains(searchText) || u.Code == searchText)
-                    .Where(u => u.Id != _currentUser.Id) // استبعاد المستخدم الحالي
+                    .Where(u => u.Id != _currentUser.Id)
                     .Take(10)
                     .ToListAsync();
 
@@ -762,7 +826,6 @@ namespace HR_Application.Views.Conversations
 
             try
             {
-                // التحقق من وجود محادثة سابقة
                 var existingChat = await _context.Chats
                     .FirstOrDefaultAsync(c =>
                         (c.FirstUserId == _currentUser.Id && c.SecondUserId == selectedUser.UserId) ||
@@ -773,7 +836,6 @@ namespace HR_Application.Views.Conversations
                     MessageBox.Show("المحادثة موجودة بالفعل", "معلومات",
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // إضافة للمحادثات الظاهرة
                     var chatItem = new ChatItemData
                     {
                         UserName = selectedUser.UserName,
@@ -788,7 +850,6 @@ namespace HR_Application.Views.Conversations
                 }
                 else
                 {
-                    // إنشاء محادثة جديدة
                     var newChat = new Chat
                     {
                         FirstUserId = _currentUser.Id,
@@ -800,7 +861,6 @@ namespace HR_Application.Views.Conversations
                     _context.Chats.Add(newChat);
                     await _context.SaveChangesAsync();
 
-                    // إضافة للمحادثات الظاهرة
                     ChatList.Add(new ChatItemData
                     {
                         UserName = selectedUser.UserName,
@@ -814,7 +874,6 @@ namespace HR_Application.Views.Conversations
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
-                // إغلاق نافذة الإضافة
                 addChatGrid.Visibility = Visibility.Collapsed;
                 newChatCodeBox.Text = "";
                 newChatUserBox.Text = "";
@@ -845,7 +904,10 @@ namespace HR_Application.Views.Conversations
 
         private void CloseAddChatDialog(object sender, RoutedEventArgs e)
         {
-            ChatBoxControl.ClearChat();
+            addChatGrid.Visibility = Visibility.Collapsed;
+            newChatCodeBox.Text = "";
+            newChatUserBox.Text = "";
+            SearchResults.Clear();
         }
 
 
@@ -854,9 +916,15 @@ namespace HR_Application.Views.Conversations
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        private void CloseCurrentChatBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ChatBoxControl.ClearChat();
+            GroupChatBoxControl.ClearGroup();
+            _selectedUserId = -1;
+        }
     }
 
-    // Model لعنصر المحادثة
     public class ChatItemData : INotifyPropertyChanged
     {
         private string _userName;
@@ -954,7 +1022,7 @@ namespace HR_Application.Views.Conversations
         }
     }
 
-    // Model لنتائج البحث
+
     public class UserSearchResult : INotifyPropertyChanged
     {
         private string _userName;

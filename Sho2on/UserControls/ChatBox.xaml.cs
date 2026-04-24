@@ -81,6 +81,7 @@ namespace HR_Application.UserControls
         private bool _signalRInitialized = false;
         public event EventHandler<NewMessageEventArgs> NewMessageReceived;
         public event EventHandler<NewMessageEventArgs> NewMessageSent;
+        public event EventHandler<MessageUpdatedEventArgs> MessageUpdated;
 
         public ObservableCollection<ChatAttachmentItem> SelectedAttachments { get; set; }
         private List<ChatAttachmentItem> _pendingAttachments = new List<ChatAttachmentItem>();
@@ -146,11 +147,34 @@ namespace HR_Application.UserControls
                     await App.SignalRConnection.InvokeAsync(
                         "MessageDeleted", msg.MessageDbId, SelectedUserId);
                 }
+
+                // FIX BUG #5: Notify parent about message update (for last message)
+                MessageUpdated?.Invoke(this, new MessageUpdatedEventArgs
+                {
+                    OtherUserId = SelectedUserId,
+                    LastMessage = GetLastMessageText(),
+                    LastMessageTime = GetLastMessageTime()
+                });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"DeleteMessage error: {ex.Message}");
             }
+        }
+
+        // FIX BUG #5: Helper methods to get last message info
+        private string GetLastMessageText()
+        {
+            var lastMsg = Messages.LastOrDefault();
+            if (lastMsg == null) return "لا توجد رسائل";
+            if (string.IsNullOrEmpty(lastMsg.MessageText)) return "📎 مرفق";
+            return lastMsg.MessageText;
+        }
+
+        private DateTime GetLastMessageTime()
+        {
+            var lastMsg = Messages.LastOrDefault();
+            return lastMsg?.SentAt ?? DateTime.Now;
         }
 
         private async void AttachButton_Click(object sender, RoutedEventArgs e)
@@ -366,14 +390,14 @@ namespace HR_Application.UserControls
                         {
                             var uiMessage = new UIChatMessage
                             {
-                                MessageDbId = msg.Id,      // ✅ أضف
+                                MessageDbId = msg.Id,
                                 MessageText = msg.Message,
                                 IsFromMe = msg.SenderId == App.CurrentUser.Id,
                                 Time = msg.SentAt.ToString("hh:mm tt"),
                                 SentAt = msg.SentAt,
                                 IsRead = msg.IsRead,
                                 IsDelivered = msg.IsDelivered ?? false,
-                                IsEdited = msg.IsEdited   // ✅ أضف
+                                IsEdited = msg.IsEdited
                             };
 
                             await LoadAttachmentsForMessage(msg.Id, uiMessage);
@@ -475,7 +499,7 @@ namespace HR_Application.UserControls
             {
                 using var ctx = new AppDbContext(App.ConnectionString);
                 var dbMsg = await ctx.ChatMessages.FindAsync(messageDbId);
-                MessageBox.Show($"{messageDbId}");
+
                 if (dbMsg == null) return;
 
                 dbMsg.Message = newText;
@@ -483,7 +507,7 @@ namespace HR_Application.UserControls
                 dbMsg.EditedAt = DateTime.Now;
                 await ctx.SaveChangesAsync();
 
-                // حدّث الـ UI
+                // FIX BUG #1: Update UI immediately for sender
                 var uiMsg = Messages.FirstOrDefault(m => m.MessageDbId == messageDbId);
                 if (uiMsg != null)
                 {
@@ -577,8 +601,8 @@ namespace HR_Application.UserControls
                             lastMsg.MessageDbId = chatMessage.Id;
                     });
 
-                    // حفظ المرفقات - استخدم attachments بدلاً من _pendingAttachments
-                    foreach (var attachment in attachments)  // تم التصحيح هنا
+                    // حفظ المرفقات
+                    foreach (var attachment in attachments)
                     {
                         var dbAttachment = new Sho2on.Database.Models.ChatAttachment
                         {
@@ -658,7 +682,6 @@ namespace HR_Application.UserControls
                         .Where(a => a.MessageId == messageId)
                         .ToListAsync();
 
-                    // تأكد من إضافة المرفقات حتى لو كانت القائمة فارغة
                     if (attachments.Any())
                     {
                         foreach (var att in attachments)
@@ -753,15 +776,28 @@ namespace HR_Application.UserControls
             };
         }
 
+        // FIX BUG #6: Handle message deletion in real-time
         private void HandleMessageDeleted(int messageId)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
-                if (msg != null) Messages.Remove(msg);
+                if (msg != null)
+                {
+                    Messages.Remove(msg);
+
+                    // FIX BUG #5: Notify parent about message update
+                    MessageUpdated?.Invoke(this, new MessageUpdatedEventArgs
+                    {
+                        OtherUserId = SelectedUserId,
+                        LastMessage = GetLastMessageText(),
+                        LastMessageTime = GetLastMessageTime()
+                    });
+                }
             });
         }
 
+        // FIX BUG #1: Handle message editing in real-time
         private void HandleMessageEdited(int messageId, string newText)
         {
             Application.Current.Dispatcher.Invoke(() =>
@@ -771,6 +807,11 @@ namespace HR_Application.UserControls
                 {
                     msg.MessageText = newText;
                     msg.IsEdited = true;
+
+                    // Force UI refresh
+                    var index = Messages.IndexOf(msg);
+                    Messages.RemoveAt(index);
+                    Messages.Insert(index, msg);
                 }
             });
         }
@@ -1102,7 +1143,7 @@ namespace HR_Application.UserControls
         private string _time;
         private DateTime _sentAt;
         private bool _isRead;
-        private bool _isDelivered; 
+        private bool _isDelivered;
         private ObservableCollection<ChatAttachmentItem> _attachments;
         private int _readCount;
         private bool _isEdited;
@@ -1147,7 +1188,7 @@ namespace HR_Application.UserControls
                 _isEdited = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(EditedLabel));
-                OnPropertyChanged(nameof(ShowEditedLabel)); 
+                OnPropertyChanged(nameof(ShowEditedLabel));
             }
         }
 
@@ -1211,5 +1252,13 @@ namespace HR_Application.UserControls
         public string Message { get; set; }
         public DateTime Timestamp { get; set; }
         public bool IsFromMe { get; set; }
+    }
+
+    // FIX BUG #5: New event args for message updates (edit/delete)
+    public class MessageUpdatedEventArgs : EventArgs
+    {
+        public int OtherUserId { get; set; }
+        public string LastMessage { get; set; }
+        public DateTime LastMessageTime { get; set; }
     }
 }

@@ -24,504 +24,740 @@ using UserControl = System.Windows.Controls.UserControl;
 
 namespace HR_Application.UserControls
 {
-    public partial class GroupChatBox : UserControl, INotifyPropertyChanged
-    {
-        public int SelectedGroupId { get; private set; }
-        public bool CurrentUserIsAdmin { get; private set; }
-
-        public ObservableCollection<UIChatMessage> Messages { get; set; }
-        public ObservableCollection<ChatAttachmentItem> SelectedAttachments { get; set; }
-
-        private List<ChatAttachmentItem> _pendingAttachments = new();
-        private bool _signalRInitialized = false;
-
-        public event EventHandler<GroupMessageEventArgs> NewGroupMessageReceived;
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public GroupChatBox()
+        public partial class GroupChatBox : UserControl, INotifyPropertyChanged
         {
-            InitializeComponent();
-            Messages = new ObservableCollection<UIChatMessage>();
-            SelectedAttachments = new ObservableCollection<ChatAttachmentItem>();
-            MessagesItemsControl.ItemsSource = Messages;
-            DataContext = this;
-            Loaded += (s, e) => SetupSignalRListener();
-        }
+            public int SelectedGroupId { get; private set; }
+            public bool CurrentUserIsAdmin { get; private set; }
 
-        public void AddIncomingGroupMessage(GroupMessageEventArgs e)
-        {
-            Dispatcher.Invoke(async () =>
+            public ObservableCollection<UIChatMessage> Messages { get; set; }
+            public ObservableCollection<ChatAttachmentItem> SelectedAttachments { get; set; }
+
+            private List<ChatAttachmentItem> _pendingAttachments = new();
+            private bool _signalRInitialized = false;
+            private int _editingMessageId = -1;
+
+            public event EventHandler<GroupMessageEventArgs> NewGroupMessageReceived;
+            public event EventHandler<GroupMessageUpdatedEventArgs> GroupMessageUpdated;
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public GroupChatBox()
             {
-                if (e.GroupId != SelectedGroupId) return;
-                if (e.FromUserId == App.CurrentUser.Id) return;
+                InitializeComponent();
+                Messages = new ObservableCollection<UIChatMessage>();
+                SelectedAttachments = new ObservableCollection<ChatAttachmentItem>();
+                MessagesItemsControl.ItemsSource = Messages;
+                DataContext = this;
+                Loaded += (s, e) => SetupSignalRListener();
+            }
 
-                Messages.Add(new UIChatMessage
-                {
-                    MessageText = e.Message,
-                    IsFromMe = false,
-                    SenderName = e.SenderName ?? "",
-                    Time = e.Timestamp.ToString("hh:mm tt"),
-                    SentAt = e.Timestamp,
-                    IsDelivered = true,
-                    IsRead = true
-                });
-
-                ScrollToBottom();
-                await ResetUnreadCountAsync(SelectedGroupId);
-            });
-        }
-
-        // ── Load ─────────────────────────────────────────────────────────────
-
-        public async void LoadGroup(int groupId, string groupName,
-                                    byte[] groupImage = null)
-        {
-            SelectedGroupId = groupId;
-            GroupNameText.Text = groupName;
-
-
-            await SignalRManager.Instance.JoinGroupAsync(groupId);
-
-            if (groupImage?.Length > 0)
-                GroupImage.Source = ConvertToImage(groupImage);
-
-            NoChatSelectedPlaceholder.Visibility = Visibility.Collapsed;
-            MessageTextBox.IsEnabled = true;
-            SendButton.IsEnabled = true;
-
-            Messages.Clear();
-            await LoadMessagesAsync(groupId);
-            await MarkMessagesAsReadAsync(groupId);
-            await SendReadReceiptAsync(groupId);
-            await LoadMembersInfoAsync(groupId);
-            await ResetUnreadCountAsync(groupId);
-        }
-
-        private async Task MarkMessagesAsReadAsync(int groupId)
-        {
-            try
+            public void AddIncomingGroupMessage(GroupMessageEventArgs e)
             {
-                using var ctx = new AppDbContext(App.ConnectionString);
-
-                // جيب الرسائل اللي لسه ما قرأتهاش
-                var readMessageIds = await ctx.ChatGroupMessageReads
-                    .Where(r => r.UserId == App.CurrentUser.Id)
-                    .Select(r => r.MessageId)
-                    .ToListAsync();
-
-                var unreadMessages = await ctx.ChatGroupMessages
-                    .Where(m => m.GroupId == groupId
-                             && !m.IsDeleted
-                             && m.SenderId != App.CurrentUser.Id
-                             && !readMessageIds.Contains(m.Id))
-                    .ToListAsync();
-
-                if (!unreadMessages.Any()) return;
-
-                foreach (var msg in unreadMessages)
+                Dispatcher.Invoke(async () =>
                 {
-                    ctx.ChatGroupMessageReads.Add(new ChatGroupMessageRead
+                    if (e.GroupId != SelectedGroupId) return;
+                    if (e.FromUserId == App.CurrentUser.Id) return;
+
+                    Messages.Add(new UIChatMessage
                     {
-                        MessageId = msg.Id,
-                        UserId = App.CurrentUser.Id,
-                        ReadAt = DateTime.Now
-                    });
-                }
-                await ctx.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"MarkGroupRead error: {ex.Message}");
-            }
-        }
-
-        private async Task SendReadReceiptAsync(int groupId)
-        {
-            try
-            {
-                if (App.SignalRConnection?.State == HubConnectionState.Connected)
-                {
-                    await App.SignalRConnection.InvokeAsync(
-                        "MarkGroupMessagesRead", groupId, App.CurrentUser.Id);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"SendGroupReadReceipt error: {ex.Message}");
-            }
-        }
-
-        public void ClearGroup()
-        {
-            if (SelectedGroupId > 0)
-            {
-                _ = SignalRManager.Instance.LeaveGroupAsync(SelectedGroupId);
-            }
-            SelectedGroupId = 0;
-            CurrentUserIsAdmin = false;
-            Messages.Clear();
-            NoChatSelectedPlaceholder.Visibility = Visibility.Visible;
-            MessageTextBox.IsEnabled = false;
-            SendButton.IsEnabled = false;
-            ManageMembersBtn.Visibility = Visibility.Collapsed;
-        }
-
-        private async Task LoadMessagesAsync(int groupId)
-        {
-            try
-            {
-                using var ctx = new AppDbContext(App.ConnectionString);
-                var messages = await ctx.ChatGroupMessages
-                    .Include(m => m.Sender)
-                    .Include(m => m.Attachments)
-                    .Where(m => m.GroupId == groupId && !m.IsDeleted)
-                    .OrderBy(m => m.SentAt)
-                    .ToListAsync();
-
-                foreach (var msg in messages)
-                {
-                    var uiMsg = new UIChatMessage
-                    {
-                        MessageText = msg.Message ?? "",
-                        IsFromMe = msg.SenderId == App.CurrentUser.Id,
-                        SenderName = msg.SenderId == App.CurrentUser.Id
-                                     ? "" : msg.Sender?.FullName ?? "",
-                        Time = msg.SentAt.ToString("hh:mm tt"),
-                        SentAt = msg.SentAt,
+                        MessageText = e.Message,
+                        IsFromMe = false,
+                        SenderName = e.SenderName ?? "",
+                        Time = e.Timestamp.ToString("hh:mm tt"),
+                        SentAt = e.Timestamp,
                         IsDelivered = true,
-                        IsRead = true
-                    };
+                        IsRead = true,
+                        MessageDbId = e.MessageId // FIX: Store message ID
+                    });
 
-                    foreach (var att in msg.Attachments
-                                          ?? Enumerable.Empty<ChatGroupAttachment>())
+                    ScrollToBottom();
+                    await ResetUnreadCountAsync(SelectedGroupId);
+
+                    // FIX BUG #3: Notify parent about updated last message
+                    GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                     {
-                        uiMsg.Attachments.Add(new ChatAttachmentItem
+                        GroupId = SelectedGroupId,
+                        LastMessage = GetLastMessageText(),
+                        LastMessageTime = GetLastMessageTime(),
+                        UpdateType = "NewMessage"
+                    });
+                });
+            }
+
+            // ── Load ─────────────────────────────────────────────────────────────
+
+            public async void LoadGroup(int groupId, string groupName,
+                                        byte[] groupImage = null)
+            {
+                SelectedGroupId = groupId;
+                GroupNameText.Text = groupName;
+
+
+                await SignalRManager.Instance.JoinGroupAsync(groupId);
+
+                if (groupImage?.Length > 0)
+                    GroupImage.Source = ConvertToImage(groupImage);
+
+                NoChatSelectedPlaceholder.Visibility = Visibility.Collapsed;
+                MessageTextBox.IsEnabled = true;
+                SendButton.IsEnabled = true;
+
+                Messages.Clear();
+                await LoadMessagesAsync(groupId);
+                await MarkMessagesAsReadAsync(groupId);
+                await SendReadReceiptAsync(groupId);
+                await LoadMembersInfoAsync(groupId);
+                await ResetUnreadCountAsync(groupId);
+            }
+
+            private async Task MarkMessagesAsReadAsync(int groupId)
+            {
+                try
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+
+                    // جيب الرسائل اللي لسه ما قرأتهاش
+                    var readMessageIds = await ctx.ChatGroupMessageReads
+                        .Where(r => r.UserId == App.CurrentUser.Id)
+                        .Select(r => r.MessageId)
+                        .ToListAsync();
+
+                    var unreadMessages = await ctx.ChatGroupMessages
+                        .Where(m => m.GroupId == groupId
+                                 && !m.IsDeleted
+                                 && m.SenderId != App.CurrentUser.Id
+                                 && !readMessageIds.Contains(m.Id))
+                        .ToListAsync();
+
+                    if (!unreadMessages.Any()) return;
+
+                    foreach (var msg in unreadMessages)
+                    {
+                        ctx.ChatGroupMessageReads.Add(new ChatGroupMessageRead
                         {
+                            MessageId = msg.Id,
+                            UserId = App.CurrentUser.Id,
+                            ReadAt = DateTime.Now
+                        });
+                    }
+                    await ctx.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"MarkGroupRead error: {ex.Message}");
+                }
+            }
+
+            private async Task SendReadReceiptAsync(int groupId)
+            {
+                try
+                {
+                    if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                    {
+                        await App.SignalRConnection.InvokeAsync(
+                            "MarkGroupMessagesRead", groupId, App.CurrentUser.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"SendGroupReadReceipt error: {ex.Message}");
+                }
+            }
+
+            public void ClearGroup()
+            {
+                if (SelectedGroupId > 0)
+                {
+                    _ = SignalRManager.Instance.LeaveGroupAsync(SelectedGroupId);
+                }
+                SelectedGroupId = 0;
+                CurrentUserIsAdmin = false;
+                Messages.Clear();
+                NoChatSelectedPlaceholder.Visibility = Visibility.Visible;
+                MessageTextBox.IsEnabled = false;
+                SendButton.IsEnabled = false;
+                ManageMembersBtn.Visibility = Visibility.Collapsed;
+            }
+
+            private async Task LoadMessagesAsync(int groupId)
+            {
+                try
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+                    var messages = await ctx.ChatGroupMessages
+                        .Include(m => m.Sender)
+                        .Include(m => m.Attachments)
+                        .Where(m => m.GroupId == groupId && !m.IsDeleted)
+                        .OrderBy(m => m.SentAt)
+                        .ToListAsync();
+
+                    foreach (var msg in messages)
+                    {
+                        var uiMsg = new UIChatMessage
+                        {
+                            MessageDbId = msg.Id, // FIX: Store message ID
+                            MessageText = msg.Message ?? "",
+                            IsFromMe = msg.SenderId == App.CurrentUser.Id,
+                            SenderName = msg.SenderId == App.CurrentUser.Id
+                                         ? "" : msg.Sender?.FullName ?? "",
+                            Time = msg.SentAt.ToString("hh:mm tt"),
+                            SentAt = msg.SentAt,
+                            IsDelivered = true,
+                            IsRead = true,
+                            IsEdited = msg.IsEdited
+                        };
+
+                        foreach (var att in msg.Attachments
+                                              ?? Enumerable.Empty<ChatGroupAttachment>())
+                        {
+                            uiMsg.Attachments.Add(new ChatAttachmentItem
+                            {
+                                FileName = att.FileName,
+                                FileSize = att.FileSize,
+                                FileData = att.FileData,
+                                FileIcon = GetFileIcon(Path.GetExtension(att.FileName))
+                            });
+                        }
+
+                        Messages.Add(uiMsg);
+                    }
+
+                    ScrollToBottom();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"LoadGroupMessages error: {ex.Message}");
+                }
+            }
+
+            private async Task LoadMembersInfoAsync(int groupId)
+            {
+                try
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+                    var membersCount = await ctx.ChatGroupMembers
+                        .CountAsync(m => m.GroupId == groupId);
+
+                    MembersCountText.Text = $"{membersCount} عضو";
+
+                    var myMembership = await ctx.ChatGroupMembers
+                        .FirstOrDefaultAsync(m => m.GroupId == groupId
+                                               && m.UserId == App.CurrentUser.Id);
+
+                    CurrentUserIsAdmin = myMembership?.IsAdmin ?? false;
+                    ManageMembersBtn.Visibility = CurrentUserIsAdmin
+                        ? Visibility.Visible : Visibility.Collapsed;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"LoadMembersInfo error: {ex.Message}");
+                }
+            }
+
+            // ── Send ─────────────────────────────────────────────────────────────
+
+            private async void SendMessage(string message)
+            {
+                if (string.IsNullOrWhiteSpace(message) && _pendingAttachments.Count == 0)
+                    return;
+                if (SelectedGroupId == 0) return;
+
+                // FIX BUG #4: Handle edit in groups
+                if (_editingMessageId != -1)
+                {
+                    await SaveGroupEditAsync(_editingMessageId, message);
+                    return;
+                }
+
+                var tempMsg = new UIChatMessage
+                {
+                    MessageText = message ?? "",
+                    IsFromMe = true,
+                    SenderName = "",
+                    Time = DateTime.Now.ToString("hh:mm tt"),
+                    SentAt = DateTime.Now,
+                    IsDelivered = true,
+                    IsRead = false
+                };
+                foreach (var a in _pendingAttachments)
+                    tempMsg.Attachments.Add(a);
+
+                Messages.Add(tempMsg);
+                MessageTextBox.Text = "";
+
+                var attachments = _pendingAttachments.ToList();
+                _pendingAttachments.Clear();
+                SelectedAttachments.Clear();
+                AttachmentsScrollViewer.Visibility = Visibility.Collapsed;
+                ScrollToBottom();
+
+                await SendToServerAsync(message ?? "", attachments);
+            }
+
+            // FIX BUG #4: Save edit for group messages
+            private async Task SaveGroupEditAsync(int messageId, string newText)
+            {
+                try
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+                    var dbMsg = await ctx.ChatGroupMessages.FindAsync(messageId);
+
+                    if (dbMsg == null || dbMsg.SenderId != App.CurrentUser.Id) return;
+
+                    dbMsg.Message = newText;
+                    dbMsg.IsEdited = true;
+                    dbMsg.EditedAt = DateTime.Now;
+                    await ctx.SaveChangesAsync();
+
+                    var uiMsg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                    if (uiMsg != null)
+                    {
+                        uiMsg.MessageText = newText;
+                        uiMsg.IsEdited = true;
+                    }
+
+                    if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                    {
+                        await App.SignalRConnection.InvokeAsync(
+                            "GroupMessageEdited", messageId, SelectedGroupId, newText);
+                    }
+
+                    _editingMessageId = -1;
+                    MessageTextBox.Text = "";
+                    EditBar.Visibility = Visibility.Collapsed;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"EditGroupMessage error: {ex.Message}");
+                }
+            }
+
+            private async Task SendToServerAsync(string message,
+                                                  List<ChatAttachmentItem> attachments)
+            {
+                try
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+
+                    // حفظ الرسالة
+                    var dbMsg = new ChatGroupMessage
+                    {
+                        GroupId = SelectedGroupId,
+                        SenderId = App.CurrentUser.Id,
+                        Message = message,
+                        SentAt = DateTime.Now
+                    };
+                    ctx.ChatGroupMessages.Add(dbMsg);
+                    await ctx.SaveChangesAsync();
+
+                    // FIX: Set message ID for UI
+                    var tempMsg = Messages.LastOrDefault(m => m.IsFromMe && m.MessageDbId == 0);
+                    if (tempMsg != null)
+                        tempMsg.MessageDbId = dbMsg.Id;
+
+                    // حفظ المرفقات
+                    foreach (var att in attachments)
+                    {
+                        ctx.ChatGroupAttachments.Add(new ChatGroupAttachment
+                        {
+                            MessageId = dbMsg.Id,
                             FileName = att.FileName,
                             FileSize = att.FileSize,
                             FileData = att.FileData,
-                            FileIcon = GetFileIcon(Path.GetExtension(att.FileName))
+                            ContentType = GetContentType(att.FileName),
+                            CreatedAt = DateTime.Now
                         });
                     }
 
-                    Messages.Add(uiMsg);
-                }
+                    // زوّد UnreadCount لباقي الأعضاء
+                    var otherMembers = await ctx.ChatGroupMembers
+                        .Where(m => m.GroupId == SelectedGroupId
+                                 && m.UserId != App.CurrentUser.Id)
+                        .ToListAsync();
 
-                ScrollToBottom();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"LoadGroupMessages error: {ex.Message}");
-            }
-        }
+                    foreach (var m in otherMembers)
+                        m.UnreadCount++;
 
-        private async Task LoadMembersInfoAsync(int groupId)
-        {
-            try
-            {
-                using var ctx = new AppDbContext(App.ConnectionString);
-                var membersCount = await ctx.ChatGroupMembers
-                    .CountAsync(m => m.GroupId == groupId);
+                    await ctx.SaveChangesAsync();
 
-                MembersCountText.Text = $"{membersCount} عضو";
+                    // SignalR
+                    await App.SignalRConnection.InvokeAsync("SendGroupMessage",
+                        SelectedGroupId, App.CurrentUser.Id, message, App.CurrentUser.FullName);
 
-                var myMembership = await ctx.ChatGroupMembers
-                    .FirstOrDefaultAsync(m => m.GroupId == groupId
-                                           && m.UserId == App.CurrentUser.Id);
-
-                CurrentUserIsAdmin = myMembership?.IsAdmin ?? false;
-                ManageMembersBtn.Visibility = CurrentUserIsAdmin
-                    ? Visibility.Visible : Visibility.Collapsed;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"LoadMembersInfo error: {ex.Message}");
-            }
-        }
-
-        // ── Send ─────────────────────────────────────────────────────────────
-
-        private async void SendMessage(string message)
-        {
-            if (string.IsNullOrWhiteSpace(message) && _pendingAttachments.Count == 0)
-                return;
-            if (SelectedGroupId == 0) return;
-
-            var tempMsg = new UIChatMessage
-            {
-                MessageText = message ?? "",
-                IsFromMe = true,
-                SenderName = "",
-                Time = DateTime.Now.ToString("hh:mm tt"),
-                SentAt = DateTime.Now,
-                IsDelivered = true,
-                IsRead = false
-            };
-            foreach (var a in _pendingAttachments)
-                tempMsg.Attachments.Add(a);
-
-            Messages.Add(tempMsg);
-            MessageTextBox.Text = "";
-
-            var attachments = _pendingAttachments.ToList();
-            _pendingAttachments.Clear();
-            SelectedAttachments.Clear();
-            AttachmentsScrollViewer.Visibility = Visibility.Collapsed;
-            ScrollToBottom();
-
-            await SendToServerAsync(message ?? "", attachments);
-        }
-
-        private async Task SendToServerAsync(string message,
-                                              List<ChatAttachmentItem> attachments)
-        {
-            try
-            {
-                using var ctx = new AppDbContext(App.ConnectionString);
-
-                // حفظ الرسالة
-                var dbMsg = new ChatGroupMessage
-                {
-                    GroupId = SelectedGroupId,
-                    SenderId = App.CurrentUser.Id,
-                    Message = message,
-                    SentAt = DateTime.Now
-                };
-                ctx.ChatGroupMessages.Add(dbMsg);
-                await ctx.SaveChangesAsync();
-
-                // حفظ المرفقات
-                foreach (var att in attachments)
-                {
-                    ctx.ChatGroupAttachments.Add(new ChatGroupAttachment
+                    // FIX BUG #3: Notify parent about updated last message
+                    GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                     {
-                        MessageId = dbMsg.Id,
-                        FileName = att.FileName,
-                        FileSize = att.FileSize,
-                        FileData = att.FileData,
-                        ContentType = GetContentType(att.FileName),
-                        CreatedAt = DateTime.Now
+                        GroupId = SelectedGroupId,
+                        LastMessage = string.IsNullOrEmpty(message) ? "📎 مرفق" : message,
+                        LastMessageTime = DateTime.Now,
+                        UpdateType = "NewMessage"
                     });
                 }
-
-                // زوّد UnreadCount لباقي الأعضاء
-                var otherMembers = await ctx.ChatGroupMembers
-                    .Where(m => m.GroupId == SelectedGroupId
-                             && m.UserId != App.CurrentUser.Id)
-                    .ToListAsync();
-
-                foreach (var m in otherMembers)
-                    m.UnreadCount++;
-
-                await ctx.SaveChangesAsync();
-
-                // SignalR
-                await App.SignalRConnection.InvokeAsync("SendGroupMessage",
-                    SelectedGroupId, App.CurrentUser.Id, message, App.CurrentUser.FullName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"SendGroupMessage error: {ex.Message}");
-            }
-        }
-
-        // ── Unread ───────────────────────────────────────────────────────────
-
-        private async Task ResetUnreadCountAsync(int groupId)
-        {
-            try
-            {
-                using var ctx = new AppDbContext(App.ConnectionString);
-                var member = await ctx.ChatGroupMembers
-                    .FirstOrDefaultAsync(m => m.GroupId == groupId
-                                           && m.UserId == App.CurrentUser.Id);
-                if (member != null && member.UnreadCount > 0)
+                catch (Exception ex)
                 {
-                    member.UnreadCount = 0;
-                    await ctx.SaveChangesAsync();
+                    Console.WriteLine($"SendGroupMessage error: {ex.Message}");
                 }
             }
-            catch (Exception ex)
+
+            // FIX BUG #4: Delete group message
+            private async void DeleteGroupMessage_Click(object sender, RoutedEventArgs e)
             {
-                Console.WriteLine($"ResetGroupUnread error: {ex.Message}");
+                var msg = GetGroupMessageFromContextMenu(sender);
+                if (msg == null || !msg.IsFromMe) return;
+
+                var confirm = MessageBox.Show("هل تريد حذف هذه الرسالة؟", "تأكيد",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirm != MessageBoxResult.Yes) return;
+
+                try
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+                    var dbMsg = await ctx.ChatGroupMessages.FindAsync(msg.MessageDbId);
+                    if (dbMsg != null)
+                    {
+                        dbMsg.IsDeleted = true;
+                        await ctx.SaveChangesAsync();
+                    }
+
+                    Messages.Remove(msg);
+
+                    if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                    {
+                        await App.SignalRConnection.InvokeAsync(
+                            "GroupMessageDeleted", msg.MessageDbId, SelectedGroupId);
+                    }
+
+                    // FIX BUG #3 & #5: Notify parent about updated last message
+                    GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
+                    {
+                        GroupId = SelectedGroupId,
+                        LastMessage = GetLastMessageText(),
+                        LastMessageTime = GetLastMessageTime(),
+                        UpdateType = "Delete"
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"DeleteGroupMessage error: {ex.Message}");
+                }
             }
+
+            // FIX BUG #4: Edit group message UI handler
+            private void EditGroupMessage_Click(object sender, RoutedEventArgs e)
+            {
+                var msg = GetGroupMessageFromContextMenu(sender);
+                if (msg == null || !msg.IsFromMe) return;
+
+                _editingMessageId = msg.MessageDbId;
+                MessageTextBox.Text = msg.MessageText;
+                MessageTextBox.Focus();
+                MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
+
+                EditBar.Visibility = Visibility.Visible;
+                EditingLabel.Text = $"✏️ تعديل: {msg.MessageText[..Math.Min(30, msg.MessageText.Length)]}...";
+            }
+
+            private void CancelGroupEdit_Click(object sender, RoutedEventArgs e)
+            {
+                _editingMessageId = -1;
+                MessageTextBox.Text = "";
+                EditBar.Visibility = Visibility.Collapsed;
+            }
+
+            // Helper methods
+            private UIChatMessage GetGroupMessageFromContextMenu(object sender)
+            {
+                if (sender is MenuItem mi)
+                {
+                    if (mi.Tag is UIChatMessage msg) return msg;
+                    if (mi.Parent is ContextMenu cm &&
+                        cm.PlacementTarget is Border border)
+                        return border.Tag as UIChatMessage;
+                }
+                return null;
+            }
+
+            private string GetLastMessageText()
+            {
+                var lastMsg = Messages.LastOrDefault();
+                if (lastMsg == null) return "لا توجد رسائل";
+                if (string.IsNullOrEmpty(lastMsg.MessageText)) return "📎 مرفق";
+                return lastMsg.MessageText;
+            }
+
+            private DateTime GetLastMessageTime()
+            {
+                var lastMsg = Messages.LastOrDefault();
+                return lastMsg?.SentAt ?? DateTime.Now;
+            }
+
+            // ── Unread ───────────────────────────────────────────────────────────
+
+            private async Task ResetUnreadCountAsync(int groupId)
+            {
+                try
+                {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+                    var member = await ctx.ChatGroupMembers
+                        .FirstOrDefaultAsync(m => m.GroupId == groupId
+                                               && m.UserId == App.CurrentUser.Id);
+                    if (member != null && member.UnreadCount > 0)
+                    {
+                        member.UnreadCount = 0;
+                        await ctx.SaveChangesAsync();
+
+                        // FIX BUG #2: Notify SignalR about unread count change
+                        await Application.Current.Dispatcher.InvokeAsync(() =>
+                            SignalRManager.Instance.ResetUnreadCountAsync(groupId, App.CurrentUser.Id)
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ResetGroupUnread error: {ex.Message}");
+                }
+            }
+
+        private void CancelEdit_Click(object sender, RoutedEventArgs e)
+        {
+            _editingMessageId = -1;
+            MessageTextBox.Text = "";
+            EditBar.Visibility = Visibility.Collapsed;
         }
 
         // ── SignalR ──────────────────────────────────────────────────────────
 
         private void SetupSignalRListener()
-        {
-            if (_signalRInitialized) return;
-
-            // ✅ اشترك في الـ event بتاع SignalRManager بدل ما تعمل listener مباشر
-            SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
-
-            _signalRInitialized = true;
-
-            Unloaded += (s, e) =>
             {
-                SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
-                _signalRInitialized = false;
-            };
-        }
+                if (_signalRInitialized) return;
 
-        private async void HandleGroupMessage(int groupId, int senderId,
-                                       string message, DateTime timestamp,
-                                       string senderName)  // ✅ أضف senderName
-        {
-            if (senderId == App.CurrentUser.Id) return;
+                SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
+                SignalRManager.Instance.OnGroupMessageEdited += HandleGroupMessageEdited;
+                SignalRManager.Instance.OnGroupMessageDeleted += HandleGroupMessageDeleted;
 
-            NewGroupMessageReceived?.Invoke(this, new GroupMessageEventArgs
-            {
-                GroupId = groupId,
-                FromUserId = senderId,
-                SenderName = senderName,  // ✅ استخدم المباشر
-                Message = message,
-                Timestamp = timestamp
-            });
+                _signalRInitialized = true;
 
-            if (groupId != SelectedGroupId) return;
-
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                Messages.Add(new UIChatMessage
+                Unloaded += (s, e) =>
                 {
-                    MessageText = message,
-                    IsFromMe = false,
-                    SenderName = senderName,  // ✅ مباشر بدون DB query
-                    Time = timestamp.ToString("hh:mm tt"),
-                    SentAt = timestamp,
-                    IsDelivered = true,
-                    IsRead = true
+                    SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
+                    SignalRManager.Instance.OnGroupMessageEdited -= HandleGroupMessageEdited;
+                    SignalRManager.Instance.OnGroupMessageDeleted -= HandleGroupMessageDeleted;
+                    _signalRInitialized = false;
+                };
+            }
+
+            // FIX BUG #1 & #6: Handle edited group messages in real-time
+            private void HandleGroupMessageEdited(int messageId, int groupId, string newText)
+            {
+                if (groupId != SelectedGroupId) return;
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                    if (msg != null)
+                    {
+                        msg.MessageText = newText;
+                        msg.IsEdited = true;
+
+                        // Force UI refresh
+                        var index = Messages.IndexOf(msg);
+                        Messages.RemoveAt(index);
+                        Messages.Insert(index, msg);
+                    }
+                });
+            }
+
+            // FIX BUG #6: Handle deleted group messages in real-time
+            private void HandleGroupMessageDeleted(int messageId, int groupId)
+            {
+                if (groupId != SelectedGroupId) return;
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+                    if (msg != null)
+                    {
+                        Messages.Remove(msg);
+
+                        // FIX BUG #3: Update group item's last message
+                        GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
+                        {
+                            GroupId = SelectedGroupId,
+                            LastMessage = GetLastMessageText(),
+                            LastMessageTime = GetLastMessageTime(),
+                            UpdateType = "Delete"
+                        });
+                    }
+                });
+            }
+
+            private async void HandleGroupMessage(int groupId, int senderId,
+                                           string message, DateTime timestamp,
+                                           string senderName)
+            {
+                if (senderId == App.CurrentUser.Id) return;
+
+                NewGroupMessageReceived?.Invoke(this, new GroupMessageEventArgs
+                {
+                    GroupId = groupId,
+                    FromUserId = senderId,
+                    SenderName = senderName,
+                    Message = message,
+                    Timestamp = timestamp
                 });
 
-                ScrollToBottom();
-                _ = ResetUnreadCountAsync(groupId);
-            });
-        }
-        // ── Members Management ───────────────────────────────────────────────
+                if (groupId != SelectedGroupId) return;
 
-        private void ManageMembers_Click(object sender, RoutedEventArgs e)
-        {
-            if (!CurrentUserIsAdmin) return;
-            var win = new GroupMembersWindow(SelectedGroupId);
-            win.Owner = Window.GetWindow(this);
-            win.ShowDialog();
-            // refresh members count بعد ما تتقفل
-            _ = LoadMembersInfoAsync(SelectedGroupId);
-        }
-
-        // ── Attachments ──────────────────────────────────────────────────────
-
-        private void AttachButton_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Multiselect = true,
-                Filter = "All files (*.*)|*.*"
-            };
-            if (dialog.ShowDialog() != true) return;
-
-            foreach (var path in dialog.FileNames)
-            {
-                var info = new FileInfo(path);
-                if (info.Length > 10 * 1024 * 1024)
+                await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    MessageBox.Show($"الملف {info.Name} أكبر من 10MB");
-                    continue;
+                    Messages.Add(new UIChatMessage
+                    {
+                        MessageText = message,
+                        IsFromMe = false,
+                        SenderName = senderName,
+                        Time = timestamp.ToString("hh:mm tt"),
+                        SentAt = timestamp,
+                        IsDelivered = true,
+                        IsRead = true
+                    });
+
+                    ScrollToBottom();
+                    _ = ResetUnreadCountAsync(groupId);
+                });
+            }
+
+            // ── Members Management ───────────────────────────────────────────────
+
+            private void ManageMembers_Click(object sender, RoutedEventArgs e)
+            {
+                if (!CurrentUserIsAdmin) return;
+                var win = new GroupMembersWindow(SelectedGroupId);
+                win.Owner = Window.GetWindow(this);
+                win.ShowDialog();
+                _ = LoadMembersInfoAsync(SelectedGroupId);
+            }
+
+            // ── Attachments ──────────────────────────────────────────────────────
+
+            private void AttachButton_Click(object sender, RoutedEventArgs e)
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Multiselect = true,
+                    Filter = "All files (*.*)|*.*"
+                };
+                if (dialog.ShowDialog() != true) return;
+
+                foreach (var path in dialog.FileNames)
+                {
+                    var info = new FileInfo(path);
+                    if (info.Length > 10 * 1024 * 1024)
+                    {
+                        MessageBox.Show($"الملف {info.Name} أكبر من 10MB");
+                        continue;
+                    }
+
+                    var att = new ChatAttachmentItem
+                    {
+                        FileName = info.Name,
+                        FileSize = info.Length,
+                        FileData = File.ReadAllBytes(path),
+                        FileIcon = GetFileIcon(info.Extension)
+                    };
+                    _pendingAttachments.Add(att);
+                    SelectedAttachments.Add(att);
                 }
 
-                var att = new ChatAttachmentItem
-                {
-                    FileName = info.Name,
-                    FileSize = info.Length,
-                    FileData = File.ReadAllBytes(path),
-                    FileIcon = GetFileIcon(info.Extension)
-                };
-                _pendingAttachments.Add(att);
-                SelectedAttachments.Add(att);
+                AttachmentsScrollViewer.Visibility =
+                    SelectedAttachments.Count > 0
+                        ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            AttachmentsScrollViewer.Visibility =
-                SelectedAttachments.Count > 0
-                    ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        private void RemoveAttachment_Click(object sender, RoutedEventArgs e)
-        {
-            var att = (sender as Button)?.Tag as ChatAttachmentItem;
-            if (att == null) return;
-            _pendingAttachments.Remove(att);
-            SelectedAttachments.Remove(att);
-            AttachmentsScrollViewer.Visibility =
-                SelectedAttachments.Count > 0
-                    ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        // ── UI Helpers ───────────────────────────────────────────────────────
-
-        private void SendButton_Click(object sender, RoutedEventArgs e) =>
-            SendMessage(MessageTextBox.Text);
-
-        private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter && Keyboard.Modifiers != ModifierKeys.Shift)
+            private void RemoveAttachment_Click(object sender, RoutedEventArgs e)
             {
-                e.Handled = true;
+                var att = (sender as Button)?.Tag as ChatAttachmentItem;
+                if (att == null) return;
+                _pendingAttachments.Remove(att);
+                SelectedAttachments.Remove(att);
+                AttachmentsScrollViewer.Visibility =
+                    SelectedAttachments.Count > 0
+                        ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            // ── UI Helpers ───────────────────────────────────────────────────────
+
+            private void SendButton_Click(object sender, RoutedEventArgs e) =>
                 SendMessage(MessageTextBox.Text);
-            }
-        }
 
-        private void ScrollToBottom() =>
-            MessagesScrollViewer?.Dispatcher.Invoke(() =>
-                MessagesScrollViewer?.ScrollToEnd());
-
-        private BitmapImage ConvertToImage(byte[] data)
-        {
-            using var stream = new MemoryStream(data);
-            var bmp = new BitmapImage();
-            bmp.BeginInit();
-            bmp.CacheOption = BitmapCacheOption.OnLoad;
-            bmp.StreamSource = stream;
-            bmp.EndInit();
-            bmp.Freeze();
-            return bmp;
-        }
-
-        private string GetFileIcon(string ext) => ext.ToLower() switch
-        {
-            ".pdf" => "FilePdf",
-            ".doc" or ".docx" => "FileWord",
-            ".xls" or ".xlsx" => "FileExcel",
-            ".jpg" or ".jpeg"
-            or ".png" or ".gif" => "FileImage",
-            ".zip" or ".rar" => "FileZip",
-            _ => "File"
-        };
-
-        private string GetContentType(string fileName) =>
-            Path.GetExtension(fileName).ToLower() switch
+            private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
             {
-                ".pdf" => "application/pdf",
-                ".jpg" or ".jpeg" => "image/jpeg",
-                ".png" => "image/png",
-                ".docx" => "application/vnd.openxmlformats-officedocument" +
-                           ".wordprocessingml.document",
-                ".xlsx" => "application/vnd.openxmlformats-officedocument" +
-                           ".spreadsheetml.sheet",
-                _ => "application/octet-stream"
+                if (e.Key == Key.Enter && Keyboard.Modifiers != ModifierKeys.Shift)
+                {
+                    e.Handled = true;
+                    SendMessage(MessageTextBox.Text);
+                }
+            }
+
+            private void ScrollToBottom() =>
+                MessagesScrollViewer?.Dispatcher.Invoke(() =>
+                    MessagesScrollViewer?.ScrollToEnd());
+
+            private BitmapImage ConvertToImage(byte[] data)
+            {
+                using var stream = new MemoryStream(data);
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.StreamSource = stream;
+                bmp.EndInit();
+                bmp.Freeze();
+                return bmp;
+            }
+
+            private string GetFileIcon(string ext) => ext.ToLower() switch
+            {
+                ".pdf" => "FilePdf",
+                ".doc" or ".docx" => "FileWord",
+                ".xls" or ".xlsx" => "FileExcel",
+                ".jpg" or ".jpeg"
+                or ".png" or ".gif" => "FileImage",
+                ".zip" or ".rar" => "FileZip",
+                _ => "File"
             };
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
+            private string GetContentType(string fileName) =>
+                Path.GetExtension(fileName).ToLower() switch
+                {
+                    ".pdf" => "application/pdf",
+                    ".jpg" or ".jpeg" => "image/jpeg",
+                    ".png" => "image/png",
+                    ".docx" => "application/vnd.openxmlformats-officedocument" +
+                               ".wordprocessingml.document",
+                    ".xlsx" => "application/vnd.openxmlformats-officedocument" +
+                               ".spreadsheetml.sheet",
+                    _ => "application/octet-stream"
+                };
 
-    public class GroupMessageEventArgs : EventArgs
-    {
-        public int GroupId { get; set; }
-        public int FromUserId { get; set; }
-        public string Message { get; set; }
-        public string SenderName { get; set; }
-        public DateTime Timestamp { get; set; }
-    }
+            protected void OnPropertyChanged([CallerMemberName] string name = null) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public class GroupMessageEventArgs : EventArgs
+        {
+            public int GroupId { get; set; }
+            public int FromUserId { get; set; }
+            public string Message { get; set; }
+            public string SenderName { get; set; }
+            public DateTime Timestamp { get; set; }
+            public int MessageId { get; set; } // FIX: Add message ID
+        }
+
+        // FIX BUG #3: New event args for group message updates
+        public class GroupMessageUpdatedEventArgs : EventArgs
+        {
+            public int GroupId { get; set; }
+            public string LastMessage { get; set; }
+            public DateTime LastMessageTime { get; set; }
+            public string UpdateType { get; set; } // "NewMessage", "Delete", "Edit"
+        }
+    
 }

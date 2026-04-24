@@ -200,7 +200,7 @@ Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityC
                                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
                                         <TextBlock Text="{Binding EditedLabel}" 
 FontSize="9" Opacity="0.6"
-Foreground="{DynamicResource TextPrimaryColor}"
+Foreground="{DynamicResource PrimaryColor}"
 Visibility="{Binding ShowEditedLabel, 
     Converter={StaticResource BoolToVisibilityConverter}}"/>
 
@@ -210,6 +210,7 @@ Visibility="{Binding ShowEditedLabel,
                                        Opacity="0.5"
                                        FlowDirection="LeftToRight"
                                        Margin="5,2"
+                                                   Foreground="{DynamicResource PrimaryColor}"
                                        HorizontalAlignment="{Binding Alignment}"/>
                                     </StackPanel>
                                 </Grid>
@@ -249,7 +250,7 @@ Visibility="{Binding ShowEditedLabel,
         Background="{DynamicResource PrimaryColor}" 
         BorderBrush="{DynamicResource SecondaryColor}"
         BorderThickness="0,1,0,0"
-        Padding="10">
+                Padding="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

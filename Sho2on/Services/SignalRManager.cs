@@ -1,12 +1,8 @@
-﻿using HR_Application.UserControls;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
-using System.Threading.Tasks;
-using System.Windows;
-using Application = System.Windows.Application;
+using Application = System.Windows.Application; 
 
 namespace HR_Application.Services
 {
@@ -30,8 +26,11 @@ namespace HR_Application.Services
         public event Action<int, int, DateTime> OnGroupMessagesRead;
         public event Action<int> OnMessageDeleted;
         public event Action<int, string> OnMessageEdited;
-        // ✅ أحداث المجموعات
         public event Action<int, int, string, DateTime, string> OnGroupMessageReceived;
+
+        // FIX BUG #4: New events for group message edit/delete
+        public event Action<int, int, string> OnGroupMessageEdited;
+        public event Action<int, int> OnGroupMessageDeleted;
 
         public async Task InitializeAsync(int userId)
         {
@@ -75,10 +74,13 @@ namespace HR_Application.Services
             App.SignalRConnection.Remove("MessageDelivered");
             App.SignalRConnection.Remove("MessageRead");
             App.SignalRConnection.Remove("ReceiveTaskNotification");
-            App.SignalRConnection.Remove("ReceiveGroupMessage"); // ✅ إضافة
+            App.SignalRConnection.Remove("ReceiveGroupMessage");
             App.SignalRConnection.Remove("GroupMessagesRead");
+            App.SignalRConnection.Remove("MessageDeleted");
+            App.SignalRConnection.Remove("MessageEdited");
+            App.SignalRConnection.Remove("GroupMessageEdited");
+            App.SignalRConnection.Remove("GroupMessageDeleted");
 
-            // رسائل خاصة
             App.SignalRConnection.On<int, int, string, DateTime>(
                 "ReceiveMessage",
                 async (fromUserId, toUserId, message, timestamp) =>
@@ -134,6 +136,19 @@ namespace HR_Application.Services
                     OnMessageEdited?.Invoke(messageId, newText));
             });
 
+            // FIX BUG #4: Listen for group message edit/delete
+            App.SignalRConnection.On<int, int, string>("GroupMessageEdited", async (messageId, groupId, newText) =>
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                    OnGroupMessageEdited?.Invoke(messageId, groupId, newText));
+            });
+
+            App.SignalRConnection.On<int, int>("GroupMessageDeleted", async (messageId, groupId) =>
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                    OnGroupMessageDeleted?.Invoke(messageId, groupId));
+            });
+
             App.SignalRConnection.On<int, int, string, DateTime, string>(
                 "ReceiveGroupMessage",
                 async (groupId, senderId, message, timestamp, senderName) =>
@@ -149,13 +164,13 @@ namespace HR_Application.Services
             _listenersRegistered = true;
         }
 
+        // FIX BUG #2: Update group unread and notify MainWindow
         private async Task UpdateGroupUnreadCountAsync(int groupId, int senderId)
         {
             try
             {
                 using var ctx = new AppDbContext(App.ConnectionString);
 
-                // زوّد UnreadCount للـ currentUser فقط
                 var member = await ctx.ChatGroupMembers
                     .FirstOrDefaultAsync(m => m.GroupId == groupId
                                            && m.UserId == App.CurrentUser.Id);
@@ -173,7 +188,28 @@ namespace HR_Application.Services
             }
         }
 
-        // ✅ دالة للانضمام إلى مجموعة
+        // FIX BUG #2: Get total unread including groups
+        public async Task<int> GetTotalUnreadAsync(int userId)
+        {
+            try
+            {
+                using var context = new AppDbContext(App.ConnectionString);
+
+                // Get individual chat unread counts
+                var chatUnread = await context.ChatUserStatuses
+                    .Where(s => s.UserId == userId)
+                    .SumAsync(s => s.UnreadCount);
+
+                // Get group chat unread counts
+                var groupUnread = await context.ChatGroupMembers
+                    .Where(m => m.UserId == userId)
+                    .SumAsync(m => m.UnreadCount);
+
+                return chatUnread + groupUnread;
+            }
+            catch { return 0; }
+        }
+
         public async Task JoinGroupAsync(int groupId)
         {
             try
@@ -190,7 +226,6 @@ namespace HR_Application.Services
             }
         }
 
-        // ✅ دالة لمغادرة مجموعة
         public async Task LeaveGroupAsync(int groupId)
         {
             try
@@ -207,7 +242,6 @@ namespace HR_Application.Services
             }
         }
 
-        // ✅ إرسال رسالة مجموعة
         public async Task SendGroupMessageAsync(int groupId, int senderId, string message)
         {
             try
@@ -264,6 +298,46 @@ namespace HR_Application.Services
             }
         }
 
+        // Add this method to SignalRManager class
+        public async Task ResetAllUnreadCountsAsync(int userId)
+        {
+            try
+            {
+                using var context = new AppDbContext(App.ConnectionString);
+
+                // Reset all individual chat unread counts
+                var chatStatuses = await context.ChatUserStatuses
+                    .Where(s => s.UserId == userId && s.UnreadCount > 0)
+                    .ToListAsync();
+
+                foreach (var status in chatStatuses)
+                {
+                    status.UnreadCount = 0;
+                    status.LastReadAt = DateTime.Now;
+                }
+
+                // Reset all group chat unread counts
+                var groupMembers = await context.ChatGroupMembers
+                    .Where(m => m.UserId == userId && m.UnreadCount > 0)
+                    .ToListAsync();
+
+                foreach (var member in groupMembers)
+                {
+                    member.UnreadCount = 0;
+                }
+
+                await context.SaveChangesAsync();
+
+                // Notify about the change
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                    OnUnreadCountChanged?.Invoke(userId));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ResetAllUnreadCounts error: {ex.Message}");
+            }
+        }
+
         public async Task ResetUnreadCountAsync(int chatId, int userId)
         {
             try
@@ -286,18 +360,6 @@ namespace HR_Application.Services
             {
                 Console.WriteLine($"ResetUnreadCount error: {ex.Message}");
             }
-        }
-
-        public async Task<int> GetTotalUnreadAsync(int userId)
-        {
-            try
-            {
-                using var context = new AppDbContext(App.ConnectionString);
-                return await context.ChatUserStatuses
-                    .Where(s => s.UserId == userId)
-                    .SumAsync(s => s.UnreadCount);
-            }
-            catch { return 0; }
         }
 
         public async Task<int> GetUnreadForChatAsync(int chatId, int userId)

@@ -75,12 +75,10 @@ namespace HR_Application
             {
                 if (toUserId != App.CurrentUser.Id) return;
 
-                // Is the ChatWindow open AND showing this user?
                 bool chatIsOpen = IsChatWindowOpenFor(fromUserId);
 
                 if (!chatIsOpen)
                 {
-                    // Show popup notification
                     var sender = await GetUserNameAsync(fromUserId);
                     Helpers.NotificationsHelper.ShowPopupNotification(
                         $"رسالة من {sender}",
@@ -90,9 +88,12 @@ namespace HR_Application
                     );
                     Helpers.NotificationsHelper.PlayNotificationSound();
                 }
+
+                // FIX BUG #2: Always refresh badge
+                await RefreshUnreadBadge();
             };
 
-            // UnreadCount badge on the chat nav button
+            // FIX BUG #2: Subscribe to unread count changes
             manager.OnUnreadCountChanged += async (userId) =>
             {
                 if (userId == App.CurrentUser.Id)
@@ -118,6 +119,9 @@ namespace HR_Application
                     );
                     Helpers.NotificationsHelper.PlayNotificationSound();
                 }
+
+                // FIX BUG #2: Update badge for group messages too
+                await RefreshUnreadBadge();
             };
 
             // Task notifications
@@ -139,6 +143,12 @@ namespace HR_Application
                 );
                 Helpers.NotificationsHelper.PlayNotificationSound();
             };
+
+            // FIX BUG #2: Also listen for group message edits/deletes to refresh badge
+            manager.OnGroupMessageDeleted += async (messageId, groupId) =>
+            {
+                await RefreshUnreadBadge();
+            };
         }
 
         private bool IsChatWindowGroupOpenFor(int groupId)
@@ -154,12 +164,13 @@ namespace HR_Application
             return false;
         }
 
+        // FIX BUG #2: Refresh badge including group unread counts
         private async Task RefreshUnreadBadge()
         {
             _totalUnreadCount = await SignalRManager.Instance
                 .GetTotalUnreadAsync(App.CurrentUser.Id);
 
-            // Update your badge UI element — غيّر "ChatBadge" لاسم الـ element بتاعك
+            // Update badge UI
             ChatBadge.Visibility = _totalUnreadCount > 0
                 ? Visibility.Visible : Visibility.Collapsed;
             ChatBadgeText.Text = _totalUnreadCount > 99
@@ -191,8 +202,10 @@ namespace HR_Application
 
         private void OpenChatWith(int userId)
         {
-            // افتح أو انتقل لـ ConversationsWindow مع هذا اليوزر
-            // غيّر حسب structure الـ navigation بتاعتك
+            var chatWindow = new ChatWindow();
+            chatWindow.Show();
+            // Open chat with specific user
+            chatWindow.OpenSpecificChat(userId);
         }
 
         private void OpenTasksWindow()
@@ -214,6 +227,7 @@ namespace HR_Application
                 e.Cancel = true;
             }
         }
+    
         public bool ReportP => UserPerm.Contains("التقارير");
         public bool EmploP => UserPerm.Contains("شئون العاملين");
         public bool AttendanceP => UserPerm.Contains("الحضور و الانصراف");

@@ -14,7 +14,9 @@ namespace Sho2on.Database.Models
         public int SenderId { get; set; }
         public string Message { get; set; }
         public DateTime SentAt { get; set; } = DateTime.Now;
+        public DateTime? EditedAt { get; set; } 
         public bool IsDeleted { get; set; } = false;
+        public bool IsEdited { get; set; } = false;
 
         [ForeignKey("GroupId")]
         public virtual ChatGroup Group { get; set; }
