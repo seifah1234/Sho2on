@@ -394,15 +394,17 @@ namespace HR_Application.Views.Conversations
         }
 
         private async void HandleGroupMessage(int groupId, int senderId,
-                                       string message, DateTime timestamp,
-                                       string senderName)
+                               string message, DateTime timestamp,
+                               string senderName)
         {
             if (senderId == _currentUser.Id) return;
 
+            // ✅ FIX: Check if the group is currently open by checking SelectedGroupId
+            // and whether the Groups tab is active (GroupsScrollViewer is visible)
             bool groupIsOpen = GroupChatBoxControl.SelectedGroupId == groupId
-                               && GroupChatBoxControl.IsVisible;
+                               && GroupsScrollViewer.Visibility == Visibility.Visible;
 
-            // FIX BUG #3: Update group item's last message immediately
+            // Update group item's last message immediately
             var groupItem = GroupList.FirstOrDefault(g => g.GroupId == groupId);
             if (groupItem != null)
             {
@@ -413,8 +415,11 @@ namespace HR_Application.Views.Conversations
 
                 // Force UI refresh
                 var index = GroupList.IndexOf(groupItem);
-                GroupList.RemoveAt(index);
-                GroupList.Insert(0, groupItem); // Move to top
+                if (index > 0) // Only move if not already at top
+                {
+                    GroupList.RemoveAt(index);
+                    GroupList.Insert(0, groupItem); // Move to top
+                }
             }
 
             if (!groupIsOpen)

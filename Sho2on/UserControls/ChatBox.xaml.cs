@@ -854,21 +854,30 @@ namespace HR_Application.UserControls
         }
 
         private async void HandleIncomingMessage(
-            int fromUserId, int toUserId, string message, DateTime timestamp)
+    int fromUserId, int toUserId, string message, DateTime timestamp)
         {
             if (fromUserId != SelectedUserId) return;
 
-            Messages.Add(new UIChatMessage
+            await Application.Current.Dispatcher.InvokeAsync(async () =>
             {
-                MessageText = message,
-                IsFromMe = false,
-                Time = timestamp.ToString("hh:mm tt"),
-                SentAt = timestamp,
-                IsRead = false,
-                IsDelivered = true
+                var uiMessage = new UIChatMessage
+                {
+                    MessageText = message,
+                    IsFromMe = false,
+                    Time = timestamp.ToString("hh:mm tt"),
+                    SentAt = timestamp,
+                    IsRead = false,
+                    IsDelivered = true
+                };
+
+                Messages.Add(uiMessage);
+
+                // ✅ FIX: Load attachments from database for this message
+                await LoadAttachmentsForLatestMessage(fromUserId, uiMessage);
+
+                ScrollToBottom();
             });
 
-            ScrollToBottom();
             _ = MarkMessageAsRead(fromUserId);
             _ = UpdateMessageDeliveredStatus(fromUserId);
 
@@ -890,6 +899,49 @@ namespace HR_Application.UserControls
             });
         }
 
+        private async Task LoadAttachmentsForLatestMessage(int senderId, UIChatMessage uiMessage)
+        {
+            try
+            {
+                using var context = new AppDbContext(App.ConnectionString);
+
+                // Find the latest message from this sender in this chat
+                var latestMessage = await context.ChatMessages
+                    .Where(m => m.SenderId == senderId
+                             && m.ReceiverId == App.CurrentUser.Id
+                             && !m.IsDeleted)
+                    .OrderByDescending(m => m.SentAt)
+                    .FirstOrDefaultAsync();
+
+                if (latestMessage != null)
+                {
+                    // Set the message ID
+                    uiMessage.MessageDbId = latestMessage.Id;
+
+                    // Load attachments
+                    var attachments = await context.ChatAttachments
+                        .Where(a => a.MessageId == latestMessage.Id)
+                        .ToListAsync();
+
+                    foreach (var att in attachments)
+                    {
+                        uiMessage.Attachments.Add(new ChatAttachmentItem
+                        {
+                            FileName = att.FileName,
+                            FileSize = att.FileSize,
+                            FileData = att.FileData,
+                            FileIcon = GetFileIcon(Path.GetExtension(att.FileName))
+                        });
+                    }
+
+                    Console.WriteLine($"Loaded {attachments.Count} attachments for incoming message {latestMessage.Id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading attachments for incoming message: {ex.Message}");
+            }
+        }
         private void HandleMessageDelivered(int fromUserId, int toUserId)
         {
             if (toUserId != SelectedUserId && fromUserId != SelectedUserId) return;

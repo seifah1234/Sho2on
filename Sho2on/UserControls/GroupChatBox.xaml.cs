@@ -700,10 +700,55 @@ namespace HR_Application.UserControls
 
             if (groupId != SelectedGroupId) return;
 
-            await Application.Current.Dispatcher.InvokeAsync(() =>
+            await Application.Current.Dispatcher.InvokeAsync(async () =>
             {
-                Messages.Add(new UIChatMessage
+                // ✅ FIX: Get the message from database with attachments
+                int messageId = 0;
+                var attachments = new List<ChatAttachmentItem>();
+
+                try
                 {
+                    using var ctx = new AppDbContext(App.ConnectionString);
+                    var dbMsg = await ctx.ChatGroupMessages
+                        .Include(m => m.Attachments)
+                        .Where(m => m.GroupId == groupId
+                                 && m.SenderId == senderId
+                                 && m.Message == message
+                                 && m.SentAt <= timestamp
+                                 && !m.IsDeleted)
+                        .OrderByDescending(m => m.SentAt)
+                        .FirstOrDefaultAsync();
+
+                    if (dbMsg != null)
+                    {
+                        messageId = dbMsg.Id;
+
+                        // Load attachments
+                        if (dbMsg.Attachments != null)
+                        {
+                            foreach (var att in dbMsg.Attachments)
+                            {
+                                attachments.Add(new ChatAttachmentItem
+                                {
+                                    FileName = att.FileName,
+                                    FileSize = att.FileSize,
+                                    FileData = att.FileData,
+                                    FileIcon = GetFileIcon(Path.GetExtension(att.FileName))
+                                });
+                            }
+                        }
+
+                        Console.WriteLine($"GroupChatBox: Found message ID {messageId} with {attachments.Count} attachments");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"GroupChatBox: Error getting message from DB: {ex.Message}");
+                }
+
+                var uiMsg = new UIChatMessage
+                {
+                    MessageDbId = messageId,
                     MessageText = message,
                     IsFromMe = false,
                     SenderName = senderName,
@@ -711,19 +756,17 @@ namespace HR_Application.UserControls
                     SentAt = timestamp,
                     IsDelivered = true,
                     IsRead = true
-                });
+                };
 
+                // ✅ Add attachments to UI message
+                foreach (var att in attachments)
+                {
+                    uiMsg.Attachments.Add(att);
+                }
+
+                Messages.Add(uiMsg);
                 ScrollToBottom();
                 _ = ResetUnreadCountAsync(groupId);
-
-                // Notify parent about new message
-                GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
-                {
-                    GroupId = SelectedGroupId,
-                    LastMessage = GetLastMessageText(),
-                    LastMessageTime = GetLastMessageTime(),
-                    UpdateType = "NewMessage"
-                });
             });
         }
 
