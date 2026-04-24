@@ -75,8 +75,7 @@ namespace HR_Application.Views.Conversations
             DataContext = this;
             Loaded += async (s, e) =>
             {
-                await LoadTasksAsync();
-                SetupSignalRListener();
+                await SetupSignalRListener();
             };
         }
 
@@ -293,7 +292,7 @@ namespace HR_Application.Views.Conversations
         }
 
         // إعداد SignalR Listener للمهام
-        private void SetupSignalRListener()
+        private async Task SetupSignalRListener()
         {
             if (_signalRInitialized) return;
 

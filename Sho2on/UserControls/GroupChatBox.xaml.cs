@@ -48,6 +48,7 @@ namespace HR_Application.UserControls
                 MessagesItemsControl.ItemsSource = Messages;
                 DataContext = this;
                 Loaded += (s, e) => SetupSignalRListener();
+                LoadSavedBackground();
             }
 
             public void AddIncomingGroupMessage(GroupMessageEventArgs e)
@@ -768,6 +769,20 @@ namespace HR_Application.UserControls
                 ScrollToBottom();
                 _ = ResetUnreadCountAsync(groupId);
             });
+        }
+
+        private void LoadSavedBackground()
+        {
+            var path = HR_Application.Properties.Settings.Default.ChatBackgroundPath;
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
+
+            try
+            {
+                var bitmap = new BitmapImage(new Uri(path));
+                bitmap.Freeze();
+                ChatBackgroundBrush.ImageSource = bitmap;
+            }
+            catch { }
         }
 
         // ── Members Management ───────────────────────────────────────────────

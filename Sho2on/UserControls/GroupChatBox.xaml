@@ -57,24 +57,14 @@
             </Grid>
         </Border>
 
-        <!-- Placeholder -->
-        <Grid x:Name="NoChatSelectedPlaceholder" Grid.Row="1"
-              VerticalAlignment="Center" HorizontalAlignment="Center">
-            <StackPanel HorizontalAlignment="Center">
-                <icons:PackIconMaterial Kind="AccountGroup"
-                                        Width="60" Height="60"
-                                        Opacity="0.2"
-                                        HorizontalAlignment="Center"/>
-                <TextBlock Text="اختر جروب للبدء"
-                           Opacity="0.4" FontSize="16"
-                           HorizontalAlignment="Center" Margin="0,10,0,0"/>
-            </StackPanel>
-        </Grid>
-
         <!-- الرسائل -->
         <ScrollViewer x:Name="MessagesScrollViewer"
                       Grid.Row="1"
                       VerticalScrollBarVisibility="Auto">
+            <ScrollViewer.Background>
+                <ImageBrush x:Name="ChatBackgroundBrush" 
+                    Stretch="UniformToFill"/>
+            </ScrollViewer.Background>
             <ItemsControl x:Name="MessagesItemsControl">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -300,6 +290,20 @@ Visibility="Collapsed">
                                             Foreground="#00BCD4"/>
                 </Button>
             </Grid>
+        </Border>
+
+        <Border Grid.RowSpan="2" 
+        x:Name="NoChatSelectedPlaceholder"
+        Background="{DynamicResource MainBackground}"
+        Visibility="Visible">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <icons:PackIconMaterial Kind="Chat" Width="80" Height="80" Opacity="0.3" Foreground="{DynamicResource SecondaryColor}"/>
+                <TextBlock Text="اختر جروب للبدء" 
+                   FontSize="16" 
+                   Foreground="{DynamicResource SecondaryColor}"
+                   Opacity="0.5"
+                   Margin="0,20,0,0"/>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

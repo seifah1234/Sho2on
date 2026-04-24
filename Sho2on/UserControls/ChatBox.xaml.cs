@@ -1117,37 +1117,7 @@ namespace HR_Application.UserControls
             }
         }
 
-        private void ChangeBackground_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
-                Title = "اختر خلفية للشات"
-            };
-
-            if (dialog.ShowDialog() != true) return;
-
-            try
-            {
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(dialog.FileName);
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-                bitmap.Freeze();
-
-                ChatBackgroundBrush.ImageSource = bitmap;
-
-                // حفظ المسار في Settings عشان يتذكره
-                HR_Application.Properties.Settings.Default.ChatBackgroundPath = dialog.FileName;
-                HR_Application.Properties.Settings.Default.Save();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ChangeBackground error: {ex.Message}");
-            }
-        }
-
+        
         private void LoadSavedBackground()
         {
             var path = HR_Application.Properties.Settings.Default.ChatBackgroundPath;
