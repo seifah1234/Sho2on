@@ -8,174 +8,292 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HR_Application.Properties {
-    
-    
+namespace HR_Application.Properties
+{
+
+
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
+    {
+
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-        
-        public static Settings Default {
-            get {
+
+        public static Settings Default
+        {
+            get
+            {
                 return defaultInstance;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastUsername {
-            get {
+        public string LastUsername
+        {
+            get
+            {
                 return ((string)(this["LastUsername"]));
             }
-            set {
+            set
+            {
                 this["LastUsername"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastPassword {
-            get {
+        public string LastPassword
+        {
+            get
+            {
                 return ((string)(this["LastPassword"]));
             }
-            set {
+            set
+            {
                 this["LastPassword"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastIPDB {
-            get {
+        public string LastIPDB
+        {
+            get
+            {
                 return ((string)(this["LastIPDB"]));
             }
-            set {
+            set
+            {
                 this["LastIPDB"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RememberMe
+        {
+            get
+            {
+                return ((bool)(this["RememberMe"]));
+            }
+            set
+            {
+                this["RememberMe"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7001")]
+        public int ApiPort
+        {
+            get
+            {
+                return ((int)(this["ApiPort"]));
+            }
+            set
+            {
+                this["ApiPort"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public int SignalRPort
+        {
+            get
+            {
+                return ((int)(this["SignalRPort"]));
+            }
+            set
+            {
+                this["SignalRPort"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("27")]
-        public int StartOfMonth {
-            get {
+        public int StartOfMonth
+        {
+            get
+            {
                 return ((int)(this["StartOfMonth"]));
             }
-            set {
+            set
+            {
                 this["StartOfMonth"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("26")]
-        public int EndOfMonth {
-            get {
+        public int EndOfMonth
+        {
+            get
+            {
                 return ((int)(this["EndOfMonth"]));
             }
-            set {
+            set
+            {
                 this["EndOfMonth"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastUsernameDB {
-            get {
+        public string LastUsernameDB
+        {
+            get
+            {
                 return ((string)(this["LastUsernameDB"]));
             }
-            set {
+            set
+            {
                 this["LastUsernameDB"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastPasswordDB {
-            get {
+        public string LastPasswordDB
+        {
+            get
+            {
                 return ((string)(this["LastPasswordDB"]));
             }
-            set {
+            set
+            {
                 this["LastPasswordDB"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("User")]
-        public string UserRole {
-            get {
+        public string UserRole
+        {
+            get
+            {
                 return ((string)(this["UserRole"]));
             }
-            set {
+            set
+            {
                 this["UserRole"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string expDate {
-            get {
+        public string expDate
+        {
+            get
+            {
                 return ((string)(this["expDate"]));
             }
-            set {
+            set
+            {
                 this["expDate"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int LateType {
-            get {
+        public int LateType
+        {
+            get
+            {
                 return ((int)(this["LateType"]));
             }
-            set {
+            set
+            {
                 this["LateType"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int LateRepeat {
-            get {
+        public int LateRepeat
+        {
+            get
+            {
                 return ((int)(this["LateRepeat"]));
             }
-            set {
+            set
+            {
                 this["LateRepeat"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal LateValue {
-            get {
+        public decimal LateValue
+        {
+            get
+            {
                 return ((decimal)(this["LateValue"]));
             }
-            set {
+            set
+            {
                 this["LateValue"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Dark")]
+        public string ThemeName
+        {
+            get
+            {
+                return ((string)(this["ThemeName"]));
+            }
+            set
+            {
+                this["ThemeName"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ChatBackgroundPath {
-            get {
+        public string ChatBackgroundPath
+        {
+            get
+            {
                 return ((string)(this["ChatBackgroundPath"]));
             }
-            set {
+            set
+            {
                 this["ChatBackgroundPath"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("pack://application:,,,/assets/images/Back.gif")]
+        public string Logo
+        {
+            get
+            {
+                return ((string)(this["Logo"]));
+            }
+            set
+            {
+                this["Logo"] = value;
             }
         }
     }
