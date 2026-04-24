@@ -218,12 +218,16 @@ namespace HR_Application.Services
                 if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
                     await App.SignalRConnection.InvokeAsync("JoinGroup", groupId);
-                    Console.WriteLine($"Joined group {groupId}");
+                    Console.WriteLine($"Joined group {groupId} on SignalR server");
+                }
+                else
+                {
+                    Console.WriteLine($"Cannot join group {groupId}: SignalR not connected (State: {App.SignalRConnection?.State})");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"JoinGroup error: {ex.Message}");
+                Console.WriteLine($"JoinGroup error for group {groupId}: {ex.Message}");
             }
         }
 

@@ -79,12 +79,32 @@ namespace HR_Application.Views.Conversations
                 await LoadChatsAsync();
                 await LoadGroupsAsync();
                 await LoadArchivedChatsAsync();
+                await JoinAllGroupsAsync();
                 SetupGroupSignalRListener();
-
                 // FIX BUG #2: Reset unread counts when window opens
                 await RefreshUnreadCounts();
             };
         }
+
+        private async Task JoinAllGroupsAsync()
+        {
+            try
+            {
+                foreach (var group in GroupList)
+                {
+                    if (group.GroupId > 0)
+                    {
+                        await SignalRManager.Instance.JoinGroupAsync(group.GroupId);
+                        Console.WriteLine($"Joined group {group.GroupId} - {group.GroupName}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"JoinAllGroups error: {ex.Message}");
+            }
+        }
+
 
         // FIX BUG #2: Reset unread counts when chat window opens
         private async Task RefreshUnreadCounts()
@@ -352,7 +372,16 @@ namespace HR_Application.Views.Conversations
             var win = new CreateGroupWindow(_currentUser.Id);
             win.Owner = this;
             if (win.ShowDialog() == true)
+            {
                 await LoadGroupsAsync();
+
+                // ✅ انضم للجروب الجديد عشان تستقبل رسايله
+                var newGroup = GroupList.OrderByDescending(g => g.GroupId).FirstOrDefault();
+                if (newGroup != null)
+                {
+                    await SignalRManager.Instance.JoinGroupAsync(newGroup.GroupId);
+                }
+            }
         }
 
         private void GroupItem_Click(object sender, RoutedEventArgs e)
