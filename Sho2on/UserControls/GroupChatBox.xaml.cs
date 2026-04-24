@@ -418,10 +418,10 @@ namespace HR_Application.UserControls
                     await ctx.SaveChangesAsync();
 
                     // SignalR
-                    await App.SignalRConnection.InvokeAsync("SendGroupMessage",
-                        SelectedGroupId, App.CurrentUser.Id, message, App.CurrentUser.FullName);
 
-                    // FIX BUG #3: Notify parent about updated last message
+                    await SendRealTimeNotification(SelectedGroupId, App.CurrentUser.Id, message, App.CurrentUser.FullName);
+
+                // FIX BUG #3: Notify parent about updated last message
                     GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                     {
                         GroupId = SelectedGroupId,
@@ -435,6 +435,51 @@ namespace HR_Application.UserControls
                     Console.WriteLine($"SendGroupMessage error: {ex.Message}");
                 }
             }
+
+        private async Task SendRealTimeNotification(int groupId, int senderId, string message, string senderName)
+        {
+            try
+            {
+                if (App.SignalRConnection == null)
+                {
+                    return;
+                }
+
+                if (App.SignalRConnection.State != HubConnectionState.Connected)
+                {
+                    try
+                    {
+                        await App.SignalRConnection.StartAsync();
+
+                        // إعادة تسجيل المستخدم بعد إعادة الاتصال
+                        if (App.CurrentUser != null && App.CurrentUser.Id > 0)
+                        {
+                            await App.SignalRConnection.InvokeAsync("SetUserIdentifier", App.CurrentUser.Id.ToString());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Reconnect failed: {ex.Message}");
+                        return;
+                    }
+                }
+
+                if (App.CurrentUser == null)
+                {
+                    return;
+                }
+
+
+                await App.SignalRConnection.InvokeAsync("SendGroupMessage",
+                    SelectedGroupId, App.CurrentUser.Id, message, App.CurrentUser.FullName);
+                // إرسال الرسالة
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"SignalR error: {ex.Message}");
+            }
+        }
 
         // FIX BUG #4: Delete group message
         private async void DeleteGroupMessage_Click(object sender, RoutedEventArgs e)
