@@ -21,6 +21,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header - معلومات المستخدم -->
@@ -58,12 +59,12 @@
                 </StackPanel>
 
                 <!-- أزرار الإجراءات -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Visibility="Collapsed">
-                    <Button ToolTip="بحث" Background="Transparent" BorderThickness="0">
-                        <icons:PackIconMaterial Kind="Magnify" Width="20" Height="20" Foreground="{DynamicResource TextPrimaryColor}"/>
-                    </Button>
-                    <Button ToolTip="قائمة" Background="Transparent" BorderThickness="0" Margin="10,0,0,0">
-                        <icons:PackIconMaterial Kind="DotsVertical" Width="20" Height="20" Foreground="{DynamicResource TextPrimaryColor}"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button ToolTip="تغيير الخلفية" 
+            Background="Transparent" BorderThickness="0"
+            Click="ChangeBackground_Click">
+                        <icons:PackIconMaterial Kind="ImageEdit" Width="20" Height="20" 
+                                Foreground="{DynamicResource TextPrimaryColor}"/>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -72,8 +73,12 @@
         <!-- منطقة الرسائل -->
         <ScrollViewer Grid.Row="1" 
                       x:Name="MessagesScrollViewer"
-                      VerticalScrollBarVisibility="Auto"
-                      Background="{DynamicResource MainBackground}">
+                      VerticalScrollBarVisibility="Auto">
+            <ScrollViewer.Background>
+                <ImageBrush x:Name="ChatBackgroundBrush" 
+                    Stretch="UniformToFill"
+                    Opacity="0.3"/>
+            </ScrollViewer.Background>
             <ItemsControl x:Name="MessagesItemsControl" Margin="10">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -91,6 +96,12 @@
                                     MinHeight="50"
                                     HorizontalAlignment="Left"
                                     MaxWidth="400">
+                                <Border.ContextMenu>
+                                    <ContextMenu FlowDirection="RightToLeft">
+                                        <MenuItem Header="✏️ تعديل" Click="EditMessage_Click" Tag="{Binding}"/>
+                                        <MenuItem Header="🗑️ حذف"   Click="DeleteMessage_Click" Tag="{Binding}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -129,6 +140,11 @@
                                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5,0,0">
                                         <icons:PackIconMaterial Kind="{Binding StatusIcon}" Width="12" Height="12" 
                             Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <TextBlock Text="{Binding EditedLabel}" 
+           FontSize="9" Opacity="0.6"
+           Foreground="{DynamicResource TextPrimaryColor}"
+           Visibility="{Binding ShowEditedLabel, 
+               Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         <TextBlock Text="{Binding Time}" FontSize="10" Opacity="0.5" Margin="5,0,0,0"/>
                                     </StackPanel>
                                 </Grid>
@@ -182,27 +198,55 @@ Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityC
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
 
-                                    <icons:PackIconMaterial Kind="{Binding StatusIcon}" Width="12" Height="12" 
-                        Foreground="{DynamicResource TextPrimaryColor}" 
-                        Margin="2,5,0,0" Grid.Row="2"/>
-                                </Grid>
-                            </Border>
+                                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                                        <TextBlock Text="{Binding EditedLabel}" 
+FontSize="9" Opacity="0.6"
+Foreground="{DynamicResource TextPrimaryColor}"
+Visibility="{Binding ShowEditedLabel, 
+    Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                            <!-- وقت الرسالة -->
-                            <TextBlock Text="{Binding Time}" 
+                                        <!-- وقت الرسالة -->
+                                        <TextBlock Text="{Binding Time}" 
                                        FontSize="10"
                                        Opacity="0.5"
                                        FlowDirection="LeftToRight"
                                        Margin="5,2"
                                        HorizontalAlignment="{Binding Alignment}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
 
+        <Border Grid.Row="2" x:Name="EditBar"
+        Background="#1A00BCD4" 
+        BorderBrush="#00BCD4"
+        BorderThickness="0,2,0,0"
+        Padding="10,5"
+        Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="EditingLabel" 
+                   Text="✏️ تعديل رسالة..."
+                   Foreground="#00BCD4" FontSize="12"
+                   VerticalAlignment="Center"/>
+                <Button Grid.Column="1" 
+                Content="✕ إلغاء"
+                Background="Transparent" BorderThickness="0"
+                Foreground="#00BCD4"
+                Click="CancelEdit_Click"/>
+            </Grid>
+        </Border>
+        
         <!-- منطقة إرسال الرسالة -->
-        <Border Grid.Row="2" 
+        <Border Grid.Row="3" 
         Background="{DynamicResource PrimaryColor}" 
         BorderBrush="{DynamicResource SecondaryColor}"
         BorderThickness="0,1,0,0"

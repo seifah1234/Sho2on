@@ -87,11 +87,12 @@
                                     <StackPanel>
                                         <TextBlock Text="{Binding MessageText}"
                                                    Foreground="White" TextWrapping="Wrap"/>
-                                        <TextBlock Text="{Binding Time}"
-                                                   FontSize="10" Opacity="0.7"
-                                                   Foreground="White"
-                                                   HorizontalAlignment="Right"
-                                                   Margin="0,3,0,0"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0">
+                                            <TextBlock Text="{Binding Time}" FontSize="10" Opacity="0.7" Foreground="White"/>
+                                            <TextBlock Text="{Binding ReadCountText}" 
+               FontSize="10" Opacity="0.8" Foreground="White"
+               Margin="5,0,0,0"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

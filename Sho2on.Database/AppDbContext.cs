@@ -325,6 +325,7 @@ namespace Sho2on.Database
         public DbSet<ChatGroupMember> ChatGroupMembers { get; set; }
         public DbSet<ChatGroupMessage> ChatGroupMessages { get; set; }
         public DbSet<ChatGroupAttachment> ChatGroupAttachments { get; set; }
+        public DbSet<ChatGroupMessageRead> ChatGroupMessageReads { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {

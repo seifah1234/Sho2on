@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Vml;
+using HR_Application.Services;
 using HR_Application.UserControls;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
@@ -190,14 +191,37 @@ namespace HR_Application.Views.Conversations
 
         private async void ArchiveChat_Click(object sender, RoutedEventArgs e)
         {
-            var item = (sender as MenuItem)?.Tag as ChatItemData;
+            // ContextMenu بيفقد الـ DataContext — نجيب الـ Tag من PlacementTarget
+            ChatItemData item = null;
+
+            if (sender is MenuItem menuItem)
+            {
+                item = menuItem.Tag as ChatItemData;
+
+                // لو Tag فاضي — جيبه من الـ ContextMenu
+                if (item == null && menuItem.Parent is ContextMenu contextMenu)
+                {
+                    item = (contextMenu.PlacementTarget as Button)?.Tag as ChatItemData;
+                }
+            }
+
             if (item == null) return;
             await ArchiveChatAsync(item.UserId);
         }
 
         private async void UnarchiveChat_Click(object sender, RoutedEventArgs e)
         {
-            var item = (sender as MenuItem)?.Tag as ChatItemData;
+            ChatItemData item = null;
+
+            if (sender is MenuItem menuItem)
+            {
+                item = menuItem.Tag as ChatItemData;
+                if (item == null && menuItem.Parent is ContextMenu contextMenu)
+                {
+                    item = (contextMenu.PlacementTarget as Button)?.Tag as ChatItemData;
+                }
+            }
+
             if (item == null) return;
             await UnarchiveChatAsync(item.UserId);
         }
@@ -272,65 +296,58 @@ namespace HR_Application.Views.Conversations
 
         private void SetupGroupSignalRListener()
         {
-            if (App.SignalRConnection == null) return;
-
-            // الـ GroupChatBox عنده listener خاص بيه
-            // هنا بس بنعمل handle للإشعارات لما الجروب مش مفتوح
-            GroupChatBoxControl.NewGroupMessageReceived += async (s, e) =>
-            {
-                await Dispatcher.InvokeAsync(async () =>
-                {
-                    if (e.FromUserId == _currentUser.Id) return;
-
-                    bool groupIsOpen =
-                        GroupChatBoxControl.SelectedGroupId == e.GroupId;
-
-                    var groupItem = GroupList.FirstOrDefault(g => g.GroupId == e.GroupId);
-                    if (groupItem != null)
-                    {
-                        groupItem.LastMessage = e.Message;
-                        groupItem.LastMessageTime = e.Timestamp;
-
-                        if (!groupIsOpen)
-                            groupItem.UnreadCount++;
-                    }
-
-                    // إشعار بس لو الجروب مش مفتوح
-                    if (!groupIsOpen)
-                    {
-                        using var ctx = new AppDbContext(App.ConnectionString);
-                        var group = await ctx.ChatGroups.FindAsync(e.GroupId);
-                        var sender = await ctx.Users.FindAsync(e.FromUserId);
-
-                        var shortMsg = e.Message?.Length > 50
-                            ? e.Message[..50] + "..." : e.Message ?? "📎 مرفق";
-
-                        Helpers.NotificationsHelper.ShowPopupNotification(
-                            $"{group?.Name ?? "جروب"}: {sender?.FullName}",
-                            shortMsg, this,
-                            () =>
-                            {
-                                GroupsTab_Click(null, null);
-                                groupItem = GroupList.FirstOrDefault(
-                                    g => g.GroupId == e.GroupId);
-                                if (groupItem != null)
-                                {
-                                    groupItem.UnreadCount = 0;
-                                    GroupChatBoxControl.LoadGroup(
-                                        groupItem.GroupId,
-                                        groupItem.GroupName,
-                                        groupItem.GroupImageData);
-                                }
-                            });
-                        Helpers.NotificationsHelper.PlayNotificationSound();
-                    }
-                });
-            };
+            SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
         }
 
-        // في OnClosed — بدّله بده
+        private async void HandleGroupMessage(int groupId, int senderId,
+                                               string message, DateTime timestamp)
+        {
+            if (senderId == _currentUser.Id) return;
+
+            bool groupIsOpen = GroupChatBoxControl.SelectedGroupId == groupId
+                               && GroupChatBoxControl.IsVisible;
+
+            var groupItem = GroupList.FirstOrDefault(g => g.GroupId == groupId);
+            if (groupItem != null)
+            {
+                groupItem.LastMessage = string.IsNullOrEmpty(message) ? "📎 مرفق" : message;
+                groupItem.LastMessageTime = timestamp;
+
+                if (!groupIsOpen)
+                    groupItem.UnreadCount++;  // UI فقط — DB اتعمل في SignalRManager
+            }
+
+            if (!groupIsOpen)
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+                var group = await ctx.ChatGroups.FindAsync(groupId);
+                var sender = await ctx.Users.FindAsync(senderId);
+
+                var shortMsg = string.IsNullOrEmpty(message) ? "📎 مرفق"
+                    : (message.Length > 50 ? message[..50] + "..." : message);
+
+                Helpers.NotificationsHelper.ShowPopupNotification(
+                    $"{group?.Name ?? "جروب"}: {sender?.FullName}",
+                    shortMsg, this,
+                    () =>
+                    {
+                        GroupsTab_Click(null, null);
+                        var item = GroupList.FirstOrDefault(g => g.GroupId == groupId);
+                        if (item != null)
+                        {
+                            item.UnreadCount = 0;
+                            GroupChatBoxControl.LoadGroup(
+                                item.GroupId, item.GroupName, item.GroupImageData);
+                        }
+                    });
+                Helpers.NotificationsHelper.PlayNotificationSound();
+            }
+        }
+
+        // في OnClosed — أضف:
         protected override void OnClosed(EventArgs e)
         {
+            SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
             ChatBoxControl.NewMessageReceived -= ChatBoxControl_NewMessageReceived;
             ChatBoxControl.NewMessageSent -= ChatBoxControl_NewMessageSent;
             base.OnClosed(e);

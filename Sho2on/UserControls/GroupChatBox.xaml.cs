@@ -91,8 +91,64 @@ namespace HR_Application.UserControls
 
             Messages.Clear();
             await LoadMessagesAsync(groupId);
+            await MarkMessagesAsReadAsync(groupId);
+            await SendReadReceiptAsync(groupId);
             await LoadMembersInfoAsync(groupId);
             await ResetUnreadCountAsync(groupId);
+        }
+
+        private async Task MarkMessagesAsReadAsync(int groupId)
+        {
+            try
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+
+                // جيب الرسائل اللي لسه ما قرأتهاش
+                var readMessageIds = await ctx.ChatGroupMessageReads
+                    .Where(r => r.UserId == App.CurrentUser.Id)
+                    .Select(r => r.MessageId)
+                    .ToListAsync();
+
+                var unreadMessages = await ctx.ChatGroupMessages
+                    .Where(m => m.GroupId == groupId
+                             && !m.IsDeleted
+                             && m.SenderId != App.CurrentUser.Id
+                             && !readMessageIds.Contains(m.Id))
+                    .ToListAsync();
+
+                if (!unreadMessages.Any()) return;
+
+                foreach (var msg in unreadMessages)
+                {
+                    ctx.ChatGroupMessageReads.Add(new ChatGroupMessageRead
+                    {
+                        MessageId = msg.Id,
+                        UserId = App.CurrentUser.Id,
+                        ReadAt = DateTime.Now
+                    });
+                }
+                await ctx.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"MarkGroupRead error: {ex.Message}");
+            }
+        }
+
+        private async Task SendReadReceiptAsync(int groupId)
+        {
+            try
+            {
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                {
+                    await App.SignalRConnection.InvokeAsync(
+                        "MarkGroupMessagesRead", groupId, App.CurrentUser.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SendGroupReadReceipt error: {ex.Message}");
+            }
         }
 
         public void ClearGroup()

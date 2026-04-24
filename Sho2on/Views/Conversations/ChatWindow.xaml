@@ -77,6 +77,13 @@
                     Click="ChatItem_Click" HorizontalContentAlignment="Stretch"
                                         
                     Tag="{Binding}">
+                                    <Button.ContextMenu>
+                                        <ContextMenu FlowDirection="RightToLeft">
+                                            <MenuItem Header="📦 أرشفة المحادثة"
+                      Tag="{Binding}"
+                      Click="ArchiveChat_Click"/>
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
                                     <Border>
                                         <!-- Bottom hairline -->
                                         <Border.BorderBrush>
@@ -285,6 +292,13 @@ Margin="5"
                         Click="ArchivedChatItem_Click"
                         Tag="{Binding}"
                         HorizontalContentAlignment="Stretch">
+                                    <Button.ContextMenu>
+                                        <ContextMenu FlowDirection="RightToLeft">
+                                            <MenuItem Header="📤 إلغاء الأرشفة"
+                      Tag="{Binding}"
+                      Click="UnarchiveChat_Click"/>
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
                                     <Border>
                                         <Border.BorderBrush>
                                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">

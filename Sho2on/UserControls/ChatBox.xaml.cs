@@ -84,7 +84,7 @@ namespace HR_Application.UserControls
 
         public ObservableCollection<ChatAttachmentItem> SelectedAttachments { get; set; }
         private List<ChatAttachmentItem> _pendingAttachments = new List<ChatAttachmentItem>();
-
+        private int _editingMessageId = -1;
         public ChatBox()
         {
             InitializeComponent();
@@ -95,6 +95,61 @@ namespace HR_Application.UserControls
 
             // استدعاء إعداد SignalR
             Loaded += (s, e) => SetupSignalRListener();
+        }
+
+        private void CancelEdit_Click(object sender, RoutedEventArgs e)
+        {
+            _editingMessageId = -1;
+            MessageTextBox.Text = "";
+            EditBar.Visibility = Visibility.Collapsed;
+        }
+
+        private void EditMessage_Click(object sender, RoutedEventArgs e)
+        {
+            var msg = GetMessageFromContextMenu(sender);
+            if (msg == null || !msg.IsFromMe) return;
+
+            _editingMessageId = msg.MessageDbId;
+            MessageTextBox.Text = msg.MessageText;
+            MessageTextBox.Focus();
+            MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
+
+            EditBar.Visibility = Visibility.Visible;
+            EditingLabel.Text = $"✏️ تعديل: {msg.MessageText[..Math.Min(30, msg.MessageText.Length)]}...";
+        }
+
+        private async void DeleteMessage_Click(object sender, RoutedEventArgs e)
+        {
+            var msg = GetMessageFromContextMenu(sender);
+            if (msg == null || !msg.IsFromMe) return;
+
+            var confirm = MessageBox.Show("هل تريد حذف هذه الرسالة؟", "تأكيد",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirm != MessageBoxResult.Yes) return;
+
+            try
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+                var dbMsg = await ctx.ChatMessages.FindAsync(msg.MessageDbId);
+                if (dbMsg != null)
+                {
+                    dbMsg.IsDeleted = true;
+                    await ctx.SaveChangesAsync();
+                }
+
+                Messages.Remove(msg);
+
+                // إبلغ الطرف الآخر عبر SignalR
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                {
+                    await App.SignalRConnection.InvokeAsync(
+                        "MessageDeleted", msg.MessageDbId, SelectedUserId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"DeleteMessage error: {ex.Message}");
+            }
         }
 
         private async void AttachButton_Click(object sender, RoutedEventArgs e)
@@ -310,12 +365,14 @@ namespace HR_Application.UserControls
                         {
                             var uiMessage = new ChatMessage
                             {
+                                MessageDbId = msg.Id,      // ✅ أضف
                                 MessageText = msg.Message,
                                 IsFromMe = msg.SenderId == App.CurrentUser.Id,
                                 Time = msg.SentAt.ToString("hh:mm tt"),
                                 SentAt = msg.SentAt,
                                 IsRead = msg.IsRead,
-                                IsDelivered = msg.IsDelivered ?? false
+                                IsDelivered = msg.IsDelivered ?? false,
+                                IsEdited = msg.IsEdited   // ✅ أضف
                             };
 
                             await LoadAttachmentsForMessage(msg.Id, uiMessage);
@@ -367,6 +424,12 @@ namespace HR_Application.UserControls
             if (string.IsNullOrWhiteSpace(message) && _pendingAttachments.Count == 0)
                 return;
 
+            if (_editingMessageId != -1)
+            {
+                await SaveEditAsync(_editingMessageId, message);
+                return;
+            }
+
             // إضافة الرسالة لقائمة الرسائل مؤقتاً
             var tempMessage = new ChatMessage
             {
@@ -405,6 +468,57 @@ namespace HR_Application.UserControls
             await SendToServer(message ?? "", attachmentsToSend);
         }
 
+        private async Task SaveEditAsync(int messageDbId, string newText)
+        {
+            try
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+                var dbMsg = await ctx.ChatMessages.FindAsync(messageDbId);
+                if (dbMsg == null) return;
+
+                dbMsg.Message = newText;
+                dbMsg.IsEdited = true;
+                dbMsg.EditedAt = DateTime.Now;
+                await ctx.SaveChangesAsync();
+
+                // حدّث الـ UI
+                var uiMsg = Messages.FirstOrDefault(m => m.MessageDbId == messageDbId);
+                if (uiMsg != null)
+                {
+                    uiMsg.MessageText = newText;
+                    uiMsg.IsEdited = true;
+                }
+
+                // إبلغ الطرف الآخر
+                if (App.SignalRConnection?.State == HubConnectionState.Connected)
+                {
+                    await App.SignalRConnection.InvokeAsync(
+                        "MessageEdited", messageDbId, SelectedUserId, newText);
+                }
+
+                // reset
+                _editingMessageId = -1;
+                MessageTextBox.Text = "";
+                EditBar.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"EditMessage error: {ex.Message}");
+            }
+        }
+
+        // helper
+        private ChatMessage GetMessageFromContextMenu(object sender)
+        {
+            if (sender is MenuItem mi)
+            {
+                if (mi.Tag is ChatMessage msg) return msg;
+                if (mi.Parent is ContextMenu cm &&
+                    cm.PlacementTarget is Border border)
+                    return border.Tag as ChatMessage;
+            }
+            return null;
+        }
         private async Task SendToServer(string message, List<ChatAttachmentItem> attachments)
         {
             try
@@ -613,6 +727,8 @@ namespace HR_Application.UserControls
             manager.OnMessageReceived += HandleIncomingMessage;
             manager.OnMessageDelivered += HandleMessageDelivered;
             manager.OnMessageRead += HandleMessageRead;
+            manager.OnMessageDeleted += HandleMessageDeleted;
+            manager.OnMessageEdited += HandleMessageEdited;
 
             _signalRInitialized = true;
 
@@ -622,7 +738,25 @@ namespace HR_Application.UserControls
                 manager.OnMessageReceived -= HandleIncomingMessage;
                 manager.OnMessageDelivered -= HandleMessageDelivered;
                 manager.OnMessageRead -= HandleMessageRead;
+                manager.OnMessageDeleted -= HandleMessageDeleted;
+                manager.OnMessageEdited -= HandleMessageEdited;
             };
+        }
+
+        private void HandleMessageDeleted(int messageId)
+        {
+            var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+            if (msg != null) Messages.Remove(msg);
+        }
+
+        private void HandleMessageEdited(int messageId, string newText)
+        {
+            var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
+            if (msg != null)
+            {
+                msg.MessageText = newText;
+                msg.IsEdited = true;
+            }
         }
 
         private async void HandleIncomingMessage(
@@ -837,6 +971,51 @@ namespace HR_Application.UserControls
             }
         }
 
+        private void ChangeBackground_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
+                Title = "اختر خلفية للشات"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(dialog.FileName);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                bitmap.Freeze();
+
+                ChatBackgroundBrush.ImageSource = bitmap;
+
+                // حفظ المسار في Settings عشان يتذكره
+                HR_Application.Properties.Settings.Default.ChatBackgroundPath = dialog.FileName;
+                HR_Application.Properties.Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ChangeBackground error: {ex.Message}");
+            }
+        }
+
+        private void LoadSavedBackground()
+        {
+            var path = HR_Application.Properties.Settings.Default.ChatBackgroundPath;
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
+
+            try
+            {
+                var bitmap = new BitmapImage(new Uri(path));
+                bitmap.Freeze();
+                ChatBackgroundBrush.ImageSource = bitmap;
+            }
+            catch { }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -909,7 +1088,19 @@ namespace HR_Application.UserControls
         private bool _isRead;
         private bool _isDelivered; 
         private ObservableCollection<ChatAttachmentItem> _attachments;
+        private int _readCount;
+        private bool _isEdited;
+        private int _messageDbId;
 
+        public int ReadCount
+        {
+            get => _readCount;
+            set
+            {
+                _readCount = value; OnPropertyChanged();
+                OnPropertyChanged(nameof(GroupStatusIcon));
+            }
+        }
         private string _senderName;
         public string SenderName
         {
@@ -927,7 +1118,20 @@ namespace HR_Application.UserControls
             get => _messageText;
             set { _messageText = value; OnPropertyChanged(); }
         }
-
+        public int MessageDbId
+        {
+            get => _messageDbId;
+            set { _messageDbId = value; OnPropertyChanged(); }
+        }
+        public bool IsEdited
+        {
+            get => _isEdited;
+            set
+            {
+                _isEdited = value; OnPropertyChanged();
+                OnPropertyChanged(nameof(EditedLabel));
+            }
+        }
         public bool IsFromMe
         {
             get => _isFromMe;
@@ -968,6 +1172,10 @@ namespace HR_Application.UserControls
         public bool HasAttachments => Attachments?.Count > 0;
         public string AttachmentsText => HasAttachments ? $"📎 {Attachments.Count} ملف" : "";
 
+        public string GroupStatusIcon => ReadCount > 0 ? "CheckAll" : "Check";
+        public string ReadCountText => ReadCount > 0 ? $"✓✓ {ReadCount}" : "✓";
+        public string EditedLabel => IsEdited ? "✏️ تم التعديل" : "";
+        public bool ShowEditedLabel => IsEdited;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

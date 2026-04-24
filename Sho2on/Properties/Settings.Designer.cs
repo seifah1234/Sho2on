@@ -61,45 +61,6 @@ namespace HR_Application.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool RememberMe
-        {
-            get {
-                return ((bool)(this["RememberMe"]));
-            }
-            set {
-                this["RememberMe"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("7001")]
-        public int ApiPort
-        {
-            get {
-                return ((int)(this["ApiPort"]));
-            }
-            set {
-                this["ApiPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
-        public int SignalRPort
-        {
-            get {
-                return ((int)(this["SignalRPort"]));
-            }
-            set {
-                this["SignalRPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("27")]
         public int StartOfMonth {
             get {
@@ -208,29 +169,13 @@ namespace HR_Application.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Dark")]
-        public string ThemeName
-        {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ChatBackgroundPath {
             get {
-                return ((string)(this["ThemeName"]));
+                return ((string)(this["ChatBackgroundPath"]));
             }
             set {
-                this["ThemeName"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("pack://application:,,,/assets/images/Back.gif")]
-        public string Logo
-        {
-            get
-            {
-                return ((string)(this["Logo"]));
-            }
-            set
-            {
-                this["Logo"] = value;
+                this["ChatBackgroundPath"] = value;
             }
         }
     }

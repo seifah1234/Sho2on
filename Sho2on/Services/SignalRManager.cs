@@ -27,7 +27,9 @@ namespace HR_Application.Services
         public event Action<int, int> OnMessageRead;
         public event Action<string, int, int, string, DateTime> OnTaskNotification;
         public event Action<int> OnUnreadCountChanged;
-
+        public event Action<int, int, DateTime> OnGroupMessagesRead;
+        public event Action<int> OnMessageDeleted;
+        public event Action<int, string> OnMessageEdited;
         // ✅ أحداث المجموعات
         public event Action<int, int, string, DateTime> OnGroupMessageReceived;
 
@@ -74,6 +76,7 @@ namespace HR_Application.Services
             App.SignalRConnection.Remove("MessageRead");
             App.SignalRConnection.Remove("ReceiveTaskNotification");
             App.SignalRConnection.Remove("ReceiveGroupMessage"); // ✅ إضافة
+            App.SignalRConnection.Remove("GroupMessagesRead");
 
             // رسائل خاصة
             App.SignalRConnection.On<int, int, string, DateTime>(
@@ -87,10 +90,14 @@ namespace HR_Application.Services
                 });
 
             // ✅ رسائل المجموعات
-            App.SignalRConnection.On<int, int, string, DateTime>(
+            App.SignalRConnection.On<int, int, string, DateTime, string>(
                 "ReceiveGroupMessage",
-                async (groupId, senderId, message, timestamp) =>
+                async (groupId, senderId, message, timestamp, senderName) =>
                 {
+                    // زوّد UnreadCount في DB لو المرسل مش أنا
+                    if (senderId != App.CurrentUser?.Id)
+                        await UpdateGroupUnreadCountAsync(groupId, senderId);
+
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                         OnGroupMessageReceived?.Invoke(groupId, senderId, message, timestamp));
                 });
@@ -119,7 +126,51 @@ namespace HR_Application.Services
                         OnTaskNotification?.Invoke(notificationType, taskId, fromUserId, taskDescription, timestamp));
                 });
 
+            App.SignalRConnection.On<int, int, DateTime>(
+                "GroupMessagesRead",
+                async (groupId, userId, readAt) =>
+                {
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                        OnGroupMessagesRead?.Invoke(groupId, userId, readAt));
+                });
+
+            App.SignalRConnection.On<int>("MessageDeleted", async (messageId) =>
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                    OnMessageDeleted?.Invoke(messageId));
+            });
+
+            App.SignalRConnection.On<int, string>("MessageEdited", async (messageId, newText) =>
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                    OnMessageEdited?.Invoke(messageId, newText));
+            });
+
             _listenersRegistered = true;
+        }
+
+        private async Task UpdateGroupUnreadCountAsync(int groupId, int senderId)
+        {
+            try
+            {
+                using var ctx = new AppDbContext(App.ConnectionString);
+
+                // زوّد UnreadCount للـ currentUser فقط
+                var member = await ctx.ChatGroupMembers
+                    .FirstOrDefaultAsync(m => m.GroupId == groupId
+                                           && m.UserId == App.CurrentUser.Id);
+                if (member == null) return;
+
+                member.UnreadCount++;
+                await ctx.SaveChangesAsync();
+
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                    OnUnreadCountChanged?.Invoke(App.CurrentUser.Id));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UpdateGroupUnreadCount error: {ex.Message}");
+            }
         }
 
         // ✅ دالة للانضمام إلى مجموعة

@@ -24,10 +24,12 @@ namespace Sho2on.Database.Models
         public string Message { get; set; }
 
         public bool? IsDelivered { get; set; } = false;
+        public bool IsEdited { get; set; } = false;
         public bool IsDeleted { get; set; } = false;
         public bool IsRead { get; set; } = false;
 
         public DateTime? ReadAt { get; set; }
+        public DateTime? EditedAt { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public virtual Chat Chat { get; set; }
 
