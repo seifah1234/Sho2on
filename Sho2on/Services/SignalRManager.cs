@@ -136,16 +136,17 @@ namespace HR_Application.Services
                     OnMessageEdited?.Invoke(messageId, newText));
             });
 
-            // FIX BUG #4: Listen for group message edit/delete
-            App.SignalRConnection.On<int, int, string>("GroupMessageEdited", (messageId, groupId, newText) =>
+            // ✅ FIXED: Correct parameter order to match server: (messageId, groupId, newText)
+            App.SignalRConnection.On<int, int, string>("GroupMessageEdited", async (messageId, groupId, newText) =>
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                await Application.Current.Dispatcher.InvokeAsync(() =>
                     OnGroupMessageEdited?.Invoke(messageId, groupId, newText));
             });
 
-            App.SignalRConnection.On<int, int>("GroupMessageDeleted", (messageId, groupId) =>
+            // ✅ FIXED: Correct parameter order to match server: (messageId, groupId)
+            App.SignalRConnection.On<int, int>("GroupMessageDeleted", async (messageId, groupId) =>
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                await Application.Current.Dispatcher.InvokeAsync(() =>
                     OnGroupMessageDeleted?.Invoke(messageId, groupId));
             });
 

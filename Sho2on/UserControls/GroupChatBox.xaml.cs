@@ -300,6 +300,8 @@ namespace HR_Application.UserControls
         {
             try
             {
+                Console.WriteLine($"GroupChatBox: Editing message {messageId} in group {SelectedGroupId}");
+
                 using var ctx = new AppDbContext(App.ConnectionString);
                 var dbMsg = await ctx.ChatGroupMessages.FindAsync(messageId);
 
@@ -329,7 +331,7 @@ namespace HR_Application.UserControls
                         Messages.Insert(index, uiMsg);
                     }
 
-                    // ✅ FIX: Check if this is the last message and notify parent
+                    // Check if this is the last message and notify parent
                     var lastMsg = Messages.LastOrDefault();
                     if (lastMsg != null && lastMsg.MessageDbId == messageId)
                     {
@@ -343,11 +345,16 @@ namespace HR_Application.UserControls
                     }
                 }
 
-                // Send notification
+                // ✅ FIXED: Send notification via SignalR
                 if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
+                    Console.WriteLine($"GroupChatBox: Sending GroupMessageEdited via SignalR - MsgId={messageId}, GroupId={SelectedGroupId}");
                     await App.SignalRConnection.InvokeAsync(
                         "GroupMessageEdited", messageId, SelectedGroupId, newText);
+                }
+                else
+                {
+                    Console.WriteLine("GroupChatBox: SignalR not connected, can't send edit notification");
                 }
 
                 _editingMessageId = -1;
@@ -440,6 +447,8 @@ namespace HR_Application.UserControls
 
             try
             {
+                Console.WriteLine($"GroupChatBox: Deleting message {msg.MessageDbId} from group {SelectedGroupId}");
+
                 using var ctx = new AppDbContext(App.ConnectionString);
                 var dbMsg = await ctx.ChatGroupMessages.FindAsync(msg.MessageDbId);
                 if (dbMsg != null)
@@ -450,11 +459,16 @@ namespace HR_Application.UserControls
 
                 Messages.Remove(msg);
 
-                // Send notification via SignalR
+                // ✅ FIXED: Send notification via SignalR with correct method name
                 if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
+                    Console.WriteLine($"GroupChatBox: Sending GroupMessageDeleted via SignalR - MsgId={msg.MessageDbId}, GroupId={SelectedGroupId}");
                     await App.SignalRConnection.InvokeAsync(
                         "GroupMessageDeleted", msg.MessageDbId, SelectedGroupId);
+                }
+                else
+                {
+                    Console.WriteLine("GroupChatBox: SignalR not connected, can't send delete notification");
                 }
 
                 // Update group item's last message
@@ -565,9 +579,9 @@ namespace HR_Application.UserControls
         {
             if (_signalRInitialized) return;
 
-            SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
+            Console.WriteLine("GroupChatBox: Setting up SignalR listeners");
 
-            // FIX: Add listeners for edit and delete events
+            SignalRManager.Instance.OnGroupMessageReceived += HandleGroupMessage;
             SignalRManager.Instance.OnGroupMessageEdited += HandleGroupMessageEdited;
             SignalRManager.Instance.OnGroupMessageDeleted += HandleGroupMessageDeleted;
 
@@ -575,6 +589,7 @@ namespace HR_Application.UserControls
 
             Unloaded += (s, e) =>
             {
+                Console.WriteLine("GroupChatBox: Removing SignalR listeners");
                 SignalRManager.Instance.OnGroupMessageReceived -= HandleGroupMessage;
                 SignalRManager.Instance.OnGroupMessageEdited -= HandleGroupMessageEdited;
                 SignalRManager.Instance.OnGroupMessageDeleted -= HandleGroupMessageDeleted;
@@ -585,13 +600,20 @@ namespace HR_Application.UserControls
         // FIX BUG #1 & #6: Handle edited group messages in real-time
         private void HandleGroupMessageEdited(int messageId, int groupId, string newText)
         {
-            if (groupId != SelectedGroupId) return;
+            Console.WriteLine($"GroupChatBox: HandleGroupMessageEdited - MsgId={messageId}, GroupId={groupId}, CurrentGroupId={SelectedGroupId}");
+
+            if (groupId != SelectedGroupId)
+            {
+                Console.WriteLine($"GroupChatBox: Ignoring edit for group {groupId}, current is {SelectedGroupId}");
+                return;
+            }
 
             Application.Current.Dispatcher.Invoke(() =>
             {
                 var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
                 if (msg != null)
                 {
+                    Console.WriteLine($"GroupChatBox: Found message to edit: {msg.MessageText} -> {newText}");
                     msg.MessageText = newText;
                     msg.IsEdited = true;
 
@@ -603,10 +625,11 @@ namespace HR_Application.UserControls
                         Messages.Insert(index, msg);
                     }
 
-                    // ✅ FIX: Check if this is the last message and notify parent
+                    // Check if this is the last message and notify parent
                     var lastMsg = Messages.LastOrDefault();
                     if (lastMsg != null && lastMsg.MessageDbId == messageId)
                     {
+                        Console.WriteLine("GroupChatBox: Notifying parent about last message edit");
                         GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                         {
                             GroupId = SelectedGroupId,
@@ -616,20 +639,30 @@ namespace HR_Application.UserControls
                         });
                     }
                 }
+                else
+                {
+                    Console.WriteLine($"GroupChatBox: Message {messageId} not found in UI");
+                }
             });
         }
 
         // FIX BUG #6: Handle deleted group messages in real-time
         private void HandleGroupMessageDeleted(int messageId, int groupId)
         {
-            // Check if this is for the currently open group
-            if (groupId != SelectedGroupId) return;
+            Console.WriteLine($"GroupChatBox: HandleGroupMessageDeleted - MsgId={messageId}, GroupId={groupId}, CurrentGroupId={SelectedGroupId}");
+
+            if (groupId != SelectedGroupId)
+            {
+                Console.WriteLine($"GroupChatBox: Ignoring delete for group {groupId}, current is {SelectedGroupId}");
+                return;
+            }
 
             Application.Current.Dispatcher.Invoke(() =>
             {
                 var msg = Messages.FirstOrDefault(m => m.MessageDbId == messageId);
                 if (msg != null)
                 {
+                    Console.WriteLine($"GroupChatBox: Removing message: {msg.MessageText}");
                     Messages.Remove(msg);
 
                     // Update group item's last message
@@ -641,47 +674,62 @@ namespace HR_Application.UserControls
                         UpdateType = "Delete"
                     });
                 }
+                else
+                {
+                    Console.WriteLine($"GroupChatBox: Message {messageId} not found in UI");
+                }
             });
         }
 
         private async void HandleGroupMessage(int groupId, int senderId,
-                                           string message, DateTime timestamp,
-                                           string senderName)
+                               string message, DateTime timestamp,
+                               string senderName)
+        {
+            Console.WriteLine($"GroupChatBox: HandleGroupMessage - GroupId={groupId}, SenderId={senderId}, CurrentGroupId={SelectedGroupId}");
+
+            if (senderId == App.CurrentUser.Id) return;
+
+            NewGroupMessageReceived?.Invoke(this, new GroupMessageEventArgs
             {
-                if (senderId == App.CurrentUser.Id) return;
+                GroupId = groupId,
+                FromUserId = senderId,
+                SenderName = senderName,
+                Message = message,
+                Timestamp = timestamp
+            });
 
-                NewGroupMessageReceived?.Invoke(this, new GroupMessageEventArgs
+            if (groupId != SelectedGroupId) return;
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Messages.Add(new UIChatMessage
                 {
-                    GroupId = groupId,
-                    FromUserId = senderId,
+                    MessageText = message,
+                    IsFromMe = false,
                     SenderName = senderName,
-                    Message = message,
-                    Timestamp = timestamp
+                    Time = timestamp.ToString("hh:mm tt"),
+                    SentAt = timestamp,
+                    IsDelivered = true,
+                    IsRead = true
                 });
 
-                if (groupId != SelectedGroupId) return;
+                ScrollToBottom();
+                _ = ResetUnreadCountAsync(groupId);
 
-                await Application.Current.Dispatcher.InvokeAsync(() =>
+                // Notify parent about new message
+                GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                 {
-                    Messages.Add(new UIChatMessage
-                    {
-                        MessageText = message,
-                        IsFromMe = false,
-                        SenderName = senderName,
-                        Time = timestamp.ToString("hh:mm tt"),
-                        SentAt = timestamp,
-                        IsDelivered = true,
-                        IsRead = true
-                    });
-
-                    ScrollToBottom();
-                    _ = ResetUnreadCountAsync(groupId);
+                    GroupId = SelectedGroupId,
+                    LastMessage = GetLastMessageText(),
+                    LastMessageTime = GetLastMessageTime(),
+                    UpdateType = "NewMessage"
                 });
-            }
+            });
+        }
 
-            // ── Members Management ───────────────────────────────────────────────
+        // ── Members Management ───────────────────────────────────────────────
 
-            private void ManageMembers_Click(object sender, RoutedEventArgs e)
+        private void ManageMembers_Click(object sender, RoutedEventArgs e)
             {
                 if (!CurrentUserIsAdmin) return;
                 var win = new GroupMembersWindow(SelectedGroupId);

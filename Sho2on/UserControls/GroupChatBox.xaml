@@ -179,6 +179,7 @@ Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityC
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,3,0,0">
                                             <TextBlock Text="{Binding EditedLabel}" 
 FontSize="9" Opacity="0.6"
+                                                       Margin="5,0"
 Foreground="{DynamicResource PrimaryColor}"
 Visibility="{Binding ShowEditedLabel, 
     Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -187,7 +188,7 @@ Visibility="{Binding ShowEditedLabel,
                                                    HorizontalAlignment="Left"
                                                    FlowDirection="LeftToRight"
                                                    Foreground="{DynamicResource PrimaryColor}"
-                                                   Margin="0,3,0,0"/>
+                                                   Margin="5,0"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
