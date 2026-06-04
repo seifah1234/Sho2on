@@ -28,7 +28,7 @@
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="Foreground" Value="#424242"/>
@@ -65,7 +65,7 @@
         </Style>
         <!-- نمط للـ RadioButton -->
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="10"/>
@@ -111,7 +111,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="الإعدادات" 
+            <TextBlock Text="{DynamicResource Settings2}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -125,7 +125,7 @@
                 <TabItem Background="Transparent">
                     <TabItem.Header>
                         <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
-                            <Label Content="إعدادات الشهر"/>
+                            <Label Content="{DynamicResource MonthSettings}"/>
                         </Border>
                     </TabItem.Header>
                     <Grid>
@@ -144,7 +144,7 @@
                                 <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_month_btn" Click="save_month_btn_Click" Margin="20">
                                     <StackPanel Orientation="Horizontal">
                                         <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                        <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -155,7 +155,7 @@
                 <TabItem Background="Transparent">
                     <TabItem.Header>
                         <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
-                            <Label Content="إعدادات البرنامج"/>
+                            <Label Content="{DynamicResource ProgramSettings}"/>
                         </Border>
                     </TabItem.Header>
                     <Grid>
@@ -184,8 +184,8 @@
 
         
                         <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}" Grid.Column="0" Grid.Row="1">
-                            <GroupBox Header="المهام">
-                                <CheckBox Content="اظهار المسؤولون للكل" x:Name="officalsForAllBox" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="officalsForAllBox_Checked" Unchecked="officalsForAllBox_Unchecked"/>
+                            <GroupBox Header="{DynamicResource Tasks}">
+                                <CheckBox Content="{DynamicResource ShowAdministratorsToEveryone}" x:Name="officalsForAllBox" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="officalsForAllBox_Checked" Unchecked="officalsForAllBox_Unchecked"/>
                             </GroupBox>
 
                         </Border>
@@ -194,34 +194,34 @@
                         <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  Grid.Column="1" Grid.Row="0">
                             <ScrollViewer>
                                  <StackPanel Orientation="Vertical">
-                                <TextBlock Text="الالوان" Foreground="{DynamicResource TextPrimaryColor}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Colors}" Foreground="{DynamicResource TextPrimaryColor}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 <UniformGrid Columns="2">
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="اللون الرئيسي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <Label Content="{DynamicResource MainColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <xctk:ColorPicker Name="mainColorPicker" Width="200" SelectedColor="{Binding PrimaryColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="اللون الفرعي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <Label Content="{DynamicResource SubColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <xctk:ColorPicker Name="secondaryColorPicker" Width="200" SelectedColor="{Binding SecondaryColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="اللون الثالث" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="hoverColorPicker" Width="200" SelectedColor="{Binding ThirdColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <Label Content="{DynamicResource ThirdColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="hoverColorPicker" Width="200" SelectedColor="{Binding ThirdColorBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="لون الخلفية" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <Label Content="{DynamicResource BackgroundColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <xctk:ColorPicker Name="backgroundColorPicker" Width="200" SelectedColor="{Binding PrimaryColorBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="لون القائمة" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <Label Content="{DynamicResource ListColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <xctk:ColorPicker Name="menuColorPicker" Width="200" SelectedColor="{Binding MainMenuColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="لون الكلام الرئيسي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <Label Content="{DynamicResource MainSpeechColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <xctk:ColorPicker Name="primaryTextColorPicker" Width="200" SelectedColor="{Binding PrimaryTextBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="لون الكلام الفرعي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <Label Content="{DynamicResource SubSpeechColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <xctk:ColorPicker Name="secondaryTextColorPicker" Width="200" SelectedColor="{Binding SecondaryTextBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
                                 </UniformGrid>
@@ -237,7 +237,7 @@
                 <TabItem Background="Transparent">
                     <TabItem.Header>
                         <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
-                            <Label Content="بيانات الشركة"/>
+                            <Label Content="{DynamicResource CompanyData}"/>
                         </Border>
                     </TabItem.Header>
                     <Grid>
@@ -253,7 +253,7 @@
                                 <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_company_Btn" Click="save_company_Btn_Click" Margin="20">
                                     <StackPanel Orientation="Horizontal">
                                         <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                        <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>

@@ -82,8 +82,8 @@
                                     MaxWidth="400">
                                 <Border.ContextMenu>
                                     <ContextMenu FlowDirection="RightToLeft">
-                                        <MenuItem Header="✏️ تعديل" Click="EditMessage_Click" Tag="{Binding}"/>
-                                        <MenuItem Header="🗑️ حذف"   Click="DeleteMessage_Click" Tag="{Binding}"/>
+                                        <MenuItem Header="{DynamicResource Edit}" Click="EditMessage_Click" Tag="{Binding}"/>
+                                        <MenuItem Header="{DynamicResource Delete2}"   Click="DeleteMessage_Click" Tag="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
                                 <Grid>
@@ -214,10 +214,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="EditingLabel" Text="✏️ تعديل رسالة..."
+                <TextBlock x:Name="EditingLabel" Text="{DynamicResource EditMessage}"
                            Foreground="{DynamicResource AccentColor}" FontSize="12"
                            VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="✕ إلغاء"
+                <Button Grid.Column="1" Content="{DynamicResource Cancel}"
                         Background="Transparent" BorderThickness="0"
                         Foreground="{DynamicResource AccentColor}"
                         Click="CancelEdit_Click"/>
@@ -236,7 +236,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" x:Name="AttachButton" ToolTip="إرفاق ملف" 
+                <Button Grid.Column="0" x:Name="AttachButton" ToolTip="{DynamicResource AttachFile}" 
                         Background="Transparent" BorderThickness="0" Margin="0,0,10,0"
                         Click="AttachButton_Click">
                     <icons:PackIconMaterial Kind="Paperclip" Width="20" Height="20" 
@@ -304,7 +304,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <icons:PackIconMaterial Kind="Chat" Width="80" Height="80" Opacity="0.3" 
                                         Foreground="{DynamicResource SecondaryColor}"/>
-                <TextBlock Text="اختر محادثة للبدء" FontSize="16" 
+                <TextBlock Text="{DynamicResource ChooseAConversationToStart}" FontSize="16" 
                            Foreground="{DynamicResource SecondaryColor}"
                            Opacity="0.5" Margin="0,20,0,0"/>
             </StackPanel>

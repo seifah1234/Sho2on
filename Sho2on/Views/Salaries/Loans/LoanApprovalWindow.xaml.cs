@@ -23,7 +23,7 @@ namespace HR_Application.Views
         private string GetManagerName(int managerId)
         {
             var manager = _context.Users.Find(managerId);
-            return manager?.FullName ?? "ÛíÑ ãÚÑæİ";
+            return manager?.FullName ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ");
         }
 
         private async void LoadLoans(string statusFilter = null)
@@ -36,7 +36,7 @@ namespace HR_Application.Views
                    .Where(l => l.ApprovedByUserId == App.CurrentUser.Id) 
                    .AsQueryable();
 
-                if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "ÌãíÚ ÇáÍÇáÇÊ")
+                if (!string.IsNullOrEmpty(statusFilter) && statusFilter != LocalizationManager.Translate("Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª"))
                 {
                     query = query.Where(l => l.Status == statusFilter);
                 }
@@ -46,7 +46,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -67,39 +67,39 @@ namespace HR_Application.Views
         {
             if (_selectedLoan == null) return;
 
-            string details = $"ÇáãæÙİ: {_selectedLoan.User?.FullName}\n" +
-                            $"ÇáßæÏ: {_selectedLoan.User?.Code}\n" +
-                            $"ãÈáÛ ÇáÓáİÉ: {_selectedLoan.LoanAmount:N2}\n" +
-                            $"ÇáãÈáÛ ÇáãÊÈŞí: {_selectedLoan.RemainingAmount:N2}\n" +
-                            $"ÚÏÏ ÇáÃŞÓÇØ: {_selectedLoan.InstallmentCount}\n" +
-                            $"ÇáŞÓØ ÇáÔåÑí: {_selectedLoan.MonthlyInstallment:N2}\n" +
-                            $"ÊÇÑíÎ ÇáØáÈ: {_selectedLoan.LoanDate:yyyy-MM-dd}\n" +
-                            $"ÊÇÑíÎ ÇáÓÏÇÏ ÇáãÊæŞÚ: {_selectedLoan.ExpectedPaybackDate:yyyy-MM-dd}\n" +
-                            $"ÇáÓÈÈ: {_selectedLoan.Reason}\n" +
-                            $"ÇáÍÇáÉ: {_selectedLoan.Status}";
+            string details = $"Ø§Ù„Ù…ÙˆØ¸Ù: {_selectedLoan.User?.FullName}\n" +
+                            $"Ø§Ù„ÙƒÙˆØ¯: {_selectedLoan.User?.Code}\n" +
+                            $"Ù…Ø¨Ù„Øº Ø§Ù„Ø³Ù„ÙØ©: {_selectedLoan.LoanAmount:N2}\n" +
+                            $"Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ: {_selectedLoan.RemainingAmount:N2}\n" +
+                            $"Ø¹Ø¯Ø¯ Ø§Ù„Ø£Ù‚Ø³Ø§Ø·: {_selectedLoan.InstallmentCount}\n" +
+                            $"Ø§Ù„Ù‚Ø³Ø· Ø§Ù„Ø´Ù‡Ø±ÙŠ: {_selectedLoan.MonthlyInstallment:N2}\n" +
+                            $"ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ù„Ø¨: {_selectedLoan.LoanDate:yyyy-MM-dd}\n" +
+                            $"ØªØ§Ø±ÙŠØ® Ø§Ù„Ø³Ø¯Ø§Ø¯ Ø§Ù„Ù…ØªÙˆÙ‚Ø¹: {_selectedLoan.ExpectedPaybackDate:yyyy-MM-dd}\n" +
+                            $"Ø§Ù„Ø³Ø¨Ø¨: {_selectedLoan.Reason}\n" +
+                            $"Ø§Ù„Ø­Ø§Ù„Ø©: {_selectedLoan.Status}";
 
             txtSelectedLoanDetails.Text = details;
 
         }
 
-        // İí LoanApprovalWindow.cs - ÊÚÏíá ÏÇáÉ BtnApprove_Click
+        // ÙÙŠ LoanApprovalWindow.cs - ØªØ¹Ø¯ÙŠÙ„ Ø¯Ø§Ù„Ø© BtnApprove_Click
         private async void BtnApprove_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedLoan == null)
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ÓáİÉ ááãæÇİŞÉ ÚáíåÇ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø³Ù„ÙØ© Ù„Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„ÙŠÙ‡Ø§", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (_selectedLoan.Status != "SentToManager")
             {
-                LocalizationManager.ShowMessage("áÇ íãßä ÇáãæÇİŞÉ Úáì ÓáİÉ ÛíÑ ãÚáŞÉ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø³Ù„ÙØ© ØºÙŠØ± Ù…Ø¹Ù„Ù‚Ø©", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var result = LocalizationManager.ShowMessage(
-                $"åá ÃäÊ ãÊÃßÏ ãä ÇáãæÇİŞÉ Úáì ÓáİÉ ÇáãæÙİ {_selectedLoan.User?.FullName} ÈãÈáÛ {_selectedLoan.LoanAmount:N2}¿",
-                "ÊÃßíÏ ÇáãæÇİŞÉ",
+                $"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø³Ù„ÙØ© Ø§Ù„Ù…ÙˆØ¸Ù {_selectedLoan.User?.FullName} Ø¨Ù…Ø¨Ù„Øº {_selectedLoan.LoanAmount:N2}ØŸ",
+                LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -107,43 +107,43 @@ namespace HR_Application.Views
             {
                 try
                 {
-                    // ÇÓÊÎÏÇã ÎÏãÉ ÕäÏæŞ ÇáÒãÇáÉ
+                    // Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø®Ø¯Ù…Ø© ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©
                     var friendshipBoxService = new FriendshipBoxService(_context);
 
-                    // ÇáÊÍŞŞ ãä ÑÕíÏ ÇáÕäÏæŞ
+                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø±ØµÙŠØ¯ Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚
                     if (!await friendshipBoxService.CanWithdrawAsync(_selectedLoan.LoanAmount))
                     {
                         var balance = await friendshipBoxService.GetCurrentBalanceAsync();
-                        LocalizationManager.ShowMessage($"ÑÕíÏ ÕäÏæŞ ÇáÒãÇáÉ ÛíÑ ßÇİí. ÇáÑÕíÏ ÇáãÊÇÍ: {balance:N2}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage($"Ø±ØµÙŠØ¯ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© ØºÙŠØ± ÙƒØ§ÙÙŠ. Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø­: {balance:N2}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
-                    // ÎÕã ÇáãÈáÛ ãä ÕäÏæŞ ÇáÒãÇáÉ ÇáãÔÊÑß
+                    // Ø®ØµÙ… Ø§Ù„Ù…Ø¨Ù„Øº Ù…Ù† ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© Ø§Ù„Ù…Ø´ØªØ±Ùƒ
                     await friendshipBoxService.RecordWithdrawalAsync(
                         _selectedLoan.UserId,
                         _selectedLoan.LoanAmount,
                         _selectedLoan.Id,
                         _selectedLoan.Reason);
 
-                    // ÊÍÏíË ÍÇáÉ ÇáÓáİÉ
+                    // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ø³Ù„ÙØ©
                     _selectedLoan.Status = "Approved";
                     _selectedLoan.ApprovedDate = DateTime.Now;
-                    _selectedLoan.ApprovedByUserId = App.CurrentUser.Id; // ÇİÊÑÖ Ãä App.CurrentUserId ãæÌæÏ
+                    _selectedLoan.ApprovedByUserId = App.CurrentUser.Id; // Ø§ÙØªØ±Ø¶ Ø£Ù† App.CurrentUserId Ù…ÙˆØ¬ÙˆØ¯
                     _selectedLoan.UpdatedAt = DateTime.Now;
 
-                    // ÊÍÏíË ÑÕíÏ ÇáÓáİ ááãæÙİ
+                    // ØªØ­Ø¯ÙŠØ« Ø±ØµÙŠØ¯ Ø§Ù„Ø³Ù„Ù Ù„Ù„Ù…ÙˆØ¸Ù
                     var user = await _context.Users.FindAsync(_selectedLoan.UserId);
                     if (user != null)
                     {
                         user.CurrentLoanBalance += _selectedLoan.LoanAmount;
 
-                        // ÅĞÇ æÕá ÑÕíÏ ÇáÓáİ ááÍÏ ÇáÃŞÕì¡ ãäÚ ÃÎĞ ÓáİÇÊ ÌÏíÏÉ
+                        // Ø¥Ø°Ø§ ÙˆØµÙ„ Ø±ØµÙŠØ¯ Ø§Ù„Ø³Ù„Ù Ù„Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ØŒ Ù…Ù†Ø¹ Ø£Ø®Ø° Ø³Ù„ÙØ§Øª Ø¬Ø¯ÙŠØ¯Ø©
                         var basicSalary = await _context.Salaries
                             .FirstOrDefaultAsync(s => s.UserId == user.Id && s.Type == 1);
 
                         if (basicSalary != null)
                         {
-                            decimal maxLoan = basicSalary.Amount * 0.5m; // 50% ãä ÇáÑÇÊÈ
+                            decimal maxLoan = basicSalary.Amount * 0.5m; // 50% Ù…Ù† Ø§Ù„Ø±Ø§ØªØ¨
                             if (user.CurrentLoanBalance >= maxLoan)
                             {
                                 user.CanTakeLoan = false;
@@ -152,12 +152,12 @@ namespace HR_Application.Views
                     }
 
                     await _context.SaveChangesAsync();
-                    LocalizationManager.ShowMessage("ÊãÊ ÇáãæÇİŞÉ Úáì ÇáÓáİÉ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø³Ù„ÙØ© Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadLoans();
                 }
                 catch (Exception ex)
                 {
-                    LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"Ø®Ø·Ø£: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -166,19 +166,19 @@ namespace HR_Application.Views
         {
             if (_selectedLoan == null)
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ÓáİÉ áÑİÖåÇ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø³Ù„ÙØ© Ù„Ø±ÙØ¶Ù‡Ø§", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (_selectedLoan.Status != "SentToManager")
             {
-                LocalizationManager.ShowMessage("áÇ íãßä ÑİÖ ÓáİÉ ÛíÑ ãÚáŞÉ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø±ÙØ¶ Ø³Ù„ÙØ© ØºÙŠØ± Ù…Ø¹Ù„Ù‚Ø©", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var result = LocalizationManager.ShowMessage(
-                $"åá ÃäÊ ãÊÃßÏ ãä ÑİÖ ÓáİÉ ÇáãæÙİ {_selectedLoan.User?.FullName}¿",
-                "ÊÃßíÏ ÇáÑİÖ",
+                $"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø±ÙØ¶ Ø³Ù„ÙØ© Ø§Ù„Ù…ÙˆØ¸Ù {_selectedLoan.User?.FullName}ØŸ",
+                LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø±ÙØ¶"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -190,12 +190,12 @@ namespace HR_Application.Views
                     _selectedLoan.UpdatedAt = DateTime.Now;
 
                     await _context.SaveChangesAsync();
-                    LocalizationManager.ShowMessage("Êã ÑİÖ ÇáÓáİÉ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø³Ù„ÙØ© Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadLoans();
                 }
                 catch (Exception ex)
                 {
-                    LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"Ø®Ø·Ø£: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -204,7 +204,7 @@ namespace HR_Application.Views
         {
             if (_selectedLoan == null)
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ÓáİÉ áÚÑÖ ÊİÇÕíáåÇ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø³Ù„ÙØ© Ù„Ø¹Ø±Ø¶ ØªÙØ§ØµÙŠÙ„Ù‡Ø§", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 /*
@@ -215,7 +215,7 @@ namespace HR_Application.Views
         private void BtnFilter_Click(object sender, RoutedEventArgs e)
         {
             string status = (cmbStatus.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content?.ToString();
-            LoadLoans(status == "ÌãíÚ ÇáÍÇáÇÊ" ? null : status);
+            LoadLoans(status == LocalizationManager.Translate("Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª") ? null : status);
         }
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)

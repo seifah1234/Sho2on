@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:HR_Application.Views"
         mc:Ignorable="d"
         FlowDirection="RightToLeft"
-        Title="كشف حساب صندوق الزمالة" 
+        Title="{DynamicResource FellowshipFundAccountStatement}" 
         Height="700" Width="1200"
         WindowStartupLocation="CenterScreen"
         Background="Transparent">
@@ -41,7 +41,7 @@
 
             <!-- العنوان -->
             <Border Grid.Row="0" CornerRadius="10,10,0,0" Padding="15">
-                <TextBlock Text="كشف حساب صندوق الزمالة المشترك" 
+                <TextBlock Text="{DynamicResource JointFellowshipFundAccountStatement}" 
                            Foreground="White" 
                            FontSize="18" 
                            FontWeight="Bold"
@@ -60,38 +60,38 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Label Content="من تاريخ:" VerticalAlignment="Center" Margin="5"/>
+                        <Label Content="{DynamicResource FromDate2}" VerticalAlignment="Center" Margin="5"/>
                         <DatePicker x:Name="dpFromDate" Width="120" Height="40" Margin="5"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Label Content="إلى تاريخ:" VerticalAlignment="Center" Margin="5"/>
+                        <Label Content="{DynamicResource ToDate2}" VerticalAlignment="Center" Margin="5"/>
                         <DatePicker x:Name="dpToDate" Width="120" Height="40" Margin="5"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Label Content="نوع الحركة:" VerticalAlignment="Center" Margin="5"/>
+                        <Label Content="{DynamicResource MovementType}" VerticalAlignment="Center" Margin="5"/>
                         <ComboBox x:Name="cmbTransactionType" Width="120" Height="30" Margin="5" SelectedIndex="0">
-                            <ComboBoxItem Content="الكل"/>
-                            <ComboBoxItem Content="إيداع"/>
-                            <ComboBoxItem Content="سحب"/>
-                            <ComboBoxItem Content="سداد"/>
+                            <ComboBoxItem Content="{DynamicResource Everyone}"/>
+                            <ComboBoxItem Content="{DynamicResource Deposit}"/>
+                            <ComboBoxItem Content="{DynamicResource ToWithdraw}"/>
+                            <ComboBoxItem Content="{DynamicResource Pay}"/>
                         </ComboBox>
                     </StackPanel>
 
                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Label Content="الفرع:" VerticalAlignment="Center" Margin="5"/>
+                        <Label Content="{DynamicResource Branch3}" VerticalAlignment="Center" Margin="5"/>
                         <ComboBox x:Name="cmbBranch" Width="150" Height="30" Margin="5"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="4" Orientation="Horizontal">
-                        <Button x:Name="btnGenerate" Content="عرض التقرير" Width="120" Height="30" Margin="5" 
+                        <Button x:Name="btnGenerate" Content="{DynamicResource ViewReport}" Width="120" Height="30" Margin="5" 
                                 Background="#4CAF50" Foreground="White" FontWeight="Bold"
                                 Click="BtnGenerate_Click"/>
-                        <Button Visibility="Collapsed" x:Name="btnPrint" Content="طباعة" Width="100" Height="30" Margin="5"
+                        <Button Visibility="Collapsed" x:Name="btnPrint" Content="{DynamicResource Print}" Width="100" Height="30" Margin="5"
                                 Background="#2196F3" Foreground="White" FontWeight="Bold"
                                 Click="BtnPrint_Click"/>
-                        <Button x:Name="btnExport" Content="تصدير Excel" Width="120" Height="30" Margin="5"
+                        <Button x:Name="btnExport" Content="{DynamicResource ExcelExport}" Width="120" Height="30" Margin="5"
                                 Background="#9C27B0" Foreground="White" FontWeight="Bold"
                                 Click="BtnExport_Click"/>
                     </StackPanel>
@@ -118,32 +118,32 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" Margin="5">
-                                <TextBlock Text="الرصيد الافتتاحي" Style="{DynamicResource HeaderTextStyle}"/>
+                                <TextBlock Text="{DynamicResource OpeningBalance}" Style="{DynamicResource HeaderTextStyle}"/>
                                 <TextBlock x:Name="txtOpeningBalance" Style="{DynamicResource SummaryTextStyle}" Foreground="Green"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Margin="5">
-                                <TextBlock Text="إجمالي الإيداعات" Style="{DynamicResource HeaderTextStyle}"/>
+                                <TextBlock Text="{DynamicResource TotalDeposits}" Style="{DynamicResource HeaderTextStyle}"/>
                                 <TextBlock x:Name="txtTotalDeposits" Style="{DynamicResource SummaryTextStyle}" Foreground="Blue"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2" Margin="5">
-                                <TextBlock Text="إجمالي السحوبات" Style="{DynamicResource HeaderTextStyle}"/>
+                                <TextBlock Text="{DynamicResource TotalWithdrawals2}" Style="{DynamicResource HeaderTextStyle}"/>
                                 <TextBlock x:Name="txtTotalWithdrawals" Style="{DynamicResource SummaryTextStyle}" Foreground="Red"/>
                             </StackPanel>
 
                             <StackPanel Visibility="Collapsed" Grid.Column="3" Margin="5">
-                                <TextBlock Text="إجمالي السداد" Style="{DynamicResource HeaderTextStyle}"/>
+                                <TextBlock Text="{DynamicResource TotalPayment}" Style="{DynamicResource HeaderTextStyle}"/>
                                 <TextBlock x:Name="txtTotalRepayments" Style="{DynamicResource SummaryTextStyle}" Foreground="DarkGreen"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="3" Margin="5">
-                                <TextBlock Text="الرصيد الختامي" Style="{DynamicResource HeaderTextStyle}"/>
+                                <TextBlock Text="{DynamicResource ClosingBalance}" Style="{DynamicResource HeaderTextStyle}"/>
                                 <TextBlock x:Name="txtClosingBalance" Style="{DynamicResource SummaryTextStyle}" Foreground="DarkBlue"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="4" Margin="5">
-                                <TextBlock Text="عدد الحركات" Style="{DynamicResource HeaderTextStyle}"/>
+                                <TextBlock Text="{DynamicResource NumberOfMovements2}" Style="{DynamicResource HeaderTextStyle}"/>
                                 <TextBlock x:Name="txtTransactionCount" Style="{DynamicResource SummaryTextStyle}"/>
                             </StackPanel>
                         </Grid>
@@ -155,7 +155,7 @@
 
                             <TabItem.Header>
                                 <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                                    <Label Content="الحركات التفصيلية" Foreground="{DynamicResource PrimaryColor}"/>
+                                    <Label Content="{DynamicResource DetailedMovements}" Foreground="{DynamicResource PrimaryColor}"/>
 
                                 </Border>
                             </TabItem.Header>
@@ -169,8 +169,8 @@
                                           IsReadOnly="True" AlternatingRowBackground="#F5F5F5"
                                           SelectionMode="Single" Margin="5">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="التاريخ" Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" Width="100"/>
-                                        <DataGridTextColumn Header="النوع" Binding="{Binding TransactionType}" Width="80">
+                                        <DataGridTextColumn Header="{DynamicResource TheDate}" Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                                        <DataGridTextColumn Header="{DynamicResource Type}" Binding="{Binding TransactionType}" Width="80">
                                             <DataGridTextColumn.CellStyle>
                                                 <Style TargetType="DataGridCell">
                                                     <Setter Property="Foreground">
@@ -185,14 +185,14 @@
                                                 </Style>
                                             </DataGridTextColumn.CellStyle>
                                         </DataGridTextColumn>
-                                        <DataGridTextColumn Header="الموظف" Binding="{Binding User.FullName}" Width="150"/>
-                                        <DataGridTextColumn Header="الكود" Binding="{Binding User.Code}" Width="80"/>
-                                        <DataGridTextColumn Header="الفرع" Binding="{Binding User.Branch.Name}" Width="100"/>
-                                        <DataGridTextColumn Header="المبلغ" Binding="{Binding Amount, StringFormat=N2}" Width="100"/>
-                                        <DataGridTextColumn Header="الرصيد قبل" Binding="{Binding BalanceBefore, StringFormat=N2}" Width="100"/>
-                                        <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding BalanceAfter, StringFormat=N2}" Width="100"/>
-                                        <DataGridTextColumn Header="الوصف" Binding="{Binding Description}" Width="200"/>
-                                        <DataGridTextColumn Header="ملاحظات" Binding="{Binding Notes}" Width="150"/>
+                                        <DataGridTextColumn Header="{DynamicResource Employee}" Binding="{Binding User.FullName}" Width="150"/>
+                                        <DataGridTextColumn Header="{DynamicResource Code}" Binding="{Binding User.Code}" Width="80"/>
+                                        <DataGridTextColumn Header="{DynamicResource Branch}" Binding="{Binding User.Branch.Name}" Width="100"/>
+                                        <DataGridTextColumn Header="{DynamicResource Amount}" Binding="{Binding Amount, StringFormat=N2}" Width="100"/>
+                                        <DataGridTextColumn Header="{DynamicResource BalanceBefore}" Binding="{Binding BalanceBefore, StringFormat=N2}" Width="100"/>
+                                        <DataGridTextColumn Header="{DynamicResource BalanceAfter}" Binding="{Binding BalanceAfter, StringFormat=N2}" Width="100"/>
+                                        <DataGridTextColumn Header="{DynamicResource Description}" Binding="{Binding Description}" Width="200"/>
+                                        <DataGridTextColumn Header="{DynamicResource Comments}" Binding="{Binding Notes}" Width="150"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
 
@@ -206,10 +206,10 @@
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="إجمالي الإيداعات:" FontWeight="Bold" Margin="5"/>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource TotalDeposits2}" FontWeight="Bold" Margin="5"/>
                                         <TextBlock Grid.Column="1" x:Name="txtDepositsTotal" FontWeight="Bold" Foreground="Blue" Margin="5"/>
 
-                                        <TextBlock Grid.Column="2" Text="إجمالي السحوبات:" FontWeight="Bold" Margin="5"/>
+                                        <TextBlock Grid.Column="2" Text="{DynamicResource TotalWithdrawals3}" FontWeight="Bold" Margin="5"/>
                                         <TextBlock Grid.Column="3" x:Name="txtWithdrawalsTotal" FontWeight="Bold" Foreground="Red" Margin="5"/>
                                     </Grid>
                                 </Border>
@@ -219,19 +219,19 @@
                         <TabItem >
                             <TabItem.Header>
                                 <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                                    <Label Content="إحصائيات حسب الفرع" Foreground="{DynamicResource PrimaryColor}"/>
+                                    <Label Content="{DynamicResource StatisticsByBranch}" Foreground="{DynamicResource PrimaryColor}"/>
 
                                 </Border>
                             </TabItem.Header>
                             <DataGrid x:Name="dgBranchStatistics" AutoGenerateColumns="False" 
                                       IsReadOnly="True" AlternatingRowBackground="#F5F5F5" Margin="5">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="الفرع" Binding="{Binding BranchName}" Width="150"/>
-                                    <DataGridTextColumn Header="عدد الموظفين" Binding="{Binding EmployeeCount}" Width="100"/>
-                                    <DataGridTextColumn Header="الإيداعات" Binding="{Binding TotalDeposits, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="السحوبات" Binding="{Binding TotalWithdrawals, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="صافي المساهمة" Binding="{Binding NetContribution, StringFormat=N2}" Width="120"/>
-                                    <DataGridTextColumn Header="نسبة المساهمة" Binding="{Binding ContributionPercentage, StringFormat=N1}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Branch}" Binding="{Binding BranchName}" Width="150"/>
+                                    <DataGridTextColumn Header="{DynamicResource NumberOfEmployees}" Binding="{Binding EmployeeCount}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Deposits}" Binding="{Binding TotalDeposits, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Withdrawals}" Binding="{Binding TotalWithdrawals, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource NetContribution}" Binding="{Binding NetContribution, StringFormat=N2}" Width="120"/>
+                                    <DataGridTextColumn Header="{DynamicResource ContributionPercentage}" Binding="{Binding ContributionPercentage, StringFormat=N1}" Width="100"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
@@ -239,19 +239,19 @@
                         <TabItem >
                             <TabItem.Header>
                                 <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                                    <Label Content="إحصائيات حسب الشهر" Foreground="{DynamicResource PrimaryColor}"/>
+                                    <Label Content="{DynamicResource StatisticsByMonth}" Foreground="{DynamicResource PrimaryColor}"/>
 
                                 </Border>
                             </TabItem.Header>
                             <DataGrid x:Name="dgMonthlyStatistics" AutoGenerateColumns="False" 
                                       IsReadOnly="True" AlternatingRowBackground="#F5F5F5" Margin="5">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="الشهر" Binding="{Binding Month}" Width="150"/>
-                                    <DataGridTextColumn Header="الإيداعات" Binding="{Binding Deposits, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="السحوبات" Binding="{Binding Withdrawals, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="السداد" Binding="{Binding Repayments, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="الصافي" Binding="{Binding NetAmount, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="الرصيد" Binding="{Binding Balance, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Month}" Binding="{Binding Month}" Width="150"/>
+                                    <DataGridTextColumn Header="{DynamicResource Deposits}" Binding="{Binding Deposits, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Withdrawals}" Binding="{Binding Withdrawals, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Payment}" Binding="{Binding Repayments, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Net}" Binding="{Binding NetAmount, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Balance}" Binding="{Binding Balance, StringFormat=N2}" Width="100"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
@@ -260,21 +260,21 @@
 
                             <TabItem.Header>
                                 <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                                    <Label Content="كشف حساب الموظفين" Foreground="{DynamicResource PrimaryColor}"/>
+                                    <Label Content="{DynamicResource EmployeeAccountStatement}" Foreground="{DynamicResource PrimaryColor}"/>
 
                                 </Border>
                             </TabItem.Header>
                             <DataGrid x:Name="dgEmployeeStatement" AutoGenerateColumns="False" 
                                       IsReadOnly="True" AlternatingRowBackground="#F5F5F5" Margin="5">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="الكود" Binding="{Binding Code}" Width="80"/>
-                                    <DataGridTextColumn Header="الاسم" Binding="{Binding Name}" Width="150"/>
-                                    <DataGridTextColumn Header="الفرع" Binding="{Binding Branch}" Width="100"/>
-                                    <DataGridTextColumn Header="الإيداعات" Binding="{Binding TotalDeposits, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="السحوبات" Binding="{Binding TotalWithdrawals, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="صافي المساهمة" Binding="{Binding NetContribution, StringFormat=N2}" Width="120"/>
-                                    <DataGridTextColumn Header="السلف الحالية" Binding="{Binding CurrentLoans, StringFormat=N2}" Width="100"/>
-                                    <DataGridTextColumn Header="الحالة" Binding="{Binding Status}" Width="80"/>
+                                    <DataGridTextColumn Header="{DynamicResource Code}" Binding="{Binding Code}" Width="80"/>
+                                    <DataGridTextColumn Header="{DynamicResource TheName}" Binding="{Binding Name}" Width="150"/>
+                                    <DataGridTextColumn Header="{DynamicResource Branch}" Binding="{Binding Branch}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Deposits}" Binding="{Binding TotalDeposits, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource Withdrawals}" Binding="{Binding TotalWithdrawals, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource NetContribution}" Binding="{Binding NetContribution, StringFormat=N2}" Width="120"/>
+                                    <DataGridTextColumn Header="{DynamicResource CurrentAdvances}" Binding="{Binding CurrentLoans, StringFormat=N2}" Width="100"/>
+                                    <DataGridTextColumn Header="{DynamicResource TheCondition}" Binding="{Binding Status}" Width="80"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
@@ -285,7 +285,7 @@
             <!-- الأزرار السفلية -->
             <Border Grid.Row="3" Background="{DynamicResource MainBackground}" CornerRadius="0,0,10,10" Padding="10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button x:Name="btnClose" Content="إغلاق" Width="100" Height="35" 
+                    <Button x:Name="btnClose" Content="{DynamicResource Closing}" Width="100" Height="35" 
                             Background="#F44336" Foreground="White" FontWeight="Bold"
                             Click="BtnClose_Click"/>
                 </StackPanel>

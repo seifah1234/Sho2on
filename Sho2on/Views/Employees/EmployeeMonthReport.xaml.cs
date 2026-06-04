@@ -69,10 +69,10 @@ namespace HR_Application
                 FontSize = 13,
                 FontWeight = FontWeights.Bold,
                 Inlines = {
-                    new Run($"ÇáİÑÚ: {branch}"),
+                    new Run($"Ø§Ù„ÙØ±Ø¹: {branch}"),
                     new LineBreak(),
                     new LineBreak(),
-                    new Run($"ÔåÑ: {month} - {year}")
+                    new Run($"Ø´Ù‡Ø±: {month} - {year}")
                 }
             });
             branchCell.BorderThickness = new Thickness(0);
@@ -100,7 +100,7 @@ namespace HR_Application
             flowDocument.Blocks.Add(headerTable);
 
             // Add title paragraph
-            Paragraph titleParagraph = new Paragraph(new Run("ÊŞÑíÑ ÓÇÚÇÊ Úãá ÔåÑí"))
+            Paragraph titleParagraph = new Paragraph(new Run(LocalizationManager.Translate("ØªÙ‚Ø±ÙŠØ± Ø³Ø§Ø¹Ø§Øª Ø¹Ù…Ù„ Ø´Ù‡Ø±ÙŠ")))
             {
                 FontWeight = FontWeights.Bold,
                 FontSize = 14,
@@ -136,15 +136,15 @@ namespace HR_Application
             dataHeaderRow.FontWeight = FontWeights.Bold;
 
             // Add header cells
-            dataHeaderRow.Cells.Add(CreateCell("ÇáßæÏ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ÇáÇÓã", true, true));
-            dataHeaderRow.Cells.Add(CreateCell("Ú ÇáÓÇÚÇÊ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ÇáÊÃÎíÑ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("Î ãÈßÑ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ÇáÇÖÇİí", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("Ó ÇáİÚáíÉ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ÇáÇÌÇÒÇÊ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ÇáÛíÇÈ", true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯"), true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø³Ù…"), true, true));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¹ Ø§Ù„Ø³Ø§Ø¹Ø§Øª"), true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ØªØ£Ø®ÙŠØ±"), true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø® Ù…Ø¨ÙƒØ±"), true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø¶Ø§ÙÙŠ"), true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø³ Ø§Ù„ÙØ¹Ù„ÙŠØ©"), true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø¬Ø§Ø²Ø§Øª"), true, false));
+            dataHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ØºÙŠØ§Ø¨"), true, false));
 
             // Add header row to the data table
             headerRowGroupData.Rows.Add(dataHeaderRow);
@@ -245,15 +245,15 @@ namespace HR_Application
 
                         var headers = new[]
                         {
-                            "ÇáßæÏ",
-                            "ÇáÇÓã",
-                            "Ó ÑÓãíÉ",
-                            "ÇáÊÃÎíÑ",
-                            "Î ãÈßÑ",
-                            "ÇáÇÖÇİí",
-                            "Ó İÚáíÉ",
-                            "ÇáÇÌÇÒÇÊ",
-                            "ÇáÛíÇÈ"
+                            LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯"),
+                            LocalizationManager.Translate("Ø§Ù„Ø§Ø³Ù…"),
+                            LocalizationManager.Translate("Ø³ Ø±Ø³Ù…ÙŠØ©"),
+                            LocalizationManager.Translate("Ø§Ù„ØªØ£Ø®ÙŠØ±"),
+                            LocalizationManager.Translate("Ø® Ù…Ø¨ÙƒØ±"),
+                            LocalizationManager.Translate("Ø§Ù„Ø§Ø¶Ø§ÙÙŠ"),
+                            LocalizationManager.Translate("Ø³ ÙØ¹Ù„ÙŠØ©"),
+                            LocalizationManager.Translate("Ø§Ù„Ø§Ø¬Ø§Ø²Ø§Øª"),
+                            LocalizationManager.Translate("Ø§Ù„ØºÙŠØ§Ø¨")
                         };
 
                         for (int i = 0; i < headers.Length; i++)
@@ -286,12 +286,12 @@ namespace HR_Application
                         }
 
                         workbook.SaveAs(filePath);
-                        LocalizationManager.ShowMessage("Êã ÇÓÊÎÑÇÌ ÇáÇßÓíá!");
+                        LocalizationManager.ShowMessage("ØªÙ… Ø§Ø³ØªØ®Ø±Ø§Ø¬ Ø§Ù„Ø§ÙƒØ³ÙŠÙ„!");
                     }
                 }
                 catch (Exception e)
                 {
-                    LocalizationManager.ShowMessage(e.Message, "ÎØÃ");
+                    LocalizationManager.ShowMessage(e.Message, LocalizationManager.Translate("Ø®Ø·Ø£"));
                 }
             }
         }
@@ -334,7 +334,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -354,7 +354,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÍÓÇÈ ÊæÇÑíÎ ÇáÔåÑ ÇáãÎÕÕ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø³Ø§Ø¨ ØªÙˆØ§Ø±ÙŠØ® Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ù…Ø®ØµØµ: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return (DateTime.MinValue, DateTime.MaxValue);
             }
         }
@@ -368,8 +368,8 @@ namespace HR_Application
 
             var dayMapping = new Dictionary<string, int>
             {
-                { "ÇáÓÈÊ", 0 }, { "ÇáÃÍÏ", 1 }, { "ÇáÇËäíä", 2 }, { "ÇáËáÇËÇÁ", 3 },
-                { "ÇáÃÑÈÚÇÁ", 4 }, { "ÇáÎãíÓ", 5 }, { "ÇáÌãÚÉ", 6 }
+                { LocalizationManager.Translate("Ø§Ù„Ø³Ø¨Øª"), 0 }, { LocalizationManager.Translate("Ø§Ù„Ø£Ø­Ø¯"), 1 }, { LocalizationManager.Translate("Ø§Ù„Ø§Ø«Ù†ÙŠÙ†"), 2 }, { LocalizationManager.Translate("Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡"), 3 },
+                { LocalizationManager.Translate("Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡"), 4 }, { LocalizationManager.Translate("Ø§Ù„Ø®Ù…ÙŠØ³"), 5 }, { LocalizationManager.Translate("Ø§Ù„Ø¬Ù…Ø¹Ø©"), 6 }
             };
 
 

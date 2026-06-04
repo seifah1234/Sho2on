@@ -1,6 +1,6 @@
 using MaterialDesignThemes.Wpf;
 using Sho2on.Database;
-using Sho2on.Database.Models; // ÚÏá ÇáãÓÇÑ ÍÓÈ ãßÇä ãæÏíá Shift
+using Sho2on.Database.Models; // Ø¹Ø¯Ù„ Ø§Ù„Ù…Ø³Ø§Ø± Ø­Ø³Ø¨ Ù…ÙƒØ§Ù† Ù…ÙˆØ¯ÙŠÙ„ Shift
 using System; using HR_Application.Helpers;
 using System.Linq;
 using System.Windows; using HR_Application.Helpers;
@@ -43,7 +43,7 @@ namespace HR_Application
             {
                 if (fromTimePicker.SelectedTime == null || toTimePicker.SelectedTime == null)
                 {
-                    LocalizationManager.ShowMessage("ãä İÖáß ÇÎÊÑ ÇáæŞÊ ãä æÅáì", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ù…Ù† ÙØ¶Ù„Ùƒ Ø§Ø®ØªØ± Ø§Ù„ÙˆÙ‚Øª Ù…Ù† ÙˆØ¥Ù„Ù‰", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -61,12 +61,12 @@ namespace HR_Application
                 await _context.Shifts.AddAsync(shift);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÅÖÇİÉ ÇáæÑÏíÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„ÙˆØ±Ø¯ÙŠØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -74,7 +74,7 @@ namespace HR_Application
         {
             if (_selectedShift == null)
             {
-                LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Ãí æÑÏíÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ù„Ù… ØªØ®ØªØ§Ø± Ø£ÙŠ ÙˆØ±Ø¯ÙŠØ©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -82,7 +82,7 @@ namespace HR_Application
             {
                 if (fromTimePicker.SelectedTime == null || toTimePicker.SelectedTime == null)
                 {
-                    LocalizationManager.ShowMessage("ãä İÖáß ÇÎÊÑ ÇáæŞÊ ãä æÅáì", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ù…Ù† ÙØ¶Ù„Ùƒ Ø§Ø®ØªØ± Ø§Ù„ÙˆÙ‚Øª Ù…Ù† ÙˆØ¥Ù„Ù‰", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -94,12 +94,12 @@ namespace HR_Application
                 _context.Shifts.Update(_selectedShift);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáæÑÏíÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ÙˆØ±Ø¯ÙŠØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -107,7 +107,7 @@ namespace HR_Application
         {
             if (_selectedShift == null)
             {
-                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáæÑÏíÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙˆØ±Ø¯ÙŠØ©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -116,12 +116,12 @@ namespace HR_Application
                 _context.Shifts.Remove(_selectedShift);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÍĞİ ÇáæÑÏíÉ", "äÌÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„ÙˆØ±Ø¯ÙŠØ©", LocalizationManager.Translate("Ù†Ø¬Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

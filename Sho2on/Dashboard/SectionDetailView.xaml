@@ -115,7 +115,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ArrowRight" Width="14" Height="14"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="رجوع للوحة التحكم"/>
+                                <TextBlock Text="{DynamicResource BackToTheControlPanel}"/>
                             </StackPanel>
                         </Button>
 
@@ -183,7 +183,7 @@
                                 <TextBlock x:Name="KpiEmployees" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#80DEEA" HorizontalAlignment="Center"/>
-                                <TextBlock Text="إجمالي الموظفين"
+                                <TextBlock Text="{DynamicResource TotalEmployees}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -235,7 +235,7 @@
                                 <TextBlock x:Name="KpiPresent" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#A5D6A7" HorizontalAlignment="Center"/>
-                                <TextBlock Text="حاضر اليوم"
+                                <TextBlock Text="{DynamicResource PresentToday}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -253,7 +253,7 @@
                                 <TextBlock x:Name="KpiAbsent" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#EF9A9A" HorizontalAlignment="Center"/>
-                                <TextBlock Text="غائب اليوم"
+                                <TextBlock Text="{DynamicResource AbsentToday}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -271,7 +271,7 @@
                                 <TextBlock x:Name="KpiLeaves" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#CE93D8" HorizontalAlignment="Center"/>
-                                <TextBlock Text="إجازات معلقة"
+                                <TextBlock Text="{DynamicResource PendingVacations}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -289,7 +289,7 @@
                                 <TextBlock x:Name="KpiSalaries" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#FFCC80" HorizontalAlignment="Center"/>
-                                <TextBlock Text="مرتبات مستحقة"
+                                <TextBlock Text="{DynamicResource SalariesOwed}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -307,7 +307,7 @@
                                 <TextBlock x:Name="KpiApprovedLeaves" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#90CAF9" HorizontalAlignment="Center"/>
-                                <TextBlock Text="إجازات مقبولة"
+                                <TextBlock Text="{DynamicResource AcceptableVacations}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -329,7 +329,7 @@
                                         <Icon:PackIconMaterial Kind="ChartDonut" Width="16" Height="16"
                                                                Foreground="{DynamicResource AccentColor}"
                                                                VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="حضور القطاع اليوم"
+                                        <TextBlock Text="{DynamicResource AttendTheSectorToday}"
                                                    FontSize="14" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource TextPrimaryColor}"
                                                    VerticalAlignment="Center"/>
@@ -350,7 +350,7 @@
                                         <Icon:PackIconMaterial Kind="ChartBar" Width="16" Height="16"
                                                                Foreground="{DynamicResource AccentColor}"
                                                                VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="توزيع الموظفين بالإدارات"
+                                        <TextBlock Text="{DynamicResource DistributionOfEmployeesAmongDepartments}"
                                                    FontSize="14" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource TextPrimaryColor}"
                                                    VerticalAlignment="Center"/>
@@ -370,7 +370,7 @@
                                         </lvc:Axis>
                                     </lvc:CartesianChart.AxisX>
                                     <lvc:CartesianChart.AxisY>
-                                        <lvc:Axis Title="العدد"
+                                        <lvc:Axis Title="{DynamicResource Number}"
                                                   Foreground="{DynamicResource MutedColor}"/>
                                     </lvc:CartesianChart.AxisY>
                                 </lvc:CartesianChart>
@@ -385,7 +385,7 @@
                                         <Icon:PackIconMaterial Kind="AccountGroup" Width="16" Height="16"
                                         Foreground="{DynamicResource AccentColor}"
                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="موظفو الفرع"
+                                        <TextBlock Text="{DynamicResource BranchEmployees2}"
                             FontSize="14" FontWeight="SemiBold"
                             Foreground="{DynamicResource TextPrimaryColor}"
                             VerticalAlignment="Center"/>
@@ -397,13 +397,13 @@
                    Margin="10,8,10,10"
                    Style="{DynamicResource DetailGrid}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="الاسم"
+                                        <DataGridTextColumn Header="{DynamicResource TheName}"
                                      Binding="{Binding FullName}" Width="*"/>
-                                        <DataGridTextColumn Header="الإدارة"
+                                        <DataGridTextColumn Header="{DynamicResource Management}"
                                      Binding="{Binding Department.Name}" Width="130"/>
-                                        <DataGridTextColumn Header="الوظيفة"
+                                        <DataGridTextColumn Header="{DynamicResource Job}"
                                      Binding="{Binding JobTitle.Name}" Width="120"/>
-                                        <DataGridTextColumn Header="الراتب الأساسي"
+                                        <DataGridTextColumn Header="{DynamicResource BasicSalary}"
                                      Binding="{Binding BasicSalary, StringFormat='{}{0:N0} ج'}"
                                      Width="110"/>
                                     </DataGrid.Columns>
@@ -429,7 +429,7 @@
                                         <Icon:PackIconMaterial Kind="ClipboardCheckOutline" Width="16" Height="16"
                                                                Foreground="#A5D6A7"
                                                                VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="حضور اليوم"
+                                        <TextBlock Text="{DynamicResource AttendToday}"
                                                    FontSize="14" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource TextPrimaryColor}"
                                                    VerticalAlignment="Center"/>
@@ -441,12 +441,12 @@
                                           Margin="10,8,10,10"
                                           Style="{DynamicResource DetailGrid}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="الموظف"
+                                        <DataGridTextColumn Header="{DynamicResource Employee}"
                                                             Binding="{Binding User.FullName}" Width="*"/>
-                                        <DataGridTextColumn Header="الدخول"
+                                        <DataGridTextColumn Header="{DynamicResource Login2}"
                                                             Binding="{Binding CheckInTime, StringFormat='HH:mm'}"
                                                             Width="70"/>
-                                        <DataGridTemplateColumn Header="الحالة" Width="70">
+                                        <DataGridTemplateColumn Header="{DynamicResource TheCondition}" Width="70">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Border CornerRadius="6" Padding="6,2"
@@ -472,7 +472,7 @@
                                     <Icon:PackIconMaterial Kind="CalendarClock" Width="16" Height="16"
                                                            Foreground="#CE93D8"
                                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="طلبات الإجازة المعلقة"
+                                    <TextBlock Text="{DynamicResource PendingLeaveRequests}"
                                                FontSize="14" FontWeight="SemiBold"
                                                Foreground="{DynamicResource TextPrimaryColor}"
                                                VerticalAlignment="Center"/>
@@ -484,19 +484,19 @@
                                       Margin="10,8,10,10"
                                       Style="{DynamicResource DetailGrid}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="الموظف"
+                                    <DataGridTextColumn Header="{DynamicResource Employee}"
                                                         Binding="{Binding User.FullName}" Width="*"/>
-                                    <DataGridTextColumn Header="نوع الإجازة"
+                                    <DataGridTextColumn Header="{DynamicResource LeaveType2}"
                                                         Binding="{Binding LeaveType.Name}" Width="130"/>
-                                    <DataGridTextColumn Header="من"
+                                    <DataGridTextColumn Header="{DynamicResource From}"
                                                         Binding="{Binding StartDate, StringFormat=yyyy/MM/dd}"
                                                         Width="100"/>
-                                    <DataGridTextColumn Header="إلى"
+                                    <DataGridTextColumn Header="{DynamicResource To}"
                                                         Binding="{Binding EndDate, StringFormat=yyyy/MM/dd}"
                                                         Width="100"/>
-                                    <DataGridTextColumn Header="الأيام"
+                                    <DataGridTextColumn Header="{DynamicResource TheDays}"
                                                         Binding="{Binding TotalDays}" Width="60"/>
-                                    <DataGridTextColumn Header="ملاحظات"
+                                    <DataGridTextColumn Header="{DynamicResource Comments}"
                                                         Binding="{Binding Notes}" Width="*"/>
                                 </DataGrid.Columns>
                             </DataGrid>

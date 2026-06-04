@@ -11,7 +11,7 @@
         Background="Transparent"
         FlowDirection="RightToLeft"
         Loaded="Window_Loaded"
-        Title="طلب إجازة">
+        Title="{DynamicResource LeaveRequest}">
 
     <Window.Resources>
         <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
@@ -146,7 +146,7 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="BorderBrush" Value="#1976D2"/>
@@ -180,7 +180,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="طلب إجازة" 
+            <TextBlock Text="{DynamicResource LeaveRequest}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -195,7 +195,7 @@
                     <ScrollViewer>
                      <StackPanel Orientation="Vertical" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="20">
                         <!-- في قسم معلومات الموظف -->
-                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="بيانات الموظف" Margin="10">
+                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="{DynamicResource EmployeeData3}" Margin="10">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
                                             <TextBox Name="employeeCode_box" Tag="كود الموظف" KeyDown="employeeCode_box_KeyDown"
@@ -210,7 +210,7 @@
             Margin="10">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Icon:PackIconMaterial Kind="AccountSearch" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                                <TextBlock Text="اختر الموظف" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
+                                                <TextBlock Text="{DynamicResource SelectEmployee}" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                                 </StackPanel>
                                             </Button>
 
@@ -220,8 +220,8 @@
                     Click="btnManageBalance_Click" 
                     Margin="10" Background="#673AB7">
                                         <StackPanel Orientation="Horizontal">
-                                                <Icon:PackIconMaterial Kind="AccountCash" VerticalAlignment="Center" Foreground="{DynamicResource ThirdColor}" Margin="0 0 5 0"/>
-                                            <TextBlock Text="إدارة الرصيد" VerticalAlignment="Center"/>
+                                                <Icon:PackIconMaterial Kind="AccountCash" VerticalAlignment="Center" Foreground="{DynamicResource ThirdColorBrushBrush}" Margin="0 0 5 0"/>
+                                            <TextBlock Text="{DynamicResource ManageBalance}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -245,12 +245,12 @@
                         </GroupBox>
 
                             <StackPanel Orientation="Horizontal">
-                                 <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="الموافقة على الإجازة" Margin="10">
+                                 <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="{DynamicResource ApprovalOfLeave}" Margin="10">
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
 
                                     <!-- فلترة المديرين بالمسمى الوظيفي -->
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Center">
-                                        <TextBlock Text="المسمى الوظيفي:" 
+                                        <TextBlock Text="{DynamicResource JobTitle2}" 
                        Foreground="White" Margin="0,0,10,0" VerticalAlignment="Center"/>
 
                                         <ComboBox x:Name="cmbFilterByJobTitle" Width="200"
@@ -266,7 +266,7 @@
                 Margin="0,0,0,10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="AccountTie" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="اختر الموافق على الإجازة" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
+                                            <TextBlock Text="{DynamicResource SelectOkToLeave}" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                         </StackPanel>
                                     </Button>
 
@@ -278,7 +278,7 @@
                 Padding="10" 
                 Margin="0,10,0,0">
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="المدير المختار:" FontWeight="Bold" Foreground="#1976D2"/>
+                                            <TextBlock Text="{DynamicResource SelectedDirector}" FontWeight="Bold" Foreground="#1976D2"/>
 
                                             <Grid Margin="0,5,0,0">
                                                 <Grid.ColumnDefinitions>
@@ -291,15 +291,15 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <TextBlock Text="الاسم:" Grid.Row="0" Grid.Column="0" Foreground="Black"
+                                                <TextBlock Text="{DynamicResource TheName2}" Grid.Row="0" Grid.Column="0" Foreground="Black"
                                FontWeight="SemiBold" Margin="0,0,5,0"/>
                                                 <TextBlock x:Name="txtSelectedManagerName" Grid.Row="0" Grid.Column="1" Foreground="Black"/>
 
-                                                <TextBlock Text="المسمى الوظيفي:" Grid.Row="1" Grid.Column="0"  Foreground="Black"
+                                                <TextBlock Text="{DynamicResource JobTitle2}" Grid.Row="1" Grid.Column="0"  Foreground="Black"
                                FontWeight="SemiBold" Margin="0,5,5,0"/>
                                                 <TextBlock x:Name="txtSelectedManagerJobTitle" Grid.Row="1" Grid.Column="1" Foreground="Black" Margin="0,5,0,0"/>
 
-                                                <TextBlock Text="الإدارة:" Grid.Row="2" Grid.Column="0"  Foreground="Black"
+                                                <TextBlock Text="{DynamicResource Management2}" Grid.Row="2" Grid.Column="0"  Foreground="Black"
                                FontWeight="SemiBold" Margin="0,5,5,0"/>
                                                 <TextBlock x:Name="txtSelectedManagerDepartment" Grid.Row="2" Grid.Column="1" Foreground="Black" Margin="0,5,0,0"/>
                                             </Grid>
@@ -307,18 +307,18 @@
                                     </Border>
 
                                     <!-- ملاحظة -->
-                                    <TextBlock Text="ملاحظة: يجب اختيار الموافق على الإجازة إذا كانت تتطلب موافقة"
+                                    <TextBlock Text="{DynamicResource NoteYouMustSelectApprovalForTheLeaveIfItRequiresApproval}"
                    FontSize="10" FontStyle="Italic" Foreground="LightGray" 
                    HorizontalAlignment="Center" Margin="0,10,0,0"/>
                                 </StackPanel>
                             </GroupBox>
-                                 <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="القائم عن العمل" Margin="10">
+                                 <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="{DynamicResource Incumbent}" Margin="10">
                                     <StackPanel>
                                        <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
                                         <TextBox VerticalAlignment="Bottom" Name="ReplaceEmployeeCode_box" Tag="كود الموظف" KeyDown="ReplaceEmployeeCode_box_KeyDown"
  FlowDirection="RightToLeft" Margin="10" Width="120"/>
                                             <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
-                                                <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                                <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                                 <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                                             </StackPanel>
 
@@ -333,7 +333,7 @@ Click="searchReplace_btn_Click"
 Margin="10">
                                             <StackPanel Orientation="Horizontal">
                                                 <Icon:PackIconMaterial Kind="AccountSearch" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                                <TextBlock Text="اختر الموظف" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
+                                                <TextBlock Text="{DynamicResource SelectEmployee}" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>
@@ -342,7 +342,7 @@ Margin="10">
                             </StackPanel>
                          
                             <!-- في قسم بيانات الإجازة -->
-                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="بيانات الإجازة" Margin="10">
+                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="{DynamicResource LeaveData}" Margin="10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -357,7 +357,7 @@ Margin="10">
 
                                     <GroupBox x:Name="leaveBalanceSection" 
                                               FlowDirection="RightToLeft"
-    Header="رصيد الإجازات" 
+    Header="{DynamicResource LeaveBalance}" 
     Margin="10" 
     Visibility="Collapsed">
                                         <StackPanel Orientation="Vertical">
@@ -378,16 +378,16 @@ Margin="10">
                                             <!-- رصيد الإجازات -->
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                 <StackPanel Orientation="Vertical" Margin="10">
-                                                    <TextBlock Text="الإجازة السنوية:" Foreground="White" FontWeight="Normal"/>
-                                                    <TextBlock Name="annualBalance_text" Text="0 يوم" Foreground="Green" FontWeight="Bold" FontSize="16"/>
+                                                    <TextBlock Text="{DynamicResource AnnualLeave}" Foreground="White" FontWeight="Normal"/>
+                                                    <TextBlock Name="annualBalance_text" Text="{DynamicResource 0Days}" Foreground="Green" FontWeight="Bold" FontSize="16"/>
                                                 </StackPanel>
                                                 <StackPanel Orientation="Vertical" Margin="10">
-                                                    <TextBlock Text="المستحق المتبقي:" Foreground="White" FontWeight="Normal"/>
-                                                    <TextBlock Name="remainingBalance_text" Text="0 يوم" Foreground="Blue" FontWeight="Bold" FontSize="16"/>
+                                                    <TextBlock Text="{DynamicResource RemainingDue}" Foreground="White" FontWeight="Normal"/>
+                                                    <TextBlock Name="remainingBalance_text" Text="{DynamicResource 0Days}" Foreground="Blue" FontWeight="Bold" FontSize="16"/>
                                                 </StackPanel>
                                                 <StackPanel Orientation="Vertical" Margin="10">
-                                                    <TextBlock Text="المستخدم هذا العام:" Foreground="White" FontWeight="Normal"/>
-                                                    <TextBlock Name="usedBalance_text" Text="0 يوم" Foreground="Red" FontWeight="Bold" FontSize="16"/>
+                                                    <TextBlock Text="{DynamicResource UserThisYear}" Foreground="White" FontWeight="Normal"/>
+                                                    <TextBlock Name="usedBalance_text" Text="{DynamicResource 0Days}" Foreground="Red" FontWeight="Bold" FontSize="16"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </StackPanel>
@@ -397,11 +397,11 @@ Margin="10">
                                     <!-- Date Selection -->
                                     <StackPanel Orientation="Horizontal" Margin="10" HorizontalAlignment="Center">
                                         <StackPanel Orientation="Vertical" Margin="10">
-                                            <TextBlock Text="إلى تاريخ:" Foreground="White" FlowDirection="RightToLeft" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                            <TextBlock Text="{DynamicResource ToDate2}" Foreground="White" FlowDirection="RightToLeft" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                             <DatePicker Name="endDate_picker" FlowDirection="RightToLeft" Width="150"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical" Margin="10">
-                                            <TextBlock Text="من تاريخ:" Foreground="White" FlowDirection="RightToLeft" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                            <TextBlock Text="{DynamicResource FromDate2}" Foreground="White" FlowDirection="RightToLeft" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                             <DatePicker Name="startDate_picker" FlowDirection="RightToLeft" Width="150"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical" Margin="10">
@@ -412,7 +412,7 @@ Margin="10">
 
                                     <!-- Leave Reason -->
                                     <StackPanel Orientation="Vertical" Margin="10" HorizontalAlignment="Center">
-                                        <TextBlock Text="سبب الإجازة:" Foreground="White" FlowDirection="RightToLeft" 
+                                        <TextBlock Text="{DynamicResource ReasonForLeave2}" Foreground="White" FlowDirection="RightToLeft" 
                            FontWeight="SemiBold" Margin="0,0,0,5"/>
                                         <TextBox Width="500" MinHeight="80" Name="reason_box" 
                          Tag="الرجاء كتابة سبب الإجازة" FlowDirection="RightToLeft"
@@ -425,20 +425,20 @@ Margin="10">
 
                                             <Button Style="{DynamicResource ActionButtonStyle}" HorizontalAlignment="Center" Background="#4CAF50" Name="submit_btn" Click="submit_btn_Click" Margin="15">
                                         <StackPanel Orientation="Horizontal">
-                                                <Icon:PackIconMaterial Kind="Send" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="{DynamicResource ThirdColor}"/>
-                                            <TextBlock Text="تقديم الطلب" VerticalAlignment="Center"/>
+                                                <Icon:PackIconMaterial Kind="Send" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
+                                            <TextBlock Text="{DynamicResource SubmitTheApplication}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{DynamicResource ActionButtonStyle}" Background="#FFC107" Name="saveDraft_btn" Visibility="Collapsed" Click="saveDraft_btn_Click" Margin="15">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حفظ كمسودة" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource SaveAsDraft}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                             <Button Style="{DynamicResource ActionButtonStyle}" Background="#F44336" Name="cancel_btn" Click="cancel_btn_Click" Margin="15">
                                                 <StackPanel Orientation="Horizontal">
-                                                <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Cancel" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                                    <TextBlock Text="إلغاء" VerticalAlignment="Center"/>
+                                                <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Cancel" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                                    <TextBlock Text="{DynamicResource Cancellation}" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>

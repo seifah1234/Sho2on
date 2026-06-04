@@ -65,7 +65,7 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -113,7 +113,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="استحقاقات واستقطاعات" 
+            <TextBlock Text="{DynamicResource EntitlementsAndDeductions}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -127,31 +127,31 @@
                 <Grid>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Center" Margin="10">
                         <!-- GroupBox المحسن -->
-                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="البيانات الأساسية" Margin="10">
+                        <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="{DynamicResource BasicData}" Margin="10">
                             <StackPanel VerticalAlignment="Center" Orientation="Vertical" FlowDirection="LeftToRight">
                                 <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
                                     <!-- الأزرار -->
                                     <Button Style="{DynamicResource ActionButtonStyle}" Name="save_btn" Click="save_btn_Click" Margin="10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حفظ" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Save}" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{DynamicResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="10">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="بحث" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Research}" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <StackPanel Margin="5" Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Center">
-                                        <Label VerticalAlignment="Center" Content="الفرع" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                        <Label VerticalAlignment="Center" Content="{DynamicResource Branch}" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
                                         <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                                     </StackPanel>
                                     <!-- TextBoxes 
                                     <TextBox Width="200" Name="name_box" Tag="الاسم" FlowDirection="RightToLeft" Margin="10"/>-->
                                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
                                         <TextBlock Width="250" Name="user_box" Margin="5"/>
-                                        <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف: " VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                        <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="اسم الموظف: " VerticalAlignment="Center" Margin="10 0 0 0"/>
                                     </StackPanel>
                                     <TextBox Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="10"/>
                                 </StackPanel>
@@ -163,11 +163,11 @@
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <!-- RadioButtons -->
                                 <StackPanel Orientation="Horizontal" Margin="10" HorizontalAlignment="Center">
-                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Checked="ancestor_Checked" Name="ancestor_check" Content="سلف"/>
-                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="penalty_Checked" Name="penalty_check" Content="جزاء"/>
-                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="deficit_Checked" Name="deficit_check" Content="عجز"/>
-                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="reward_Checked" Name="reward_check" Content="مكافأة"/>
-                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="phone_check_Checked" Name="phone_check" Content="فاتورة تليفون"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Checked="ancestor_Checked" Name="ancestor_check" Content="{DynamicResource Ancestor}"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="penalty_Checked" Name="penalty_check" Content="{DynamicResource Penalty}"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="deficit_Checked" Name="deficit_check" Content="{DynamicResource Inability}"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="reward_Checked" Name="reward_check" Content="{DynamicResource Reward}"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Checked="phone_check_Checked" Name="phone_check" Content="{DynamicResource TelephoneBill}"/>
                                 </StackPanel>
 
                                 <!-- DatePicker -->

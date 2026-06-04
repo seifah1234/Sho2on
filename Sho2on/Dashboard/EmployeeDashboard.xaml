@@ -57,7 +57,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="#607D8B" Padding="20">
             <StackPanel>
-                <TextBlock Text="لوحة تحكم الموظف" 
+                <TextBlock Text="{DynamicResource EmployeeControlPanel}" 
                          FontSize="20" 
                          FontWeight="Bold"
                          Foreground="White"/>
@@ -129,7 +129,7 @@
                                      FontSize="18" FontWeight="Bold" 
                                      Foreground="#2196F3" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="رصيد الإجازات" 
+                            <TextBlock Text="{DynamicResource LeaveBalance}" 
                                      FontSize="11" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -143,7 +143,7 @@
                                      FontSize="18" FontWeight="Bold" 
                                      Foreground="#4CAF50" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="الحضور الشهري" 
+                            <TextBlock Text="{DynamicResource MonthlyAttendance}" 
                                      FontSize="11" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -157,7 +157,7 @@
                                      FontSize="18" FontWeight="Bold" 
                                      Foreground="#FF9800" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="آخر راتب" 
+                            <TextBlock Text="{DynamicResource LastSalary}" 
                                      FontSize="11" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -171,7 +171,7 @@
                                      FontSize="18" FontWeight="Bold" 
                                      Foreground="#9C27B0" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="ساعات العمل" 
+                            <TextBlock Text="{DynamicResource WorkingHours}" 
                                      FontSize="11" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -188,24 +188,24 @@
                     <!-- الخدمات الذاتية -->
                     <Border Grid.Column="0" Style="{DynamicResource StatCard}" Margin="0,0,5,0">
                         <StackPanel Margin="10">
-                            <TextBlock Text="🛠️ الخدمات الذاتية" 
+                            <TextBlock Text="{DynamicResource SelfServices}" 
                                      FontSize="16" FontWeight="Bold"
                                      Margin="0,0,0,10"/>
 
                             <WrapPanel>
-                                <Button Content="طلب إجازة" 
+                                <Button Content="{DynamicResource LeaveRequest}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenLeaveRequest"
                                         Margin="2"/>
-                                <Button Content="طلب سلفة" 
+                                <Button Content="{DynamicResource LoanRequest}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenLoanRequest"
                                         Margin="2"/>
-                                <Button Content="بياناتي الشخصية" 
+                                <Button Content="{DynamicResource MyPersonalData}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyProfile"
                                         Margin="2"/>
-                                <Button Content="كشف المرتب" 
+                                <Button Content="{DynamicResource Payroll2}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenMySalary"
                                         Margin="2"/>
@@ -216,24 +216,24 @@
                     <!-- التقارير -->
                     <Border Grid.Column="1" Style="{DynamicResource StatCard}" Margin="5,0,0,0">
                         <StackPanel Margin="10">
-                            <TextBlock Text="📊 تقاريري" 
+                            <TextBlock Text="{DynamicResource MyReports}" 
                                      FontSize="16" FontWeight="Bold"
                                      Margin="0,0,0,10"/>
 
                             <WrapPanel>
-                                <Button Content="حضوري الشهري" 
+                                <Button Content="{DynamicResource MyMonthlyAttendance}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyAttendance"
                                         Margin="2"/>
-                                <Button Content="مستحقاتي" 
+                                <Button Content="{DynamicResource MyDues}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyBenefits"
                                         Margin="2"/>
-                                <Button Content="سجلي الوظيفي" 
+                                <Button Content="{DynamicResource MyEmploymentHistory}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyHistory"
                                         Margin="2"/>
-                                <Button Content="مستنداتي" 
+                                <Button Content="{DynamicResource MyDocuments}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenMyDocuments"
                                         Margin="2"/>

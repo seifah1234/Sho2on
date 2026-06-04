@@ -19,8 +19,8 @@ namespace HR_Application
         public ObservableCollection<LateOvertime> Lates { get; set; } = new ObservableCollection<LateOvertime>();
         public ObservableCollection<LateOvertime> LatesMoney { get; set; } = new ObservableCollection<LateOvertime>();
 
-        private int _type = 1; // 1: ÅÖÇİí, 0: ÊÃÎíÑ
-        private int _currentTab = 0; // 0: ÏŞÇÆŞ, 1: ãÇáíÉ
+        private int _type = 1; // 1: Ø¥Ø¶Ø§ÙÙŠ, 0: ØªØ£Ø®ÙŠØ±
+        private int _currentTab = 0; // 0: Ø¯Ù‚Ø§Ø¦Ù‚, 1: Ù…Ø§Ù„ÙŠØ©
         int type;
 
         public AddLate()
@@ -56,7 +56,7 @@ namespace HR_Application
                 Lates.Clear();
                 LatesMoney.Clear();
 
-                // ÊÍãíá ÈíÇäÇÊ ÇáÏŞÇÆŞ (MoneyType = 0)
+                // ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¯Ù‚Ø§Ø¦Ù‚ (MoneyType = 0)
                 var minutesData = await _context.LateOvertimes
                     .Where(x => x.MoneyType == 0)
                     .OrderBy(x => x.StartTime)
@@ -67,7 +67,7 @@ namespace HR_Application
                     Lates.Add(item);
                 }
 
-                // ÊÍãíá ÈíÇäÇÊ ÇáãÇáíÉ (MoneyType = 1)
+                // ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø§Ù„ÙŠØ© (MoneyType = 1)
                 var moneyData = await _context.LateOvertimes
                     .Where(x => x.MoneyType == 1)
                     .OrderBy(x => x.StartTime)
@@ -83,28 +83,28 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
-            _type = 1; // ÅÖÇİí
+            _type = 1; // Ø¥Ø¶Ø§ÙÙŠ
         }
 
         private void RadioButton_Checked_1(object sender, RoutedEventArgs e)
         {
-            _type = 0; // ÊÃÎíÑ
+            _type = 0; // ØªØ£Ø®ÙŠØ±
         }
 
         private async void save_Btn(object sender, RoutedEventArgs e)
         {
-            await SaveData(0); // 0: ÏŞÇÆŞ
+            await SaveData(0); // 0: Ø¯Ù‚Ø§Ø¦Ù‚
         }
 
         private async void saveMoney_Btn(object sender, RoutedEventArgs e)
         {
-            await SaveData(1); // 1: ãÇáíÉ
+            await SaveData(1); // 1: Ù…Ø§Ù„ÙŠØ©
         }
 
         private async Task SaveData(int moneyType)
@@ -117,26 +117,26 @@ namespace HR_Application
 
                 if (string.IsNullOrEmpty(fromTimePicker.Text) || string.IsNullOrEmpty(toTimePicker.Text))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ æŞÊ ÇáÈÏÇíÉ æÇáäåÇíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± ÙˆÙ‚Øª Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙˆØ§Ù„Ù†Ù‡Ø§ÙŠØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(valueTextBox.Text))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇáŞíãÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ù‚ÙŠÙ…Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (!decimal.TryParse(valueTextBox.Text, out decimal value))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ŞíãÉ ÑŞãíÉ ÕÍíÍÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ù‚ÙŠÙ…Ø© Ø±Ù‚Ù…ÙŠØ© ØµØ­ÙŠØ­Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (!TimeSpan.TryParse(fromTimePicker.Text, out TimeSpan fromTime) ||
                     !TimeSpan.TryParse(toTimePicker.Text, out TimeSpan toTime))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá æŞÊ ÕÇáÍ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙˆÙ‚Øª ØµØ§Ù„Ø­", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -144,7 +144,7 @@ namespace HR_Application
 
                 if (fromTime >= toTime)
                 {
-                    LocalizationManager.ShowMessage("æŞÊ ÇáÈÏÇíÉ íÌÈ Ãä íßæä ŞÈá æŞÊ ÇáäåÇíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙˆÙ‚Øª Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ù‚Ø¨Ù„ ÙˆÙ‚Øª Ø§Ù„Ù†Ù‡Ø§ÙŠØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -163,24 +163,24 @@ namespace HR_Application
                 await _context.LateOvertimes.AddAsync(lateOvertime);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÍİÙ ÇáÈíÇäÇÊ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadData();
                 ClearForm(moneyType);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async void edit_Btn(object sender, RoutedEventArgs e)
         {
-            await EditData(0); // 0: ÏŞÇÆŞ
+            await EditData(0); // 0: Ø¯Ù‚Ø§Ø¦Ù‚
         }
 
         private async void editMoney_Btn(object sender, RoutedEventArgs e)
         {
-            await EditData(1); // 1: ãÇáíÉ
+            await EditData(1); // 1: Ù…Ø§Ù„ÙŠØ©
         }
 
         private async Task EditData(int moneyType)
@@ -191,7 +191,7 @@ namespace HR_Application
 
                 if (selectedItem == null)
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÚäÕÑ ááÊÚÏíá", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø¹Ù†ØµØ± Ù„Ù„ØªØ¹Ø¯ÙŠÙ„", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -201,36 +201,36 @@ namespace HR_Application
 
                 if (string.IsNullOrEmpty(fromTimePicker.Text) || string.IsNullOrEmpty(toTimePicker.Text))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ æŞÊ ÇáÈÏÇíÉ æÇáäåÇíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± ÙˆÙ‚Øª Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙˆØ§Ù„Ù†Ù‡Ø§ÙŠØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(valueTextBox.Text))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇáŞíãÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ù‚ÙŠÙ…Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (!decimal.TryParse(valueTextBox.Text, out decimal value))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ŞíãÉ ÑŞãíÉ ÕÍíÍÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ù‚ÙŠÙ…Ø© Ø±Ù‚Ù…ÙŠØ© ØµØ­ÙŠØ­Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (!TimeSpan.TryParse(fromTimePicker.Text, out TimeSpan fromTime) ||
                     !TimeSpan.TryParse(toTimePicker.Text, out TimeSpan toTime))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá æŞÊ ÕÇáÍ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙˆÙ‚Øª ØµØ§Ù„Ø­", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (fromTime >= toTime)
                 {
-                    LocalizationManager.ShowMessage("æŞÊ ÇáÈÏÇíÉ íÌÈ Ãä íßæä ŞÈá æŞÊ ÇáäåÇíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙˆÙ‚Øª Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ù‚Ø¨Ù„ ÙˆÙ‚Øª Ø§Ù„Ù†Ù‡Ø§ÙŠØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // ÊÍÏíË ÇáÈíÇäÇÊ
+                // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                 selectedItem.Name = $"{fromTime:hh\\:mm} - {toTime:hh\\:mm}";
                 selectedItem.StartTime = fromTime;
                 selectedItem.EndTime = toTime;
@@ -241,24 +241,24 @@ namespace HR_Application
                 _context.LateOvertimes.Update(selectedItem);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáÈíÇäÇÊ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadData();
                 ClearForm(moneyType);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÊÚÏíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async void delete_Btn(object sender, RoutedEventArgs e)
         {
-            await DeleteData(0); // 0: ÏŞÇÆŞ
+            await DeleteData(0); // 0: Ø¯Ù‚Ø§Ø¦Ù‚
         }
 
         private async void deleteMoney_Btn(object sender, RoutedEventArgs e)
         {
-            await DeleteData(1); // 1: ãÇáíÉ
+            await DeleteData(1); // 1: Ù…Ø§Ù„ÙŠØ©
         }
 
         private async Task DeleteData(int moneyType)
@@ -269,13 +269,13 @@ namespace HR_Application
 
                 if (selectedItem == null)
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÚäÕÑ ááÍĞİ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø¹Ù†ØµØ± Ù„Ù„Ø­Ø°Ù", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var result = LocalizationManager.ShowMessage(
-                    $"åá ÃäÊ ãÊÃßÏ ãä ÍĞİ '{selectedItem.Name}'¿",
-                    "ÊÃßíÏ ÇáÍĞİ",
+                    $"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù '{selectedItem.Name}'ØŸ",
+                    LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
 
@@ -284,14 +284,14 @@ namespace HR_Application
                     _context.LateOvertimes.Remove(selectedItem);
                     await _context.SaveChangesAsync();
 
-                    LocalizationManager.ShowMessage("Êã ÍĞİ ÇáÈíÇäÇÊ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadData();
                     ClearForm(moneyType);
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍĞİ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­Ø°Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -342,15 +342,15 @@ namespace HR_Application
             toTimePicker.Text = item.EndTime.ToString();
             valueTextBox.Text = item.Value.ToString();
 
-            // ÊÍÏíÏ äæÚ ÇáÊÃÎíÑ/ÇáÅÖÇİí
-            if (item.Type == 1) // ÅÖÇİí
+            // ØªØ­Ø¯ÙŠØ¯ Ù†ÙˆØ¹ Ø§Ù„ØªØ£Ø®ÙŠØ±/Ø§Ù„Ø¥Ø¶Ø§ÙÙŠ
+            if (item.Type == 1) // Ø¥Ø¶Ø§ÙÙŠ
             {
                 var radioButton = moneyType == 0 ?
                     FindVisualChild<RadioButton>(this, "RadioButton_Add") :
                     FindVisualChild<RadioButton>(this, "RadioButton_Add_Money");
                 radioButton.IsChecked = true;
             }
-            else // ÊÃÎíÑ
+            else // ØªØ£Ø®ÙŠØ±
             {
                 var radioButton = moneyType == 0 ?
                     FindVisualChild<RadioButton>(this, "RadioButton_Late") :
@@ -359,7 +359,7 @@ namespace HR_Application
             }
         }
 
-        // ÏÇáÉ ãÓÇÚÏÉ ááÚËæÑ Úáì ÚäÇÕÑ æÇÌåÉ ÇáãÓÊÎÏã
+        // Ø¯Ø§Ù„Ø© Ù…Ø³Ø§Ø¹Ø¯Ø© Ù„Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø¹Ù†Ø§ØµØ± ÙˆØ§Ø¬Ù‡Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
         private T FindVisualChild<T>(DependencyObject parent, string name) where T : FrameworkElement
         {
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
@@ -378,7 +378,7 @@ namespace HR_Application
             return null;
         }
 
-        // ÅÒÇáÉ ÇáÏæÇá ÛíÑ ÇáãÓÊÎÏãÉ ãä ÇáßæÏ ÇáŞÏíã
+        // Ø¥Ø²Ø§Ù„Ø© Ø§Ù„Ø¯ÙˆØ§Ù„ ØºÙŠØ± Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…Ø© Ù…Ù† Ø§Ù„ÙƒÙˆØ¯ Ø§Ù„Ù‚Ø¯ÙŠÙ…
         private void Exit_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) { }
         private void B_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) { }
         private void Exit_Click(object sender, RoutedEventArgs e) { }

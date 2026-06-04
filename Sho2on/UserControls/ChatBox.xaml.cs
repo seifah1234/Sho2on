@@ -38,7 +38,7 @@ namespace HR_Application.UserControls
 
         public static readonly DependencyProperty UserStatusProperty =
             DependencyProperty.Register(nameof(UserStatus), typeof(string), typeof(ChatBox),
-                new PropertyMetadata("ãÊÕá ÇáÂä"));
+                new PropertyMetadata(LocalizationManager.Translate("Ù…ØªØµÙ„ Ø§Ù„Ø¢Ù†")));
 
         public static readonly DependencyProperty SelectedUserCodeProperty =
             DependencyProperty.Register(nameof(SelectedUserCode), typeof(string), typeof(ChatBox),
@@ -95,7 +95,7 @@ namespace HR_Application.UserControls
             MessagesItemsControl.ItemsSource = Messages;
             DataContext = this;
 
-            // ÇÓÊÏÚÇÁ ÅÚÏÇÏ SignalR
+            // Ø§Ø³ØªØ¯Ø¹Ø§Ø¡ Ø¥Ø¹Ø¯Ø§Ø¯ SignalR
             Loaded += (s, e) => SetupSignalRListener();
             LoadSavedBackground();
         }
@@ -118,7 +118,7 @@ namespace HR_Application.UserControls
             MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
 
             EditBar.Visibility = Visibility.Visible;
-            EditingLabel.Text = $"?? ÊÚÏíá: {msg.MessageText[..Math.Min(30, msg.MessageText.Length)]}...";
+            EditingLabel.Text = $"?? ØªØ¹Ø¯ÙŠÙ„: {msg.MessageText[..Math.Min(30, msg.MessageText.Length)]}...";
         }
 
         private async void DeleteMessage_Click(object sender, RoutedEventArgs e)
@@ -126,7 +126,7 @@ namespace HR_Application.UserControls
             var msg = GetMessageFromContextMenu(sender);
             if (msg == null || !msg.IsFromMe) return;
 
-            var confirm = LocalizationManager.ShowMessage("åá ÊÑíÏ ÍÐÝ åÐå ÇáÑÓÇáÉ¿", "ÊÃßíÏ",
+            var confirm = LocalizationManager.ShowMessage("Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø±Ø³Ø§Ù„Ø©ØŸ", LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯"),
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
@@ -142,7 +142,7 @@ namespace HR_Application.UserControls
 
                 Messages.Remove(msg);
 
-                // ÅÈáÛ ÇáØÑÝ ÇáÂÎÑ ÚÈÑ SignalR
+                // Ø¥Ø¨Ù„Øº Ø§Ù„Ø·Ø±Ù Ø§Ù„Ø¢Ø®Ø± Ø¹Ø¨Ø± SignalR
                 if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
                     await App.SignalRConnection.InvokeAsync(
@@ -167,8 +167,8 @@ namespace HR_Application.UserControls
         private string GetLastMessageText()
         {
             var lastMsg = Messages.LastOrDefault();
-            if (lastMsg == null) return "áÇ ÊæÌÏ ÑÓÇÆá";
-            if (string.IsNullOrEmpty(lastMsg.MessageText)) return "?? ãÑÝÞ";
+            if (lastMsg == null) return LocalizationManager.Translate("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„");
+            if (string.IsNullOrEmpty(lastMsg.MessageText)) return LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚");
             return lastMsg.MessageText;
         }
 
@@ -184,7 +184,7 @@ namespace HR_Application.UserControls
             {
                 Multiselect = true,
                 Filter = "All files (*.*)|*.*",
-                Title = "ÇÎÊÑ ÇáãáÝÇÊ áÅÑÝÇÞåÇ"
+                Title = LocalizationManager.Translate("Ø§Ø®ØªØ± Ø§Ù„Ù…Ù„ÙØ§Øª Ù„Ø¥Ø±ÙØ§Ù‚Ù‡Ø§")
             };
 
             if (dialog.ShowDialog() == true)
@@ -195,10 +195,10 @@ namespace HR_Application.UserControls
                     {
                         var fileInfo = new FileInfo(filePath);
 
-                        // ÇáÍÏ ÇáÃÞÕì ááÍÌã 10MB
+                        // Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø­Ø¬Ù… 10MB
                         if (fileInfo.Length > 10 * 1024 * 1024)
                         {
-                            LocalizationManager.ShowMessage($"ÇáãáÝ {fileInfo.Name} ÍÌãå ßÈíÑ ÌÏÇð (ÍÏ ÃÞÕì 10MB)", "ÊäÈíå",
+                            LocalizationManager.ShowMessage($"Ø§Ù„Ù…Ù„Ù {fileInfo.Name} Ø­Ø¬Ù…Ù‡ ÙƒØ¨ÙŠØ± Ø¬Ø¯Ø§Ù‹ (Ø­Ø¯ Ø£Ù‚ØµÙ‰ 10MB)", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"),
                                 MessageBoxButton.OK, MessageBoxImage.Warning);
                             continue;
                         }
@@ -221,7 +221,7 @@ namespace HR_Application.UserControls
                     }
                 }
 
-                // ÅÙåÇÑ/ÅÎÝÇÁ ãäØÞÉ ÇáãÑÝÞÇÊ
+                // Ø¥Ø¸Ù‡Ø§Ø±/Ø¥Ø®ÙØ§Ø¡ Ù…Ù†Ø·Ù‚Ø© Ø§Ù„Ù…Ø±ÙÙ‚Ø§Øª
                 AttachmentsScrollViewer.Visibility = SelectedAttachments.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             }
         }
@@ -244,17 +244,17 @@ namespace HR_Application.UserControls
                     try
                     {
                         File.WriteAllBytes(dialog.FileName, attachment.FileData);
-                        LocalizationManager.ShowMessage("Êã ÍÝÙ ÇáãáÝ ÈäÌÇÍ", "Êã", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("ØªÙ…"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch (Exception ex)
                     {
-                        LocalizationManager.ShowMessage($"ÎØÃ Ýí ÍÝÙ ÇáãáÝ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
         }
 
-        // ÅÒÇáÉ ãÑÝÞ
+        // Ø¥Ø²Ø§Ù„Ø© Ù…Ø±ÙÙ‚
         private void RemoveAttachment_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -268,7 +268,7 @@ namespace HR_Application.UserControls
             }
         }
 
-        // ÊÍÏíÏ ÃíÞæäÉ ÇáãáÝ ÍÓÈ ÇáÇãÊÏÇÏ
+        // ØªØ­Ø¯ÙŠØ¯ Ø£ÙŠÙ‚ÙˆÙ†Ø© Ø§Ù„Ù…Ù„Ù Ø­Ø³Ø¨ Ø§Ù„Ø§Ù…ØªØ¯Ø§Ø¯
         private string GetFileIcon(string extension)
         {
             return extension.ToLower() switch
@@ -291,7 +291,7 @@ namespace HR_Application.UserControls
             SelectedUserCode = userCode;
             SelectedUserId = userId;
 
-            // ÊÍæíá byte[] Åáì BitmapImage ÈÔßá ÕÍíÍ
+            // ØªØ­ÙˆÙŠÙ„ byte[] Ø¥Ù„Ù‰ BitmapImage Ø¨Ø´ÙƒÙ„ ØµØ­ÙŠØ­
             if (userImageData != null && userImageData.Length > 0)
             {
                 SelectedUserImage = ConvertByteArrayToBitmapImage(userImageData);
@@ -301,17 +301,17 @@ namespace HR_Application.UserControls
                 SelectedUserImage = new BitmapImage(new Uri("/assets/images/avatar.jpg", UriKind.Relative));
             }
 
-            // ÅÎÝÇÁ ÇáÜ Placeholder
+            // Ø¥Ø®ÙØ§Ø¡ Ø§Ù„Ù€ Placeholder
             NoChatSelectedPlaceholder.Visibility = Visibility.Collapsed;
 
-            // ÊÝÚíá ãäØÞÉ ÇáÔÇÊ
+            // ØªÙØ¹ÙŠÙ„ Ù…Ù†Ø·Ù‚Ø© Ø§Ù„Ø´Ø§Øª
             MessageTextBox.IsEnabled = true;
             SendButton.IsEnabled = true;
 
-            // ãÓÍ ÇáÑÓÇÆá ÇáÓÇÈÞÉ
+            // Ù…Ø³Ø­ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ Ø§Ù„Ø³Ø§Ø¨Ù‚Ø©
             Messages.Clear();
 
-            // ÊÍãíá ÇáÑÓÇÆá ãä ÞÇÚÏÉ ÇáÈíÇäÇÊ
+            // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
             await LoadMessagesFromDatabase(userId);
 
 
@@ -328,16 +328,16 @@ namespace HR_Application.UserControls
             SelectedUserCode = "";
             SelectedUserImage = null;
             SelectedUserId = 0;
-            // ÅÙåÇÑ ÇáÜ Placeholder
+            // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ù€ Placeholder
             NoChatSelectedPlaceholder.Visibility = Visibility.Visible;
-            // ÊÚØíá ãäØÞÉ ÇáÔÇÊ
+            // ØªØ¹Ø·ÙŠÙ„ Ù…Ù†Ø·Ù‚Ø© Ø§Ù„Ø´Ø§Øª
             MessageTextBox.IsEnabled = false;
             SendButton.IsEnabled = false;
-            // ãÓÍ ÇáÑÓÇÆá
+            // Ù…Ø³Ø­ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„
             Messages.Clear();
         }
 
-        // ÏÇáÉ ãÓÇÚÏÉ áÊÍæíá byte[] Åáì BitmapImage
+        // Ø¯Ø§Ù„Ø© Ù…Ø³Ø§Ø¹Ø¯Ø© Ù„ØªØ­ÙˆÙŠÙ„ byte[] Ø¥Ù„Ù‰ BitmapImage
         private BitmapImage ConvertByteArrayToBitmapImage(byte[] imageData)
         {
             try
@@ -349,7 +349,7 @@ namespace HR_Application.UserControls
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.StreamSource = stream;
                     bitmap.EndInit();
-                    bitmap.Freeze(); // ãåã ááÊÌãíÏ
+                    bitmap.Freeze(); // Ù…Ù‡Ù… Ù„Ù„ØªØ¬Ù…ÙŠØ¯
                     return bitmap;
                 }
             }
@@ -372,7 +372,7 @@ namespace HR_Application.UserControls
 
                 using (var context = new AppDbContext(App.ConnectionString))
                 {
-                    // ÇáÈÍË Úä ÇáãÍÇÏËÉ
+                    // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø©
                     var chat = await context.Chats
                         .FirstOrDefaultAsync(c =>
                             (c.FirstUserId == App.CurrentUser.Id && c.SecondUserId == userId) ||
@@ -380,7 +380,7 @@ namespace HR_Application.UserControls
 
                     if (chat != null)
                     {
-                        // ÌáÈ ÇáÑÓÇÆá
+                        // Ø¬Ù„Ø¨ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„
                         var messages = await context.ChatMessages
                             .Where(m => m.ChatId == chat.Id && !m.IsDeleted)
                             .OrderBy(m => m.SentAt)
@@ -406,7 +406,7 @@ namespace HR_Application.UserControls
                             Messages.Add(uiMessage);
                         }
 
-                        // ÊÍÏíË ÍÇáÉ ÇáÞÑÇÁÉ ááÑÓÇÆá ÛíÑ ÇáãÞÑæÁÉ
+                        // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù‚Ø±Ø§Ø¡Ø© Ù„Ù„Ø±Ø³Ø§Ø¦Ù„ ØºÙŠØ± Ø§Ù„Ù…Ù‚Ø±ÙˆØ¡Ø©
                         var unreadMessages = messages.Where(m => m.ReceiverId == App.CurrentUser.Id && !m.IsRead).ToList();
                         if (unreadMessages.Any())
                         {
@@ -418,7 +418,7 @@ namespace HR_Application.UserControls
                             await context.SaveChangesAsync();
                         }
 
-                        // ÊÍÏíË ÍÇáÉ ÇáÊÓáíã ááÑÓÇÆá ÇáÊí æÕáÊ (ÛíÑ ãÓáãÉ)
+                        // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„ØªØ³Ù„ÙŠÙ… Ù„Ù„Ø±Ø³Ø§Ø¦Ù„ Ø§Ù„ØªÙŠ ÙˆØµÙ„Øª (ØºÙŠØ± Ù…Ø³Ù„Ù…Ø©)
                         var undeliveredMessages = messages.Where(m => m.ReceiverId == App.CurrentUser.Id && m.IsDelivered.HasValue && !m.IsDelivered.Value).ToList();
                         if (undeliveredMessages.Any())
                         {
@@ -428,7 +428,7 @@ namespace HR_Application.UserControls
                             }
                             await context.SaveChangesAsync();
 
-                            // ÊÍÏíË ÇáæÇÌåÉ
+                            // ØªØ­Ø¯ÙŠØ« Ø§Ù„ÙˆØ§Ø¬Ù‡Ø©
                             foreach (var msg in Messages.Where(m => !m.IsFromMe && !m.IsDelivered))
                             {
                                 msg.IsDelivered = true;
@@ -456,7 +456,7 @@ namespace HR_Application.UserControls
                 return;
             }
 
-            // ÅÖÇÝÉ ÇáÑÓÇáÉ áÞÇÆãÉ ÇáÑÓÇÆá ãÄÞÊÇð
+            // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø±Ø³Ø§Ù„Ø© Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ Ù…Ø¤Ù‚ØªØ§Ù‹
             var tempMessage = new UIChatMessage
             {
                 MessageText = message ?? "",
@@ -480,17 +480,17 @@ namespace HR_Application.UserControls
 
             Messages.Add(tempMessage);
 
-            // ãÓÍ ÍÞá ÇáßÊÇÈÉ
+            // Ù…Ø³Ø­ Ø­Ù‚Ù„ Ø§Ù„ÙƒØªØ§Ø¨Ø©
             MessageTextBox.Text = "";
             var attachmentsToSend = _pendingAttachments.ToList();
             _pendingAttachments.Clear();
             SelectedAttachments.Clear();
             AttachmentsScrollViewer.Visibility = Visibility.Collapsed;
 
-            // ÇáÊãÑíÑ ááÃÓÝá
+            // Ø§Ù„ØªÙ…Ø±ÙŠØ± Ù„Ù„Ø£Ø³ÙÙ„
             ScrollToBottom();
 
-            // ÍÝÙ æÅÑÓÇá ÇáÑÓÇáÉ
+            // Ø­ÙØ¸ ÙˆØ¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©
             await SendToServer(message ?? "", attachmentsToSend);
         }
 
@@ -524,7 +524,7 @@ namespace HR_Application.UserControls
                     }
                 }
 
-                // ÅÈáÛ ÇáØÑÝ ÇáÂÎÑ
+                // Ø¥Ø¨Ù„Øº Ø§Ù„Ø·Ø±Ù Ø§Ù„Ø¢Ø®Ø±
                 if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
                     await App.SignalRConnection.InvokeAsync(
@@ -578,7 +578,7 @@ namespace HR_Application.UserControls
 
                 using (var context = new AppDbContext(App.ConnectionString))
                 {
-                    // ÇáÈÍË Úä ÇáãÍÇÏËÉ Èíä ÇáãÓÊÎÏãíä
+                    // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ø¨ÙŠÙ† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†
                     var chat = await context.Chats
                         .FirstOrDefaultAsync(c =>
                             (c.FirstUserId == App.CurrentUser.Id && c.SecondUserId == SelectedUserId) ||
@@ -586,7 +586,7 @@ namespace HR_Application.UserControls
 
                     if (chat == null)
                     {
-                        // ÅäÔÇÁ ãÍÇÏËÉ ÌÏíÏÉ ÅÐÇ áã Êßä ãæÌæÏÉ
+                        // Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø­Ø§Ø¯Ø«Ø© Ø¬Ø¯ÙŠØ¯Ø© Ø¥Ø°Ø§ Ù„Ù… ØªÙƒÙ† Ù…ÙˆØ¬ÙˆØ¯Ø©
                         chat = new Chat
                         {
                             FirstUserId = App.CurrentUser.Id,
@@ -598,7 +598,7 @@ namespace HR_Application.UserControls
                         await context.SaveChangesAsync();
                     }
 
-                    // ÅäÔÇÁ ÑÓÇáÉ ÌÏíÏÉ
+                    // Ø¥Ù†Ø´Ø§Ø¡ Ø±Ø³Ø§Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø©
                     var chatMessage = new Sho2on.Database.Models.ChatMessage
                     {
                         ChatId = chat.Id,
@@ -616,13 +616,13 @@ namespace HR_Application.UserControls
 
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        // ÂÎÑ ÑÓÇáÉ ÃÖÝäÇåÇ åí ÇáÜ tempMessage
+                        // Ø¢Ø®Ø± Ø±Ø³Ø§Ù„Ø© Ø£Ø¶ÙÙ†Ø§Ù‡Ø§ Ù‡ÙŠ Ø§Ù„Ù€ tempMessage
                         var lastMsg = Messages.LastOrDefault(m => m.IsFromMe && m.MessageDbId == 0);
                         if (lastMsg != null)
                             lastMsg.MessageDbId = chatMessage.Id;
                     });
 
-                    // ÍÝÙ ÇáãÑÝÞÇÊ
+                    // Ø­ÙØ¸ Ø§Ù„Ù…Ø±ÙÙ‚Ø§Øª
                     foreach (var attachment in attachments)
                     {
                         var dbAttachment = new Sho2on.Database.Models.ChatAttachment
@@ -639,16 +639,16 @@ namespace HR_Application.UserControls
 
                     await context.SaveChangesAsync();
 
-                    // ãÓÍ ÇáãÑÝÞÇÊ ÇáãÚáÞÉ
+                    // Ù…Ø³Ø­ Ø§Ù„Ù…Ø±ÙÙ‚Ø§Øª Ø§Ù„Ù…Ø¹Ù„Ù‚Ø©
                     _pendingAttachments.Clear();
                     SelectedAttachments.Clear();
                     AttachmentsScrollViewer.Visibility = Visibility.Collapsed;
 
-                    // ÊÍÏíË æÞÊ ÂÎÑ ÑÓÇáÉ Ýí ÇáãÍÇÏËÉ
+                    // ØªØ­Ø¯ÙŠØ« ÙˆÙ‚Øª Ø¢Ø®Ø± Ø±Ø³Ø§Ù„Ø© ÙÙŠ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø©
                     chat.UpdatedAt = DateTime.Now;
                     await context.SaveChangesAsync();
 
-                    // ÅÑÓÇá ÅÔÚÇÑ ÝæÑí ááãÓÊÎÏã ÇáÂÎÑ ÚÈÑ SignalR
+                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± ÙÙˆØ±ÙŠ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø¢Ø®Ø± Ø¹Ø¨Ø± SignalR
                     await SendRealTimeNotification(SelectedUserId, message);
 
                     await UpdateMessageDeliveredStatus(SelectedUserId);
@@ -665,11 +665,11 @@ namespace HR_Application.UserControls
             }
             catch (Exception ex)
             {
-                LogError($"ÎØÃ Ýí ÅÑÓÇá ÇáÑÓÇáÉ: {ex.Message}");
+                LogError($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©: {ex.Message}");
 
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    LocalizationManager.ShowMessage("ÝÔá Ýí ÅÑÓÇá ÇáÑÓÇáÉ. íÑÌì ÇáãÍÇæáÉ ãÑÉ ÃÎÑì.", "ÎØÃ",
+                    LocalizationManager.ShowMessage("ÙØ´Ù„ ÙÙŠ Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©. ÙŠØ±Ø¬Ù‰ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø© Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.", LocalizationManager.Translate("Ø®Ø·Ø£"),
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
@@ -692,7 +692,7 @@ namespace HR_Application.UserControls
             };
         }
 
-        // ÊÍãíá ÇáãÑÝÞÇÊ ãÚ ÇáÑÓÇÆá
+        // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø±ÙÙ‚Ø§Øª Ù…Ø¹ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„
         private async Task LoadAttachmentsForMessage(int messageId, UIChatMessage uiMessage)
         {
             try
@@ -740,7 +740,7 @@ namespace HR_Application.UserControls
                     {
                         await App.SignalRConnection.StartAsync();
 
-                        // ÅÚÇÏÉ ÊÓÌíá ÇáãÓÊÎÏã ÈÚÏ ÅÚÇÏÉ ÇáÇÊÕÇá
+                        // Ø¥Ø¹Ø§Ø¯Ø© ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø¹Ø¯ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø§ØªØµØ§Ù„
                         if (App.CurrentUser != null && App.CurrentUser.Id > 0)
                         {
                             await App.SignalRConnection.InvokeAsync("SetUserIdentifier", App.CurrentUser.Id.ToString());
@@ -759,7 +759,7 @@ namespace HR_Application.UserControls
                 }
 
 
-                // ÅÑÓÇá ÇáÑÓÇáÉ
+                // Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©
                 await App.SignalRConnection.InvokeAsync("SendMessageToUser",
                     App.CurrentUser.Id, receiverId, message);
 
@@ -770,7 +770,7 @@ namespace HR_Application.UserControls
             }
         }
 
-        // Ýí SetupSignalRListener — ÇÓÊÈÏá ÇáßæÏ ÇáÞÏíã ÈÏå:
+        // ÙÙŠ SetupSignalRListener â€” Ø§Ø³ØªØ¨Ø¯Ù„ Ø§Ù„ÙƒÙˆØ¯ Ø§Ù„Ù‚Ø¯ÙŠÙ… Ø¨Ø¯Ù‡:
 
         private void SetupSignalRListener()
         {
@@ -1029,7 +1029,7 @@ namespace HR_Application.UserControls
 
                     if (chat != null)
                     {
-                        // ÊÍÏíË ÇáÑÓÇÆá ÛíÑ ÇáãÓáãÉ ÇáÊí ÃÑÓáåÇ ÇáãÓÊÎÏã ÇáÂÎÑ Åáíø
+                        // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ ØºÙŠØ± Ø§Ù„Ù…Ø³Ù„Ù…Ø© Ø§Ù„ØªÙŠ Ø£Ø±Ø³Ù„Ù‡Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø¢Ø®Ø± Ø¥Ù„ÙŠÙ‘
                         var undeliveredMessages = await context.ChatMessages
                             .Where(m => m.ChatId == chat.Id &&
                                         m.SenderId == toUserId &&
@@ -1046,7 +1046,7 @@ namespace HR_Application.UserControls
                             }
                             await context.SaveChangesAsync();
 
-                            // ÊÍÏíË ÇáæÇÌåÉ
+                            // ØªØ­Ø¯ÙŠØ« Ø§Ù„ÙˆØ§Ø¬Ù‡Ø©
                             await Application.Current.Dispatcher.InvokeAsync(() =>
                             {
                                 foreach (var msg in Messages.Where(m => !m.IsFromMe && !m.IsDelivered))
@@ -1066,7 +1066,7 @@ namespace HR_Application.UserControls
             }
         }
 
-        // ÃÖÝ åÐå ÇáÏÇáÉ áÅÑÓÇá ÅÔÚÇÑ ÈÇáæÕæá (Delivered)
+        // Ø£Ø¶Ù Ù‡Ø°Ù‡ Ø§Ù„Ø¯Ø§Ù„Ø© Ù„Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ø¨Ø§Ù„ÙˆØµÙˆÙ„ (Delivered)
         private async Task SendDeliveredNotification(int senderId)
         {
             try
@@ -1195,7 +1195,7 @@ namespace HR_Application.UserControls
     }
 
 
-    // äãæÐÌ ÇáÑÓÇáÉ
+    // Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ø±Ø³Ø§Ù„Ø©
     public class UIChatMessage : INotifyPropertyChanged
     {
         private string _messageText;
@@ -1290,11 +1290,11 @@ namespace HR_Application.UserControls
         public string StatusIcon => IsRead ? "Eye" : (IsDelivered ? "CheckAll" : "Check");
 
         public bool HasAttachments => Attachments?.Count > 0;
-        public string AttachmentsText => HasAttachments ? $"?? {Attachments.Count} ãáÝ" : "";
+        public string AttachmentsText => HasAttachments ? $"?? {Attachments.Count} Ù…Ù„Ù" : "";
 
         public string GroupStatusIcon => ReadCount > 0 ? "CheckAll" : "Check";
         public string ReadCountText => ReadCount > 0 ? $"?? {ReadCount}" : "?";
-        public string EditedLabel => IsEdited ? "?? Êã ÇáÊÚÏíá" : "";
+        public string EditedLabel => IsEdited ? LocalizationManager.Translate("?? ØªÙ… Ø§Ù„ØªØ¹Ø¯ÙŠÙ„") : "";
         public bool ShowEditedLabel => IsEdited;
 
         public event PropertyChangedEventHandler PropertyChanged;

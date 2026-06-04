@@ -42,23 +42,23 @@ namespace HR_Application.Views
 
                 documentsListBox.ItemsSource = companyDocuments;
 
-                // ลูๅวั รๆ ลฮÝวม วแอวแษ วแÝวัÛษ
+                // ุฅุธูุงุฑ ุฃู ุฅุฎูุงุก ุงูุญุงูุฉ ุงููุงุฑุบุฉ
                 if (companyDocuments.Count == 0)
                 {
                     emptyState.Visibility = Visibility.Visible;
-                    statusText.Text = "แว สๆฬฯ ๆหวฦÞ ใสวอษ แแสๆÞํฺ - ฬใํฺ วแๆหวฦÞ ใๆÞฺษ";
+                    statusText.Text = LocalizationManager.Translate("ูุง ุชูุฌุฏ ูุซุงุฆู ู…ุชุงุญุฉ ููุชูููุน - ุฌู…ูุน ุงููุซุงุฆู ู…ููุนุฉ");
                 }
                 else
                 {
                     emptyState.Visibility = Visibility.Collapsed;
-                    statusText.Text = $"ํๆฬฯ {companyDocuments.Count} ๆหํÞษ ใสวอษ แแสๆÞํฺ";
+                    statusText.Text = $"ููุฌุฏ {companyDocuments.Count} ูุซููุฉ ู…ุชุงุญุฉ ููุชูููุน";
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแๆหวฦÞ: {ex.Message}", "ฮุร",
+                LocalizationManager.ShowMessage($"ุฎุทุฃ ูู ุชุญู…ูู ุงููุซุงุฆู: {ex.Message}", LocalizationManager.Translate("ุฎุทุฃ"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                statusText.Text = "อฯห ฮุร Ýํ สอใํแ วแๆหวฦÞ";
+                statusText.Text = LocalizationManager.Translate("ุญุฏุซ ุฎุทุฃ ูู ุชุญู…ูู ุงููุซุงุฆู");
             }
         }
 
@@ -69,7 +69,7 @@ namespace HR_Application.Views
 
             if (selectedDocument == null)
             {
-                LocalizationManager.ShowMessage("ํัฬ์ วฮสํวั ๆหํÞษ แแใฺวํไษ", "สอะํั",
+                LocalizationManager.ShowMessage("ูุฑุฌู ุงุฎุชูุงุฑ ูุซููุฉ ููู…ุนุงููุฉ", LocalizationManager.Translate("ุชุญุฐูุฑ"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -87,7 +87,7 @@ namespace HR_Application.Views
 
             if (selectedDocument == null)
             {
-                LocalizationManager.ShowMessage("ํัฬ์ วฮสํวั ๆหํÞษ แแสๆÞํฺ", "สอะํั",
+                LocalizationManager.ShowMessage("ูุฑุฌู ุงุฎุชูุงุฑ ูุซููุฉ ููุชูููุน", LocalizationManager.Translate("ุชุญุฐูุฑ"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -95,13 +95,13 @@ namespace HR_Application.Views
             var signatureWindow = new DocumentSignatureWindow(_employeeId, selectedDocument.Id);
             signatureWindow.Closed += (s, args) =>
             {
-                // ลฺวฯษ สอใํแ วแÞวฦใษ ศฺฯ วแสๆÞํฺ
+                // ุฅุนุงุฏุฉ ุชุญู…ูู ุงููุงุฆู…ุฉ ุจุนุฏ ุงูุชูููุน
                 LoadAvailableDocuments();
 
-                // ละว ฿วไส วแไวÝะษ วแัฦํำํษ สอสวฬ แแสอฯํห
+                // ุฅุฐุง ูุงูุช ุงููุงูุฐุฉ ุงูุฑุฆูุณูุฉ ุชุญุชุงุฌ ููุชุญุฏูุซ
                 if (this.Owner is EmployeeArchiveWindow mainWindow)
                 {
-                    // ํใ฿ไ ลึวÝษ ใไุÞ แสอฯํห วแรัิํÝ ละว แาใ วแรใั
+                    // ูู…ูู ุฅุถุงูุฉ ู…ูุทู ูุชุญุฏูุซ ุงูุฃุฑุดูู ุฅุฐุง ูุฒู… ุงูุฃู…ุฑ
                 }
             };
             signatureWindow.Owner = this;
@@ -115,10 +115,10 @@ namespace HR_Application.Views
             this.Close();
         }
 
-        // ใฺวแฬษ วฮสํวั ฺไีั ใไ วแÞวฦใษ
+        // ู…ุนุงูุฌุฉ ุงุฎุชูุงุฑ ุนูุตุฑ ู…ู ุงููุงุฆู…ุฉ
         private void documentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // ํใ฿ไ ลึวÝษ ใไุÞ ลึวÝํ ๅไว ละว วอสฬไว
+            // ูู…ูู ุฅุถุงูุฉ ู…ูุทู ุฅุถุงูู ููุง ุฅุฐุง ุงุญุชุฌูุง
         }
 
         protected override void OnClosed(EventArgs e)

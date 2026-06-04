@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="خيارات الطباعة" 
+        Title="{DynamicResource PrintingOptions}" 
         FlowDirection="RightToLeft"
         Height="280" Width="400"
         WindowStartupLocation="CenterOwner"
@@ -13,7 +13,7 @@
 
     <Border Background="{DynamicResource WindowRootBackground}" Padding="20">
         <StackPanel>
-            <TextBlock Text="اختر خيار الطباعة:" 
+            <TextBlock Text="{DynamicResource ChoosePrintOption}" 
                        FontSize="16" 
                        FontWeight="Bold" 
                        Foreground="{DynamicResource TextPrimaryColor}"
@@ -34,7 +34,7 @@
                                               Foreground="White" 
                                               Width="24" Height="24"
                                               Margin="0,0,10,0"/>
-                        <TextBlock Text="طباعة مباشرة على الطابعة" 
+                        <TextBlock Text="{DynamicResource PrintDirectlyOnThePrinter}" 
                                    Foreground="White" 
                                    FontSize="14"
                                    FontWeight="Bold"/>
@@ -55,7 +55,7 @@
                                               Foreground="White" 
                                               Width="24" Height="24"
                                               Margin="0,0,10,0"/>
-                        <TextBlock Text="معاينة قبل الطباعة" 
+                        <TextBlock Text="{DynamicResource PreviewBeforePrinting}" 
                                    Foreground="White" 
                                    FontSize="14"
                                    FontWeight="Bold"/>
@@ -69,7 +69,7 @@
                         Background="Transparent"
                         BorderThickness="1"
                         BorderBrush="{DynamicResource ButtonHoverForeground}">
-                    <TextBlock Text="إلغاء" 
+                    <TextBlock Text="{DynamicResource Cancellation}" 
                                Foreground="{DynamicResource ButtonHoverForeground}" 
                                FontSize="13"
                                FontWeight="Bold"/>

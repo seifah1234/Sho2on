@@ -8,7 +8,7 @@
         xmlns:converters="clr-namespace:HR_Application.Converters"
         xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="أعضاء المجموعة"
+        Title="{DynamicResource GroupMembers}"
         Height="500" Width="450"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource MainBackground}"
@@ -93,7 +93,7 @@
                         </Button>
 
                         <!-- إزالة من المجموعة -->
-                        <Button ToolTip="إزالة من المجموعة"
+                        <Button ToolTip="{DynamicResource RemoveFromGroup}"
                                 Click="RemoveMember_Click"
                                 Tag="{Binding}"
                                 Background="Transparent"
@@ -119,7 +119,7 @@
 
         <!-- العنوان -->
         <TextBlock Grid.Row="0" 
-                   Text="أعضاء المجموعة" 
+                   Text="{DynamicResource GroupMembers}" 
                    FontSize="20" 
                    FontWeight="Bold" 
                    HorizontalAlignment="Center" 
@@ -133,7 +133,7 @@
                 CornerRadius="8"
                 Visibility="{Binding IsCurrentUserAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
-                <TextBlock Text="إضافة عضو جديد" 
+                <TextBlock Text="{DynamicResource AddANewMember}" 
                            FontWeight="Bold" 
                            Margin="0,0,0,8"
                            Foreground="{DynamicResource TextPrimaryColor}"/>

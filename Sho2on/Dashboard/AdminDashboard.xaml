@@ -36,7 +36,7 @@
 
         <Style x:Key="DashboardButton" TargetType="Button">
             <Setter Property="Background"      Value="{DynamicResource SurfaceLightColor}"/>
-            <Setter Property="Foreground"      Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="Padding"         Value="14,8"/>
             <Setter Property="FontSize"        Value="13"/>
             <Setter Property="FontWeight"      Value="SemiBold"/>
@@ -123,7 +123,7 @@
                                             <Icon:PackIconMaterial Kind="OfficeBuildingMarker" Width="18" Height="18"
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <TextBlock Text="القطاعات — اضغط على أي قطاع لعرض فروعه"
+                                            <TextBlock Text="{DynamicResource SectorsClickOnAnySectorToViewItsBranches}"
                                                        FontSize="15" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimaryColor}"
                                                        VerticalAlignment="Center"/>
@@ -207,7 +207,7 @@
                                                                                FontSize="22" FontWeight="Bold"
                                                                                Foreground="White"
                                                                                HorizontalAlignment="Center"/>
-                                                                    <TextBlock Text="موظف"
+                                                                    <TextBlock Text="{DynamicResource Employee3}"
                                                                                FontSize="10" Foreground="#CCFFFFFF"
                                                                                HorizontalAlignment="Center"/>
                                                                 </StackPanel>
@@ -217,7 +217,7 @@
                                                                                FontSize="22" FontWeight="Bold"
                                                                                Foreground="White"
                                                                                HorizontalAlignment="Center"/>
-                                                                    <TextBlock Text="فرع"
+                                                                    <TextBlock Text="{DynamicResource Branch4}"
                                                                                FontSize="10" Foreground="#CCFFFFFF"
                                                                                HorizontalAlignment="Center"/>
                                                                 </StackPanel>
@@ -232,7 +232,7 @@
                                                                                            Foreground="White"
                                                                                            VerticalAlignment="Center"
                                                                                            Margin="0,0,5,0"/>
-                                                                    <TextBlock Text="عرض الفروع"
+                                                                    <TextBlock Text="{DynamicResource ShowBranches}"
                                                                                FontSize="10" Foreground="White"/>
                                                                 </StackPanel>
                                                             </Border>
@@ -260,7 +260,7 @@
                                             <Icon:PackIconMaterial Kind="LightningBolt" Width="18" Height="18"
                                                                    Foreground="{DynamicResource WarningColor}"
                                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <TextBlock Text="إجراءات سريعة"
+                                            <TextBlock Text="{DynamicResource FastActions}"
                                                        FontSize="15" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimaryColor}"
                                                        VerticalAlignment="Center"/>
@@ -276,12 +276,12 @@
                                         </Rectangle.Fill>
                                     </Rectangle>
                                     <WrapPanel Margin="12,12,12,16">
-                                        <Button Content="تقرير المرتبات"   Style="{DynamicResource DashboardButton}" Click="OpenSalaryReport"/>
-                                        <Button Content="إدارة الموظفين"  Style="{DynamicResource DashboardButton}" Click="OpenEmployeeManagement"/>
-                                        <Button Content="الحضور الشهري"   Style="{DynamicResource DashboardButton}" Click="OpenMonthlyAttendance"/>
-                                        <Button Content="صرف المرتبات"    Style="{DynamicResource DashboardButton}" Click="OpenSalaryPayment"/>
-                                        <Button Content="الصلاحيات"       Style="{DynamicResource DashboardButton}" Click="OpenPermissions"/>
-                                        <Button Content="النسخ الاحتياطي" Style="{DynamicResource DashboardButton}" Click="OpenBackup"/>
+                                        <Button Content="{DynamicResource SalaryReport}"   Style="{DynamicResource DashboardButton}" Click="OpenSalaryReport"/>
+                                        <Button Content="{DynamicResource StaffManagement}"  Style="{DynamicResource DashboardButton}" Click="OpenEmployeeManagement"/>
+                                        <Button Content="{DynamicResource MonthlyAttendance}"   Style="{DynamicResource DashboardButton}" Click="OpenMonthlyAttendance"/>
+                                        <Button Content="{DynamicResource DisbursementOfSalaries}"    Style="{DynamicResource DashboardButton}" Click="OpenSalaryPayment"/>
+                                        <Button Content="{DynamicResource Permissions}"       Style="{DynamicResource DashboardButton}" Click="OpenPermissions"/>
+                                        <Button Content="{DynamicResource Backup2}" Style="{DynamicResource DashboardButton}" Click="OpenBackup"/>
                                     </WrapPanel>
                                 </StackPanel>
                             </Border>
@@ -293,7 +293,7 @@
                                             <Icon:PackIconMaterial Kind="Bell" Width="18" Height="18"
                                                                    Foreground="#CE93D8"
                                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <TextBlock Text="الإنذارات والإشعارات"
+                                            <TextBlock Text="{DynamicResource AlarmsAndNotifications}"
                                                        FontSize="15" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextPrimaryColor}"
                                                        VerticalAlignment="Center"/>
@@ -363,7 +363,7 @@
                                                 <Icon:PackIconMaterial Kind="GenderMaleFemale" Width="18" Height="18"
                                                        Foreground="#F48FB1"
                                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                                <TextBlock Text="توزيع النوع" FontSize="15" FontWeight="SemiBold"
+                                                <TextBlock Text="{DynamicResource TypeDistribution}" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Border>
@@ -393,13 +393,13 @@
                                                 <StackPanel Orientation="Horizontal" Margin="0,4">
                                                     <Border Width="12" Height="12" CornerRadius="3"
                                             Background="#42A5F5" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                    <TextBlock x:Name="MaleLabel" Text="ذكور: 0"
+                                                    <TextBlock x:Name="MaleLabel" Text="{DynamicResource Males0}"
                                                FontSize="12" Foreground="{DynamicResource TextSecondaryColor}"/>
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal" Margin="0,4">
                                                     <Border Width="12" Height="12" CornerRadius="3"
                                             Background="#F48FB1" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                    <TextBlock x:Name="FemaleLabel" Text="إناث: 0"
+                                                    <TextBlock x:Name="FemaleLabel" Text="{DynamicResource Females0}"
                                                FontSize="12" Foreground="{DynamicResource TextSecondaryColor}"/>
                                                 </StackPanel>
                                             </StackPanel>
@@ -416,7 +416,7 @@
                                                 <Icon:PackIconMaterial Kind="OfficeBuildingMarker" Width="18" Height="18"
                        Foreground="{DynamicResource AccentColor}"
                        VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                                <TextBlock Text="الموظفون بالقطاعات" FontSize="15" FontWeight="SemiBold"
+                                                <TextBlock Text="{DynamicResource SectorEmployees}" FontSize="15" FontWeight="SemiBold"
            Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Border>
@@ -471,7 +471,7 @@
                                                         <Icon:PackIconMaterial Kind="Sitemap" Width="18" Height="18"
                        Foreground="#CE93D8"
                        VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                                        <TextBlock Text="الموظفون بالإدارات" FontSize="15" FontWeight="SemiBold"
+                                                        <TextBlock Text="{DynamicResource DepartmentEmployees}" FontSize="15" FontWeight="SemiBold"
            Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>
@@ -501,7 +501,7 @@
                                                 <Icon:PackIconMaterial Kind="OfficeBuildingOutline" Width="18" Height="18"
                                                        Foreground="#66BB6A"
                                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                                <TextBlock Text="الموظفون بالفروع" FontSize="15" FontWeight="SemiBold"
+                                                <TextBlock Text="{DynamicResource BranchEmployees}" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Border>

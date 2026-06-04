@@ -354,7 +354,7 @@
                                     </LinearGradientBrush>
                                 </Border.BorderBrush>
                                 <TextBlock Text="{DynamicResource HumanResourcesSystem}"
-                                           Foreground="{DynamicResource ThirdColor}"
+                                           Foreground="{DynamicResource ThirdColorBrushBrush}"
                                            FontSize="13" FontWeight="SemiBold"
                                            HorizontalAlignment="Center"/>
                             </Border>

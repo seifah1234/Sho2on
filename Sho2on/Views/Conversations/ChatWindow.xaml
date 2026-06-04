@@ -42,21 +42,21 @@
                 <StackPanel>
                     <Border Margin="16,16,16,0" Background="{DynamicResource SurfaceLightColor}" CornerRadius="16" Padding="16">
                         <Grid>
-                            <TextBlock HorizontalAlignment="Left" Text="المحادثات" FontSize="20" FontWeight="Bold" 
+                            <TextBlock HorizontalAlignment="Left" Text="{DynamicResource Conversations}" FontSize="20" FontWeight="Bold" 
                                        Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
-                                <Button Click="ShowAddChatDialog" ToolTip="إضافة محادثة" 
+                                <Button Click="ShowAddChatDialog" ToolTip="{DynamicResource AddAConversation}" 
                                         Style="{DynamicResource HoverButtonStyle}" Margin="0,0,2,0">
                                     <icons:PackIconMaterial Kind="PlusCircle" Width="22" Height="22" 
                                                             Foreground="{DynamicResource AccentColor}"/>
                                 </Button>
-                                <Button ToolTip="تغيير الخلفية" Style="{DynamicResource HoverButtonStyle}"
+                                <Button ToolTip="{DynamicResource ChangeBackground}" Style="{DynamicResource HoverButtonStyle}"
                                         Click="ChangeBackground_Click" Margin="0,0,2,0">
                                     <icons:PackIconMaterial Kind="ImageEdit" Width="20" Height="20" 
                                                             Foreground="{DynamicResource AccentColor}"/>
                                 </Button>
                                 <Button x:Name="CloseCurrentChatBtn" Click="CloseCurrentChatBtn_Click" 
-                                        ToolTip="إغلاق" Style="{DynamicResource HoverButtonStyle}">
+                                        ToolTip="{DynamicResource Closing}" Style="{DynamicResource HoverButtonStyle}">
                                     <icons:PackIconMaterial Kind="CloseCircle" Width="22" Height="22" Foreground="#EF5350"/>
                                 </Button>
                             </StackPanel>
@@ -67,15 +67,15 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,16">
                         <ToggleButton x:Name="ChatsTab" IsChecked="True" Click="ChatsTab_Click" 
                                       Style="{StaticResource TabToggleButtonStyle}">
-                            <TextBlock Text="💬 محادثات" Foreground="{DynamicResource AccentColor}"/>
+                            <TextBlock Text="{DynamicResource Conversations2}" Foreground="{DynamicResource AccentColor}"/>
                         </ToggleButton>
                         <ToggleButton x:Name="GroupsTab" Click="GroupsTab_Click" 
                                       Style="{StaticResource TabToggleButtonStyle}">
-                            <TextBlock Text="👥 مجموعات"  Foreground="{DynamicResource AccentColor}"/>
+                            <TextBlock Text="{DynamicResource Collections}"  Foreground="{DynamicResource AccentColor}"/>
                         </ToggleButton>
                         <ToggleButton x:Name="ArchiveTab" Click="ArchiveTab_Click" 
                                       Style="{StaticResource TabToggleButtonStyle}">
-                            <TextBlock Text="📦 أرشيف"  Foreground="{DynamicResource AccentColor}"/>
+                            <TextBlock Text="{DynamicResource Archive2}"  Foreground="{DynamicResource AccentColor}"/>
                         </ToggleButton>
                     </StackPanel>
 
@@ -88,7 +88,7 @@
                                             Tag="{Binding}" Margin="4,3">
                                         <Button.ContextMenu>
                                             <ContextMenu FlowDirection="RightToLeft">
-                                                <MenuItem Header="📦 أرشفة المحادثة" Tag="{Binding}" Click="ArchiveChat_Click"/>
+                                                <MenuItem Header="{DynamicResource ArchiveTheConversation}" Tag="{Binding}" Click="ArchiveChat_Click"/>
                                             </ContextMenu>
                                         </Button.ContextMenu>
                                         <Border Background="{DynamicResource SurfaceColor}" CornerRadius="16" Padding="12">
@@ -161,7 +161,7 @@
                     <!-- قائمة المجموعات -->
                     <ScrollViewer x:Name="GroupsScrollViewer" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" MaxHeight="520">
                         <StackPanel>
-                            <Button Content="+ إنشاء مجموعة جديدة" Click="ShowCreateGroupDialog"
+                            <Button Content="{DynamicResource CreateANewGroup}" Click="ShowCreateGroupDialog"
                                     Style="{StaticResource CreateGroupButtonStyle}" Margin="15,10"/>
                             <ItemsControl ItemsSource="{Binding GroupList}">
                                 <ItemsControl.ItemTemplate>
@@ -243,7 +243,7 @@
                                             HorizontalContentAlignment="Stretch" Margin="4,3">
                                         <Button.ContextMenu>
                                             <ContextMenu FlowDirection="RightToLeft">
-                                                <MenuItem Header="📤 إلغاء الأرشفة" Tag="{Binding}" Click="UnarchiveChat_Click"/>
+                                                <MenuItem Header="{DynamicResource CancelArchiving}" Tag="{Binding}" Click="UnarchiveChat_Click"/>
                                             </ContextMenu>
                                         </Button.ContextMenu>
                                         <Border Background="{DynamicResource SurfaceColor}" CornerRadius="16" Padding="12">
@@ -319,7 +319,7 @@
                     <DropShadowEffect BlurRadius="24" ShadowDepth="4" Color="#000000" Opacity="0.35"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="✨ إضافة محادثة جديدة" FontSize="18" FontWeight="Bold" 
+                    <TextBlock Text="{DynamicResource AddANewConversation}" FontSize="18" FontWeight="Bold" 
                                Foreground="{DynamicResource AccentColor}" Margin="0,0,0,15"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBox x:Name="newChatCodeBox" Tag="كود المستخدم..." Margin="0,0,10,10" Width="120" 
@@ -345,8 +345,8 @@
                         </ItemsControl>
                     </ScrollViewer>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="إضافة" Click="AddChatButton_Click" Margin="0,0,10,0"/>
-                        <Button Content="إلغاء" Click="CloseAddChatDialog"/>
+                        <Button Content="{DynamicResource Addition}" Click="AddChatButton_Click" Margin="0,0,10,0"/>
+                        <Button Content="{DynamicResource Cancellation}" Click="CloseAddChatDialog"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

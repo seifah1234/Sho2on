@@ -234,7 +234,7 @@
                                            Margin="0,0,6,0"
                                                    Foreground="{DynamicResource AccentLightBrush}"
                                            VerticalAlignment="Center"/>
-                                <TextBlock Text="الموظفين:"
+                                <TextBlock Text="{DynamicResource Staff2}"
                                            FontSize="11"
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,4,0"
@@ -659,7 +659,7 @@
                                         BorderThickness="0"
                                         FontSize="14"
                                         Cursor="Hand"
-                                        ToolTip="إعادة الضبط"
+                                        ToolTip="{DynamicResource Reset}"
                                         Margin="2,0,0,0">
                                     <Button.Style>
                                         <Style TargetType="Button">
@@ -688,7 +688,7 @@
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button x:Name="BtnExpandAll"
-                                Content="＋ اظهار كامل"
+                                Content="{DynamicResource FullShow}"
                                 Click="BtnExpandAll_Click"
                                 Foreground="{DynamicResource AccentBrush}"
                                 Background="Transparent"
@@ -725,7 +725,7 @@
                         </Button>
 
                         <Button x:Name="BtnCollapseAll"
-                                Content="－ اظهار جزئي"
+                                Content="{DynamicResource ShowPartial}"
                                 Click="BtnCollapseAll_Click"
                                 Foreground="{DynamicResource BorderBrush}"
                                 Background="Transparent"
@@ -831,7 +831,7 @@
                                            Margin="0,0,6,0"
                                                    Foreground="{DynamicResource AccentLightBrush}"
                                            VerticalAlignment="Center"/>
-                                            <TextBlock Text="الموظفين:"
+                                            <TextBlock Text="{DynamicResource Staff2}"
                                            FontSize="11"
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,4,0"
@@ -856,7 +856,7 @@
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,6,0"
                                            VerticalAlignment="Center"/>
-                                            <TextBlock Text="القطاعات"
+                                            <TextBlock Text="{DynamicResource Sectors}"
                                            FontSize="11"
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,4,0"
@@ -881,7 +881,7 @@
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,6,0"
                                            VerticalAlignment="Center"/>
-                                            <TextBlock Text="الفروع"
+                                            <TextBlock Text="{DynamicResource Branches}"
                                            FontSize="11"
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,4,0"
@@ -905,7 +905,7 @@
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,6,0"
                                            VerticalAlignment="Center"/>
-                                            <TextBlock Text="الادارات"
+                                            <TextBlock Text="{DynamicResource Departments}"
                                            FontSize="11"
                                            Foreground="{DynamicResource AccentLightBrush}"
                                            Margin="0,0,4,0"

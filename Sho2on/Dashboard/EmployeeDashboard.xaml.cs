@@ -46,7 +46,7 @@ namespace HR_Application.Dashboard
 
         private void InitializeDashboard()
         {
-            WelcomeText.Text = $"ãÑÍÈÇğ Èß¡ {App.CurrentUser?.FullName ?? "ÇáãæÙİ"}";
+            WelcomeText.Text = $"Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨ÙƒØŒ {App.CurrentUser?.FullName ?? "Ø§Ù„Ù…ÙˆØ¸Ù"}";
             LoadProfileImage();
             LoadEmployeeInfo();
         }
@@ -69,13 +69,13 @@ namespace HR_Application.Dashboard
                 }
                 else
                 {
-                    // ÕæÑÉ ÇİÊÑÇÖíÉ
+                    // ØµÙˆØ±Ø© Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
                     ProfileImage.Source = new BitmapImage(new Uri("pack://application:,,,/assets/images/default-avatar.png"));
                 }
             }
             catch
             {
-                // İí ÍÇáÉ ÍÏæË ÎØÃ¡ ÚÑÖ ÕæÑÉ ÇİÊÑÇÖíÉ
+                // ÙÙŠ Ø­Ø§Ù„Ø© Ø­Ø¯ÙˆØ« Ø®Ø·Ø£ØŒ Ø¹Ø±Ø¶ ØµÙˆØ±Ø© Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
                 ProfileImage.Source = new BitmapImage(new Uri("pack://application:,,,/assets/images/default-avatar.png"));
             }
         }
@@ -85,9 +85,9 @@ namespace HR_Application.Dashboard
             if (App.CurrentUser != null)
             {
                 EmployeeName.Text = App.CurrentUser.FullName;
-                EmployeeCode.Text = $"ÇáßæÏ: {App.CurrentUser.Code}";
+                EmployeeCode.Text = $"Ø§Ù„ÙƒÙˆØ¯: {App.CurrentUser.Code}";
 
-                // ÊÍãíá ãÚáæãÇÊ ÇáæÙíİÉ æÇáÇÏÇÑÉ
+                // ØªØ­Ù…ÙŠÙ„ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ÙˆØ¸ÙŠÙØ© ÙˆØ§Ù„Ø§Ø¯Ø§Ø±Ø©
                 LoadJobAndDepartmentInfo();
             }
         }
@@ -113,8 +113,8 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                EmployeeJob.Text = "ÛíÑ ãÍÏÏ";
-                EmployeeDepartment.Text = "ÛíÑ ãÍÏÏ";
+                EmployeeJob.Text = LocalizationManager.Translate("ØºÙŠØ± Ù…Ø­Ø¯Ø¯");
+                EmployeeDepartment.Text = LocalizationManager.Translate("ØºÙŠØ± Ù…Ø­Ø¯Ø¯");
             }
         }
 
@@ -126,34 +126,34 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task LoadPersonalStatistics()
         {
-            // ÑÕíÏ ÇáÅÌÇÒÇÊ
+            // Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª
             var leaveBalance = await _context.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.UserId == _currentUserId);
 
             if (leaveBalance != null)
             {
-                LeaveBalance.Text = $"{leaveBalance.TotalBalance - leaveBalance.UsedBalance} íæã";
+                LeaveBalance.Text = $"{leaveBalance.TotalBalance - leaveBalance.UsedBalance} ÙŠÙˆÙ…";
             }
             else
             {
-                LeaveBalance.Text = "0 íæã";
+                LeaveBalance.Text = LocalizationManager.Translate("0 ÙŠÙˆÙ…");
             }
 
-            // ÇáÍÖæÑ ÇáÔåÑí
+            // Ø§Ù„Ø­Ø¶ÙˆØ± Ø§Ù„Ø´Ù‡Ø±ÙŠ
             var monthlyAttendance = await CalculateMonthlyAttendance();
             MonthlyAttendance.Text = $"{monthlyAttendance:F0}%";
 
-            // ÇáÑÇÊÈ ÇáÃÎíÑ
+            // Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø£Ø®ÙŠØ±
             await LoadLastSalary();
 
-            // ÓÇÚÇÊ ÇáÚãá ÇáÔåÑíÉ
+            // Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ù…Ù„ Ø§Ù„Ø´Ù‡Ø±ÙŠØ©
             await LoadWorkHours();
         }
 
@@ -175,12 +175,12 @@ namespace HR_Application.Dashboard
 
         private async Task<int> GetTotalWorkDays()
         {
-            // ÍÓÇÈ ÃíÇã ÇáÚãá ÇáİÚáíÉ İí ÇáÔåÑ (ÈÇÓÊËäÇÁ ÇáÅÌÇÒÇÊ ÇáÃÓÈæÚíÉ)
+            // Ø­Ø³Ø§Ø¨ Ø£ÙŠØ§Ù… Ø§Ù„Ø¹Ù…Ù„ Ø§Ù„ÙØ¹Ù„ÙŠØ© ÙÙŠ Ø§Ù„Ø´Ù‡Ø± (Ø¨Ø§Ø³ØªØ«Ù†Ø§Ø¡ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©)
             var user = await _context.Users
                 .Include(u => u.WeekHoliday)
                 .FirstOrDefaultAsync(u => u.Id == _currentUserId);
 
-            if (user?.WeekHoliday == null) return 20; // ŞíãÉ ÇİÊÑÇÖíÉ
+            if (user?.WeekHoliday == null) return 20; // Ù‚ÙŠÙ…Ø© Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
 
             int totalWorkDays = 0;
             for (var date = _currentMonthStart; date <= _currentMonthEnd; date = date.AddDays(1))
@@ -188,8 +188,8 @@ namespace HR_Application.Dashboard
                 var dayOfWeek = (int)date.DayOfWeek;
                 bool isHoliday = dayOfWeek switch
                 {
-                    0 => user.WeekHoliday.Day7, // ÇáÃÍÏ
-                    1 => user.WeekHoliday.Day1, // ÇáÇËäíä
+                    0 => user.WeekHoliday.Day7, // Ø§Ù„Ø£Ø­Ø¯
+                    1 => user.WeekHoliday.Day1, // Ø§Ù„Ø§Ø«Ù†ÙŠÙ†
                     2 => user.WeekHoliday.Day2,
                     3 => user.WeekHoliday.Day3,
                     4 => user.WeekHoliday.Day4,
@@ -220,7 +220,7 @@ namespace HR_Application.Dashboard
             }
             else
             {
-                LastSalary.Text = "ÛíÑ ãÊæİÑ";
+                LastSalary.Text = LocalizationManager.Translate("ØºÙŠØ± Ù…ØªÙˆÙØ±");
             }
         }
 
@@ -233,7 +233,7 @@ namespace HR_Application.Dashboard
                            a.TotalWorkHours.HasValue)
                 .SumAsync(a => a.TotalWorkHours.Value.TotalHours);
 
-            WorkHours.Text = $"{totalHours:F1} ÓÇÚÉ";
+            WorkHours.Text = $"{totalHours:F1} Ø³Ø§Ø¹Ø©";
         }
 
         // Quick Action Handlers
@@ -258,7 +258,7 @@ namespace HR_Application.Dashboard
         private void OpenMySalary(object sender, RoutedEventArgs e)
         {
             var window = new SalaryReport();
-            // íãßä ÊãÑíÑ ßæÏ ÇáãæÙİ ÇáÍÇáí áÚÑÖ ÈíÇäÇÊå İŞØ
+            // ÙŠÙ…ÙƒÙ† ØªÙ…Ø±ÙŠØ± ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ø§Ù„Ø­Ø§Ù„ÙŠ Ù„Ø¹Ø±Ø¶ Ø¨ÙŠØ§Ù†Ø§ØªÙ‡ ÙÙ‚Ø·
             window.Show();
         }
 
@@ -274,20 +274,20 @@ namespace HR_Application.Dashboard
 
         private void OpenMyBenefits(object sender, RoutedEventArgs e)
         {
-            // íãßä ÅäÔÇÁ äÇİĞÉ ÊÚÑÖ ãÓÊÍŞÇÊ ÇáãæÙİ İŞØ
+            // ÙŠÙ…ÙƒÙ† Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø§ÙØ°Ø© ØªØ¹Ø±Ø¶ Ù…Ø³ØªØ­Ù‚Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù ÙÙ‚Ø·
             var window = new BenefitsDeductions();
             window.Show();
         }
 
         private void OpenMyHistory(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ ÇáÓÌá ÇáæÙíİí İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„ÙˆØ¸ÙŠÙÙŠ ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OpenMyDocuments(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ ÚÑÖ ÇáãÓÊäÏÇÊ İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }

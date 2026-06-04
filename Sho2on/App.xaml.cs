@@ -158,11 +158,11 @@ namespace HR_Application
             {
                 var primary = HR_Application.Properties.Settings.Default.PrimaryColor;
                 var secondary = HR_Application.Properties.Settings.Default.SecondaryColor;
-                var third = HR_Application.Properties.Settings.Default.ThirdColor;
+                var third = HR_Application.Properties.Settings.Default.ThirdColorBrush;
 
                 Application.Current.Resources["PrimaryColor"] = new SolidColorBrush(primary);
                 Application.Current.Resources["SecondaryColor"] = new SolidColorBrush(secondary);
-                Application.Current.Resources["ThirdColor"] = new SolidColorBrush(third);
+                Application.Current.Resources["ThirdColorBrush"] = new SolidColorBrush(third);
 
                 var primaryBackground = HR_Application.Properties.Settings.Default.PrimaryColorBackground;
                 var mainMenuColor = HR_Application.Properties.Settings.Default.MainMenuColor;
@@ -179,7 +179,7 @@ namespace HR_Application
                 // fallback default لو حصل مشكلة
                 Application.Current.Resources["PrimaryColor"] = new SolidColorBrush(Colors.Blue);
                 Application.Current.Resources["SecondaryColor"] = new SolidColorBrush(Colors.Gray);
-                Application.Current.Resources["ThirdColor"] = new SolidColorBrush(Colors.LightGray);
+                Application.Current.Resources["ThirdColorBrush"] = new SolidColorBrush(Colors.LightGray);
             }
         }
 
@@ -189,7 +189,7 @@ namespace HR_Application
             {
                 Application.Current.Resources.Remove("PrimaryColor");
                 Application.Current.Resources.Remove("SecondaryColor");
-                Application.Current.Resources.Remove("ThirdColor");
+                Application.Current.Resources.Remove("ThirdColorBrush");
                 Application.Current.Resources.Remove("InputBackground");
                 Application.Current.Resources.Remove("BorderColor");
                 Application.Current.Resources.Remove("TextPrimaryColor");

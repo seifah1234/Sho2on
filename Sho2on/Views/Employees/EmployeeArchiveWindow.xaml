@@ -1,8 +1,8 @@
-﻿<Window x:Class="HR_Application.Views.EmployeeArchiveWindow"
+<Window x:Class="HR_Application.Views.EmployeeArchiveWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Title="أرشيف الموظف"
+        Title="{DynamicResource EmployeeArchive}"
         Height="800" Width="1400"
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
@@ -120,7 +120,7 @@
             <Setter Property="Background"      Value="{DynamicResource SurfaceLightColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
-            <Setter Property="Foreground"      Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="Height"          Value="36"/>
             <Setter Property="Padding"         Value="14,0"/>
             <Setter Property="FontSize"        Value="13"/>
@@ -201,7 +201,7 @@
                                                Foreground="#FFFFFF"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="أرشيف الموظف"
+                    <TextBlock Text="{DynamicResource EmployeeArchive}"
                                FontSize="19" FontWeight="Bold"
                                Foreground="{DynamicResource TextPrimaryColor}"
                                VerticalAlignment="Center"/>
@@ -220,7 +220,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="FileSign" Width="14" Height="14"
                                                    Foreground="#EF5350" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="توقيع وثائق" VerticalAlignment="Center" Foreground="#EF5350"/>
+                            <TextBlock Text="{DynamicResource SigningDocuments2}" VerticalAlignment="Center" Foreground="#EF5350"/>
                         </StackPanel>
                     </Button>
 
@@ -228,12 +228,12 @@
                     <Button x:Name="addPersonalDocBtn"
                             Click="addPersonalDocBtn_Click"
                             Style="{StaticResource HeaderActionButton}"
-                            Background="#003843" BorderBrush="#005060" Foreground="{DynamicResource ThirdColor}">
+                            Background="#003843" BorderBrush="#005060" Foreground="{DynamicResource ThirdColorBrushBrush}">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Plus" Width="14" Height="14"
                                                    Foreground="{DynamicResource AccentColor}"
                                                    VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="إضافة وثيقة" VerticalAlignment="Center" Foreground="{DynamicResource AccentColor}"/>
+                            <TextBlock Text="{DynamicResource AddDocument}" VerticalAlignment="Center" Foreground="{DynamicResource AccentColor}"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -266,11 +266,11 @@
                     <TextBlock x:Name="txtEmployeeName"
                                FontSize="16" FontWeight="SemiBold"
                                Foreground="{DynamicResource TextPrimaryColor}"
-                               Text="جاري التحميل..."/>
+                               Text="{DynamicResource Loading}"/>
                     <TextBlock x:Name="txtEmployeeCode"
                                FontSize="12"
                                Foreground="{DynamicResource MutedColor}"
-                               Text="كود: جاري التحميل..."
+                               Text="{DynamicResource CodeLoading}"
                                Margin="0,2,0,0"/>
                 </StackPanel>
 
@@ -286,8 +286,8 @@
                         <Icon:PackIconMaterial Kind="FileCabinet" Width="14" Height="14"
                                                Foreground="{DynamicResource AccentColor}"
                                                VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBlock x:Name="totalDocsCount" Text="0 وثيقة"
-                                   Foreground="{DynamicResource ThirdColor}"
+                        <TextBlock x:Name="totalDocsCount" Text="{DynamicResource 0Document}"
+                                   Foreground="{DynamicResource ThirdColorBrushBrush}"
                                    FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
@@ -308,7 +308,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Icon:PackIconMaterial Kind="ArrowRight" Width="14" Height="14"
                                                VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBlock Text="رجوع" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Back}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 
@@ -317,7 +317,7 @@
                     <Hyperlink x:Name="rootCrumbLink" Click="rootCrumbLink_Click"
                                Foreground="{DynamicResource AccentColor}"
                                TextDecorations="None">
-                        <Run Text="الأرشيف"/>
+                        <Run Text="{DynamicResource Archives}"/>
                     </Hyperlink>
                 </TextBlock>
 
@@ -393,7 +393,7 @@
                                         </Border>
 
                                         <!-- Folder body -->
-                                        <Border Width="140" FontSize = "12" Height="90"
+                                        <Border Width="140" Height="90"
                                                 CornerRadius="0 8 8 8">
                                             <Border.Background>
                                                 <SolidColorBrush Color="{Binding FolderColor.Color}"/>
@@ -563,7 +563,7 @@
                                                 <Icon:PackIconMaterial Kind="Eye" Width="13" Height="13"
                                                                        Foreground="{DynamicResource AccentColor}"
                                                                        VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                                <TextBlock Text="عرض" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource AnOffer}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
 
@@ -575,7 +575,7 @@
                                                 <Icon:PackIconMaterial Kind="Download" Width="13" Height="13"
                                                                        Foreground="{DynamicResource AccentColor}"
                                                                        VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                                <TextBlock Text="تحميل" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource Download}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
 
@@ -586,7 +586,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <Icon:PackIconMaterial Kind="Printer" Width="13" Height="13"
                                                                        VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                                <TextBlock Text="طباعة" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource Print}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
 
@@ -598,7 +598,7 @@
                                                 <Icon:PackIconMaterial Kind="Delete" Width="13" Height="13"
                                                                        Foreground="#EF5350"
                                                                        VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                                <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>
@@ -622,7 +622,7 @@
                                        Foreground="{DynamicResource MutedColor}"
                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
                 <TextBlock x:Name="statusText"
-                           Text="جاهز"
+                           Text="{DynamicResource Ready}"
                            Foreground="{DynamicResource MutedColor}"
                            FontSize="12" VerticalAlignment="Center"/>
             </StackPanel>

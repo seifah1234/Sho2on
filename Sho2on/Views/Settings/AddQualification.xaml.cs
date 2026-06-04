@@ -31,7 +31,7 @@ namespace HR_Application
             {
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    LocalizationManager.ShowMessage("ÃÏÎá ÇÓã ÇáãÄåá", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ø£Ø¯Ø®Ù„ Ø§Ø³Ù… Ø§Ù„Ù…Ø¤Ù‡Ù„", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -43,12 +43,12 @@ namespace HR_Application
 
                 await _context.Qualifications.AddAsync(qualification);
                 await _context.SaveChangesAsync();
-                LocalizationManager.ShowMessage("Êã ÅÖÇİÉ ÇáãÄåá", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø¤Ù‡Ù„", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -56,7 +56,7 @@ namespace HR_Application
         {
             if (_selectedQualification == null)
             {
-                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáãÄåá", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø¤Ù‡Ù„", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -64,12 +64,12 @@ namespace HR_Application
             {
                 _context.Qualifications.Remove(_selectedQualification);
                 await _context.SaveChangesAsync();
-                LocalizationManager.ShowMessage("Êã ÍĞİ ÇáãÄåá", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…Ø¤Ù‡Ù„", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -77,7 +77,7 @@ namespace HR_Application
         {
             if (_selectedQualification == null)
             {
-                LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Ãí ãÄåá", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ù„Ù… ØªØ®ØªØ§Ø± Ø£ÙŠ Ù…Ø¤Ù‡Ù„", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -86,12 +86,12 @@ namespace HR_Application
                 _selectedQualification.Name = name_box.Text.Trim();
                 _context.Qualifications.Update(_selectedQualification);
                 await _context.SaveChangesAsync();
-                LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáãÄåá", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ø¤Ù‡Ù„", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

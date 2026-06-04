@@ -20,7 +20,7 @@ using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 namespace HR_Application.Views
 {
     // ?????????????????????????????????????????????
-    // ViewModel: ãáİ æÇÍÏ ÏÇÎá ÇáÜ Folder
+    // ViewModel: Ù…Ù„Ù ÙˆØ§Ø­Ø¯ Ø¯Ø§Ø®Ù„ Ø§Ù„Ù€ Folder
     // ?????????????????????????????????????????????
     public class DocumentViewModel : INotifyPropertyChanged
     {
@@ -31,7 +31,7 @@ namespace HR_Application.Views
             _doc = doc;
         }
 
-        // ÊİæíÖ ÌãíÚ ÎÕÇÆÕ ÇáÜ CompanyDocument ÇáÃÕáíÉ
+        // ØªÙÙˆÙŠØ¶ Ø¬Ù…ÙŠØ¹ Ø®ØµØ§Ø¦Øµ Ø§Ù„Ù€ CompanyDocument Ø§Ù„Ø£ØµÙ„ÙŠØ©
         public int Id => _doc.Id;
         public string Title => _doc.Title;
         public string FileName => _doc.FileName;
@@ -45,7 +45,7 @@ namespace HR_Application.Views
         public JobTitle JobTitle => _doc.JobTitle;
         public bool HasJobTitle => _doc.JobTitle != null;
 
-        // ÃíŞæäÉ Çáãáİ ÍÓÈ ÇáÇãÊÏÇÏ
+        // Ø£ÙŠÙ‚ÙˆÙ†Ø© Ø§Ù„Ù…Ù„Ù Ø­Ø³Ø¨ Ø§Ù„Ø§Ù…ØªØ¯Ø§Ø¯
         public string FileIcon => _doc.FileType?.ToLower() switch
         {
             ".pdf" => "??",
@@ -59,17 +59,17 @@ namespace HR_Application.Views
             _ => "??"
         };
 
-        public string ActiveText => _doc.IsActive ? "äÔØ" : "ãÚØøá";
+        public string ActiveText => _doc.IsActive ? LocalizationManager.Translate("Ù†Ø´Ø·") : LocalizationManager.Translate("Ù…Ø¹Ø·Ù‘Ù„");
         public string ActiveColor => _doc.IsActive ? "#27ae60" : "#95a5a6";
 
-        // ÇáßÇÆä ÇáÃÕáí ááÚãáíÇÊ (ÍĞİ¡ ÊÍãíá…)
+        // Ø§Ù„ÙƒØ§Ø¦Ù† Ø§Ù„Ø£ØµÙ„ÙŠ Ù„Ù„Ø¹Ù…Ù„ÙŠØ§Øª (Ø­Ø°ÙØŒ ØªØ­Ù…ÙŠÙ„â€¦)
         public CompanyDocument Original => _doc;
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
 
     // ?????????????????????????????????????????????
-    // ViewModel: Folder = ÊÕäíİ + ŞÇÆãÉ ãáİÇÊå
+    // ViewModel: Folder = ØªØµÙ†ÙŠÙ + Ù‚Ø§Ø¦Ù…Ø© Ù…Ù„ÙØ§ØªÙ‡
     // ?????????????????????????????????????????????
     public class FolderViewModel : INotifyPropertyChanged
     {
@@ -89,7 +89,7 @@ namespace HR_Application.Views
             }
         }
 
-        public string CountText => $"{Documents.Count} ãáİ";
+        public string CountText => $"{Documents.Count} Ù…Ù„Ù";
         public string ArrowText => _isExpanded ? "?" : "?";
 
         public void Toggle() => IsExpanded = !IsExpanded;
@@ -108,7 +108,7 @@ namespace HR_Application.Views
         private string _selectedFilePath;
         private CompanyDocument _selectedDocument;
 
-        // ŞÇÆãÉ ÇáÜ Folders ÇáãÚÑæÖÉ ÍÇáíÇğ
+        // Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù€ Folders Ø§Ù„Ù…Ø¹Ø±ÙˆØ¶Ø© Ø­Ø§Ù„ÙŠØ§Ù‹
         private List<FolderViewModel> _folders = new();
 
         public CompanyDocumentsWindow()
@@ -120,7 +120,7 @@ namespace HR_Application.Views
         }
 
         // ??????????????????????????????????????????
-        // ÊÍãíá ÇáÈíÇäÇÊ
+        // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
         // ??????????????????????????????????????????
 
         private async Task LoadDocuments()
@@ -132,21 +132,21 @@ namespace HR_Application.Views
                     .Include(d => d.JobTitle)
                     .AsQueryable();
 
-                // İáÊÑ ÇáÊÕäíİ
+                // ÙÙ„ØªØ± Ø§Ù„ØªØµÙ†ÙŠÙ
                 if (categoryFilter.SelectedValue != null)
                 {
                     var selectedCategory = (int)categoryFilter.SelectedValue;
                     query = query.Where(d => d.Category == (DocumentCategory)selectedCategory);
                 }
 
-                // İáÊÑ ÇáæÙíİÉ
+                // ÙÙ„ØªØ± Ø§Ù„ÙˆØ¸ÙŠÙØ©
                 if (jobTitleFilterComboBox.SelectedValue != null)
                 {
                     var selectedJobTitleId = (int)jobTitleFilterComboBox.SelectedValue;
                     query = query.Where(d => d.JobTitleId == selectedJobTitleId);
                 }
 
-                // İáÊÑ ÇáäÔØ
+                // ÙÙ„ØªØ± Ø§Ù„Ù†Ø´Ø·
                 if (activeOnlyCheck.IsChecked == true)
                     query = query.Where(d => d.IsActive);
 
@@ -154,13 +154,13 @@ namespace HR_Application.Views
                     .OrderByDescending(d => d.UploadDate)
                     .ToListAsync();
 
-                // ???? ÊÌãíÚ ÇáãáİÇÊ ÏÇÎá Folders ????
+                // ???? ØªØ¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª Ø¯Ø§Ø®Ù„ Folders ????
                 _folders = documents
                     .GroupBy(d => d.Category)
                     .OrderBy(g => g.Key)
                     .Select(g =>
                     {
-                        // åá ßÇä ÇáÜ Folder ãİÊæÍÇğ ŞÈá ÅÚÇÏÉ ÇáÊÍãíá¿
+                        // Ù‡Ù„ ÙƒØ§Ù† Ø§Ù„Ù€ Folder Ù…ÙØªÙˆØ­Ø§Ù‹ Ù‚Ø¨Ù„ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„ØªØ­Ù…ÙŠÙ„ØŸ
                         var prev = _folders.FirstOrDefault(f => f.CategoryName == GetCategoryName(g.Key));
                         return new FolderViewModel
                         {
@@ -172,20 +172,20 @@ namespace HR_Application.Views
                     .ToList();
 
                 foldersPanel.ItemsSource = _folders;
-                statusText.Text = $"Êã ÊÍãíá {documents.Count} ãáİ İí {_folders.Count} ÊÕäíİ";
+                statusText.Text = $"ØªÙ… ØªØ­Ù…ÙŠÙ„ {documents.Count} Ù…Ù„Ù ÙÙŠ {_folders.Count} ØªØµÙ†ÙŠÙ";
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãáİÇÊ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„ÙØ§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         // ??????????????????????????????????????????
-        // ÃÍÏÇË ÇáÜ Folders
+        // Ø£Ø­Ø¯Ø§Ø« Ø§Ù„Ù€ Folders
         // ??????????????????????????????????????????
 
-        /// <summary>ÇáäŞÑ Úáì ÑÃÓ ÇáÜ Folder ? İÊÍ/ÅÛáÇŞ</summary>
+        /// <summary>Ø§Ù„Ù†Ù‚Ø± Ø¹Ù„Ù‰ Ø±Ø£Ø³ Ø§Ù„Ù€ Folder ? ÙØªØ­/Ø¥ØºÙ„Ø§Ù‚</summary>
         private void FolderHeader_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border &&
@@ -195,21 +195,21 @@ namespace HR_Application.Views
             }
         }
 
-        /// <summary>ÇáäŞÑ Úáì Õİ ãáİ ? ÇÎÊíÇÑå ßÜ SelectedDocument</summary>
+        /// <summary>Ø§Ù„Ù†Ù‚Ø± Ø¹Ù„Ù‰ ØµÙ Ù…Ù„Ù ? Ø§Ø®ØªÙŠØ§Ø±Ù‡ ÙƒÙ€ SelectedDocument</summary>
         private void FileRow_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border &&
                 border.DataContext is DocumentViewModel vm)
             {
                 _selectedDocument = vm.Original;
-                statusText.Text = $"Êã ÇÎÊíÇÑ: {_selectedDocument.Title}";
+                statusText.Text = $"ØªÙ… Ø§Ø®ØªÙŠØ§Ø±: {_selectedDocument.Title}";
 
-                // ÅÒÇáÉ ÇáÜ highlight ãä ßá ÇáÕİæİ
+                // Ø¥Ø²Ø§Ù„Ø© Ø§Ù„Ù€ highlight Ù…Ù† ÙƒÙ„ Ø§Ù„ØµÙÙˆÙ
                 foreach (var folder in _folders)
                     foreach (var doc in folder.Documents)
                         border.Background = System.Windows.Media.Brushes.Transparent;
 
-                // Êáæíä ÇáÕİ ÇáãÍÏÏ
+                // ØªÙ„ÙˆÙŠÙ† Ø§Ù„ØµÙ Ø§Ù„Ù…Ø­Ø¯Ø¯
                 border.Background = new System.Windows.Media.SolidColorBrush(
                     (System.Windows.Media.Color)System.Windows.Media.ColorConverter
                         .ConvertFromString("#2000ADEF"));
@@ -217,7 +217,7 @@ namespace HR_Application.Views
         }
 
         // ??????????????????????????????????????????
-        // ÈÇŞí ÇáßæÏ (ÈÏæä ÊÛííÑ ÌæåÑí)
+        // Ø¨Ø§Ù‚ÙŠ Ø§Ù„ÙƒÙˆØ¯ (Ø¨Ø¯ÙˆÙ† ØªØºÙŠÙŠØ± Ø¬ÙˆÙ‡Ø±ÙŠ)
         // ??????????????????????????????????????????
 
         private void CheckStorageAccessibility()
@@ -235,23 +235,23 @@ namespace HR_Application.Views
 
                     if (canAccess)
                     {
-                        statusText.Text = $"ÇáãÓÇÑ ÇáãÑßÒí: {storagePath} (Òãä ÇáæÕæá: {stopwatch.ElapsedMilliseconds}ms)";
+                        statusText.Text = $"Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø±ÙƒØ²ÙŠ: {storagePath} (Ø²Ù…Ù† Ø§Ù„ÙˆØµÙˆÙ„: {stopwatch.ElapsedMilliseconds}ms)";
                         if (stopwatch.ElapsedMilliseconds > 1000)
-                            statusText.Text += " - ÇÊÕÇá ÈØíÁ";
+                            statusText.Text += LocalizationManager.Translate(" - Ø§ØªØµØ§Ù„ Ø¨Ø·ÙŠØ¡");
                     }
                     else
                     {
-                        statusText.Text = "ÛíÑ ãÊÕá ÈÇáãÓÇÑ ÇáãÑßÒí - ÇÓÊÎÏÇã ÇáãÓÇÑ ÇáãÍáí";
+                        statusText.Text = LocalizationManager.Translate("ØºÙŠØ± Ù…ØªØµÙ„ Ø¨Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø±ÙƒØ²ÙŠ - Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø­Ù„ÙŠ");
                     }
                 }
                 else
                 {
-                    statusText.Text = $"ÇáãÓÇÑ ÇáãÍáí: {storagePath}";
+                    statusText.Text = $"Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø­Ù„ÙŠ: {storagePath}";
                 }
             }
             catch (Exception ex)
             {
-                statusText.Text = $"ÎØÃ İí ÇáæÕæá ááãÓÇÑ: {ex.Message}";
+                statusText.Text = $"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ÙˆØµÙˆÙ„ Ù„Ù„Ù…Ø³Ø§Ø±: {ex.Message}";
             }
         }
 
@@ -290,28 +290,28 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáæÙÇÆİ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙˆØ¸Ø§Ø¦Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private string GetCategoryName(DocumentCategory category) => category switch
         {
-            DocumentCategory.JobDescription => "æÕİ ÇáæÙíİÉ",
-            DocumentCategory.CompanyPolicy => "ÓíÇÓÇÊ ÇáÔÑßÉ",
-            DocumentCategory.HRManual => "Ïáíá ÇáãæÇÑÏ ÇáÈÔÑíÉ",
-            DocumentCategory.CodeOfConduct => "ŞæÇÚÏ ÇáÓáæß",
-            DocumentCategory.SafetyProcedure => "ÅÌÑÇÁÇÊ ÇáÓáÇãÉ",
-            DocumentCategory.Contract => "ÇáÚŞæÏ",
-            DocumentCategory.Other => "ÃÎÑì",
-            _ => "ÃÎÑì"
+            DocumentCategory.JobDescription => LocalizationManager.Translate("ÙˆØµÙ Ø§Ù„ÙˆØ¸ÙŠÙØ©"),
+            DocumentCategory.CompanyPolicy => LocalizationManager.Translate("Ø³ÙŠØ§Ø³Ø§Øª Ø§Ù„Ø´Ø±ÙƒØ©"),
+            DocumentCategory.HRManual => LocalizationManager.Translate("Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©"),
+            DocumentCategory.CodeOfConduct => LocalizationManager.Translate("Ù‚ÙˆØ§Ø¹Ø¯ Ø§Ù„Ø³Ù„ÙˆÙƒ"),
+            DocumentCategory.SafetyProcedure => LocalizationManager.Translate("Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø§Ù„Ø³Ù„Ø§Ù…Ø©"),
+            DocumentCategory.Contract => LocalizationManager.Translate("Ø§Ù„Ø¹Ù‚ÙˆØ¯"),
+            DocumentCategory.Other => LocalizationManager.Translate("Ø£Ø®Ø±Ù‰"),
+            _ => LocalizationManager.Translate("Ø£Ø®Ø±Ù‰")
         };
 
         private void browseBtn_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "ÌãíÚ ÇáãáİÇÊ (*.*)|*.*|PDF files (*.pdf)|*.pdf|Word documents (*.docx)|*.docx|Text files (*.txt)|*.txt",
+                Filter = LocalizationManager.Translate("Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª (*.*)|*.*|PDF files (*.pdf)|*.pdf|Word documents (*.docx)|*.docx|Text files (*.txt)|*.txt"),
                 FilterIndex = 2,
                 Multiselect = false
             };
@@ -338,7 +338,7 @@ namespace HR_Application.Views
             if (string.IsNullOrEmpty(titleBox.Text) || categoryBox.SelectedValue == null ||
                 string.IsNullOrEmpty(_selectedFilePath))
             {
-                LocalizationManager.ShowMessage("íÑÌì ãáÁ ÌãíÚ ÇáÍŞæá æÇÎÊíÇÑ ãáİ", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ ÙˆØ§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -383,7 +383,7 @@ namespace HR_Application.Views
                 _context.CompanyDocuments.Add(document);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage($"Êã ÑİÚ Çáãáİ ÈäÌÇÍ Åáì:\n{destinationPath}", "äÌÇÍ",
+                LocalizationManager.ShowMessage($"ØªÙ… Ø±ÙØ¹ Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­ Ø¥Ù„Ù‰:\n{destinationPath}", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
                 ClearForm();
@@ -391,7 +391,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÑİÚ Çáãáİ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø±ÙØ¹ Ø§Ù„Ù…Ù„Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -412,7 +412,7 @@ namespace HR_Application.Views
         {
             if (_selectedDocument == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãáİ ÃæáÇğ", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -430,7 +430,7 @@ namespace HR_Application.Views
 
                 if (!File.Exists(sourcePath))
                 {
-                    LocalizationManager.ShowMessage("Çáãáİ ÛíÑ ãæÌæÏ Úáì ÇáÓíÑİÑ", "ÎØÃ",
+                    LocalizationManager.ShowMessage("Ø§Ù„Ù…Ù„Ù ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ Ø¹Ù„Ù‰ Ø§Ù„Ø³ÙŠØ±ÙØ±", LocalizationManager.Translate("Ø®Ø·Ø£"),
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -444,13 +444,13 @@ namespace HR_Application.Views
                 if (saveDialog.ShowDialog() == true)
                 {
                     File.Copy(sourcePath, saveDialog.FileName, true);
-                    LocalizationManager.ShowMessage("Êã ÊÍãíá Çáãáİ ÈäÌÇÍ", "äÌÇÍ",
+                    LocalizationManager.ShowMessage("ØªÙ… ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá Çáãáİ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -464,14 +464,14 @@ namespace HR_Application.Views
                 _selectedDocument.IsActive = !_selectedDocument.IsActive;
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage($"Êã {(_selectedDocument.IsActive ? "ÊİÚíá" : "ÊÚØíá")} Çáãáİ ÈäÌÇÍ",
-                    "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage($"ØªÙ… {(_selectedDocument.IsActive ? "ØªÙØ¹ÙŠÙ„" : "ØªØ¹Ø·ÙŠÙ„")} Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­",
+                    LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
 
                 await LoadDocuments();
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍÏíË ÍÇáÉ Çáãáİ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù„Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -480,8 +480,8 @@ namespace HR_Application.Views
         {
             if (_selectedDocument == null) return;
 
-            var result = LocalizationManager.ShowMessage($"åá ÃäÊ ãÊÃßÏ ãä ÍĞİ Çáãáİ '{_selectedDocument.Title}'¿",
-                "ÊÃßíÏ ÇáÍĞİ", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = LocalizationManager.ShowMessage($"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø§Ù„Ù…Ù„Ù '{_selectedDocument.Title}'ØŸ",
+                LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -500,7 +500,7 @@ namespace HR_Application.Views
                     _context.CompanyDocuments.Remove(_selectedDocument);
                     await _context.SaveChangesAsync();
 
-                    LocalizationManager.ShowMessage("Êã ÍĞİ Çáãáİ ÈäÌÇÍ", "äÌÇÍ",
+                    LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
                     _selectedDocument = null;
@@ -508,7 +508,7 @@ namespace HR_Application.Views
                 }
                 catch (Exception ex)
                 {
-                    LocalizationManager.ShowMessage($"ÎØÃ İí ÍĞİ Çáãáİ: {ex.Message}", "ÎØÃ",
+                    LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø°Ù Ø§Ù„Ù…Ù„Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
@@ -518,22 +518,22 @@ namespace HR_Application.Views
         {
             if (_selectedDocument == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãáİ ÃæáÇğ", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            // ÃÖİ ßæÏ ÚÑÖ ÇáÊæŞíÚÇÊ åäÇ
+            // Ø£Ø¶Ù ÙƒÙˆØ¯ Ø¹Ø±Ø¶ Ø§Ù„ØªÙˆÙ‚ÙŠØ¹Ø§Øª Ù‡Ù†Ø§
         }
 
         private void previewBtn_Click(object sender, RoutedEventArgs e)
         {
-            // ÏÚã ÒÑ ÇáãÚÇíäÉ ãä ÏÇÎá ÇáÜ DataGrid Row
+            // Ø¯Ø¹Ù… Ø²Ø± Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø© Ù…Ù† Ø¯Ø§Ø®Ù„ Ø§Ù„Ù€ DataGrid Row
             if (sender is Button btn && btn.DataContext is DocumentViewModel vm)
                 _selectedDocument = vm.Original;
 
             if (_selectedDocument == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãáİ ÃæáÇğ", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -546,12 +546,12 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí İÊÍ ÇáãÚÇíäÉ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ÙØªØ­ Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ÇáİáÇÊÑ
+        // Ø§Ù„ÙÙ„Ø§ØªØ±
         private async void categoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
             await LoadDocuments();
 

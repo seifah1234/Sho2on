@@ -36,13 +36,13 @@ namespace HR_Application.Views
         private EmployeeDocument _employeeDocument;
         private string _filePath;
 
-        // ááãÓÊäÏÇÊ ÇáäÕíÉ æÇáÕæÑ
+        // Ù„Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª Ø§Ù„Ù†ØµÙŠØ© ÙˆØ§Ù„ØµÙˆØ±
         private BitmapImage _imageDocument;
         private string _textContent;
         private int _pdfPageCount = 0;
         private int _currentPdfPage = 1;
 
-        // ááãÚÇíäÉ ÇáãÄŞÊÉ
+        // Ù„Ù„Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ù…Ø¤Ù‚ØªØ©
         private string _tempPdfImagesFolder;
 
         public DocumentPreviewWindow(int documentId, bool isEmployeeDocument = false)
@@ -51,7 +51,7 @@ namespace HR_Application.Views
             _documentId = documentId;
             _isEmployeeDocument = isEmployeeDocument;
 
-            // ÅÚÏÇÏ ÃÍÏÇË ÇáÕİÍÇÊ
+            // Ø¥Ø¹Ø¯Ø§Ø¯ Ø£Ø­Ø¯Ø§Ø« Ø§Ù„ØµÙØ­Ø§Øª
             SetupPdfNavigation();
 
             LoadDocument();
@@ -78,12 +78,12 @@ namespace HR_Application.Views
 
                     if (_employeeDocument == null)
                     {
-                        ShowErrorAndClose("ÇáæËíŞÉ ÛíÑ ãæÌæÏÉ");
+                        ShowErrorAndClose(LocalizationManager.Translate("Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©"));
                         return;
                     }
 
-                    Title = $"ãÚÇíäÉ: {_employeeDocument.Title}";
-                    txtTitle.Text = $"ãÚÇíäÉ: {_employeeDocument.Title}";
+                    Title = $"Ù…Ø¹Ø§ÙŠÙ†Ø©: {_employeeDocument.Title}";
+                    txtTitle.Text = $"Ù…Ø¹Ø§ÙŠÙ†Ø©: {_employeeDocument.Title}";
                     _filePath = FindDocumentFile(_employeeDocument);
                 }
                 else
@@ -93,18 +93,18 @@ namespace HR_Application.Views
 
                     if (_companyDocument == null)
                     {
-                        ShowErrorAndClose("ÇáæËíŞÉ ÛíÑ ãæÌæÏÉ");
+                        ShowErrorAndClose(LocalizationManager.Translate("Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©"));
                         return;
                     }
 
-                    Title = $"ãÚÇíäÉ: {_companyDocument.Title}";
-                    txtTitle.Text = $"ãÚÇíäÉ: {_companyDocument.Title}";
+                    Title = $"Ù…Ø¹Ø§ÙŠÙ†Ø©: {_companyDocument.Title}";
+                    txtTitle.Text = $"Ù…Ø¹Ø§ÙŠÙ†Ø©: {_companyDocument.Title}";
                     _filePath = FindDocumentFile(_companyDocument);
                 }
 
                 if (string.IsNullOrEmpty(_filePath) || !File.Exists(_filePath))
                 {
-                    ShowFallbackMessage("Çáãáİ ÛíÑ ãæÌæÏ Úáì ÇáÓíÑİÑ");
+                    ShowFallbackMessage(LocalizationManager.Translate("Ø§Ù„Ù…Ù„Ù ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ Ø¹Ù„Ù‰ Ø§Ù„Ø³ÙŠØ±ÙØ±"));
                     return;
                 }
 
@@ -112,7 +112,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                ShowFallbackMessage($"ÍÏË ÎØÃ: {ex.Message}");
+                ShowFallbackMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£: {ex.Message}");
             }
             finally
             {
@@ -138,7 +138,7 @@ namespace HR_Application.Views
             }
             else
             {
-                ShowFallbackMessage($"äæÚ Çáãáİ ÛíÑ ãÏÚæã ááãÚÇíäÉ ÇáãÈÇÔÑÉ: {fileExtension}\n\níãßäß ÊÍãíá Çáãáİ æİÊÍå íÏæíÇğ");
+                ShowFallbackMessage($"Ù†ÙˆØ¹ Ø§Ù„Ù…Ù„Ù ØºÙŠØ± Ù…Ø¯Ø¹ÙˆÙ… Ù„Ù„Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ù…Ø¨Ø§Ø´Ø±Ø©: {fileExtension}\n\nÙŠÙ…ÙƒÙ†Ùƒ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„Ù ÙˆÙØªØ­Ù‡ ÙŠØ¯ÙˆÙŠØ§Ù‹");
             }
         }
 
@@ -192,18 +192,18 @@ namespace HR_Application.Views
 
                     if (_pdfPageCount == 0)
                     {
-                        ShowFallbackMessage("ãáİ PDF İÇÑÛ");
+                        ShowFallbackMessage(LocalizationManager.Translate("Ù…Ù„Ù PDF ÙØ§Ø±Øº"));
                         return;
                     }
 
-                    // ÅÖÇİÉ ãÕäÚ ÕİÍÇÊ Skia (ÎØæÉ ãåãÉ)
+                    // Ø¥Ø¶Ø§ÙØ© Ù…ØµÙ†Ø¹ ØµÙØ­Ø§Øª Skia (Ø®Ø·ÙˆØ© Ù…Ù‡Ù…Ø©)
                     document.AddSkiaPageFactory();
 
-                    // ÅäÔÇÁ ãÌáÏ ãÄŞÊ ááÕæÑ
+                    // Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø¬Ù„Ø¯ Ù…Ø¤Ù‚Øª Ù„Ù„ØµÙˆØ±
                     _tempPdfImagesFolder = Path.Combine(Path.GetTempPath(), "PDFPreview_" + Guid.NewGuid().ToString());
                     Directory.CreateDirectory(_tempPdfImagesFolder);
 
-                    // ÊÍæíá ÇáÕİÍÉ ÇáÃæáì
+                    // ØªØ­ÙˆÙŠÙ„ Ø§Ù„ØµÙØ­Ø© Ø§Ù„Ø£ÙˆÙ„Ù‰
                     await RenderPdfPageWithSkiaAsync(document, 1);
 
                     pdfHost.Visibility = Visibility.Visible;
@@ -217,7 +217,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                ShowFallbackMessage($"ÎØÃ İí ÊÍãíá ãáİ PDF: {ex.Message}");
+                ShowFallbackMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ù…Ù„Ù PDF: {ex.Message}");
             }
         }
 
@@ -233,7 +233,7 @@ namespace HR_Application.Views
                 {
                     await System.Threading.Tasks.Task.Run(() =>
                     {
-                        // ÇÓÊÎÏÇã PdfPig.Rendering.Skia ááÍÕæá Úáì ÇáÕİÍÉ ßÜ SKBitmap
+                        // Ø§Ø³ØªØ®Ø¯Ø§Ù… PdfPig.Rendering.Skia Ù„Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„ØµÙØ­Ø© ÙƒÙ€ SKBitmap
                         using (var bitmap = document.GetPageAsSKBitmap(pageNumber, scale: 2.0f))
                         {
                             using (var image = SKImage.FromBitmap(bitmap))
@@ -248,7 +248,7 @@ namespace HR_Application.Views
                     });
                 }
 
-                // ÊÍãíá ÇáÕæÑÉ Åáì æÇÌåÉ WPF
+                // ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø© Ø¥Ù„Ù‰ ÙˆØ§Ø¬Ù‡Ø© WPF
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     var bitmap = new BitmapImage();
@@ -266,7 +266,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÚÑÖ ÇáÕİÍÉ: {ex.Message}");
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¹Ø±Ø¶ Ø§Ù„ØµÙØ­Ø©: {ex.Message}");
             }
             finally
             {
@@ -301,7 +301,7 @@ namespace HR_Application.Views
 
         private void UpdatePdfPageInfo()
         {
-            txtPageInfo.Text = $"ÕİÍÉ {_currentPdfPage} ãä {_pdfPageCount}";
+            txtPageInfo.Text = $"ØµÙØ­Ø© {_currentPdfPage} Ù…Ù† {_pdfPageCount}";
         }
 
         #endregion
@@ -327,11 +327,11 @@ namespace HR_Application.Views
                 fallbackContainer.Visibility = Visibility.Collapsed;
                 pdfNavigationPanel.Visibility = Visibility.Collapsed;
 
-                txtPageInfo.Text = "ÕæÑÉ";
+                txtPageInfo.Text = LocalizationManager.Translate("ØµÙˆØ±Ø©");
             }
             catch (Exception ex)
             {
-                ShowFallbackMessage($"ÎØÃ İí ÊÍãíá ÇáÕæÑÉ: {ex.Message}");
+                ShowFallbackMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø©: {ex.Message}");
             }
         }
 
@@ -352,11 +352,11 @@ namespace HR_Application.Views
                 fallbackContainer.Visibility = Visibility.Collapsed;
                 pdfNavigationPanel.Visibility = Visibility.Collapsed;
 
-                txtPageInfo.Text = $"ãÓÊäÏ äÕí - {_textContent.Length} ÍÑİ";
+                txtPageInfo.Text = $"Ù…Ø³ØªÙ†Ø¯ Ù†ØµÙŠ - {_textContent.Length} Ø­Ø±Ù";
             }
             catch (Exception ex)
             {
-                ShowFallbackMessage($"ÎØÃ İí ÊÍãíá Çáãáİ ÇáäÕí: {ex.Message}");
+                ShowFallbackMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„Ù Ø§Ù„Ù†ØµÙŠ: {ex.Message}");
             }
         }
 
@@ -393,7 +393,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáØÈÇÚÉ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -408,10 +408,10 @@ namespace HR_Application.Views
 
                     for (int i = 1; i <= document.NumberOfPages; i++)
                     {
-                        // ÊÍæíá ÇáÕİÍÉ Åáì SKBitmap
+                        // ØªØ­ÙˆÙŠÙ„ Ø§Ù„ØµÙØ­Ø© Ø¥Ù„Ù‰ SKBitmap
                         using (var bitmap = document.GetPageAsSKBitmap(i, scale: 3.0f))
                         {
-                            // ÊÍæíá SKBitmap Åáì BitmapSource
+                            // ØªØ­ÙˆÙŠÙ„ SKBitmap Ø¥Ù„Ù‰ BitmapSource
                             var info = new SKImageInfo(bitmap.Width, bitmap.Height);
                             var skImage = SKImage.FromBitmap(bitmap);
                             var bitmapSource = bitmap.ToWriteableBitmap();
@@ -424,18 +424,18 @@ namespace HR_Application.Views
                                     printDialog.PrintableAreaHeight));
                             }
 
-                            printDialog.PrintVisual(visual, $"ÕİÍÉ {i}");
+                            printDialog.PrintVisual(visual, $"ØµÙØ­Ø© {i}");
                         }
                     }
                 }
 
                 string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
-                LocalizationManager.ShowMessage($"Êã ÅÑÓÇá ÇáæËíŞÉ '{documentTitle}' ááØÈÇÚÉ", "äÌÇÍ",
+                LocalizationManager.ShowMessage($"ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© '{documentTitle}' Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ØÈÇÚÉ PDF: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø·Ø¨Ø§Ø¹Ø© PDF: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -455,7 +455,7 @@ namespace HR_Application.Views
             string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
             printDialog.PrintVisual(visual, documentTitle);
 
-            LocalizationManager.ShowMessage($"Êã ÅÑÓÇá ÇáæËíŞÉ '{documentTitle}' ááØÈÇÚÉ", "äÌÇÍ",
+            LocalizationManager.ShowMessage($"ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© '{documentTitle}' Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -473,7 +473,7 @@ namespace HR_Application.Views
             string documentTitle = _isEmployeeDocument ? _employeeDocument.Title : _companyDocument.Title;
             printDialog.PrintDocument(paginatorSource.DocumentPaginator, documentTitle);
 
-            LocalizationManager.ShowMessage($"Êã ÅÑÓÇá ÇáæËíŞÉ '{documentTitle}' ááØÈÇÚÉ", "äÌÇÍ",
+            LocalizationManager.ShowMessage($"ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© '{documentTitle}' Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -490,13 +490,13 @@ namespace HR_Application.Views
 
                 Process.Start(info);
 
-                LocalizationManager.ShowMessage("Êã İÊÍ Çáãáİ ÈÇáÈÑäÇãÌ ÇáÇİÊÑÇÖí ááØÈÇÚÉ",
-                    "ãÚáæãÇÊ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… ÙØªØ­ Ø§Ù„Ù…Ù„Ù Ø¨Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬ Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©",
+                    LocalizationManager.Translate("Ù…Ø¹Ù„ÙˆÙ…Ø§Øª"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"áÇ íãßä ØÈÇÚÉ åĞÇ ÇáäæÚ ãä ÇáãáİÇÊ ãÈÇÔÑÉ: {ex.Message}",
-                    "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage($"Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø·Ø¨Ø§Ø¹Ø© Ù‡Ø°Ø§ Ø§Ù„Ù†ÙˆØ¹ Ù…Ù† Ø§Ù„Ù…Ù„ÙØ§Øª Ù…Ø¨Ø§Ø´Ø±Ø©: {ex.Message}",
+                    LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -522,13 +522,13 @@ namespace HR_Application.Views
                 if (saveDialog.ShowDialog() == true)
                 {
                     File.Copy(_filePath, saveDialog.FileName, true);
-                    LocalizationManager.ShowMessage($"Êã ÊÍãíá ÇáæËíŞÉ ÈäÌÇÍ", "äÌÇÍ",
+                    LocalizationManager.ShowMessage($"ØªÙ… ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÍãíá: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -562,7 +562,7 @@ namespace HR_Application.Views
 
         private void ShowErrorAndClose(string message)
         {
-            LocalizationManager.ShowMessage(message, "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+            LocalizationManager.ShowMessage(message, LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             Close();
         }
 
@@ -570,7 +570,7 @@ namespace HR_Application.Views
         {
             try
             {
-                // ÍĞİ ÇáãÌáÏ ÇáãÄŞÊ ááÕæÑ
+                // Ø­Ø°Ù Ø§Ù„Ù…Ø¬Ù„Ø¯ Ø§Ù„Ù…Ø¤Ù‚Øª Ù„Ù„ØµÙˆØ±
                 if (!string.IsNullOrEmpty(_tempPdfImagesFolder) && Directory.Exists(_tempPdfImagesFolder))
                 {
                     Directory.Delete(_tempPdfImagesFolder, true);
@@ -578,7 +578,7 @@ namespace HR_Application.Views
             }
             catch
             {
-                // ÊÌÇåá ÃÎØÇÁ ÇáÍĞİ
+                // ØªØ¬Ø§Ù‡Ù„ Ø£Ø®Ø·Ø§Ø¡ Ø§Ù„Ø­Ø°Ù
             }
         }
 

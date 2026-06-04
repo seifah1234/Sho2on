@@ -27,7 +27,7 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -56,9 +56,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -79,7 +79,7 @@
         </Style>
         <!-- نمط للـ RadioButton -->
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
@@ -89,10 +89,10 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
         </Style>
     </Window.Resources>
 
@@ -104,7 +104,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="بيانات التأخير و الاضافي" 
+            <TextBlock Text="{DynamicResource DelayAndAdditionalData}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -118,7 +118,7 @@
                 <TabItem >
                     <TabItem.Header>
                         <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                            <Label Content="قيمة دقائق" Foreground="{DynamicResource PrimaryColor}"/>
+                            <Label Content="{DynamicResource MinutesValue}" Foreground="{DynamicResource PrimaryColor}"/>
                             
                         </Border>
                     </TabItem.Header>
@@ -134,14 +134,14 @@
                                 <!-- RadioButtons -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 0">
                                     <RadioButton x:Name="RadioButton_Late" Style="{DynamicResource RadioButtonStyle}" 
-                 Checked="RadioButton_Checked_1" Content="تأخير"/>
+                 Checked="RadioButton_Checked_1" Content="{DynamicResource Delay3}"/>
                                     <RadioButton x:Name="RadioButton_Add" Style="{DynamicResource RadioButtonStyle}" 
-                 IsChecked="True" Checked="RadioButton_Checked" Content="الاضافي"/>
+                 IsChecked="True" Checked="RadioButton_Checked" Content="{DynamicResource TheExtra}"/>
                                 </StackPanel>
 
                                 <!-- Time Picker للوقت من -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource From}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <TextBox x:Name="FromTimePicker" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -152,7 +152,7 @@
 
                                 <!-- Time Picker للوقت إلى -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource To2}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <TextBox x:Name="ToTimePicker" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -161,7 +161,7 @@
 
                                 <!-- حقل القيمة (مخفي) -->
                                 <StackPanel Visibility="Collapsed" Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="القيمة" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource Value}" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
                                     <Controls:TimePicker x:Name="ValueTimePicker" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -173,7 +173,7 @@
 
                                 <!-- حقل القيمة المالية -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="عدد الدقائق" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource NumberOfMinutes}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <TextBox Style="{DynamicResource InputFieldStyle}" x:Name="ValueMoneyTextBox" Tag="عدد الدقائق"/>
                                 </StackPanel>
 
@@ -182,13 +182,13 @@
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="edit_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="تعديل" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="save_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -198,13 +198,13 @@
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="exit_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="خروج" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Exit}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="delete_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -214,10 +214,10 @@
                         <!-- الجانب الأيسر: DataGrid -->
                         <DataGrid AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding Lates}" FlowDirection="RightToLeft" Margin="20" Grid.Column="0" x:Name="list" Background="Transparent" BorderThickness="1">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="النوع" Binding="{Binding TypeName}"/>
+                                <DataGridTextColumn Header="{DynamicResource Type}" Binding="{Binding TypeName}"/>
                                 <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Hidden"/>
-                                <DataGridTextColumn Header="التوقيت" Binding="{Binding Name}"/>
-                                <DataGridTextColumn Header="القيمة" Binding="{Binding Value}"/>
+                                <DataGridTextColumn Header="{DynamicResource Timing}" Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="{DynamicResource Value}" Binding="{Binding Value}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -227,7 +227,7 @@
 
                     <TabItem.Header>
                         <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                            <Label Content="قيمة مالية" Foreground="{DynamicResource PrimaryColor}"/>
+                            <Label Content="{DynamicResource MonetaryValue}" Foreground="{DynamicResource PrimaryColor}"/>
 
                         </Border>
                     </TabItem.Header>
@@ -243,15 +243,15 @@
                                 <!-- RadioButtons -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 0">
                                     <RadioButton x:Name="RadioButton_Late_Money" Style="{DynamicResource RadioButtonStyle}" 
-                 Checked="RadioButton_Checked_1" Content="تأخير"/>
+                 Checked="RadioButton_Checked_1" Content="{DynamicResource Delay3}"/>
                                     <RadioButton x:Name="RadioButton_Add_Money" Style="{DynamicResource RadioButtonStyle}" 
-                 IsChecked="True" Checked="RadioButton_Checked" Content="الاضافي"/>
+                 IsChecked="True" Checked="RadioButton_Checked" Content="{DynamicResource TheExtra}"/>
                                 </StackPanel>
 
 
                                 <!-- Time Picker للوقت من -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="من" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource From}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <TextBox x:Name="FromTimePickerMoney" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -260,7 +260,7 @@
 
                                 <!-- Time Picker للوقت إلى -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 0" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="الى" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource To2}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <TextBox x:Name="ToTimePickerMoney" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -269,7 +269,7 @@
 
                                 <!-- حقل القيمة (مخفي) -->
                                 <StackPanel Visibility="Collapsed" Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="القيمة" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource Value}" FontSize="14" FontWeight="SemiBold" Foreground="#FFFFFF"/>
                                     <Controls:TimePicker x:Name="ValueTimePickerMoney" 
                                                          Margin="0 10 0 0" 
                                                          Width="200" 
@@ -281,7 +281,7 @@
 
                                 <!-- حقل القيمة المالية -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
-                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="القيمة" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource Value}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <TextBox Style="{DynamicResource InputFieldStyle}" x:Name="ValueMoneyMoneyTextBox" Tag="القيمة"/>
                                 </StackPanel>
 
@@ -290,13 +290,13 @@
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="editMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="تعديل" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="saveMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -306,13 +306,13 @@
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="exitMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="خروج" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Exit}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="deleteMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -322,10 +322,10 @@
                         <!-- الجانب الأيسر: DataGrid -->
                         <DataGrid AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding LatesMoney}" FlowDirection="RightToLeft" Margin="20" Grid.Column="0" x:Name="listMoney" Background="Transparent" BorderBrush="#1976D2" BorderThickness="1">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="النوع" Binding="{Binding TypeName}"/>
+                                <DataGridTextColumn Header="{DynamicResource Type}" Binding="{Binding TypeName}"/>
                                 <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Hidden"/>
-                                <DataGridTextColumn Header="التوقيت" Binding="{Binding Name}"/>
-                                <DataGridTextColumn Header="القيمة" Binding="{Binding Value}"/>
+                                <DataGridTextColumn Header="{DynamicResource Timing}" Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="{DynamicResource Value}" Binding="{Binding Value}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -335,22 +335,22 @@
 
                     <TabItem.Header>
                         <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                            <Label Content="الاعدادات" Foreground="{DynamicResource PrimaryColor}"/>
+                            <Label Content="{DynamicResource Settings3}" Foreground="{DynamicResource PrimaryColor}"/>
 
                         </Border>
                     </TabItem.Header>
                     <Border CornerRadius="20" Margin="10" Background="{DynamicResource BorderColor}"  >
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <!-- RadioButtons -->
-                            <GroupBox Foreground="{DynamicResource ThirdColor}" Header="اعدادات حساب التأخير و الاضافي" Margin="5">
+                            <GroupBox Foreground="{DynamicResource ThirdColorBrushBrush}" Header="{DynamicResource DelayAndAdditionalAccountSettings}" Margin="5">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
-                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Content="قيمة دقائق" Name="minuteBtn" IsChecked="True" Checked="minuteBtn_Checked"/>
-                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Content="قيمة مالية" Name="moneyBtn" Checked="moneyBtn_Checked"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Content="{DynamicResource MinutesValue}" Name="minuteBtn" IsChecked="True" Checked="minuteBtn_Checked"/>
+                                    <RadioButton Style="{DynamicResource RadioButtonStyle}" Content="{DynamicResource MonetaryValue}" Name="moneyBtn" Checked="moneyBtn_Checked"/>
                                 </StackPanel>
 
                             </GroupBox>
 
-                            <GroupBox Margin="5" Foreground="{DynamicResource ThirdColor}" Header="تكرار التأخير">
+                            <GroupBox Margin="5" Foreground="{DynamicResource ThirdColorBrushBrush}" Header="{DynamicResource RepeatedDelay}">
 
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
                                     <TextBox Tag="عدد التكرار" x:Name="delay_repeat" Margin="10"/>
@@ -362,7 +362,7 @@
                             <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_btn" Click="save_btn_Click" Margin="20">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

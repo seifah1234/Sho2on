@@ -11,7 +11,7 @@
         WindowState="Maximized"
         FlowDirection="RightToLeft"
         Background="{DynamicResource WindowRootBackground}"
-        Title="إدارة طلبات الإجازة">
+        Title="{DynamicResource ManagingLeaveRequests}">
 
     <Window.Resources>
         <!-- الأنماط -->
@@ -91,7 +91,7 @@
             <TabItem Name="employeesTab">
                 <TabItem.Header>
                     <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                        <Label Content="طلبات الموظفين" Foreground="{DynamicResource PrimaryColor}"/>
+                        <Label Content="{DynamicResource EmployeeRequests}" Foreground="{DynamicResource PrimaryColor}"/>
 
                     </Border>
                 </TabItem.Header>
@@ -105,10 +105,10 @@
         <!-- شريط البحث والفلاتر -->
         <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" Padding="10" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
             <StackPanel Orientation="Vertical">
-                <TextBlock Text="بحث وتصفية طلبات الإجازة" 
+                <TextBlock Text="{DynamicResource SearchAndFilterLeaveRequests}" 
                            FontSize="16" 
                            FontWeight="Bold" 
-                           Foreground="{DynamicResource ThirdColor}"
+                           Foreground="{DynamicResource ThirdColorBrushBrush}"
                            Margin="0,0,0,10"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -127,25 +127,25 @@
 
                     <!-- نوع الإجازة -->
                     <StackPanel Orientation="Vertical" Margin="10">
-                        <TextBlock Text="نوع الإجازة" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                        <TextBlock Text="{DynamicResource LeaveType2}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                         <ComboBox x:Name="cmbLeaveType" />
                     </StackPanel>
 
                     <!-- من تاريخ -->
                     <StackPanel Orientation="Vertical" Margin="10">
-                        <TextBlock Text="من تاريخ" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                        <TextBlock Text="{DynamicResource FromDate}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                         <DatePicker x:Name="dpFromDate" />
                     </StackPanel>
 
                     <!-- إلى تاريخ -->
                     <StackPanel Orientation="Vertical" Margin="10">
-                        <TextBlock Text="إلى تاريخ" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                        <TextBlock Text="{DynamicResource ToDate}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                         <DatePicker x:Name="dpToDate"/>
                     </StackPanel>
 
                     <!-- الحالة -->
                     <StackPanel Orientation="Vertical" Margin="10">
-                        <TextBlock Text="الحالة" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                        <TextBlock Text="{DynamicResource TheCondition}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                         <ComboBox x:Name="cmbStatus" DisplayMemberPath="Name" SelectedValuePath="Code"/>
                     </StackPanel>
 
@@ -154,12 +154,12 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
                         <Button x:Name="btnSearch" 
                                 Style="{DynamicResource FilterButtonStyle}"
-                                Background="{DynamicResource ThirdColor}" Foreground="{DynamicResource PrimaryColor}"
+                                Background="{DynamicResource ThirdColorBrushBrush}" Foreground="{DynamicResource PrimaryColor}"
                                 Margin="5"
                                 Click="btnSearch_Click">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Icon:PackIconMaterial Foreground="{DynamicResource PrimaryColor}" Kind="Magnify" Width="20" Height="20" Margin="0,0,10,0"/>
-                                <TextBlock Text="بحث"/>
+                                <TextBlock Text="{DynamicResource Research}"/>
                             </StackPanel>
                         </Button>
 
@@ -168,8 +168,8 @@
                                 Background="#757575" Foreground="White" Margin="5"
                                 Click="btnClearFilters_Click">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Refresh" Width="20" Height="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="جديد" Foreground="{DynamicResource ThirdColor}"/>
+                            <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Refresh" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="{DynamicResource New}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                             </StackPanel>
                         </Button>
 
@@ -194,22 +194,22 @@
                       GridLinesVisibility="Horizontal">
                 <DataGrid.Columns>
                     <!-- كود الموظف -->
-                    <DataGridTextColumn Header="كود الموظف" 
+                    <DataGridTextColumn Header="{DynamicResource EmployeeCode}" 
                                         Binding="{Binding EmployeeId}" 
                                         Width="100"/>
 
                     <!-- اسم الموظف -->
-                    <DataGridTextColumn Header="اسم الموظف" 
+                    <DataGridTextColumn Header="{DynamicResource EmployeeName}" 
                                         Binding="{Binding EmployeeName}" 
                                         Width="200"/>
 
                     <!-- نوع الإجازة -->
-                    <DataGridTextColumn Header="نوع الإجازة" 
+                    <DataGridTextColumn Header="{DynamicResource LeaveType2}" 
                                         Binding="{Binding LeaveTypeName}" 
                                         Width="120"/>
 
                     <!-- الفترة -->
-                    <DataGridTemplateColumn Header="الفترة" Width="200">
+                    <DataGridTemplateColumn Header="{DynamicResource Period}" Width="200">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -222,12 +222,12 @@
                     </DataGridTemplateColumn>
 
                     <!-- المدة -->
-                    <DataGridTextColumn Header="المدة (أيام)" 
+                    <DataGridTextColumn Header="{DynamicResource DurationDays}" 
                                         Binding="{Binding Duration}" 
                                         Width="100"/>
 
                     <!-- الحالة -->
-                    <DataGridTemplateColumn Header="الحالة" Width="100">
+                    <DataGridTemplateColumn Header="{DynamicResource TheCondition}" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border Style="{DynamicResource StatusIndicatorStyle}" 
@@ -240,22 +240,22 @@
                     </DataGridTemplateColumn>
 
                     <!-- تاريخ الطلب -->
-                    <DataGridTextColumn Header="تاريخ الطلب" 
+                    <DataGridTextColumn Header="{DynamicResource OrderDate}" 
                                         Binding="{Binding RequestDate, Converter={StaticResource DateTimeToPersianConverter}}" 
                                         Width="100"/>
 
                     <!-- السبب -->
-                    <DataGridTextColumn Header="السبب" 
+                    <DataGridTextColumn Header="{DynamicResource TheReason}" 
                                         Binding="{Binding Reason}" 
                                         Width="200"/>
 
                     <!-- القائم عن العمل -->
-                    <DataGridTextColumn Header="القائم عن العمل" 
+                    <DataGridTextColumn Header="{DynamicResource Incumbent}" 
                                         Binding="{Binding ReplacementUserName}" 
                                         Width="200"/>
 
                     <!-- الإجراءات -->
-                    <DataGridTemplateColumn Header="الإجراءات" Width="180">
+                    <DataGridTemplateColumn Header="{DynamicResource Procedures}" Width="180">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -334,7 +334,7 @@
             <TabItem Name="ownTab">
                 <TabItem.Header>
                     <Border Margin="0"  Padding="0" Background="{DynamicResource InputBackground}"  CornerRadius="8" >
-                        <Label Content="طلباتي" Foreground="{DynamicResource PrimaryColor}"/>
+                        <Label Content="{DynamicResource MyRequests}" Foreground="{DynamicResource PrimaryColor}"/>
 
                     </Border>
                 </TabItem.Header>
@@ -348,36 +348,36 @@
                     <!-- شريط البحث والفلاتر -->
                     <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" Padding="10" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
                         <StackPanel Orientation="Vertical">
-                            <TextBlock Text="بحث وتصفية طلباي" 
+                            <TextBlock Text="{DynamicResource SearchAndFilterMyOrders}" 
                     FontSize="16" 
                     FontWeight="Bold" 
-                    Foreground="{DynamicResource ThirdColor}"
+                    Foreground="{DynamicResource ThirdColorBrushBrush}"
                     Margin="0,0,0,10"/>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
                                 <!-- نوع الإجازة -->
                                 <StackPanel Orientation="Vertical" Margin="10">
-                                    <TextBlock Text="نوع الإجازة" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock Text="{DynamicResource LeaveType2}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <ComboBox x:Name="cmbOwnLeaveType" />
                                 </StackPanel>
 
                                 <!-- من تاريخ -->
                                 <StackPanel Orientation="Vertical" Margin="10">
-                                    <TextBlock Text="من تاريخ" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock Text="{DynamicResource FromDate}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <DatePicker x:Name="dpOwnFromDate" />
                                 </StackPanel>
 
                                 <!-- إلى تاريخ -->
                                 <StackPanel Orientation="Vertical" Margin="10">
-                                    <TextBlock Text="إلى تاريخ" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock Text="{DynamicResource ToDate}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <DatePicker x:Name="dpOwnToDate"/>
                                 </StackPanel>
 
                                 <!-- الحالة -->
 
                                 <StackPanel Orientation="Vertical" Margin="10">
-                                    <TextBlock Text="الحالة" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                                    <TextBlock Text="{DynamicResource TheCondition}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <ComboBox x:Name="cmbOwnStatus" DisplayMemberPath="Name" SelectedValuePath="Code"/>
                                 </StackPanel>
 
@@ -386,12 +386,12 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
                                 <Button x:Name="btnOwnSearch" 
                          Style="{DynamicResource FilterButtonStyle}"
-                         Background="{DynamicResource ThirdColor}" Foreground="{DynamicResource PrimaryColor}"
+                         Background="{DynamicResource ThirdColorBrushBrush}" Foreground="{DynamicResource PrimaryColor}"
                          Margin="5"
                          Click="btnOwnSearch_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Foreground="{DynamicResource PrimaryColor}" Kind="Magnify" Width="20" Height="20" Margin="0,0,10,0"/>
-                                        <TextBlock Text="بحث"/>
+                                        <TextBlock Text="{DynamicResource Research}"/>
                                     </StackPanel>
                                 </Button>
 
@@ -400,8 +400,8 @@
                          Background="#757575" Foreground="White" Margin="5"
                          Click="btnOwnClearFilters_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Refresh" Width="20" Height="20" Margin="0,0,10,0"/>
-                                        <TextBlock Text="جديد" Foreground="{DynamicResource ThirdColor}"/>
+                                        <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Refresh" Width="20" Height="20" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{DynamicResource New}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     </StackPanel>
                                 </Button>
 
@@ -428,12 +428,12 @@
                             <DataGrid.Columns>
 
                                 <!-- نوع الإجازة -->
-                                    <DataGridTextColumn Header="نوع الإجازة" 
+                                    <DataGridTextColumn Header="{DynamicResource LeaveType2}" 
                                         Binding="{Binding LeaveTypeName}" 
                                         Width="120"/>
 
                                     <!-- الفترة -->
-                                    <DataGridTemplateColumn Header="الفترة" Width="200">
+                                    <DataGridTemplateColumn Header="{DynamicResource Period}" Width="200">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -446,12 +446,12 @@
                                     </DataGridTemplateColumn>
 
                                     <!-- المدة -->
-                                    <DataGridTextColumn Header="المدة (أيام)" 
+                                    <DataGridTextColumn Header="{DynamicResource DurationDays}" 
                                         Binding="{Binding Duration}" 
                                         Width="100"/>
 
                                     <!-- الحالة -->
-                                    <DataGridTemplateColumn Header="الحالة" Width="100">
+                                    <DataGridTemplateColumn Header="{DynamicResource TheCondition}" Width="100">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Border Style="{DynamicResource StatusIndicatorStyle}" 
@@ -464,22 +464,22 @@
                                     </DataGridTemplateColumn>
 
                                     <!-- تاريخ الطلب -->
-                                    <DataGridTextColumn Header="تاريخ الطلب" 
+                                    <DataGridTextColumn Header="{DynamicResource OrderDate}" 
                                         Binding="{Binding RequestDate, Converter={StaticResource DateTimeToPersianConverter}}" 
                                         Width="100"/>
 
                                     <!-- السبب -->
-                                    <DataGridTextColumn Header="السبب" 
+                                    <DataGridTextColumn Header="{DynamicResource TheReason}" 
                                         Binding="{Binding Reason}" 
                                         Width="200"/>
 
                                     <!-- القائم عن العمل -->
-                                    <DataGridTextColumn Header="القائم عن العمل" 
+                                    <DataGridTextColumn Header="{DynamicResource Incumbent}" 
                                         Binding="{Binding ReplacementUserName}" 
                                         Width="200"/>
 
                                     <!-- الإجراءات -->
-                                    <DataGridTemplateColumn Header="الإجراءات" Width="180">
+                                    <DataGridTemplateColumn Header="{DynamicResource Procedures}" Width="180">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -554,13 +554,13 @@
                 <!-- إغلاق -->
                 <Button x:Name="btnClose" 
                      Width="120" Height="45" 
-                     Background="#757575" Foreground="{DynamicResource ThirdColor}"
+                     Background="#757575" Foreground="{DynamicResource ThirdColorBrushBrush}"
                      FontSize="14" FontWeight="Bold"
                      Click="btnClose_Click"
                      Margin="20,0,0,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Icon:PackIconMaterial Kind="Close" Width="20" Height="20" Margin="0,0,10,0"/>
-                        <TextBlock Text="إغلاق"/>
+                        <TextBlock Text="{DynamicResource Closing}"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

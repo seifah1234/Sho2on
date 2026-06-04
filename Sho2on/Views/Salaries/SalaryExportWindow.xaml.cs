@@ -35,7 +35,7 @@ namespace HR_Application.Views
 
         private void InitializeComponent()
         {
-            Title = "ÊÕÏíÑ ÈíÇäÇÊ ÇáãÑÊÈÇÊ Åáì Excel";
+            Title = LocalizationManager.Translate("ØªØµØ¯ÙŠØ± Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª Ø¥Ù„Ù‰ Excel");
             Width = 500;
             Height = 300;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -46,7 +46,7 @@ namespace HR_Application.Views
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            // ÇáÚäæÇä
+            // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
             var titleBorder = new Border
             {
                 Background = System.Windows.Media.Brushes.LightBlue,
@@ -56,7 +56,7 @@ namespace HR_Application.Views
 
             var titleText = new TextBlock
             {
-                Text = "ÊÕÏíÑ ÈíÇäÇÊ ÇáãÑÊÈÇÊ",
+                Text = LocalizationManager.Translate("ØªØµØ¯ÙŠØ± Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª"),
                 FontSize = 16,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -67,7 +67,7 @@ namespace HR_Application.Views
             Grid.SetRow(titleBorder, 0);
             grid.Children.Add(titleBorder);
 
-            // ÎíÇÑÇÊ ÇáÊÕÏíÑ
+            // Ø®ÙŠØ§Ø±Ø§Øª Ø§Ù„ØªØµØ¯ÙŠØ±
             var optionsPanel = new StackPanel
             {
                 Margin = new Thickness(20),
@@ -76,7 +76,7 @@ namespace HR_Application.Views
 
             var monthYearText = new TextBlock
             {
-                Text = $"ÇáÔåÑ: {_month} - ÇáÓäÉ: {_year}",
+                Text = $"Ø§Ù„Ø´Ù‡Ø±: {_month} - Ø§Ù„Ø³Ù†Ø©: {_year}",
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
                 Margin = new Thickness(0, 0, 0, 20),
@@ -85,7 +85,7 @@ namespace HR_Application.Views
 
             var countText = new TextBlock
             {
-                Text = $"ÚÏÏ ÇáÓÌáÇÊ: {_employees.Count}",
+                Text = $"Ø¹Ø¯Ø¯ Ø§Ù„Ø³Ø¬Ù„Ø§Øª: {_employees.Count}",
                 FontSize = 12,
                 Margin = new Thickness(0, 0, 0, 10),
                 HorizontalAlignment = HorizontalAlignment.Center
@@ -93,7 +93,7 @@ namespace HR_Application.Views
 
             var formatGroup = new GroupBox
             {
-                Header = "ÊäÓíŞ ÇáÊÕÏíÑ",
+                Header = LocalizationManager.Translate("ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„ØªØµØ¯ÙŠØ±"),
                 Margin = new Thickness(0, 10, 0, 20),
                 Padding = new Thickness(10)
             };
@@ -102,7 +102,7 @@ namespace HR_Application.Views
 
             var rbDetailed = new RadioButton
             {
-                Content = "ÊİÕíáí (ÌãíÚ ÇáÍŞæá)",
+                Content = LocalizationManager.Translate("ØªÙØµÙŠÙ„ÙŠ (Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„)"),
                 IsChecked = true,
                 Margin = new Thickness(5),
                 FontSize = 12
@@ -110,14 +110,14 @@ namespace HR_Application.Views
 
             var rbSummary = new RadioButton
             {
-                Content = "ãáÎÕ (ÇáÍŞæá ÇáÃÓÇÓíÉ İŞØ)",
+                Content = LocalizationManager.Translate("Ù…Ù„Ø®Øµ (Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ© ÙÙ‚Ø·)"),
                 Margin = new Thickness(5),
                 FontSize = 12
             };
 
             var chkIncludeHeader = new CheckBox
             {
-                Content = "ÊÖãíä ÑÃÓ ÇáÌÏæá",
+                Content = LocalizationManager.Translate("ØªØ¶Ù…ÙŠÙ† Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„"),
                 IsChecked = true,
                 Margin = new Thickness(5),
                 FontSize = 12
@@ -125,7 +125,7 @@ namespace HR_Application.Views
 
             var chkAutoFormat = new CheckBox
             {
-                Content = "ÊäÓíŞ ÊáŞÇÆí ááÃÚãÏÉ",
+                Content = LocalizationManager.Translate("ØªÙ†Ø³ÙŠÙ‚ ØªÙ„Ù‚Ø§Ø¦ÙŠ Ù„Ù„Ø£Ø¹Ù…Ø¯Ø©"),
                 IsChecked = true,
                 Margin = new Thickness(5),
                 FontSize = 12
@@ -133,7 +133,7 @@ namespace HR_Application.Views
 
             var chkArabicNumbers = new CheckBox
             {
-                Content = "ÇÓÊÎÏÇã ÇáÃÑŞÇã ÇáÚÑÈíÉ",
+                Content = LocalizationManager.Translate("Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ø£Ø±Ù‚Ø§Ù… Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©"),
                 IsChecked = true,
                 Margin = new Thickness(5),
                 FontSize = 12
@@ -153,7 +153,7 @@ namespace HR_Application.Views
             Grid.SetRow(optionsPanel, 1);
             grid.Children.Add(optionsPanel);
 
-            // ÇáÃÒÑÇÑ
+            // Ø§Ù„Ø£Ø²Ø±Ø§Ø±
             var buttonPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -163,7 +163,7 @@ namespace HR_Application.Views
 
             var btnExport = new Button
             {
-                Content = "ÊÕÏíÑ Åáì Excel",
+                Content = LocalizationManager.Translate("ØªØµØ¯ÙŠØ± Ø¥Ù„Ù‰ Excel"),
                 Width = 120,
                 Height = 35,
                 Margin = new Thickness(10),
@@ -179,7 +179,7 @@ namespace HR_Application.Views
 
             var btnCancel = new Button
             {
-                Content = "ÅáÛÇÁ",
+                Content = LocalizationManager.Translate("Ø¥Ù„ØºØ§Ø¡"),
                 Width = 100,
                 Height = 35,
                 Margin = new Thickness(10),
@@ -209,7 +209,7 @@ namespace HR_Application.Views
 
         private void ShowExportOptions()
         {
-            // íãßä ÅÖÇİÉ Ãí ÅÚÏÇÏÇÊ ÅÖÇİíÉ åäÇ
+            // ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØ© Ø£ÙŠ Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ© Ù‡Ù†Ø§
         }
 
         private void ExportToExcel(bool isDetailed, bool includeHeader, bool autoFormat, bool arabicNumbers)
@@ -219,26 +219,26 @@ namespace HR_Application.Views
                 var saveFileDialog = new SaveFileDialog
                 {
                     Filter = "Excel Files (*.xlsx)|*.xlsx",
-                    FileName = $"ãÑÊÈÇÊ_{_month}_{_year}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
-                    Title = "ÍİÙ ãáİ Excel"
+                    FileName = $"Ù…Ø±ØªØ¨Ø§Øª_{_month}_{_year}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
+                    Title = LocalizationManager.Translate("Ø­ÙØ¸ Ù…Ù„Ù Excel")
                 };
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
                     using (var workbook = new XLWorkbook())
                     {
-                        var worksheet = workbook.Worksheets.Add("ãÑÊÈÇÊ");
+                        var worksheet = workbook.Worksheets.Add(LocalizationManager.Translate("Ù…Ø±ØªØ¨Ø§Øª"));
 
                         int currentRow = 1;
 
-                        // ÇáÚäæÇä ÇáÑÆíÓí
-                        worksheet.Cell(currentRow, 1).Value = $"ÊŞÑíÑ ÇáãÑÊÈÇÊ - ÔåÑ {_month} ÓäÉ {_year}";
+                        // Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ
+                        worksheet.Cell(currentRow, 1).Value = $"ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª - Ø´Ù‡Ø± {_month} Ø³Ù†Ø© {_year}";
                         worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
                         worksheet.Cell(currentRow, 1).Style.Font.FontSize = 16;
                         worksheet.Range(currentRow, 1, currentRow, isDetailed ? 12 : 8).Merge();
                         currentRow += 2;
 
-                        // ÑÃÓ ÇáÌÏæá
+                        // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„
                         if (includeHeader)
                         {
                             string[] headers;
@@ -246,17 +246,17 @@ namespace HR_Application.Views
                             {
                                 headers = new[]
                                 {
-                                    "ÇáßæÏ", "ÇáÇÓã", "ÇáİÑÚ", "ÇáÑÇÊÈ ÇáÃÓÇÓí", "ÇáÅÖÇİÇÊ",
-                                    "ÇáÇÓÊŞØÇÚÇÊ", "ÕäÏæŞ ÇáÒãÇáÉ", "ÇáÓáİ", "ÇáÛíÇÈ", "ÇáÊÃÎíÑ",
-                                    "ÇáãÔÇÑßÉ ÇáÇÌÊãÇÚíÉ", "ÇáÕÇİí"
+                                    LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯"), LocalizationManager.Translate("Ø§Ù„Ø§Ø³Ù…"), LocalizationManager.Translate("Ø§Ù„ÙØ±Ø¹"), LocalizationManager.Translate("Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ"), LocalizationManager.Translate("Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª"),
+                                    LocalizationManager.Translate("Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª"), LocalizationManager.Translate("ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©"), LocalizationManager.Translate("Ø§Ù„Ø³Ù„Ù"), LocalizationManager.Translate("Ø§Ù„ØºÙŠØ§Ø¨"), LocalizationManager.Translate("Ø§Ù„ØªØ£Ø®ÙŠØ±"),
+                                    LocalizationManager.Translate("Ø§Ù„Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©"), LocalizationManager.Translate("Ø§Ù„ØµØ§ÙÙŠ")
                                 };
                             }
                             else
                             {
                                 headers = new[]
                                 {
-                                    "ÇáßæÏ", "ÇáÇÓã", "ÇáİÑÚ", "ÇáÑÇÊÈ ÇáÃÓÇÓí",
-                                    "ÇáÅÖÇİÇÊ", "ÇáÇÓÊŞØÇÚÇÊ", "ÕäÏæŞ ÇáÒãÇáÉ", "ÇáÕÇİí"
+                                    LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯"), LocalizationManager.Translate("Ø§Ù„Ø§Ø³Ù…"), LocalizationManager.Translate("Ø§Ù„ÙØ±Ø¹"), LocalizationManager.Translate("Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ"),
+                                    LocalizationManager.Translate("Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª"), LocalizationManager.Translate("Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª"), LocalizationManager.Translate("ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©"), LocalizationManager.Translate("Ø§Ù„ØµØ§ÙÙŠ")
                                 };
                             }
 
@@ -272,7 +272,7 @@ namespace HR_Application.Views
                             currentRow++;
                         }
 
-                        // ÇáÈíÇäÇÊ
+                        // Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                         foreach (var emp in _employees)
                         {
                             if (isDetailed)
@@ -295,10 +295,10 @@ namespace HR_Application.Views
                                 worksheet.Cell(currentRow, 8).Value = emp.LoanDeduction;
                                 worksheet.Cell(currentRow, 8).Style.NumberFormat.Format = "#,##0.00";
 
-                                // íãßä ÅÖÇİÉ ÇáãÒíÏ ãä ÇáÍŞæá ÇáÊİÕíáíÉ åäÇ
-                                worksheet.Cell(currentRow, 9).Value = 0; // ÇáÛíÇÈ
-                                worksheet.Cell(currentRow, 10).Value = 0; // ÇáÊÃÎíÑ
-                                worksheet.Cell(currentRow, 11).Value = 0; // ÇáãÔÇÑßÉ ÇáÇÌÊãÇÚíÉ
+                                // ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø²ÙŠØ¯ Ù…Ù† Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„ØªÙØµÙŠÙ„ÙŠØ© Ù‡Ù†Ø§
+                                worksheet.Cell(currentRow, 9).Value = 0; // Ø§Ù„ØºÙŠØ§Ø¨
+                                worksheet.Cell(currentRow, 10).Value = 0; // Ø§Ù„ØªØ£Ø®ÙŠØ±
+                                worksheet.Cell(currentRow, 11).Value = 0; // Ø§Ù„Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©
 
                                 worksheet.Cell(currentRow, 12).Value = emp.NetSalary;
                                 worksheet.Cell(currentRow, 12).Style.NumberFormat.Format = "#,##0.00";
@@ -328,9 +328,9 @@ namespace HR_Application.Views
                             currentRow++;
                         }
 
-                        // ÇáÅÌãÇáíÇÊ
+                        // Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ§Øª
                         currentRow++;
-                        worksheet.Cell(currentRow, 1).Value = "ÇáÅÌãÇáíÇÊ:";
+                        worksheet.Cell(currentRow, 1).Value = LocalizationManager.Translate("Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ§Øª:");
                         worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
 
                         if (isDetailed)
@@ -342,10 +342,10 @@ namespace HR_Application.Views
                             worksheet.Cell(currentRow, 8).Value = _employees.Sum(e => e.LoanDeduction);
                             worksheet.Cell(currentRow, 12).Value = _employees.Sum(e => e.NetSalary);
 
-                            // ÊäÓíŞ ÎáÇíÇ ÇáÅÌãÇáíÇÊ
+                            // ØªÙ†Ø³ÙŠÙ‚ Ø®Ù„Ø§ÙŠØ§ Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ§Øª
                             for (int i = 4; i <= 12; i++)
                             {
-                                if (i == 9 || i == 10 || i == 11) continue; // ÊÎØí ÇáÍŞæá ÇáİÇÑÛÉ ãÄŞÊÇğ
+                                if (i == 9 || i == 10 || i == 11) continue; // ØªØ®Ø·ÙŠ Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„ÙØ§Ø±ØºØ© Ù…Ø¤Ù‚ØªØ§Ù‹
                                 worksheet.Cell(currentRow, i).Style.NumberFormat.Format = "#,##0.00";
                                 worksheet.Cell(currentRow, i).Style.Font.Bold = true;
                                 worksheet.Cell(currentRow, i).Style.Fill.BackgroundColor = XLColor.LightGreen;
@@ -367,32 +367,32 @@ namespace HR_Application.Views
                             }
                         }
 
-                        // ÖÈØ ÚÑÖ ÇáÃÚãÏÉ ÊáŞÇÆíÇğ
+                        // Ø¶Ø¨Ø· Ø¹Ø±Ø¶ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø© ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹
                         if (autoFormat)
                         {
                             worksheet.Columns().AdjustToContents();
                         }
 
-                        // ÅÖÇİÉ æÑŞÉ ÅÍÕÇÆíÇÊ
-                        var statsSheet = workbook.Worksheets.Add("ÅÍÕÇÆíÇÊ");
+                        // Ø¥Ø¶Ø§ÙØ© ÙˆØ±Ù‚Ø© Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª
+                        var statsSheet = workbook.Worksheets.Add(LocalizationManager.Translate("Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª"));
 
-                        statsSheet.Cell(1, 1).Value = "ÅÍÕÇÆíÇÊ ÇáãÑÊÈÇÊ";
+                        statsSheet.Cell(1, 1).Value = LocalizationManager.Translate("Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª");
                         statsSheet.Cell(1, 1).Style.Font.Bold = true;
                         statsSheet.Cell(1, 1).Style.Font.FontSize = 14;
                         statsSheet.Range(1, 1, 1, 2).Merge();
 
                         var statistics = new Dictionary<string, string>
                         {
-                            { "ÚÏÏ ÇáãæÙİíä", _employees.Count.ToString() },
-                            { "ÅÌãÇáí ÇáÑæÇÊÈ ÇáÃÓÇÓíÉ", _employees.Sum(e => e.BasicSalary).ToString("N2") },
-                            { "ÅÌãÇáí ÇáÅÖÇİÇÊ", _employees.Sum(e => e.Additions).ToString("N2") },
-                            { "ÅÌãÇáí ÇáÇÓÊŞØÇÚÇÊ", _employees.Sum(e => e.Deductions).ToString("N2") },
-                            { "ÅÌãÇáí ÕäÏæŞ ÇáÒãÇáÉ", _employees.Sum(e => e.FriendshipBoxAmount).ToString("N2") },
-                            { "ÅÌãÇáí ÇáÓáİ", _employees.Sum(e => e.LoanDeduction).ToString("N2") },
-                            { "ÅÌãÇáí ÇáÕÇİí", _employees.Sum(e => e.NetSalary).ToString("N2") },
-                            { "ãÊæÓØ ÇáÑÇÊÈ", (_employees.Sum(e => e.NetSalary) / _employees.Count).ToString("N2") },
-                            { "ÃÚáì ÑÇÊÈ", _employees.Max(e => e.NetSalary).ToString("N2") },
-                            { "ÃŞá ÑÇÊÈ", _employees.Min(e => e.NetSalary).ToString("N2") }
+                            { LocalizationManager.Translate("Ø¹Ø¯Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†"), _employees.Count.ToString() },
+                            { LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø±ÙˆØ§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©"), _employees.Sum(e => e.BasicSalary).ToString("N2") },
+                            { LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª"), _employees.Sum(e => e.Additions).ToString("N2") },
+                            { LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª"), _employees.Sum(e => e.Deductions).ToString("N2") },
+                            { LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©"), _employees.Sum(e => e.FriendshipBoxAmount).ToString("N2") },
+                            { LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø³Ù„Ù"), _employees.Sum(e => e.LoanDeduction).ToString("N2") },
+                            { LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØµØ§ÙÙŠ"), _employees.Sum(e => e.NetSalary).ToString("N2") },
+                            { LocalizationManager.Translate("Ù…ØªÙˆØ³Ø· Ø§Ù„Ø±Ø§ØªØ¨"), (_employees.Sum(e => e.NetSalary) / _employees.Count).ToString("N2") },
+                            { LocalizationManager.Translate("Ø£Ø¹Ù„Ù‰ Ø±Ø§ØªØ¨"), _employees.Max(e => e.NetSalary).ToString("N2") },
+                            { LocalizationManager.Translate("Ø£Ù‚Ù„ Ø±Ø§ØªØ¨"), _employees.Min(e => e.NetSalary).ToString("N2") }
                         };
 
                         int statRow = 3;
@@ -406,15 +406,15 @@ namespace HR_Application.Views
 
                         statsSheet.Columns().AdjustToContents();
 
-                        // ÍİÙ Çáãáİ
+                        // Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù
                         workbook.SaveAs(saveFileDialog.FileName);
 
-                        LocalizationManager.ShowMessage($"Êã ÇáÊÕÏíÑ ÈäÌÇÍ Åáì:\n{saveFileDialog.FileName}",
-                            "Êã ÇáÊÕÏíÑ",
+                        LocalizationManager.ShowMessage($"ØªÙ… Ø§Ù„ØªØµØ¯ÙŠØ± Ø¨Ù†Ø¬Ø§Ø­ Ø¥Ù„Ù‰:\n{saveFileDialog.FileName}",
+                            LocalizationManager.Translate("ØªÙ… Ø§Ù„ØªØµØ¯ÙŠØ±"),
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
 
-                        // İÊÍ Çáãáİ ÊáŞÇÆíÇğ
+                        // ÙØªØ­ Ø§Ù„Ù…Ù„Ù ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹
                         try
                         {
                             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -425,7 +425,7 @@ namespace HR_Application.Views
                         }
                         catch
                         {
-                            // ÊÌÇåá ÇáÎØÃ ÅĞÇ áã íÊãßä ãä İÊÍ Çáãáİ
+                            // ØªØ¬Ø§Ù‡Ù„ Ø§Ù„Ø®Ø·Ø£ Ø¥Ø°Ø§ Ù„Ù… ÙŠØªÙ…ÙƒÙ† Ù…Ù† ÙØªØ­ Ø§Ù„Ù…Ù„Ù
                         }
 
                         this.Close();
@@ -434,7 +434,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÕÏíÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµØ¯ÙŠØ±: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

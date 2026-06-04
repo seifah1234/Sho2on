@@ -98,7 +98,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="تقرير المرتبات" 
+            <TextBlock Text="{DynamicResource SalaryReport}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -117,7 +117,7 @@
                                 <Button Style="{DynamicResource SecondaryButtonStyle}" x:Name="print_btn" Click="print_btn_Click" Margin="0 0 10 0">
                                     <StackPanel Orientation="Horizontal">
                                         <Icon:PackIconMaterial Kind="Printer" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                        <TextBlock Text="طباعة" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Print}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{DynamicResource SecondaryButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="0 0 10 0">
@@ -128,7 +128,7 @@
                                 </Button>
                                 <Button Style="{DynamicResource SecondaryButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="0 0 10 0">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="تحميل البيانات" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource DownloadData2}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <TextBox Width="300" Name="name_box" Tag="الاسم" FlowDirection="RightToLeft" Margin="5 0 5 0"/>
@@ -138,23 +138,23 @@
                             <!-- الصف الثاني: الفلاتر -->
                             <StackPanel Margin="0 5 0 10" Orientation="Horizontal" HorizontalAlignment="Center">
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الوظيفة" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}"/>
+                                    <Label Content="{DynamicResource Job}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <ComboBox x:Name="jobComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الإدارة" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}"/>
+                                    <Label Content="{DynamicResource Management}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <ComboBox x:Name="departComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الفرع" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}"/>
+                                    <Label Content="{DynamicResource Branch}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <ComboBox x:Name="branchComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="الشهر" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}"/>
+                                    <Label Content="{DynamicResource Month}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <ComboBox  x:Name="monthComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="5">
-                                    <Label Content="السنة" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}"/>
+                                    <Label Content="{DynamicResource Sunnah}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                     <ComboBox x:Name="yearComboBox" FlowDirection="RightToLeft"/>
                                 </StackPanel>
                             </StackPanel>
@@ -167,35 +167,35 @@
             <Border Grid.Row="2"  Opacity="0.95"   Margin="20">
                 <DataGrid  ItemsSource="{Binding employeeSalaryList}" AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="list">
                     <DataGrid.Columns>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الكود" Width="120" Binding="{Binding Code}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الاسم" Width="120" Binding="{Binding Name}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الفرع" Width="120" Binding="{Binding Branch}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الوظيفة" Width="120" Binding="{Binding Job}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الراتب" Width="120" Binding="{Binding Salary, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="بدل سكن" Width="120" IsReadOnly="True" Binding="{Binding Houseing, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="بدل انتقال" Width="120" IsReadOnly="True" Binding="{Binding Transmission, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="بدل إدارة" Width="120" IsReadOnly="True" Binding="{Binding Depart, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="بدل طبيعة عمل" Width="120" IsReadOnly="True" Binding="{Binding Nature, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="إضافي" Width="120" IsReadOnly="True" Binding="{Binding Added, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="مكافآت" Width="120" IsReadOnly="True" Binding="{Binding Reward, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="عمولات تحقيق" Width="120" IsReadOnly="True" Binding="{Binding TargetCommission, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="عمولات خارجية" Width="120" IsReadOnly="True" Binding="{Binding ExternalCommission, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="إجمالي الاستحقاقات" Width="150" IsReadOnly="True" Binding="{Binding TotalEntitlements, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="الغياب" Width="120" Binding="{Binding Abcence, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="التأخير" Width="120" Binding="{Binding Late, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="تكرار التأخير" Width="120" Binding="{Binding RepeatLate, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="إذن" Width="120" IsReadOnly="True" Binding="{Binding Permission, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="سلف" Width="120" IsReadOnly="True" Binding="{Binding Ancestor, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="عجز" Width="120" IsReadOnly="True" Binding="{Binding Deficit, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="جزاء" Width="120" IsReadOnly="True" Binding="{Binding Penalty, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="فاتورة تليفون" Width="120" IsReadOnly="True" Binding="{Binding Phone, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="ض كسب عمل" Width="120" IsReadOnly="True" Binding="{Binding Tax, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="تأمينات الموظف" Width="120" IsReadOnly="True" Binding="{Binding Insurance, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="ت الشركة" Width="120" IsReadOnly="True" Binding="{Binding CompanyInsurance, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="ص طوارئ" Width="120" IsReadOnly="True" Binding="{Binding Social, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="ص الزمالة - م اجتماعية" Width="120" IsReadOnly="True" Binding="{Binding Box, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="إجمالي الاستقطاعات" Width="150" IsReadOnly="True" Binding="{Binding TotalDeductions, StringFormat=N2}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الإجمالي" Width="150" IsReadOnly="True" Binding="{Binding Total, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource Code}" Width="120" Binding="{Binding Code}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource TheName}" Width="120" Binding="{Binding Name}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource Branch}" Width="120" Binding="{Binding Branch}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource Job}" Width="120" Binding="{Binding Job}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource Salary}" Width="120" Binding="{Binding Salary, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource HousingAllowance2}" Width="120" IsReadOnly="True" Binding="{Binding Houseing, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource TransferAllowance}" Width="120" IsReadOnly="True" Binding="{Binding Transmission, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource ManagementAllowance}" Width="120" IsReadOnly="True" Binding="{Binding Depart, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource AllowanceForTheNatureOfWork}" Width="120" IsReadOnly="True" Binding="{Binding Nature, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Additional}" Width="120" IsReadOnly="True" Binding="{Binding Added, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Rewards}" Width="120" IsReadOnly="True" Binding="{Binding Reward, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource RealizationCommissions}" Width="120" IsReadOnly="True" Binding="{Binding TargetCommission, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource ExternalCommissions}" Width="120" IsReadOnly="True" Binding="{Binding ExternalCommission, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource TotalEntitlements}" Width="150" IsReadOnly="True" Binding="{Binding TotalEntitlements, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource Absence}" Width="120" Binding="{Binding Abcence, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource Delay}" Width="120" Binding="{Binding Late, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" Header="{DynamicResource RepeatedDelay}" Width="120" Binding="{Binding RepeatLate, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Permission}" Width="120" IsReadOnly="True" Binding="{Binding Permission, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Ancestor}" Width="120" IsReadOnly="True" Binding="{Binding Ancestor, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Inability}" Width="120" IsReadOnly="True" Binding="{Binding Deficit, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Penalty}" Width="120" IsReadOnly="True" Binding="{Binding Penalty, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource TelephoneBill}" Width="120" IsReadOnly="True" Binding="{Binding Phone, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource ZEarnAJob}" Width="120" IsReadOnly="True" Binding="{Binding Tax, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource EmployeeInsurances}" Width="120" IsReadOnly="True" Binding="{Binding Insurance, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource TCompany}" Width="120" IsReadOnly="True" Binding="{Binding CompanyInsurance, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource REmergency}" Width="120" IsReadOnly="True" Binding="{Binding Social, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource PFellowshipMSocial}" Width="120" IsReadOnly="True" Binding="{Binding Box, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource TotalDeductions}" Width="150" IsReadOnly="True" Binding="{Binding TotalDeductions, StringFormat=N2}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Total}" Width="150" IsReadOnly="True" Binding="{Binding Total, StringFormat=N2}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>

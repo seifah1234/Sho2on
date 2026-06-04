@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
         Loaded="Window_Loaded"
-        Title="طلب إذن">
+        Title="{DynamicResource RequestPermission}">
 
     <Window.Resources>
         <!-- الأنماط -->
@@ -77,7 +77,7 @@
 
             <!-- العنوان -->
             <TextBlock Grid.Row="0" 
-                       Text="طلب إذن" 
+                       Text="{DynamicResource RequestPermission}" 
                        HorizontalAlignment="Center" 
                        FontSize="24" 
                        FontWeight="Bold" 
@@ -93,7 +93,7 @@
                     <StackPanel Orientation="Vertical" Margin="10">
 
                         <!-- بيانات الموظف -->
-                        <GroupBox Header="بيانات الموظف" 
+                        <GroupBox Header="{DynamicResource EmployeeData3}" 
                                   FontSize="16" 
                                   FontWeight="Bold" 
                                   Foreground="{DynamicResource TextPrimaryColor}"
@@ -109,7 +109,7 @@
                                              BorderBrush="{DynamicResource SecondaryColor}"
                                              Margin="5"/>
                                     <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
-                                        <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                        <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                         <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                                     </StackPanel>
                                     <Button x:Name="btnSelectEmployee" 
@@ -118,7 +118,7 @@
                                             Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="AccountSearch" Width="20" Height="20" Margin="0,0,5,0"/>
-                                            <TextBlock Text="اختر الموظف"/>
+                                            <TextBlock Text="{DynamicResource SelectEmployee}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -129,19 +129,19 @@
                                             HorizontalAlignment="Center"
                                             Visibility="Collapsed">
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الإدارة" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <TextBlock Text="{DynamicResource Management}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtDepartment" Text="" Foreground="#666"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الفرع" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <TextBlock Text="{DynamicResource Branch}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtBranch" Text="" Foreground="#666"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="المسمى الوظيفي" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <TextBlock Text="{DynamicResource JobTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtJobTitle" Text="" Foreground="#666"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الوردية" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <TextBlock Text="{DynamicResource Rosary}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                                         <TextBlock x:Name="txtShift" Text="" Foreground="#666"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -149,7 +149,7 @@
                         </GroupBox>
 
                         <!-- بيانات الإذن -->
-                        <GroupBox Header="بيانات الإذن" 
+                        <GroupBox Header="{DynamicResource PermissionData}" 
                                   FontSize="16" 
                                   FontWeight="Bold" 
                                   Foreground="{DynamicResource PrimaryColor}"
@@ -159,31 +159,31 @@
 
                                 <!-- نوع الإذن -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
-                                    <TextBlock Text="نوع الإذن:" 
+                                    <TextBlock Text="{DynamicResource PermissionType}" 
                                                VerticalAlignment="Center" 
                                                FontWeight="SemiBold"
                                                Margin="0,0,10,0"/>
                                     <ComboBox x:Name="cmbPermissionType" 
                                               SelectionChanged="cmbPermissionType_SelectionChanged">
-                                        <ComboBoxItem Content="خروج مبكر" Tag="EarlyLeave"/>
-                                        <ComboBoxItem Content="دخول متأخر" Tag="LateEntry"/>
-                                        <ComboBoxItem Content="إذن شخصي" Tag="PersonalLeave"/>
-                                        <ComboBoxItem Content="طارئ" Tag="Emergency"/>
-                                        <ComboBoxItem Content="رسمي" Tag="Official"/>
-                                        <ComboBoxItem Content="أخرى" Tag="Other"/>
+                                        <ComboBoxItem Content="{DynamicResource EarlyExit}" Tag="EarlyLeave"/>
+                                        <ComboBoxItem Content="{DynamicResource LateEntry}" Tag="LateEntry"/>
+                                        <ComboBoxItem Content="{DynamicResource PersonalPermission}" Tag="PersonalLeave"/>
+                                        <ComboBoxItem Content="{DynamicResource Emergency}" Tag="Emergency"/>
+                                        <ComboBoxItem Content="{DynamicResource Official}" Tag="Official"/>
+                                        <ComboBoxItem Content="{DynamicResource Other}" Tag="Other"/>
                                     </ComboBox>
                                 </StackPanel>
 
                                 <!-- التاريخ والوقت -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="التاريخ" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{DynamicResource TheDate}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                         <DatePicker x:Name="dpPermissionDate" 
                                                     SelectedDateChanged="dpPermissionDate_SelectedDateChanged"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="وقت البداية" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{DynamicResource StartTime}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                       
                                         <materialDesign:TimePicker Name="txtStartTime" 
                            BorderThickness="1"
@@ -198,7 +198,7 @@
                                     </StackPanel>
 
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="وقت النهاية" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{DynamicResource EndTime}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                         
                                         <materialDesign:TimePicker Name="txtEndTime"
 BorderThickness="1"
@@ -213,7 +213,7 @@ Background="{DynamicResource SecondaryColor}"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="المدة (ساعات)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{DynamicResource DurationHours}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                         <TextBox x:Name="txtDuration" 
                                                  Width="100"
                                                  IsReadOnly="True"
@@ -225,7 +225,7 @@ Background="{DynamicResource SecondaryColor}"/>
 
                                 <!-- السبب -->
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,0,0,15">
-                                    <TextBlock Text="سبب الإذن" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                    <TextBlock Text="{DynamicResource ReasonForPermission}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                     <TextBox x:Name="txtReason" 
                                              Width="500"
                                              MinHeight="80"
@@ -237,7 +237,7 @@ Background="{DynamicResource SecondaryColor}"/>
 
                                 <!-- الملاحظات -->
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                                    <TextBlock Text="ملاحظات (اختياري)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                    <TextBlock Text="{DynamicResource NotesOptional}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                     <TextBox x:Name="txtNotes" 
                                              Width="500"
                                              MinHeight="60"
@@ -252,7 +252,7 @@ Background="{DynamicResource SecondaryColor}"/>
 
                         <!-- المدير الموافق -->
                         <GroupBox x:Name="groupApprover" 
-                                  Header="الموافق على الإذن" 
+                                  Header="{DynamicResource ApprovalOfPermission}" 
                                   FontSize="16" 
                                   FontWeight="Bold" 
                                   Foreground="{DynamicResource PrimaryColor}"
@@ -273,7 +273,7 @@ Background="{DynamicResource SecondaryColor}"/>
                                             Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="AccountTie" Width="20" Height="20" Margin="0,0,5,0"/>
-                                            <TextBlock Text="اختر الموافق"/>
+                                            <TextBlock Text="{DynamicResource SelectOk}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -296,7 +296,7 @@ Background="{DynamicResource SecondaryColor}"/>
                             Margin="10">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Send" Width="20" Height="20" Margin="0,0,5,0"/>
-                            <TextBlock Text="تقديم الطلب"/>
+                            <TextBlock Text="{DynamicResource SubmitTheApplication}"/>
                         </StackPanel>
                     </Button>
 
@@ -307,7 +307,7 @@ Background="{DynamicResource SecondaryColor}"/>
                             Margin="10">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="ContentSave" Width="20" Height="20" Margin="0,0,5,0"/>
-                            <TextBlock Text="حفظ كمسودة"/>
+                            <TextBlock Text="{DynamicResource SaveAsDraft}"/>
                         </StackPanel>
                     </Button>
 
@@ -318,7 +318,7 @@ Background="{DynamicResource SecondaryColor}"/>
                             Margin="10">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Close" Width="20" Height="20" Margin="0,0,5,0"/>
-                            <TextBlock Text="إلغاء"/>
+                            <TextBlock Text="{DynamicResource Cancellation}"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

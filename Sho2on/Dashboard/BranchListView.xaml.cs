@@ -104,7 +104,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"خطأ في تحميل بيانات الفروع: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"خطأ في تحميل بيانات الفروع: {ex.Message}", LocalizationManager.Translate("خطأ"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

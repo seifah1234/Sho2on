@@ -30,12 +30,12 @@
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Icon:PackIconMaterial Kind="ClipboardCheck" Width="32" Height="32" 
                                                Foreground="{DynamicResource AccentColor}" Margin="0,0,10,0"/>
-                        <TextBlock Text="شاشة المهام" FontSize="24" FontWeight="Bold" 
+                        <TextBlock Text="{DynamicResource TasksScreen}" FontSize="24" FontWeight="Bold" 
                                    Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Margin="5" Width="50" Height="50" Name="addTaskBtn" 
-                                Click="addTaskBtn_Click" ToolTip="اضافة مهمه">
+                                Click="addTaskBtn_Click" ToolTip="{DynamicResource AnImportantAddition}">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Background" Value="{DynamicResource SurfaceLightColor}"/>
@@ -66,7 +66,7 @@
                             </Button.Content>
                         </Button>
                         <Button Margin="5" Width="50" Height="50" Name="refreshTaskBtn" 
-                                Click="refreshTaskBtn_Click" ToolTip="تحديث">
+                                Click="refreshTaskBtn_Click" ToolTip="{DynamicResource ToUpdate}">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Background" Value="{DynamicResource SurfaceLightColor}"/>
@@ -111,18 +111,18 @@
                         CornerRadius="16" Padding="15">
                     <StackPanel>
                         <Grid Margin="0,0,0,10">
-                            <TextBlock Text="📋 قائمة الموكلة إليّ" FontSize="18" FontWeight="Bold" 
+                            <TextBlock Text="{DynamicResource ListEntrustedToMe}" FontSize="18" FontWeight="Bold" 
                                        Foreground="{DynamicResource TextPrimaryColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             <StackPanel HorizontalAlignment="Right">
-                                <TextBlock Text="تصفية حسب الحالة" VerticalAlignment="Center" Margin="0,0,5,5" 
+                                <TextBlock Text="{DynamicResource FilterByStatus}" VerticalAlignment="Center" Margin="0,0,5,5" 
                                            Foreground="{DynamicResource MutedColor}"/>
                                 <ComboBox Name="statusFilterBox" Width="150" 
                                           SelectionChanged="statusFilterBox_SelectionChanged">
-                                    <ComboBoxItem Content="الكل"/>
-                                    <ComboBoxItem Content="استلمت"/>
-                                    <ComboBoxItem Content="معلقة"/>
-                                    <ComboBoxItem Content="قيد التنفيذ"/>
-                                    <ComboBoxItem Content="مكتملة"/>
+                                    <ComboBoxItem Content="{DynamicResource Everyone}"/>
+                                    <ComboBoxItem Content="{DynamicResource IReceived}"/>
+                                    <ComboBoxItem Content="{DynamicResource Suspended}"/>
+                                    <ComboBoxItem Content="{DynamicResource UnderImplementation}"/>
+                                    <ComboBoxItem Content="{DynamicResource Complete}"/>
                                 </ComboBox>
                             </StackPanel>
                         </Grid>
@@ -131,10 +131,10 @@
                                   AutoGenerateColumns="False" CanUserAddRows="False" 
                                   HeadersVisibility="Column" ItemsSource="{Binding MyTasks}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="المرسل" Binding="{Binding AssignedByUser.FullName}" Width="*" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="النوع" Binding="{Binding TypeText}" Width="*"/>
-                                <DataGridTextColumn Header="الوصف" Binding="{Binding Description}" Width="2*"/>
-                                <DataGridTemplateColumn Header="الحالة" Width="*">
+                                <DataGridTextColumn Header="{DynamicResource Sender}" Binding="{Binding AssignedByUser.FullName}" Width="*" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="{DynamicResource Type}" Binding="{Binding TypeText}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource Description}" Binding="{Binding Description}" Width="2*"/>
+                                <DataGridTemplateColumn Header="{DynamicResource TheCondition}" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}" 
@@ -147,15 +147,15 @@
                                         <DataTemplate>
                                             <ComboBox SelectedIndex="{Binding Status, Mode=TwoWay}" Width="100" 
                                                       SelectionChanged="statusBox_SelectionChanged" Name="statusBox">
-                                                <ComboBoxItem Content="استلمت"/>
-                                                <ComboBoxItem Content="معلقة"/>
-                                                <ComboBoxItem Content="قيد التنفيذ"/>
-                                                <ComboBoxItem Content="مكتملة"/>
+                                                <ComboBoxItem Content="{DynamicResource IReceived}"/>
+                                                <ComboBoxItem Content="{DynamicResource Suspended}"/>
+                                                <ComboBoxItem Content="{DynamicResource UnderImplementation}"/>
+                                                <ComboBoxItem Content="{DynamicResource Complete}"/>
                                             </ComboBox>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellEditingTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="موعد التسليم" Binding="{Binding DueDate, StringFormat=dd/MM/yyyy}" 
+                                <DataGridTextColumn Header="{DynamicResource DeliveryTime}" Binding="{Binding DueDate, StringFormat=dd/MM/yyyy}" 
                                                     Width="*" IsReadOnly="True"/>
                             </DataGrid.Columns>
                         </DataGrid>
@@ -167,19 +167,19 @@
                         CornerRadius="16" Padding="15">
                     <StackPanel>
                         <Grid Margin="0,0,0,10">
-                            <TextBlock Text="📤 قائمة المهام التي قمت بتكليفها" FontSize="18" FontWeight="Bold" 
+                            <TextBlock Text="{DynamicResource ListOfTasksYouHaveAssigned}" FontSize="18" FontWeight="Bold" 
                                        Foreground="{DynamicResource TextPrimaryColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             <StackPanel HorizontalAlignment="Right">
-                                <TextBlock Text="تصفية حسب الحالة" VerticalAlignment="Center" Margin="0,0,5,5" 
+                                <TextBlock Text="{DynamicResource FilterByStatus}" VerticalAlignment="Center" Margin="0,0,5,5" 
                                            Foreground="{DynamicResource MutedColor}"/>
                                 <ComboBox Name="assignedStatusFilterBox" Width="150" 
                                           SelectionChanged="assignedStatusFilterBox_SelectionChanged">
-                                    <ComboBoxItem Content="الكل"/>
-                                    <ComboBoxItem Content="استلمت"/>
-                                    <ComboBoxItem Content="معلقة"/>
-                                    <ComboBoxItem Content="قيد التنفيذ"/>
-                                    <ComboBoxItem Content="مكتملة"/>
-                                    <ComboBoxItem Content="ارسلت"/>
+                                    <ComboBoxItem Content="{DynamicResource Everyone}"/>
+                                    <ComboBoxItem Content="{DynamicResource IReceived}"/>
+                                    <ComboBoxItem Content="{DynamicResource Suspended}"/>
+                                    <ComboBoxItem Content="{DynamicResource UnderImplementation}"/>
+                                    <ComboBoxItem Content="{DynamicResource Complete}"/>
+                                    <ComboBoxItem Content="{DynamicResource Sent}"/>
                                 </ComboBox>
                             </StackPanel>
                         </Grid>
@@ -188,10 +188,10 @@
                                   CanUserAddRows="False" HeadersVisibility="Column" 
                                   ItemsSource="{Binding AssignedTasks}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="المستلم" Binding="{Binding AssignedToUser.FullName}" Width="*"/>
-                                <DataGridTextColumn Header="النوع" Binding="{Binding TypeText}" Width="*"/>
-                                <DataGridTextColumn Header="الوصف" Binding="{Binding Description}" Width="2*"/>
-                                <DataGridTemplateColumn Header="الحالة" Width="*" IsReadOnly="True">
+                                <DataGridTextColumn Header="{DynamicResource Recipient}" Binding="{Binding AssignedToUser.FullName}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource Type}" Binding="{Binding TypeText}" Width="*"/>
+                                <DataGridTextColumn Header="{DynamicResource Description}" Binding="{Binding Description}" Width="2*"/>
+                                <DataGridTemplateColumn Header="{DynamicResource TheCondition}" Width="*" IsReadOnly="True">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}" 
@@ -201,14 +201,14 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="موعد التسليم" Binding="{Binding DueDate, StringFormat=dd/MM/yyyy}" Width="*"/>
-                                <DataGridTemplateColumn Header="الاجراءات" Width="*">
+                                <DataGridTextColumn Header="{DynamicResource DeliveryTime}" Binding="{Binding DueDate, StringFormat=dd/MM/yyyy}" Width="*"/>
+                                <DataGridTemplateColumn Header="{DynamicResource Requests}" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                <Button Content="تعديل" Margin="3" Padding="5,2" Width="55" 
+                                                <Button Content="{DynamicResource Amendment}" Margin="3" Padding="5,2" Width="55" 
                                                         Click="EditTaskButton_Click"/>
-                                                <Button Content="حذف" Margin="3" Padding="5,2" Width="55" 
+                                                <Button Content="{DynamicResource Delete}" Margin="3" Padding="5,2" Width="55" 
                                                         Click="DeleteTaskButton_Click"/>
                                             </StackPanel>
                                         </DataTemplate>
@@ -230,20 +230,20 @@
                     <DropShadowEffect BlurRadius="24" ShadowDepth="4" Color="#000000" Opacity="0.35"/>
                 </Border.Effect>
                 <StackPanel>
-                    <TextBlock Text="اضافة" Name="manageTaskTitle" FontSize="20" FontWeight="Bold" 
+                    <TextBlock Text="{DynamicResource Addition2}" Name="manageTaskTitle" FontSize="20" FontWeight="Bold" 
                                Foreground="{DynamicResource AccentColor}" Margin="0,0,0,20" HorizontalAlignment="Center"/>
                     <StackPanel Orientation="Horizontal" Margin="0,10">
-                        <Label Content="النوع" Margin="0,0,5,0" Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
+                        <Label Content="{DynamicResource Type}" Margin="0,0,5,0" Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                         <ComboBox Name="requestTypeBox" SelectionChanged="requestTypeBox_SelectionChanged">
-                            <ComboBoxItem Content="مهمة"/>
-                            <ComboBoxItem Content="طلب"/>
+                            <ComboBoxItem Content="{DynamicResource ATask}"/>
+                            <ComboBoxItem Content="{DynamicResource ToRequest}"/>
                         </ComboBox>
                         <StackPanel Orientation="Horizontal" Margin="10,0" Name="officalsPanel" Visibility="Collapsed">
-                            <Label Content="المسؤولون" Margin="0,0,5,0" Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
+                            <Label Content="{DynamicResource Officials}" Margin="0,0,5,0" Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                             <ComboBox Name="officialsBox" SelectedValuePath="Id" DisplayMemberPath="User.FullName" SelectionChanged="officialsBox_SelectionChanged"/>
                         </StackPanel>
                     </StackPanel>
-                    <Label Content="تعيين إلى" Margin="0,0,0,5" Foreground="{DynamicResource TextPrimaryColor}"/>
+                    <Label Content="{DynamicResource SetTo}" Margin="0,0,0,5" Foreground="{DynamicResource TextPrimaryColor}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBox Name="assignToCodeBox" Tag="الكود" VerticalAlignment="Bottom" Margin="5" 
                                  KeyDown="assignToCodeBox_KeyDown"/>
@@ -254,15 +254,15 @@
                                   Foreground="{DynamicResource TextPrimaryColor}"
                                   Loaded="searchComboBox_Loaded" ScrollViewer.VerticalScrollBarVisibility="Visible"/>
                     </StackPanel>
-                    <Label Content="تاريخ التسليم" Margin="0,0,0,5" Foreground="{DynamicResource TextPrimaryColor}"/>
+                    <Label Content="{DynamicResource DeliveryDate}" Margin="0,0,0,5" Foreground="{DynamicResource TextPrimaryColor}"/>
                     <DatePicker Name="dueDatePicker" Margin="0,0,0,10" Tag="موعد التسليم"/>
                     <TextBox TextWrapping="Wrap" MinWidth="500" MaxWidth="500" MinHeight="100" 
                              Name="taskDescriptionBox" Margin="0,0,0,10" Tag="وصف المهمة" MaxLines="5"
                              KeyDown="taskDescriptionBox_KeyDown" 
                              VerticalContentAlignment="Top"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="حفظ" Width="80" Margin="5" Click="SaveTaskButton_Click"/>
-                        <Button Content="إلغاء" Width="80" Margin="5" Click="CancelEditButton_Click"/>
+                        <Button Content="{DynamicResource Save}" Width="80" Margin="5" Click="SaveTaskButton_Click"/>
+                        <Button Content="{DynamicResource Cancellation}" Width="80" Margin="5" Click="CancelEditButton_Click"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

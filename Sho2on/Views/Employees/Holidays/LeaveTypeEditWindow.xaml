@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="نوع إجازة" 
+        Title="{DynamicResource LeaveType}" 
         Height="600" Width="500"
         FlowDirection="RightToLeft"
         WindowStartupLocation="CenterOwner"
@@ -65,7 +65,7 @@
                                           Width="24" Height="24"
                                           Margin="0,0,10,0"/>
                     <TextBlock x:Name="windowTitle" 
-                               Text="نوع إجازة جديد" 
+                               Text="{DynamicResource NewLeaveType}" 
                                Foreground="{DynamicResource TextPrimaryColor}" 
                                FontSize="18" 
                                FontWeight="Bold"/>
@@ -78,13 +78,13 @@
                     <!-- معلومات أساسية -->
                     <Border Background="{DynamicResource PrimaryColor}" CornerRadius="5" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="المعلومات الأساسية" 
+                            <TextBlock Text="{DynamicResource BasicInformation}" 
                                        FontSize="16" FontWeight="Bold" 
                                        Foreground="{DynamicResource TextPrimaryColor}" Margin="0,0,0,15"/>
 
                             <!-- الاسم -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="اسم نوع الإجازة *" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock Text="{DynamicResource LeaveTypeName}" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtName" 
                                          Style="{DynamicResource InputFieldStyle}"
                                          MaxLength="100"/>
@@ -92,7 +92,7 @@
 
                             <!-- الكود -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="كود النوع *" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock Text="{DynamicResource TypeCode}" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtCode" 
                                          Style="{DynamicResource InputFieldStyle}"
                                          MaxLength="10"/>
@@ -100,7 +100,7 @@
 
                             <!-- الرصيد الافتراضي -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="الرصيد الافتراضي (أيام)" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock Text="{DynamicResource DefaultBalanceDays}" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtDefaultBalance" 
                                          Style="{DynamicResource InputFieldStyle}"
                                          Text="0"
@@ -109,12 +109,12 @@
 
                             <!-- الحد الأقصى للأيام المتتالية -->
                             <StackPanel Margin="0,0,0,15">
-                                <TextBlock Text="الحد الأقصى للأيام المتتالية" Style="{DynamicResource LabelStyle}"/>
+                                <TextBlock Text="{DynamicResource MaximumConsecutiveDays}" Style="{DynamicResource LabelStyle}"/>
                                 <TextBox x:Name="txtMaxConsecutiveDays" 
                                          Style="{DynamicResource InputFieldStyle}"
                                          Text="0"
                                          PreviewTextInput="NumberValidationTextBox"
-                                         ToolTip="0 تعني لا يوجد حد"/>
+                                         ToolTip="{DynamicResource 0MeansNoLimit}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -122,24 +122,24 @@
                     <!-- الإعدادات -->
                     <Border Background="White" CornerRadius="5" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="إعدادات النوع" 
+                            <TextBlock Text="{DynamicResource TypeSettings}" 
                                        FontSize="16" FontWeight="Bold" 
                                        Foreground="#1976D2" Margin="0,0,0,15"/>
 
                             <!-- CheckBoxes -->
                             <StackPanel>
                                 <CheckBox x:Name="chkIsActive" 
-                                          Content="نشط" 
+                                          Content="{DynamicResource Active}" 
                                           Style="{DynamicResource CheckBoxStyle}"
                                           IsChecked="True"/>
 
                                 <CheckBox x:Name="chkDeductFromBalance" 
-                                          Content="يخصم من الرصيد" 
+                                          Content="{DynamicResource DeductedFromTheBalance}" 
                                           Style="{DynamicResource CheckBoxStyle}"
                                           IsChecked="True"/>
 
                                 <CheckBox x:Name="chkRequiresApproval" 
-                                          Content="يتطلب موافقة المسؤول" 
+                                          Content="{DynamicResource RequiresAdministratorApproval}" 
                                           Style="{DynamicResource CheckBoxStyle}"
                                           IsChecked="True"/>
                             </StackPanel>
@@ -149,7 +149,7 @@
                     <!-- الملاحظات -->
                     <Border Background="White" CornerRadius="5" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="ملاحظات" 
+                            <TextBlock Text="{DynamicResource Comments}" 
                                        FontSize="16" FontWeight="Bold" 
                                        Foreground="#1976D2" Margin="0,0,0,15"/>
 
@@ -173,8 +173,8 @@
                             Foreground="White"
                             Click="btnSave_Click">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Icon:PackIconMaterial Kind="ContentSave" Width="20" Height="20" Foreground="{DynamicResource ThirdColor}" Margin="0,0,5,0"/>
-                            <TextBlock Text="حفظ"/>
+                            <Icon:PackIconMaterial Kind="ContentSave" Width="20" Height="20" Foreground="{DynamicResource ThirdColorBrushBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="{DynamicResource Save}"/>
                         </StackPanel>
                     </Button>
 
@@ -184,8 +184,8 @@
                             Foreground="White"
                             Click="btnCancel_Click">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Icon:PackIconMaterial Kind="Close" Width="20" Height="20" Foreground="{DynamicResource ThirdColor}" Margin="0,0,5,0"/>
-                            <TextBlock Text="إلغاء"/>
+                            <Icon:PackIconMaterial Kind="Close" Width="20" Height="20" Foreground="{DynamicResource ThirdColorBrushBrush}" Margin="0,0,5,0"/>
+                            <TextBlock Text="{DynamicResource Cancellation}"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

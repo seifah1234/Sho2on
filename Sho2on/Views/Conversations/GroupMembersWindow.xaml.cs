@@ -77,7 +77,7 @@ namespace HR_Application.Views.Conversations
                         CanManage = m.UserId != App.CurrentUser.Id
                     });
 
-                    // ÊÍÏíÏ ÅÐÇ ßÇä ÇáãÓÊÎÏã ÇáÍÇáí ãÔÑÝÇð
+                    // ØªØ­Ø¯ÙŠØ¯ Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø­Ø§Ù„ÙŠ Ù…Ø´Ø±ÙØ§Ù‹
                     if (m.UserId == App.CurrentUser.Id && m.IsAdmin)
                     {
                         IsCurrentUserAdmin = true;
@@ -86,7 +86,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ Ýí ÊÍãíá ÇáÃÚÖÇÁ: {ex.Message}");
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£Ø¹Ø¶Ø§Ø¡: {ex.Message}");
             }
         }
 
@@ -96,8 +96,8 @@ namespace HR_Application.Views.Conversations
             if (item == null) return;
 
             var confirm = LocalizationManager.ShowMessage(
-                $"åá ÊÑíÏ ÅÒÇáÉ {item.UserName}¿",
-                "ÊÃßíÏ", MessageBoxButton.YesNo);
+                $"Ù‡Ù„ ØªØ±ÙŠØ¯ Ø¥Ø²Ø§Ù„Ø© {item.UserName}ØŸ",
+                LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯"), MessageBoxButton.YesNo);
             if (confirm != MessageBoxResult.Yes) return;
 
             try
@@ -114,7 +114,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}");
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£: {ex.Message}");
             }
         }
 
@@ -137,7 +137,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}");
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£: {ex.Message}");
             }
         }
 
@@ -180,7 +180,7 @@ namespace HR_Application.Views.Conversations
                 .AnyAsync(m => m.GroupId == _groupId && m.UserId == item.UserId);
             if (exists)
             {
-                LocalizationManager.ShowMessage("ÇáãÓÊÎÏã ãæÌæÏ ÈÇáÝÚá Ýí ÇáÌÑæÈ.");
+                LocalizationManager.ShowMessage("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù…ÙˆØ¬ÙˆØ¯ Ø¨Ø§Ù„ÙØ¹Ù„ ÙÙŠ Ø§Ù„Ø¬Ø±ÙˆØ¨.");
                 return;
             }
 
@@ -226,7 +226,7 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        public string AdminLabel => IsAdmin ? "Admin ?" : "ÚÖæ";
+        public string AdminLabel => IsAdmin ? "Admin ?" : LocalizationManager.Translate("Ø¹Ø¶Ùˆ");
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>

@@ -31,9 +31,9 @@ namespace HR_Application.Dashboard
         public DateTime? CheckInTime => _att.CheckInTime;
 
         public string StatusText =>
-            _att.IsAbsence ? "€«∆»" :
-            _att.Late.HasValue ? "„ √Œ—" :
-                                     "Õ«÷—";
+            _att.IsAbsence ? LocalizationManager.Translate("ÿ∫ÿßÿ¶ÿ®") :
+            _att.Late.HasValue ? LocalizationManager.Translate("ŸÖÿ™ÿ£ÿÆÿ±") :
+                                     LocalizationManager.Translate("ÿ≠ÿßÿ∂ÿ±");
 
         public Brush StatusColor =>
             _att.IsAbsence ? new SolidColorBrush(Color.FromRgb(0xB7, 0x1C, 0x1C)) :
@@ -69,7 +69,7 @@ namespace HR_Application.Dashboard
             _sectionName = sectionName;
 
             SectionTitleText.Text = sectionName;
-            SectionSubtitleText.Text = $" ›«’Ì· «·ﬁÿ«⁄ ó {DateTime.Today:yyyy/MM/dd}";
+            SectionSubtitleText.Text = $"ÿ™ŸÅÿßÿµŸäŸÑ ÿßŸÑŸÇÿ∑ÿßÿπ ‚Äî {DateTime.Today:yyyy/MM/dd}";
 
             _ = LoadDataAsync();
         }
@@ -88,7 +88,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"Œÿ√ ›Ì  Õ„Ì· »Ì«‰«  «·ﬁÿ«⁄: {ex.Message}", "Œÿ√",
+                LocalizationManager.ShowMessage($"ÿÆÿ∑ÿ£ ŸÅŸä ÿ™ÿ≠ŸÖŸäŸÑ ÿ®ŸäÿßŸÜÿßÿ™ ÿßŸÑŸÇÿ∑ÿßÿπ: {ex.Message}", LocalizationManager.Translate("ÿÆÿ∑ÿ£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -146,7 +146,7 @@ namespace HR_Application.Dashboard
         {
             var today = DateTime.Today;
 
-            // ?? Pie: Õ÷Ê— «·›—⁄ «·ÌÊ„ ??
+            // ?? Pie: ÿ≠ÿ∂Ÿàÿ± ÿßŸÑŸÅÿ±ÿπ ÿßŸÑŸäŸàŸÖ ??
             var present = await _context.Attendances
                 .Where(a => a.AttendanceDate.Date == today &&
                             a.CheckInTime.HasValue && !a.IsAbsence &&
@@ -164,26 +164,26 @@ namespace HR_Application.Dashboard
             {
                 new PieSeries
                 {
-                    Title = "Õ«÷—", Values = new ChartValues<int> { present },
+                    Title = LocalizationManager.Translate("ÿ≠ÿßÿ∂ÿ±"), Values = new ChartValues<int> { present },
                     DataLabels = true,
                     LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
                 },
                 new PieSeries
                 {
-                    Title = "€«∆»", Values = new ChartValues<int> { absent },
+                    Title = LocalizationManager.Translate("ÿ∫ÿßÿ¶ÿ®"), Values = new ChartValues<int> { absent },
                     DataLabels = true,
                     LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
                 },
                 new PieSeries
                 {
-                    Title = "„ √Œ—", Values = new ChartValues<int> { late },
+                    Title = LocalizationManager.Translate("ŸÖÿ™ÿ£ÿÆÿ±"), Values = new ChartValues<int> { late },
                     DataLabels = true,
                     LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
                 }
             };
             SectionAttendancePie.Series = pieSeries;
 
-            // ?? Bar:  Ê“Ì⁄ «·„ÊŸ›Ì‰ »«·≈œ«—«  ??
+            // ?? Bar: ÿ™Ÿàÿ≤Ÿäÿπ ÿßŸÑŸÖŸàÿ∏ŸÅŸäŸÜ ÿ®ÿßŸÑÿ•ÿØÿßÿ±ÿßÿ™ ??
             var depts = await _context.Departments
                 .OrderBy(d => d.Name)
                 .ToListAsync();
@@ -198,7 +198,7 @@ namespace HR_Application.Dashboard
             {
                 new ColumnSeries
                 {
-                    Title = "«·„ÊŸ›Ì‰", Values = deptCounts, DataLabels = true
+                    Title = LocalizationManager.Translate("ÿßŸÑŸÖŸàÿ∏ŸÅŸäŸÜ"), Values = deptCounts, DataLabels = true
                 }
             };
         }

@@ -96,7 +96,7 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
@@ -131,7 +131,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="الحركات الشهرية" 
+            <TextBlock Text="{DynamicResource MonthlyRecords}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -146,11 +146,11 @@
                     <!-- الفلاتر اليسرى -->
                     <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="0 0 10 0">
                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Label Content="السنة" Foreground="{DynamicResource ThirdColor}" HorizontalAlignment="Center"/>
+                            <Label Content="{DynamicResource Sunnah}" Foreground="{DynamicResource ThirdColorBrushBrush}" HorizontalAlignment="Center"/>
                             <ComboBox  FlowDirection="LeftToRight" Name="year_box" Margin="5 0 0 0"/>
                         </StackPanel>
                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Label Content="الشهر" Foreground="{DynamicResource ThirdColor}" HorizontalAlignment="Center"/>
+                            <Label Content="{DynamicResource Month}" Foreground="{DynamicResource ThirdColorBrushBrush}" HorizontalAlignment="Center"/>
                             <ComboBox FlowDirection="LeftToRight" Name="month_box" Margin="5 0 0 0"/>
                         </StackPanel>
                     </StackPanel>
@@ -160,13 +160,13 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBox Width="150" Tag="كود الموظف" VerticalAlignment="Bottom" FlowDirection="RightToLeft" Name="code_box" Margin="5"/>
                             <StackPanel Margin="5" Orientation="Vertical" HorizontalAlignment="Center">
-                                <Label VerticalAlignment="Center" Content="الفرع" Foreground="{DynamicResource ThirdColor}" />
+                                <Label VerticalAlignment="Center" Content="{DynamicResource Branch}" Foreground="{DynamicResource ThirdColorBrushBrush}" />
                                 <ComboBox Width="200" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
                             <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="Name" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
-                            <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                            <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                         </StackPanel>
                         <TextBox Visibility="Collapsed" Style="{DynamicResource InputFieldStyle}" Tag="اسم الموظف" FlowDirection="RightToLeft" Name="name_box" Margin="5"/>
                     </StackPanel>
@@ -177,13 +177,13 @@
                             <Button Style="{DynamicResource SecondaryButtonStyle}" IsDefault="True" x:Name="data_show_btn" Click="data_show_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Eye" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="عرض البيانات" VerticalAlignment="Center"/>
+                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="{DynamicResource DisplayData}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{DynamicResource SecondaryButtonStyle}" x:Name="statistics_btn" Click="statistics_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="ChartBar" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="الإحصائيات" VerticalAlignment="Center"/>
+                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="{DynamicResource Statistics2}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -191,7 +191,7 @@
                             <Button Style="{DynamicResource SecondaryButtonStyle}" x:Name="print_btn" Click="print_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Printer" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="طباعة" VerticalAlignment="Center"/>
+                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="{DynamicResource Print}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{DynamicResource SecondaryButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="5">
@@ -210,11 +210,11 @@
                 <DataGrid CanUserAddRows="False" ItemsSource="{Binding MonthDatas, UpdateSourceTrigger=PropertyChanged}" LoadingRow="AttendanceDataGrid_LoadingRow" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" Name="dataGrid" Margin="10" FlowDirection="RightToLeft">
                     <DataGrid.Resources>
                         <ContextMenu x:Key="RowContextMenu">
-                            <MenuItem Header="غياب" Click="MakeAbsence_Click"/>
-                            <MenuItem Header="إلغاء غياب" Click="CancelAbsence_Click"/>
-                            <MenuItem Header="إجراء" Click="MakeDeduction_Click"/>
-                            <MenuItem Header="تغيير الوردية" Click="ChangeShift_Click"/>
-                            <MenuItem Header="إجازة" Click="MakeHoliday_Click"/>
+                            <MenuItem Header="{DynamicResource Absence3}" Click="MakeAbsence_Click"/>
+                            <MenuItem Header="{DynamicResource CancelAbsence}" Click="CancelAbsence_Click"/>
+                            <MenuItem Header="{DynamicResource Procedure}" Click="MakeDeduction_Click"/>
+                            <MenuItem Header="{DynamicResource ChangeOfShift}" Click="ChangeShift_Click"/>
+                            <MenuItem Header="{DynamicResource Vacation}" Click="MakeHoliday_Click"/>
                         </ContextMenu>
                     </DataGrid.Resources>
 
@@ -225,10 +225,10 @@
                     </DataGrid.RowStyle>
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="اليوم" Binding="{Binding Day}" Width="80"/>
+                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="{DynamicResource Today}" Binding="{Binding Day}" Width="80"/>
                         <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="Holiday" Binding="{Binding isHoliday}" Width="80" Visibility="Hidden"/>
                         <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="Absence" Binding="{Binding isAbsence}" Width="80" Visibility="Hidden"/>
-                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="التاريخ" Binding="{Binding Date, StringFormat={}{0:yyyy/MM/dd}}" Width="100">
+                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="{DynamicResource TheDate}" Binding="{Binding Date, StringFormat={}{0:yyyy/MM/dd}}" Width="100">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="FlowDirection" Value="LeftToRight"/>
@@ -236,7 +236,7 @@
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTemplateColumn IsReadOnly="False" Header="حضور" Width="100">
+                        <DataGridTemplateColumn IsReadOnly="False" Header="{DynamicResource Presence}" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Foreground="{DynamicResource PrimaryColor}" HorizontalAlignment="Center" FlowDirection="LeftToRight" Text="{Binding AttendanceTime, StringFormat=\{0:HH\\:mm\\:ss\}}" />
@@ -248,8 +248,8 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="موقع الحضور" Binding="{Binding AttendBranch}"/>
-                        <DataGridTemplateColumn IsReadOnly="False" Header="انصراف" Width="100">
+                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="{DynamicResource AttendanceSite}" Binding="{Binding AttendBranch}"/>
+                        <DataGridTemplateColumn IsReadOnly="False" Header="{DynamicResource Departure}" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Foreground="{DynamicResource PrimaryColor}" HorizontalAlignment="Center" FlowDirection="LeftToRight" Text="{Binding DepartureTime, StringFormat=\{0:HH\\:mm\\:ss\}}" />
@@ -261,45 +261,45 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="موقع الانصراف" Binding="{Binding DepartBranch}"/>
+                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="{DynamicResource CheckOutSite}" Binding="{Binding DepartBranch}"/>
                         <DataGridCheckBoxColumn Binding="{Binding ExemptLate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
                             <DataGridCheckBoxColumn.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox Unchecked="allLate_check_Unchecked" Checked="allLate_check_Checked" Name="allLate_check" Content="معفي تأخير" Foreground="White" VerticalContentAlignment="Center"/>
+                                    <CheckBox Unchecked="allLate_check_Unchecked" Checked="allLate_check_Checked" Name="allLate_check" Content="{DynamicResource DelayExempt}" Foreground="White" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </DataGridCheckBoxColumn.Header>
                         </DataGridCheckBoxColumn>
                         <DataGridCheckBoxColumn Visibility="Collapsed" Binding="{Binding ExemptINEarly, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
                             <DataGridCheckBoxColumn.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox Unchecked="allINEarly_check_Unchecked" Checked="allINEarly_check_Checked" Name="allINEarly_check" Content="معفي د مبكر" Foreground="White" VerticalContentAlignment="Center"/>
+                                    <CheckBox Unchecked="allINEarly_check_Unchecked" Checked="allINEarly_check_Checked" Name="allINEarly_check" Content="{DynamicResource ExemptDEarly}" Foreground="White" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </DataGridCheckBoxColumn.Header>
                         </DataGridCheckBoxColumn>
                         <DataGridCheckBoxColumn Visibility="Collapsed" Binding="{Binding ExemptEarly, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
                             <DataGridCheckBoxColumn.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox Unchecked="allEarly_check_Unchecked" Checked="allEarly_check_Checked" Name="allEarly_check" Content="معفي خ مبكر" Foreground="White" VerticalContentAlignment="Center"/>
+                                    <CheckBox Unchecked="allEarly_check_Unchecked" Checked="allEarly_check_Checked" Name="allEarly_check" Content="{DynamicResource ExemptEarly}" Foreground="White" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </DataGridCheckBoxColumn.Header>
                         </DataGridCheckBoxColumn>
                         <DataGridCheckBoxColumn Binding="{Binding ExemptOT, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
                             <DataGridCheckBoxColumn.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox Unchecked="allOT_check_Unchecked" Checked="allOT_check_Checked" Name="allOT_check" Content="معفي الاضافي" Foreground="White" VerticalContentAlignment="Center"/>
+                                    <CheckBox Unchecked="allOT_check_Unchecked" Checked="allOT_check_Checked" Name="allOT_check" Content="{DynamicResource AdditionalExempt}" Foreground="White" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </DataGridCheckBoxColumn.Header>
                         </DataGridCheckBoxColumn>
-                        <DataGridTemplateColumn IsReadOnly="True" Header="الوردية" Width="100">
+                        <DataGridTemplateColumn IsReadOnly="True" Header="{DynamicResource Rosary}" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Foreground="{DynamicResource PrimaryColor}" HorizontalAlignment="Center" FlowDirection="LeftToRight" Text="{Binding Shift}" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="س العمل" Binding="{Binding WorkHours, StringFormat={}{0:hh\\:mm}}" Width="100"/>
-                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="التأخير" Binding="{Binding Late, StringFormat={}{0:hh\\:mm}}" Width="100"/>
-                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="الاضافي" Binding="{Binding OverTime, StringFormat={}{0:hh\\:mm}}" Width="100"/>
+                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="{DynamicResource OWork}" Binding="{Binding WorkHours, StringFormat={}{0:hh\\:mm}}" Width="100"/>
+                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="{DynamicResource Delay}" Binding="{Binding Late, StringFormat={}{0:hh\\:mm}}" Width="100"/>
+                        <DataGridTextColumn IsReadOnly="True" CanUserSort="False" Header="{DynamicResource TheExtra}" Binding="{Binding OverTime, StringFormat={}{0:hh\\:mm}}" Width="100"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>

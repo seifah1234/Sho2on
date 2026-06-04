@@ -1,7 +1,7 @@
 ﻿<Window x:Class="HR_Application.Views.Employees.Holidays.EmployeeSelectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="اختر موظف" Height="600" Width="900"
+        Title="{DynamicResource SelectAnEmployee}" Height="600" Width="900"
         xmlns:local="clr-namespace:HR_Application.Views.Employees.Holidays"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
@@ -44,7 +44,7 @@
 
         <!-- العنوان -->
         <TextBlock x:Name="txtTitle" Grid.Row="0" 
-                   Text="اختر موظف" 
+                   Text="{DynamicResource SelectAnEmployee}" 
                    FontSize="20" 
                    FontWeight="Bold" 
                    Foreground="{DynamicResource TextPrimaryColor}"
@@ -53,9 +53,9 @@
 
         <!-- شريط البحث -->
         <StackPanel Grid.Row="1" FlowDirection="RightToLeft" Background="{DynamicResource PrimaryColor}" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="بحث:" 
+            <TextBlock Text="{DynamicResource Research2}" 
                        VerticalAlignment="Center" 
-                       Margin="10" Foreground="{DynamicResource ThirdColor}"
+                       Margin="10" Foreground="{DynamicResource ThirdColorBrushBrush}"
                        FontWeight="SemiBold"/>
             <TextBox x:Name="txtSearch" 
                      Width="300" 
@@ -65,7 +65,7 @@
                      Margin="20"
                      TextChanged="txtSearch_TextChanged"/>
             <TextBlock x:Name="txtNoResults" 
-                       Text="لا توجد نتائج" 
+                       Text="{DynamicResource NoResultsFound}" 
                        Foreground="Red" 
                        Margin="10,0,0,0"
                        VerticalAlignment="Center"
@@ -77,13 +77,13 @@
                   Grid.Row="2" 
                   MouseDoubleClick="dgEmployees_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="كود الموظف" Binding="{Binding Id}" Width="80"/>
-                <DataGridTextColumn Header="اسم الموظف" Binding="{Binding FullName}" Width="200"/>
-                <DataGridTextColumn Header="المسمى الوظيفي" Binding="{Binding JobTitle.Name}" Width="150"/>
-                <DataGridTextColumn Header="الإدارة" Binding="{Binding Department.Name}" Width="150"/>
-                <DataGridTextColumn Header="الفرع" Binding="{Binding Branch.Name}" Width="120"/>
-                <DataGridCheckBoxColumn Header="مدير" Binding="{Binding IsManager}" Width="60"/>
-                <DataGridTextColumn Header="حالة الحساب" Width="100">
+                <DataGridTextColumn Header="{DynamicResource EmployeeCode}" Binding="{Binding Id}" Width="80"/>
+                <DataGridTextColumn Header="{DynamicResource EmployeeName}" Binding="{Binding FullName}" Width="200"/>
+                <DataGridTextColumn Header="{DynamicResource JobTitle}" Binding="{Binding JobTitle.Name}" Width="150"/>
+                <DataGridTextColumn Header="{DynamicResource Management}" Binding="{Binding Department.Name}" Width="150"/>
+                <DataGridTextColumn Header="{DynamicResource Branch}" Binding="{Binding Branch.Name}" Width="120"/>
+                <DataGridCheckBoxColumn Header="{DynamicResource Boss}" Binding="{Binding IsManager}" Width="60"/>
+                <DataGridTextColumn Header="{DynamicResource AccountStatus}" Width="100">
                     <DataGridTextColumn.Binding>
                         <Binding Path="IsActive">
                             <Binding.Converter>
@@ -102,11 +102,11 @@
                     Margin="0,15,0,0">
             <Button x:Name="btnSelect" 
                     Style="{DynamicResource SelectButtonStyle}" 
-                    Content="اختيار" 
+                    Content="{DynamicResource ToChoose}" 
                     Click="btnSelect_Click"/>
             <Button x:Name="btnCancel" 
                     Style="{DynamicResource CancelButtonStyle}" 
-                    Content="إلغاء" 
+                    Content="{DynamicResource Cancellation}" 
                     Click="btnCancel_Click"/>
         </StackPanel>
     </Grid>

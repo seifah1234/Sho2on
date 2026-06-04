@@ -90,7 +90,7 @@ namespace HR_Application
                     var existingHolidayType = db.HolidayTypes.FirstOrDefault(ht => ht.Name == name);
                     if (existingHolidayType != null)
                     {
-                        LocalizationManager.ShowMessage("äæÚ ÇáÇÌÇÒÉ ãæÌæÏ ãÓÈŞÇğ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage("Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø© Ù…ÙˆØ¬ÙˆØ¯ Ù…Ø³Ø¨Ù‚Ø§Ù‹", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     var holidayType = new HolidayType
@@ -101,13 +101,13 @@ namespace HR_Application
                     db.SaveChanges();
 
                 }
-                LocalizationManager.ShowMessage("Êã ÇÖÇİÉ äæÚ ÇáÇÌÇÒÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø§Ø¶Ø§ÙØ© Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
 
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
 
             }
         }
@@ -121,7 +121,7 @@ namespace HR_Application
         {
             if (list.SelectedItem is not HolidayType selectedHolidayType)
             {
-                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ äæÚ ÇáÇÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
@@ -134,12 +134,12 @@ namespace HR_Application
                             db.SaveChanges();
                         
                     }
-                    LocalizationManager.ShowMessage("Êã ÍĞİ äæÚ ÇáÇÌÇÒÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 catch
                 {
-                    LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -160,18 +160,18 @@ namespace HR_Application
                         db.SaveChanges();
                     }
 
-                    LocalizationManager.ShowMessage("Êã ÊÚÏíá äæÚ ÇáÇÌÇÒÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Çí äæÚ ÇÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ù„Ù… ØªØ®ØªØ§Ø± Ø§ÙŠ Ù†ÙˆØ¹ Ø§Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

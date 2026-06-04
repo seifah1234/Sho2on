@@ -31,7 +31,7 @@ namespace HR_Application.Views
 
         private void InitializeDateControls()
         {
-            // ÔåæÑ ÇáÓäÉ
+            // Ø´Ù‡ÙˆØ± Ø§Ù„Ø³Ù†Ø©
             for (int i = 1; i <= 12; i++)
             {
                 cmbMonth.Items.Add(new System.Windows.Controls.ComboBoxItem
@@ -41,7 +41,7 @@ namespace HR_Application.Views
             }
             cmbMonth.SelectedIndex = DateTime.Now.Month - 1;
 
-            // ÓäæÇÊ
+            // Ø³Ù†ÙˆØ§Øª
             int currentYear = DateTime.Now.Year;
             for (int i = currentYear - 5; i <= currentYear + 1; i++)
             {
@@ -59,7 +59,7 @@ namespace HR_Application.Views
 
                 _employees.Clear();
 
-                // ÊÍãíá ÇáãæÙİíä ãÚ ÈíÇäÇÊåã
+                // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ù…Ø¹ Ø¨ÙŠØ§Ù†Ø§ØªÙ‡Ù…
                 var users = await _context.Users
                     .Include(u => u.Branch)
                     .Include(u => u.Salaries)
@@ -78,7 +78,7 @@ namespace HR_Application.Views
                         IsSelected = false
                     };
 
-                    // ÍÓÇÈ ÇáÑÇÊÈ
+                    // Ø­Ø³Ø§Ø¨ Ø§Ù„Ø±Ø§ØªØ¨
                     await CalculateEmployeeSalary(viewModel, user);
 
                     _employees.Add(viewModel);
@@ -88,7 +88,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -96,45 +96,45 @@ namespace HR_Application.Views
         {
             try
             {
-                // ÇáÑÇÊÈ ÇáÃÓÇÓí
+                // Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ
                 var basicSalary = user.Salaries?.FirstOrDefault(s => s.Type == 1);
                 viewModel.BasicSalary = basicSalary?.Amount ?? 0;
 
-                // ÇáÅÖÇİÇÊ
+                // Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª
                 viewModel.Additions = CalculateAdditions(user);
 
-                // ÇáÇÓÊŞØÇÚÇÊ (ÈÏæä ÕäÏæŞ ÇáÒãÇáÉ)
+                // Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª (Ø¨Ø¯ÙˆÙ† ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©)
                 viewModel.Deductions = CalculateDeductions(user);
 
-                // ÕäÏæŞ ÇáÒãÇáÉ
+                // ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©
                 var friendshipBoxSalary = user.Salaries?.FirstOrDefault(s => s.Type == 13);
                 viewModel.FriendshipBoxAmount = friendshipBoxSalary?.Amount ?? 0;
 
 
-                // ÇáÓáİ ÇáãÓÊÍŞÉ
+                // Ø§Ù„Ø³Ù„Ù Ø§Ù„Ù…Ø³ØªØ­Ù‚Ø©
                 viewModel.LoanDeduction = await CalculateLoanDeduction(user);
 
-                // ÕÇİí ÇáÑÇÊÈ
+                // ØµØ§ÙÙŠ Ø§Ù„Ø±Ø§ØªØ¨
                 viewModel.NetSalary = (viewModel.BasicSalary + viewModel.Additions) -
                                       (viewModel.Deductions + viewModel.FriendshipBoxAmount + viewModel.LoanDeduction);
 
-                // ÇáÊÍŞŞ ÅĞÇ Êã ÕÑİ ÇáÑÇÊÈ áåĞÇ ÇáÔåÑ
+                // Ø§Ù„ØªØ­Ù‚Ù‚ Ø¥Ø°Ø§ ØªÙ… ØµØ±Ù Ø§Ù„Ø±Ø§ØªØ¨ Ù„Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø±
                 var existingPayment = await _context.SalaryPayments
                     .FirstOrDefaultAsync(sp => sp.UserId == user.Id &&
                                               sp.Month == _currentMonth &&
                                               sp.Year == _currentYear);
 
-                viewModel.PaymentStatus = existingPayment?.IsPaid == true ? "Êã ÇáÕÑİ" : "áã íÕÑİ";
+                viewModel.PaymentStatus = existingPayment?.IsPaid == true ? LocalizationManager.Translate("ØªÙ… Ø§Ù„ØµØ±Ù") : LocalizationManager.Translate("Ù„Ù… ÙŠØµØ±Ù");
                 viewModel.IsAlreadyPaid = existingPayment?.IsPaid == true;
 
                 if (viewModel.IsAlreadyPaid)
                 {
-                    viewModel.IsSelected = false; // áÇ äÎÊÇÑ ÇáãæÙİíä ÇáĞíä Êã ÕÑİ ÑæÇÊÈåã
+                    viewModel.IsSelected = false; // Ù„Ø§ Ù†Ø®ØªØ§Ø± Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ø§Ù„Ø°ÙŠÙ† ØªÙ… ØµØ±Ù Ø±ÙˆØ§ØªØ¨Ù‡Ù…
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÍÓÇÈ ÑÇÊÈ ÇáãæÙİ {user.FullName}: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø³Ø§Ø¨ Ø±Ø§ØªØ¨ Ø§Ù„Ù…ÙˆØ¸Ù {user.FullName}: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -145,19 +145,19 @@ namespace HR_Application.Views
 
             if (salaries != null)
             {
-                // ÈÏá Óßä
+                // Ø¨Ø¯Ù„ Ø³ÙƒÙ†
                 additions += salaries.Where(s => s.Type == 2).Sum(s => s.Amount);
-                // ÈÏá ÇäÊŞÇá
+                // Ø¨Ø¯Ù„ Ø§Ù†ØªÙ‚Ø§Ù„
                 additions += salaries.Where(s => s.Type == 3).Sum(s => s.Amount);
-                // ÈÏá ÅÏÇÑÉ
+                // Ø¨Ø¯Ù„ Ø¥Ø¯Ø§Ø±Ø©
                 additions += salaries.Where(s => s.Type == 14).Sum(s => s.Amount);
-                // ÈÏá ØÈíÚÉ Úãá
+                // Ø¨Ø¯Ù„ Ø·Ø¨ÙŠØ¹Ø© Ø¹Ù…Ù„
                 additions += salaries.Where(s => s.Type == 15).Sum(s => s.Amount);
-                // ãßÇİÂÊ
+                // Ù…ÙƒØ§ÙØ¢Øª
                 additions += salaries.Where(s => s.Type == 11).Sum(s => s.Amount);
-                // ÚãæáÇÊ ÊÍŞíŞ
+                // Ø¹Ù…ÙˆÙ„Ø§Øª ØªØ­Ù‚ÙŠÙ‚
                 additions += salaries.Where(s => s.Type == 18).Sum(s => s.Amount);
-                // ÚãæáÇÊ ÎÇÑÌíÉ
+                // Ø¹Ù…ÙˆÙ„Ø§Øª Ø®Ø§Ø±Ø¬ÙŠØ©
                 additions += salaries.Where(s => s.Type == 19).Sum(s => s.Amount);
             }
 
@@ -171,19 +171,19 @@ namespace HR_Application.Views
 
             if (salaries != null)
             {
-                // ÖÑíÈÉ ßÓÈ ÇáÚãá
+                // Ø¶Ø±ÙŠØ¨Ø© ÙƒØ³Ø¨ Ø§Ù„Ø¹Ù…Ù„
                 deductions += salaries.Where(s => s.Type == 5).Sum(s => s.Amount);
-                // ÊÃãíäÇÊ ÇáãæÙİ
+                // ØªØ£Ù…ÙŠÙ†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù
                 deductions += salaries.Where(s => s.Type == 4).Sum(s => s.Amount);
-                // ÊÃãíäÇÊ ÇáÔÑßÉ
+                // ØªØ£Ù…ÙŠÙ†Ø§Øª Ø§Ù„Ø´Ø±ÙƒØ©
                 deductions += salaries.Where(s => s.Type == 16).Sum(s => s.Amount);
-                // ãÔÇÑßÉ ÇÌÊãÇÚíÉ
+                // Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©
                 deductions += salaries.Where(s => s.Type == 6).Sum(s => s.Amount);
-                // ÌÒÇÁÇÊ
+                // Ø¬Ø²Ø§Ø¡Ø§Øª
                 deductions += salaries.Where(s => s.Type == 10).Sum(s => s.Amount);
-                // İÇÊæÑÉ Êáíİæä
+                // ÙØ§ØªÙˆØ±Ø© ØªÙ„ÙŠÙÙˆÙ†
                 deductions += salaries.Where(s => s.Type == 20).Sum(s => s.Amount);
-                // ÚÌÒ
+                // Ø¹Ø¬Ø²
                 deductions += salaries.Where(s => s.Type == 16).Sum(s => s.Amount);
             }
 
@@ -194,7 +194,7 @@ namespace HR_Application.Views
         {
             decimal loanDeduction = 0;
 
-            // ÇáÍÕæá Úáì ÇáÓáİ ÇáäÔØÉ
+            // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„Ø³Ù„Ù Ø§Ù„Ù†Ø´Ø·Ø©
             var activeLoans = await _context.Loans
                 .Where(l => l.UserId == user.Id &&
                            l.Status == "Approved" &&
@@ -217,8 +217,8 @@ namespace HR_Application.Views
             decimal totalFriendshipBox = _employees.Where(e => e.IsSelected && !e.IsAlreadyPaid).Sum(e => e.FriendshipBoxAmount);
             decimal totalLoanDeduction = _employees.Where(e => e.IsSelected && !e.IsAlreadyPaid).Sum(e => e.LoanDeduction);
 
-            txtSummary.Text = $"ÚÏÏ ÇáãÍÏÏíä: {selectedCount} ãä {totalCount} | ÅÌãÇáí ÇáÕÇİí: {totalNetSalary:N2} | ÅÌãÇáí ÇáÓáİ: {totalLoanDeduction:N2}";
-            txtFriendshipBoxSummary.Text = $"ÅÌãÇáí ÕäÏæŞ ÇáÒãÇáÉ: {totalFriendshipBox:N2}";
+            txtSummary.Text = $"Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ø­Ø¯Ø¯ÙŠÙ†: {selectedCount} Ù…Ù† {totalCount} | Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØµØ§ÙÙŠ: {totalNetSalary:N2} | Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø³Ù„Ù: {totalLoanDeduction:N2}";
+            txtFriendshipBoxSummary.Text = $"Ø¥Ø¬Ù…Ø§Ù„ÙŠ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©: {totalFriendshipBox:N2}";
         }
 
         private async void BtnPaySelected_Click(object sender, RoutedEventArgs e)
@@ -227,14 +227,14 @@ namespace HR_Application.Views
 
             if (!selectedEmployees.Any())
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÊÍÏíÏ ãæÙİíä áÕÑİ ÑæÇÊÈåã", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ ØªØ­Ø¯ÙŠØ¯ Ù…ÙˆØ¸ÙÙŠÙ† Ù„ØµØ±Ù Ø±ÙˆØ§ØªØ¨Ù‡Ù…", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var result = LocalizationManager.ShowMessage(
-                $"åá ÃäÊ ãÊÃßÏ ãä ÕÑİ ÑæÇÊÈ {selectedEmployees.Count} ãæÙİ¿\n" +
-                $"ÅÌãÇáí ÇáãÈáÛ: {selectedEmployees.Sum(e => e.NetSalary):N2}",
-                "ÊÃßíÏ ÇáÕÑİ",
+                $"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† ØµØ±Ù Ø±ÙˆØ§ØªØ¨ {selectedEmployees.Count} Ù…ÙˆØ¸ÙØŸ\n" +
+                $"Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¨Ù„Øº: {selectedEmployees.Sum(e => e.NetSalary):N2}",
+                LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„ØµØ±Ù"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
@@ -249,26 +249,26 @@ namespace HR_Application.Views
 
                     await _context.SaveChangesAsync();
 
-                    LocalizationManager.ShowMessage($"Êã ÕÑİ ÑæÇÊÈ {selectedEmployees.Count} ãæÙİ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage($"ØªÙ… ØµØ±Ù Ø±ÙˆØ§ØªØ¨ {selectedEmployees.Count} Ù…ÙˆØ¸Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // ÊÍÏíË ÇáÈíÇäÇÊ
+                    // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                     await RefreshEmployeeData();
                 }
                 catch (Exception ex)
                 {
-                    LocalizationManager.ShowMessage($"ÎØÃ İí ÕÑİ ÇáÑæÇÊÈ: {ex.InnerException}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØµØ±Ù Ø§Ù„Ø±ÙˆØ§ØªØ¨: {ex.InnerException}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
-        // İí BulkSalaryPaymentWindow.cs - ÊÚÏíá ÏÇáÉ ProcessSalaryPayment
+        // ÙÙŠ BulkSalaryPaymentWindow.cs - ØªØ¹Ø¯ÙŠÙ„ Ø¯Ø§Ù„Ø© ProcessSalaryPayment
         private async Task ProcessSalaryPayment(EmployeeSalaryViewModel emp)
         {
             var user = await _context.Users.FindAsync(emp.Id);
             if (user == null) return;
 
 
-            // ÅäÔÇÁ ÓÌá ÕÑİ ÇáÑÇÊÈ
+            // Ø¥Ù†Ø´Ø§Ø¡ Ø³Ø¬Ù„ ØµØ±Ù Ø§Ù„Ø±Ø§ØªØ¨
             var salaryPayment = new SalaryPayment
             {
                 UserId = user.Id,
@@ -279,25 +279,25 @@ namespace HR_Application.Views
                 TransportationAllowance = GetAllowanceAmount(user, 3),
                 ManagementAllowance = GetAllowanceAmount(user, 14),
                 NatureAllowance = GetAllowanceAmount(user, 15),
-                OvertimeAmount = 0, // íãßä ÅÖÇİÊå ãä ÈíÇäÇÊ ÇáÍÖæÑ
+                OvertimeAmount = 0, // ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØªÙ‡ Ù…Ù† Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø­Ø¶ÙˆØ±
                 Rewards = GetAllowanceAmount(user, 11),
                 TargetCommission = GetAllowanceAmount(user, 18),
                 ExternalCommission = GetAllowanceAmount(user, 19),
                 AbsenceDeduction = GetDeductionAmount(user, 12),
-                LateDeduction = 0, // íãßä ÅÖÇİÊå ãä ÈíÇäÇÊ ÇáÍÖæÑ
+                LateDeduction = 0, // ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØªÙ‡ Ù…Ù† Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø­Ø¶ÙˆØ±
                 LoanDeduction = emp.LoanDeduction,
                 PenaltyDeduction = GetDeductionAmount(user, 10),
                 TaxDeduction = GetDeductionAmount(user, 5),
                 InsuranceDeduction = GetDeductionAmount(user, 4),
                 SocialParticipation = GetDeductionAmount(user, 6),
-                FriendshipBoxDeduction = emp.FriendshipBoxAmount, // åĞÇ İŞØ ááÊÓÌíá
+                FriendshipBoxDeduction = emp.FriendshipBoxAmount, // Ù‡Ø°Ø§ ÙÙ‚Ø· Ù„Ù„ØªØ³Ø¬ÙŠÙ„
                 TotalAdditions = emp.Additions,
                 TotalDeductions = emp.Deductions + emp.FriendshipBoxAmount + emp.LoanDeduction,
                 NetSalary = emp.NetSalary,
                 PaymentDate = DateTime.Now,
                 IsPaid = true,
                 ActualPaymentDate = DateTime.Now,
-                Notes = "ÕÑİ ÌãÇÚí",
+                Notes = LocalizationManager.Translate("ØµØ±Ù Ø¬Ù…Ø§Ø¹ÙŠ"),
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -306,18 +306,18 @@ namespace HR_Application.Views
             await _context.SaveChangesAsync();
             salaryPayment = _context.SalaryPayments.FirstOrDefault(sp => sp.Month == _currentMonth && sp.Year == _currentYear && sp.UserId == user.Id);
 
-            // ÇÓÊÎÏÇã ÎÏãÉ ÕäÏæŞ ÇáÒãÇáÉ
+            // Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø®Ø¯Ù…Ø© ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©
             var friendshipBoxService = new FriendshipBoxService(_context);
 
-            // ÊÓÌíá ÇáÅíÏÇÚ İí ÕäÏæŞ ÇáÒãÇáÉ ÇáãÔÊÑß
+            // ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¥ÙŠØ¯Ø§Ø¹ ÙÙŠ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© Ø§Ù„Ù…Ø´ØªØ±Ùƒ
             await friendshipBoxService.RecordDepositAsync(
                 user.Id,
                 emp.FriendshipBoxAmount,
-                salaryPayment.Id, // ÓíÊã ÊÍÏíËå ÚäÏ ÅäÔÇÁ ÓÌá ÕÑİ ÇáÑÇÊÈ
-                $"ÎÕã ÕäÏæŞ ÒãÇáÉ ãä ÑÇÊÈ {_currentMonth}/{_currentYear}"
+                salaryPayment.Id, // Ø³ÙŠØªÙ… ØªØ­Ø¯ÙŠØ«Ù‡ Ø¹Ù†Ø¯ Ø¥Ù†Ø´Ø§Ø¡ Ø³Ø¬Ù„ ØµØ±Ù Ø§Ù„Ø±Ø§ØªØ¨
+                $"Ø®ØµÙ… ØµÙ†Ø¯ÙˆÙ‚ Ø²Ù…Ø§Ù„Ø© Ù…Ù† Ø±Ø§ØªØ¨ {_currentMonth}/{_currentYear}"
             );
 
-            // ÊÍÏíË ÑÕíÏ ÇáÓáİ
+            // ØªØ­Ø¯ÙŠØ« Ø±ØµÙŠØ¯ Ø§Ù„Ø³Ù„Ù
             var activeLoans = await _context.Loans
                 .Where(l => l.UserId == user.Id && l.Status == "Approved" && l.RemainingAmount > 0)
                 .ToListAsync();
@@ -328,53 +328,53 @@ namespace HR_Application.Views
                 loan.RemainingAmount -= paymentAmount;
                 loan.AmountPaid += paymentAmount;
 
-                // ÅĞÇ Êã ÓÏÇÏ ßÇãá ÇáÓáİÉ
+                // Ø¥Ø°Ø§ ØªÙ… Ø³Ø¯Ø§Ø¯ ÙƒØ§Ù…Ù„ Ø§Ù„Ø³Ù„ÙØ©
                 if (loan.RemainingAmount <= 0)
                 {
                     loan.Status = "Paid";
                     loan.ActualPaybackDate = DateTime.Now;
 
-                    // ÊÓÌíá ÇáÓÏÇÏ İí ÕäÏæŞ ÇáÒãÇáÉ
+                    // ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø³Ø¯Ø§Ø¯ ÙÙŠ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©
                     await friendshipBoxService.RecordRepaymentAsync(
                         user.Id,
                         paymentAmount,
-                        salaryPayment.Id, // ÓíÊã ÊÍÏíËå ÚäÏ ÅäÔÇÁ ÓÌá ÓÏÇÏ ÇáÓáİ
-                        $"ÓÏÇÏ ÓáİÉ ßÇãáÉ - ŞÑÖ ÑŞã {loan.Id}"
+                        salaryPayment.Id, // Ø³ÙŠØªÙ… ØªØ­Ø¯ÙŠØ«Ù‡ Ø¹Ù†Ø¯ Ø¥Ù†Ø´Ø§Ø¡ Ø³Ø¬Ù„ Ø³Ø¯Ø§Ø¯ Ø§Ù„Ø³Ù„Ù
+                        $"Ø³Ø¯Ø§Ø¯ Ø³Ù„ÙØ© ÙƒØ§Ù…Ù„Ø© - Ù‚Ø±Ø¶ Ø±Ù‚Ù… {loan.Id}"
                     );
                 }
                 else
                 {
                     loan.Status = "PartiallyPaid";
 
-                    // ÊÓÌíá ÇáÓÏÇÏ ÇáÌÒÆí İí ÕäÏæŞ ÇáÒãÇáÉ
+                    // ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø³Ø¯Ø§Ø¯ Ø§Ù„Ø¬Ø²Ø¦ÙŠ ÙÙŠ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©
                     await friendshipBoxService.RecordRepaymentAsync(
                         user.Id,
                         paymentAmount,
-                        salaryPayment.Id, // ÓíÊã ÊÍÏíËå ÚäÏ ÅäÔÇÁ ÓÌá ÓÏÇÏ ÇáÓáİ
-                        $"ÓÏÇÏ ŞÓØ ÓáİÉ - ŞÑÖ ÑŞã {loan.Id}"
+                        salaryPayment.Id, // Ø³ÙŠØªÙ… ØªØ­Ø¯ÙŠØ«Ù‡ Ø¹Ù†Ø¯ Ø¥Ù†Ø´Ø§Ø¡ Ø³Ø¬Ù„ Ø³Ø¯Ø§Ø¯ Ø§Ù„Ø³Ù„Ù
+                        $"Ø³Ø¯Ø§Ø¯ Ù‚Ø³Ø· Ø³Ù„ÙØ© - Ù‚Ø±Ø¶ Ø±Ù‚Ù… {loan.Id}"
                     );
                 }
 
                 loan.UpdatedAt = DateTime.Now;
 
-                // ÊÓÌíá ÏİÚÉ ÇáÓáİ
+                // ØªØ³Ø¬ÙŠÙ„ Ø¯ÙØ¹Ø© Ø§Ù„Ø³Ù„Ù
                 var loanPayment = new LoanPayment
                 {
                     LoanId = loan.Id,
                     PaymentAmount = paymentAmount,
                     PaymentDate = DateTime.Now,
                     PaymentType = "Monthly",
-                    Notes = $"ÏİÚÉ ÔåÑíÉ ãä ÇáÑÇÊÈ - {_currentMonth}/{_currentYear}",
+                    Notes = $"Ø¯ÙØ¹Ø© Ø´Ù‡Ø±ÙŠØ© Ù…Ù† Ø§Ù„Ø±Ø§ØªØ¨ - {_currentMonth}/{_currentYear}",
                     CreatedAt = DateTime.Now
                 };
 
                 await _context.LoanPayments.AddAsync(loanPayment);
             }
 
-            // ÊÍÏíË ÑÕíÏ ÇáÓáİ ááãæÙİ
+            // ØªØ­Ø¯ÙŠØ« Ø±ØµÙŠØ¯ Ø§Ù„Ø³Ù„Ù Ù„Ù„Ù…ÙˆØ¸Ù
             user.CurrentLoanBalance = activeLoans.Sum(l => l.RemainingAmount);
 
-            // ÅĞÇ ÇäÎİÖ ÑÕíÏ ÇáÓáİ Úä ÇáÍÏ ÇáÃŞÕì¡ ÇáÓãÇÍ ÈÃÎĞ ÓáİÇÊ ÌÏíÏÉ
+            // Ø¥Ø°Ø§ Ø§Ù†Ø®ÙØ¶ Ø±ØµÙŠØ¯ Ø§Ù„Ø³Ù„Ù Ø¹Ù† Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ØŒ Ø§Ù„Ø³Ù…Ø§Ø­ Ø¨Ø£Ø®Ø° Ø³Ù„ÙØ§Øª Ø¬Ø¯ÙŠØ¯Ø©
             var basicSalary = await _context.Salaries
                 .FirstOrDefaultAsync(s => s.UserId == user.Id && s.Type == 1);
 
@@ -387,13 +387,13 @@ namespace HR_Application.Views
                 }
             }
 
-            await _context.SaveChangesAsync(); // ÍİÙ Ãæáí ááÍÕæá Úáì ID
+            await _context.SaveChangesAsync(); // Ø­ÙØ¸ Ø£ÙˆÙ„ÙŠ Ù„Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ ID
 
-            // ÊÍÏíË ÍÑßÉ ÕäÏæŞ ÇáÒãÇáÉ ÈÑŞã ÕÑİ ÇáÑÇÊÈ
+            // ØªØ­Ø¯ÙŠØ« Ø­Ø±ÙƒØ© ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© Ø¨Ø±Ù‚Ù… ØµØ±Ù Ø§Ù„Ø±Ø§ØªØ¨
             var depositTransaction = await _context.FriendshipBoxTransactions
                 .FirstOrDefaultAsync(t => t.UserId == user.Id &&
                                          t.TransactionType == "Deposit" &&
-                                         t.Description.Contains($"ÎÕã ÕäÏæŞ ÒãÇáÉ ãä ÑÇÊÈ {_currentMonth}/{_currentYear}"));
+                                         t.Description.Contains($"Ø®ØµÙ… ØµÙ†Ø¯ÙˆÙ‚ Ø²Ù…Ø§Ù„Ø© Ù…Ù† Ø±Ø§ØªØ¨ {_currentMonth}/{_currentYear}"));
 
             if (depositTransaction != null)
             {
@@ -401,8 +401,8 @@ namespace HR_Application.Views
                 await _context.SaveChangesAsync();
             }
 
-            // ÊÍÏíË ÍÇáÉ ÇáãæÙİ İí ÇáÚÑÖ
-            emp.PaymentStatus = "Êã ÇáÕÑİ";
+            // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…ÙˆØ¸Ù ÙÙŠ Ø§Ù„Ø¹Ø±Ø¶
+            emp.PaymentStatus = LocalizationManager.Translate("ØªÙ… Ø§Ù„ØµØ±Ù");
             emp.IsAlreadyPaid = true;
         }
 
@@ -456,7 +456,7 @@ namespace HR_Application.Views
         {
             foreach (var emp in _employees)
             {
-                // ÅÚÇÏÉ ÍÓÇÈ ÕäÏæŞ ÇáÒãÇáÉ ááäÓÈÉ ÇáÌÏíÏÉ
+                // Ø¥Ø¹Ø§Ø¯Ø© Ø­Ø³Ø§Ø¨ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© Ù„Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©
                 decimal friendshipBoxPercentage = 0.02m;
                 if (decimal.TryParse(txtFriendshipBoxPercentage.Text, out decimal percentage))
                 {
@@ -478,7 +478,7 @@ namespace HR_Application.Views
 
         private void BtnPayAll_Click(object sender, RoutedEventArgs e)
         {
-            // ÊÍÏíÏ ÌãíÚ ÇáãæÙİíä ÇáĞíä áã íÕÑİæÇ ÑæÇÊÈåã
+            // ØªØ­Ø¯ÙŠØ¯ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ø§Ù„Ø°ÙŠÙ† Ù„Ù… ÙŠØµØ±ÙÙˆØ§ Ø±ÙˆØ§ØªØ¨Ù‡Ù…
             foreach (var emp in _employees.Where(e => !e.IsAlreadyPaid))
             {
                 emp.IsSelected = true;
@@ -493,7 +493,7 @@ namespace HR_Application.Views
 
             if (!selectedEmployees.Any())
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÊÍÏíÏ ãæÙİíä ááãÚÇíäÉ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ ØªØ­Ø¯ÙŠØ¯ Ù…ÙˆØ¸ÙÙŠÙ† Ù„Ù„Ù…Ø¹Ø§ÙŠÙ†Ø©", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -503,7 +503,7 @@ namespace HR_Application.Views
 
         private void BtnExport_Click(object sender, RoutedEventArgs e)
         {
-            // ÊÕÏíÑ ÇáÈíÇäÇÊ Åáì Excel
+            // ØªØµØ¯ÙŠØ± Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¥Ù„Ù‰ Excel
             var exportWindow = new SalaryExportWindow(_employees.ToList(), _currentMonth, _currentYear);
             exportWindow.ShowDialog();
         }

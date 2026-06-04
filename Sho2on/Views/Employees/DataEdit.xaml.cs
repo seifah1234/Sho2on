@@ -146,7 +146,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÍÓÇÈ ÊæÇÑíÎ ÇáÔåÑ ÇáãÎÕÕ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø³Ø§Ø¨ ØªÙˆØ§Ø±ÙŠØ® Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ù…Ø®ØµØµ: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return (DateTime.MinValue, DateTime.MaxValue);
             }
         }
@@ -297,7 +297,7 @@ namespace HR_Application
                                 fingerprint.Id,
                                 userData.Id,
                                 d.ToString(),
-                                (fingerprint.Status == 1) ? "ÍÖæÑ" : "ÇäÕÑÇİ",
+                                (fingerprint.Status == 1) ? LocalizationManager.Translate("Ø­Ø¶ÙˆØ±") : LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù"),
                                 fingerprint.Status.ToString(),
                                 "_",
                                 branch,
@@ -326,7 +326,7 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÇÏÎá ßæÏ ÇáãæÙİ æ ÇÎÊÇÑ ÇáİÑÚ");
+                    LocalizationManager.ShowMessage("Ø§Ø¯Ø®Ù„ ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ùˆ Ø§Ø®ØªØ§Ø± Ø§Ù„ÙØ±Ø¹");
                 }
             }
             catch (Exception ex)
@@ -423,7 +423,7 @@ namespace HR_Application
         {
             foreach (AttendData attend in dataList)
             {
-                attend.status = (attend.status == "ÇäÕÑÇİ") ? "ÍÖæÑ" : "ÇäÕÑÇİ";
+                attend.status = (attend.status == LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù")) ? LocalizationManager.Translate("Ø­Ø¶ÙˆØ±") : LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù");
                 attend.statusNo = (attend.statusNo == "1") ? "0" : "1";
             }
             list.ItemsSource = dataList;
@@ -499,8 +499,8 @@ namespace HR_Application
 
                 var dayMapping = new Dictionary<string, int>
                 {
-                    { "ÇáÓÈÊ", 0 }, { "ÇáÃÍÏ", 1 }, { "ÇáÇËäíä", 2 }, { "ÇáËáÇËÇÁ", 3 },
-                    { "ÇáÃÑÈÚÇÁ", 4 }, { "ÇáÎãíÓ", 5 }, { "ÇáÌãÚÉ", 6 }
+                    { LocalizationManager.Translate("Ø§Ù„Ø³Ø¨Øª"), 0 }, { LocalizationManager.Translate("Ø§Ù„Ø£Ø­Ø¯"), 1 }, { LocalizationManager.Translate("Ø§Ù„Ø§Ø«Ù†ÙŠÙ†"), 2 }, { LocalizationManager.Translate("Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡"), 3 },
+                    { LocalizationManager.Translate("Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡"), 4 }, { LocalizationManager.Translate("Ø§Ù„Ø®Ù…ÙŠØ³"), 5 }, { LocalizationManager.Translate("Ø§Ù„Ø¬Ù…Ø¹Ø©"), 6 }
                 };
 
                 var user = context.Users.FirstOrDefault(u => u.Code == code_box.Text && u.BranchId.ToString() == branch_box.SelectedValue.ToString());
@@ -578,17 +578,17 @@ namespace HR_Application
                     bool isHoliday = (dayIndex < weekHoli.Count && weekHoli[dayIndex]);
                     bool isAbsence = false;
 
-                    // ÊÍÏíÏ ÅĞÇ ßÇä Çáíæã ÛíÇÈ Ãæ ÅÌÇÒÉ
+                    // ØªØ­Ø¯ÙŠØ¯ Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„ÙŠÙˆÙ… ØºÙŠØ§Ø¨ Ø£Ùˆ Ø¥Ø¬Ø§Ø²Ø©
                     if (attendanceRecord == null || (attendanceRecord.ClockIn == null && attendanceRecord.ClockOff == null))
                     {
                         if (isHoliday)
                         {
-                            // ÅÌÇÒÉ
+                            // Ø¥Ø¬Ø§Ø²Ø©
                             isAbsence = false;
                         }
                         else
                         {
-                            // ÛíÇÈ
+                            // ØºÙŠØ§Ø¨
                             isAbsence = true;
                         }
                     }
@@ -674,13 +674,13 @@ namespace HR_Application
                 var worksheet = workbook.Worksheets.Add("Attendance Data");
 
                 // Add header row
-                worksheet.Cell(1, 1).Value = "ã";
-                worksheet.Cell(1, 2).Value = "ÇáÊÇÑíÎ";
-                worksheet.Cell(1, 3).Value = "ÇáÍÇáÉ";
-                worksheet.Cell(1, 4).Value = "ÇáİÑÚ";
-                worksheet.Cell(1, 5).Value = "ÇáÇÌÑÇÁÇÊ";
-                worksheet.Cell(1, 6).Value = "Çáíæã";
-                worksheet.Cell(1, 7).Value = "ÇáãÓÊÎÏã";
+                worksheet.Cell(1, 1).Value = LocalizationManager.Translate("Ù…");
+                worksheet.Cell(1, 2).Value = LocalizationManager.Translate("Ø§Ù„ØªØ§Ø±ÙŠØ®");
+                worksheet.Cell(1, 3).Value = LocalizationManager.Translate("Ø§Ù„Ø­Ø§Ù„Ø©");
+                worksheet.Cell(1, 4).Value = LocalizationManager.Translate("Ø§Ù„ÙØ±Ø¹");
+                worksheet.Cell(1, 5).Value = LocalizationManager.Translate("Ø§Ù„Ø§Ø¬Ø±Ø§Ø¡Ø§Øª");
+                worksheet.Cell(1, 6).Value = LocalizationManager.Translate("Ø§Ù„ÙŠÙˆÙ…");
+                worksheet.Cell(1, 7).Value = LocalizationManager.Translate("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…");
 
                 // Add data rows
                 for (int i = 0; i < dataList.Count; i++)
@@ -703,14 +703,14 @@ namespace HR_Application
                 {
                     workbook.SaveAs(saveFileDialog.FileName);
                 }
-                LocalizationManager.ShowMessage("Êã ÇÓÊÎÑÇÌ ÇáÇßÓíá!");
+                LocalizationManager.ShowMessage("ØªÙ… Ø§Ø³ØªØ®Ø±Ø§Ø¬ Ø§Ù„Ø§ÙƒØ³ÙŠÙ„!");
 
             }
 
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage(ex.Message, "ÎØÃ");
+                LocalizationManager.ShowMessage(ex.Message, LocalizationManager.Translate("Ø®Ø·Ø£"));
             }
         }
 
@@ -720,8 +720,8 @@ namespace HR_Application
             if (selectedItems != null && selectedItems.Count > 0)
             {
                 MessageBoxResult result = LocalizationManager.ShowMessage(
-                    "åá ÇäÊ ãÊÃßÏ ãä ÍĞİ åĞå ÇáÈÕãÉ ¿",
-                    "ÊÃßíÏ",
+                    "Ù‡Ù„ Ø§Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø¨ØµÙ…Ø© ØŸ",
+                    LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning
                 );
@@ -765,7 +765,7 @@ namespace HR_Application
 
                 _context.SaveChanges();
                 DataGet();
-                LocalizationManager.ShowMessage("Êã ÍĞİ ÇáãßÑÑ");
+                LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…ÙƒØ±Ø±");
             }
             catch (Exception ex)
             {
@@ -780,7 +780,7 @@ namespace HR_Application
                 AttendData attend = dataList[i];
                 attend.rowNumber = i + 1;
                 attend.statusNo = attend.statusNo == "1" ? "0" : "1";
-                attend.status = attend.status == "ÍÖæÑ" ? "ÇäÕÑÇİ" : "ÍÖæÑ";
+                attend.status = attend.status == LocalizationManager.Translate("Ø­Ø¶ÙˆØ±") ? LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù") : LocalizationManager.Translate("Ø­Ø¶ÙˆØ±");
             }
             list.ItemsSource = null;
             list.ItemsSource = dataList;
@@ -808,7 +808,7 @@ namespace HR_Application
                     {
                         if (attend.ID == selectedRow.ID)
                         {
-                            attend.status = (attend.status == "ÍÖæÑ" ? "ÇäÕÑÇİ" : "ÍÖæÑ");
+                            attend.status = (attend.status == LocalizationManager.Translate("Ø­Ø¶ÙˆØ±") ? LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù") : LocalizationManager.Translate("Ø­Ø¶ÙˆØ±"));
                             attend.statusNo = (attend.statusNo == "0") ? "1" : "0";
                             currentStatus = attend.statusNo;
 
@@ -858,7 +858,7 @@ namespace HR_Application
                     {
                         DateTime date = add_date_picker.SelectedDate.Value;
                         string statusNo = (att_radio.IsChecked.Value) ? "1" : "0";
-                        string status = (statusNo == "1") ? "ÍÖæÑ" : "ÇäÕÑÇİ";
+                        string status = (statusNo == "1") ? LocalizationManager.Translate("Ø­Ø¶ÙˆØ±") : LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù");
                         DateTime time = time_picker.SelectedTime.Value;
                         DateTime fullTime = date.Date + time.TimeOfDay;
 
@@ -874,7 +874,7 @@ namespace HR_Application
                         _context.FingerPrints.Add(fingerprint);
                         _context.SaveChanges();
 
-                        LocalizationManager.ShowMessage("Êã ÅÖÇİÉ ÇáÈÕãÉ ÈäÌÇÍ");
+                        LocalizationManager.ShowMessage("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¨ØµÙ…Ø© Ø¨Ù†Ø¬Ø§Ø­");
                         list.Visibility = Visibility.Visible;
                         add_print_grid.Visibility = Visibility.Collapsed;
                     }
@@ -885,7 +885,7 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÇÏÎá ßæÏ ÇáãæÙİ");
+                    LocalizationManager.ShowMessage("Ø§Ø¯Ø®Ù„ ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù");
                 }
             }
             catch (Exception ex)
@@ -898,7 +898,7 @@ namespace HR_Application
 
         private void night_btn_Click(object sender, RoutedEventArgs e)
         {
-            ConfirmMessage msgBox = new ConfirmMessage("åá ÃäÊ ãÊÃßÏ ãä ãÑÇÌÚÉ ÇáÈíÇäÇÊ ŞÈá ÇáãÚÇáÌÉ ¿", "ãÊÃßÏ", "áÇ");
+            ConfirmMessage msgBox = new ConfirmMessage(LocalizationManager.Translate("Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù‚Ø¨Ù„ Ø§Ù„Ù…Ø¹Ø§Ù„Ø¬Ø© ØŸ"), LocalizationManager.Translate("Ù…ØªØ£ÙƒØ¯"), LocalizationManager.Translate("Ù„Ø§"));
             msgBox.ShowDialog();
             bool result = msgBox.Result;
 
@@ -970,7 +970,7 @@ namespace HR_Application
                             newFingerprint.Id,
                             Convert.ToInt32(code_box.Text),
                             newFingerprint.FingerPrintDate.ToString(),
-                            (newFingerprint.Status == 1) ? "ÍÖæÑ" : "ÇäÕÑÇİ",
+                            (newFingerprint.Status == 1) ? LocalizationManager.Translate("Ø­Ø¶ÙˆØ±") : LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù"),
                             newFingerprint.Status.ToString(),
                             "_",
                             branch,
@@ -1062,17 +1062,17 @@ namespace HR_Application
                 };
 
 
-                // ãÊÛíÑ áÊÊÈÚ ÇáÅáÛÇÁ
+                // Ù…ØªØºÙŠØ± Ù„ØªØªØ¨Ø¹ Ø§Ù„Ø¥Ù„ØºØ§Ø¡
                 bool isCancelled = false;
 
-                // ÚÑÖ äÇİĞÉ ÇáÊÍãíá
+                // Ø¹Ø±Ø¶ Ù†Ø§ÙØ°Ø© Ø§Ù„ØªØ­Ù…ÙŠÙ„
                 progressDialog.Show();
 
-                progressDialog.UpdateStatus("ÌÇÑí ÓÍÈ ÇáÍÑßÇÊ...");
+                progressDialog.UpdateStatus(LocalizationManager.Translate("Ø¬Ø§Ø±ÙŠ Ø³Ø­Ø¨ Ø§Ù„Ø­Ø±ÙƒØ§Øª..."));
 
 
                 var context = new AppDbContext(App.ConnectionString);
-                // ÇáÍÕæá Úáì ÇáÈíÇäÇÊ ãä ÇáÌÏæá ÇáãÄŞÊ machineData
+                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ø§Ù„Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù…Ø¤Ù‚Øª machineData
                 var machineDataList = await context.MachineData
                     .Where(m => m.UserID.ToString() == code_box.Text && m.BranchCode.ToString() == branch_box.SelectedValue.ToString())
                     .ToListAsync();
@@ -1083,7 +1083,7 @@ namespace HR_Application
 
                 foreach (var machineData in machineDataList)
                 {
-                    // ÇáÊÍŞŞ ãä ÚÏã æÌæÏ ÇáÊÓÌíá ãÓÈŞÇğ İí FingerPrint
+                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ÙˆØ¬ÙˆØ¯ Ø§Ù„ØªØ³Ø¬ÙŠÙ„ Ù…Ø³Ø¨Ù‚Ø§Ù‹ ÙÙŠ FingerPrint
                     var existingRecord = await context.FingerPrints
                         .Include(f => f.User)
                         .FirstOrDefaultAsync(fp =>
@@ -1093,7 +1093,7 @@ namespace HR_Application
 
                     if (existingRecord == null)
                     {
-                        // ÅäÔÇÁ ÓÌá ÌÏíÏ İí FingerPrint
+                        // Ø¥Ù†Ø´Ø§Ø¡ Ø³Ø¬Ù„ Ø¬Ø¯ÙŠØ¯ ÙÙŠ FingerPrint
                         var fingerPrint = new FingerPrint
                         {
                             UserId = user.Id,
@@ -1119,7 +1119,7 @@ namespace HR_Application
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    LocalizationManager.ShowMessage($"Êã ÅÏÎÇá {recordsInserted} ÓÌá ÌÏíÏ", "ãÚáæãÉ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage($"ØªÙ… Ø¥Ø¯Ø®Ø§Ù„ {recordsInserted} Ø³Ø¬Ù„ Ø¬Ø¯ÙŠØ¯", LocalizationManager.Translate("Ù…Ø¹Ù„ÙˆÙ…Ø©"), MessageBoxButton.OK, MessageBoxImage.Information);
                     progressDialog.Close();
                 });
             }
@@ -1127,7 +1127,7 @@ namespace HR_Application
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    LocalizationManager.ShowMessage($"ÎØÃ İí ÅÏÎÇá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
         }
@@ -1136,7 +1136,7 @@ namespace HR_Application
         {
             try
             {
-                ConfirmMessage msgBox = new ConfirmMessage("åá ÊÑíÏ ÓÍÈ ÇáÈíÇäÇÊ ¿", "ãÊÃßÏ", "áÇ");
+                ConfirmMessage msgBox = new ConfirmMessage(LocalizationManager.Translate("Ù‡Ù„ ØªØ±ÙŠØ¯ Ø³Ø­Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ØŸ"), LocalizationManager.Translate("Ù…ØªØ£ÙƒØ¯"), LocalizationManager.Translate("Ù„Ø§"));
                 msgBox.ShowDialog();
                 bool result = msgBox.Result;
 

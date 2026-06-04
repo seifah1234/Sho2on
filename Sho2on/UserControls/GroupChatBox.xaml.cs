@@ -117,7 +117,7 @@ namespace HR_Application.UserControls
                 {
                     using var ctx = new AppDbContext(App.ConnectionString);
 
-                    // ÌíÈ ÇáÑÓÇÆá Çááí áÓå ãÇ ŞÑÃÊåÇÔ
+                    // Ø¬ÙŠØ¨ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ Ø§Ù„Ù„ÙŠ Ù„Ø³Ù‡ Ù…Ø§ Ù‚Ø±Ø£ØªÙ‡Ø§Ø´
                     var readMessageIds = await ctx.ChatGroupMessageReads
                         .Where(r => r.UserId == App.CurrentUser.Id)
                         .Select(r => r.MessageId)
@@ -239,7 +239,7 @@ namespace HR_Application.UserControls
                     var membersCount = await ctx.ChatGroupMembers
                         .CountAsync(m => m.GroupId == groupId);
 
-                    MembersCountText.Text = $"{membersCount} ÚÖæ";
+                    MembersCountText.Text = $"{membersCount} Ø¹Ø¶Ùˆ";
 
                     var myMembership = await ctx.ChatGroupMembers
                         .FirstOrDefaultAsync(m => m.GroupId == groupId
@@ -309,7 +309,7 @@ namespace HR_Application.UserControls
 
                 if (dbMsg == null || dbMsg.SenderId != App.CurrentUser.Id)
                 {
-                    LocalizationManager.ShowMessage("áÇ íãßä ÊÚÏíá åĞå ÇáÑÓÇáÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ù„Ø§ ÙŠÙ…ÙƒÙ† ØªØ¹Ø¯ÙŠÙ„ Ù‡Ø°Ù‡ Ø§Ù„Ø±Ø³Ø§Ù„Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -366,7 +366,7 @@ namespace HR_Application.UserControls
             catch (Exception ex)
             {
                 Console.WriteLine($"EditGroupMessage error: {ex.Message}");
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÚÏíá ÇáÑÓÇáÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -377,7 +377,7 @@ namespace HR_Application.UserControls
                 {
                     using var ctx = new AppDbContext(App.ConnectionString);
 
-                    // ÍİÙ ÇáÑÓÇáÉ
+                    // Ø­ÙØ¸ Ø§Ù„Ø±Ø³Ø§Ù„Ø©
                     var dbMsg = new ChatGroupMessage
                     {
                         GroupId = SelectedGroupId,
@@ -393,7 +393,7 @@ namespace HR_Application.UserControls
                     if (tempMsg != null)
                         tempMsg.MessageDbId = dbMsg.Id;
 
-                    // ÍİÙ ÇáãÑİŞÇÊ
+                    // Ø­ÙØ¸ Ø§Ù„Ù…Ø±ÙÙ‚Ø§Øª
                     foreach (var att in attachments)
                     {
                         ctx.ChatGroupAttachments.Add(new ChatGroupAttachment
@@ -407,7 +407,7 @@ namespace HR_Application.UserControls
                         });
                     }
 
-                    // ÒæøÏ UnreadCount áÈÇŞí ÇáÃÚÖÇÁ
+                    // Ø²ÙˆÙ‘Ø¯ UnreadCount Ù„Ø¨Ø§Ù‚ÙŠ Ø§Ù„Ø£Ø¹Ø¶Ø§Ø¡
                     var otherMembers = await ctx.ChatGroupMembers
                         .Where(m => m.GroupId == SelectedGroupId
                                  && m.UserId != App.CurrentUser.Id)
@@ -426,7 +426,7 @@ namespace HR_Application.UserControls
                     GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                     {
                         GroupId = SelectedGroupId,
-                        LastMessage = string.IsNullOrEmpty(message) ? "?? ãÑİŞ" : message,
+                        LastMessage = string.IsNullOrEmpty(message) ? LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚") : message,
                         LastMessageTime = DateTime.Now,
                         UpdateType = "NewMessage"
                     });
@@ -452,7 +452,7 @@ namespace HR_Application.UserControls
                     {
                         await App.SignalRConnection.StartAsync();
 
-                        // ÅÚÇÏÉ ÊÓÌíá ÇáãÓÊÎÏã ÈÚÏ ÅÚÇÏÉ ÇáÇÊÕÇá
+                        // Ø¥Ø¹Ø§Ø¯Ø© ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø¹Ø¯ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø§ØªØµØ§Ù„
                         if (App.CurrentUser != null && App.CurrentUser.Id > 0)
                         {
                             await App.SignalRConnection.InvokeAsync("SetUserIdentifier", App.CurrentUser.Id.ToString());
@@ -473,7 +473,7 @@ namespace HR_Application.UserControls
 
                 await App.SignalRConnection.InvokeAsync("SendGroupMessage",
                     SelectedGroupId, App.CurrentUser.Id, message, App.CurrentUser.FullName);
-                // ÅÑÓÇá ÇáÑÓÇáÉ
+                // Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©
 
             }
             catch (Exception ex)
@@ -488,7 +488,7 @@ namespace HR_Application.UserControls
             var msg = GetGroupMessageFromContextMenu(sender);
             if (msg == null || !msg.IsFromMe) return;
 
-            var confirm = LocalizationManager.ShowMessage("åá ÊÑíÏ ÍĞİ åĞå ÇáÑÓÇáÉ¿", "ÊÃßíÏ",
+            var confirm = LocalizationManager.ShowMessage("Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø±Ø³Ø§Ù„Ø©ØŸ", LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯"),
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
@@ -546,7 +546,7 @@ namespace HR_Application.UserControls
             MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
 
             EditBar.Visibility = Visibility.Visible;
-            EditingLabel.Text = $"?? ÊÚÏíá: {(msg.MessageText?.Length > 30 ? msg.MessageText[..30] + "..." : msg.MessageText)}";
+            EditingLabel.Text = $"?? ØªØ¹Ø¯ÙŠÙ„: {(msg.MessageText?.Length > 30 ? msg.MessageText[..30] + "..." : msg.MessageText)}";
         }
 
         private void CancelGroupEdit_Click(object sender, RoutedEventArgs e)
@@ -575,8 +575,8 @@ namespace HR_Application.UserControls
         private string GetLastMessageText()
             {
                 var lastMsg = Messages.LastOrDefault();
-                if (lastMsg == null) return "áÇ ÊæÌÏ ÑÓÇÆá";
-                if (string.IsNullOrEmpty(lastMsg.MessageText)) return "?? ãÑİŞ";
+                if (lastMsg == null) return LocalizationManager.Translate("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„");
+                if (string.IsNullOrEmpty(lastMsg.MessageText)) return LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚");
                 return lastMsg.MessageText;
             }
 
@@ -858,7 +858,7 @@ namespace HR_Application.UserControls
                     var info = new FileInfo(path);
                     if (info.Length > 10 * 1024 * 1024)
                     {
-                        LocalizationManager.ShowMessage($"Çáãáİ {info.Name} ÃßÈÑ ãä 10MB");
+                        LocalizationManager.ShowMessage($"Ø§Ù„Ù…Ù„Ù {info.Name} Ø£ÙƒØ¨Ø± Ù…Ù† 10MB");
                         continue;
                     }
 
@@ -907,11 +907,11 @@ namespace HR_Application.UserControls
                     try
                     {
                         File.WriteAllBytes(dialog.FileName, attachment.FileData);
-                        LocalizationManager.ShowMessage("Êã ÍİÙ Çáãáİ ÈäÌÇÍ", "Êã", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("ØªÙ…"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch (Exception ex)
                     {
-                        LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ Çáãáİ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }

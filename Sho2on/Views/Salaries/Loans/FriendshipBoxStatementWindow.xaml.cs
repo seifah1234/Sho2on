@@ -24,7 +24,7 @@ using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 namespace HR_Application.Views
 {
     /// <summary>
-    /// ãÍæá ÇáÃáæÇä áäæÚ ÇáÍÑßÉ
+    /// Ù…Ø­ÙˆÙ„ Ø§Ù„Ø£Ù„ÙˆØ§Ù† Ù„Ù†ÙˆØ¹ Ø§Ù„Ø­Ø±ÙƒØ©
     /// </summary>
     public class TransactionTypeColorConverter : IValueConverter
     {
@@ -50,7 +50,7 @@ namespace HR_Application.Views
     }
 
     /// <summary>
-    /// İÆÉ ÅÍÕÇÆíÇÊ ÇáİÑÚ
+    /// ÙØ¦Ø© Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ÙØ±Ø¹
     /// </summary>
     public class BranchStatistic
     {
@@ -63,7 +63,7 @@ namespace HR_Application.Views
     }
 
     /// <summary>
-    /// İÆÉ ÅÍÕÇÆíÇÊ ÇáÔåÑ
+    /// ÙØ¦Ø© Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø´Ù‡Ø±
     /// </summary>
     public class MonthlyStatistic
     {
@@ -76,7 +76,7 @@ namespace HR_Application.Views
     }
 
     /// <summary>
-    /// İÆÉ ßÔİ ÍÓÇÈ ÇáãæÙİ
+    /// ÙØ¦Ø© ÙƒØ´Ù Ø­Ø³Ø§Ø¨ Ø§Ù„Ù…ÙˆØ¸Ù
     /// </summary>
     public class EmployeeStatement
     {
@@ -120,7 +120,7 @@ namespace HR_Application.Views
             {
                 var branches = await _context.Branches.ToListAsync();
                 cmbBranch.Items.Clear();
-                cmbBranch.Items.Add("Çáßá");
+                cmbBranch.Items.Add(LocalizationManager.Translate("Ø§Ù„ÙƒÙ„"));
                 foreach (var branch in branches)
                 {
                     cmbBranch.Items.Add(branch.Name);
@@ -129,7 +129,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáİÑæÚ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -139,7 +139,7 @@ namespace HR_Application.Views
             {
                 if (dpFromDate.SelectedDate == null || dpToDate.SelectedDate == null)
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÊÍÏíÏ ÊÇÑíÎ ÇáÈÏÇíÉ æÇáäåÇíÉ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ ØªØ­Ø¯ÙŠØ¯ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙˆØ§Ù„Ù†Ù‡Ø§ÙŠØ©", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -150,7 +150,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÅäÔÇÁ ÇáÊŞÑíÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØªÙ‚Ø±ÙŠØ±: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -158,33 +158,33 @@ namespace HR_Application.Views
         {
             try
             {
-                // ÅÙåÇÑ ãÄÔÑ ÇáÊÍãíá
+                // Ø¥Ø¸Ù‡Ø§Ø± Ù…Ø¤Ø´Ø± Ø§Ù„ØªØ­Ù…ÙŠÙ„
                 Mouse.OverrideCursor = Cursors.Wait;
 
-                // ÇáÍÕæá Úáì ÕäÏæŞ ÇáÒãÇáÉ
+                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©
                 _friendshipBox = await _friendshipBoxService.GetOrCreateFriendshipBoxAsync();
 
-                // ÇáÍÕæá Úáì ÇáÍÑßÇÊ İí ÇáİÊÑÉ
+                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„Ø­Ø±ÙƒØ§Øª ÙÙŠ Ø§Ù„ÙØªØ±Ø©
                 _transactions = await GetFilteredTransactions(fromDate, toDate);
 
-                // ÊÍÏíË ÇáÅÍÕÇÆíÇÊ
+                // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª
                 UpdateStatistics(fromDate, toDate);
 
-                // ÊÍÏíË ÇáÊİÇÕíá
+                // ØªØ­Ø¯ÙŠØ« Ø§Ù„ØªÙØ§ØµÙŠÙ„
                 UpdateTransactionDetails();
 
-                // ÊÍÏíË ÅÍÕÇÆíÇÊ ÇáİÑæÚ
+                // ØªØ­Ø¯ÙŠØ« Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ÙØ±ÙˆØ¹
                 await UpdateBranchStatistics(fromDate, toDate);
 
-                // ÊÍÏíË ÅÍÕÇÆíÇÊ ÇáÔåæÑ
+                // ØªØ­Ø¯ÙŠØ« Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø´Ù‡ÙˆØ±
                 UpdateMonthlyStatistics(fromDate, toDate);
 
-                // ÊÍÏíË ßÔİ ÍÓÇÈ ÇáãæÙİíä
+                // ØªØ­Ø¯ÙŠØ« ÙƒØ´Ù Ø­Ø³Ø§Ø¨ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
                 await UpdateEmployeeStatement(fromDate, toDate);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -201,23 +201,23 @@ namespace HR_Application.Views
                 .OrderBy(t => t.TransactionDate)
                 .AsQueryable();
 
-            // ÊÕİíÉ ÍÓÈ äæÚ ÇáÍÑßÉ
+            // ØªØµÙÙŠØ© Ø­Ø³Ø¨ Ù†ÙˆØ¹ Ø§Ù„Ø­Ø±ÙƒØ©
             string selectedType = (cmbTransactionType.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content?.ToString();
-            if (selectedType != "Çáßá")
+            if (selectedType != LocalizationManager.Translate("Ø§Ù„ÙƒÙ„"))
             {
-                string type = selectedType switch
-                {
-                    "ÅíÏÇÚ" => "Deposit",
-                    "ÓÍÈ" => "Withdrawal",
-                    "ÓÏÇÏ" => "Repayment",
-                    _ => selectedType
-                };
-                query = query.Where(t => t.TransactionType == type);
+                if (selectedType == LocalizationManager.Translate("Ø§Ù„Ø¥ÙŠØ¯Ø§Ø¹"))
+                    selectedType = "Deposit";
+                else if (selectedType == LocalizationManager.Translate("Ø§Ù„Ø³Ø­Ø¨"))
+                    selectedType = "Withdrawal";
+                else if (selectedType == LocalizationManager.Translate("Ø§Ù„Ø³Ø¯Ø§Ø¯"))
+                    selectedType = "Repayment";
+
+                query = query.Where(t => t.TransactionType == selectedType);
             }
 
-            // ÊÕİíÉ ÍÓÈ ÇáİÑÚ
+            // ØªØµÙÙŠØ© Ø­Ø³Ø¨ Ø§Ù„ÙØ±Ø¹
             string selectedBranch = cmbBranch.SelectedItem?.ToString();
-            if (selectedBranch != null && selectedBranch != "Çáßá")
+            if (selectedBranch != null && selectedBranch != LocalizationManager.Translate("Ø§Ù„ÙƒÙ„"))
             {
                 query = query.Where(t => t.User.Branch.Name == selectedBranch);
             }
@@ -227,10 +227,10 @@ namespace HR_Application.Views
 
         private void UpdateStatistics(DateTime fromDate, DateTime toDate)
         {
-            // ÍÓÇÈ ÇáÑÕíÏ ÇáÇİÊÊÇÍí (ŞÈá ÊÇÑíÎ ÇáÈÏÇíÉ)
+            // Ø­Ø³Ø§Ø¨ Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ø§ÙØªØªØ§Ø­ÙŠ (Ù‚Ø¨Ù„ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©)
             var openingBalance = CalculateOpeningBalance(fromDate);
 
-            // ÍÓÇÈ ÇáÅÌãÇáíÇÊ İí ÇáİÊÑÉ
+            // Ø­Ø³Ø§Ø¨ Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ§Øª ÙÙŠ Ø§Ù„ÙØªØ±Ø©
             decimal totalDeposits = _transactions
                 .Where(t => t.TransactionType == "Deposit" || t.TransactionType == "Repayment")
                 .Sum(t => t.Amount);
@@ -243,10 +243,10 @@ namespace HR_Application.Views
                 .Where(t => t.TransactionType == "Repayment")
                 .Sum(t => t.Amount);
 
-            // ÇáÑÕíÏ ÇáÎÊÇãí
+            // Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ø®ØªØ§Ù…ÙŠ
             decimal closingBalance = openingBalance + totalDeposits - totalWithdrawals;
 
-            // ÊÍÏíË ÇáÚÑÖ
+            // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¹Ø±Ø¶
             txtOpeningBalance.Text = openingBalance.ToString("N2");
             txtTotalDeposits.Text = totalDeposits.ToString("N2");
             txtTotalWithdrawals.Text = totalWithdrawals.ToString("N2");
@@ -254,7 +254,7 @@ namespace HR_Application.Views
             txtClosingBalance.Text = closingBalance.ToString("N2");
             txtTransactionCount.Text = _transactions.Count.ToString();
 
-            // ÊÍÏíË ÇáÅÌãÇáíÇÊ İí ÇáÌÏæá
+            // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ§Øª ÙÙŠ Ø§Ù„Ø¬Ø¯ÙˆÙ„
             txtDepositsTotal.Text = totalDeposits.ToString("N2");
             txtWithdrawalsTotal.Text = totalWithdrawals.ToString("N2");
         }
@@ -263,7 +263,7 @@ namespace HR_Application.Views
         {
             try
             {
-                // ÇáÍÕæá Úáì ÇáÑÕíÏ ŞÈá ÊÇÑíÎ ÇáÈÏÇíÉ
+                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„Ø±ØµÙŠØ¯ Ù‚Ø¨Ù„ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©
                 var lastTransactionBefore = _context.FriendshipBoxTransactions
                     .Where(t => t.TransactionDate < fromDate)
                     .OrderByDescending(t => t.TransactionDate)
@@ -327,7 +327,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍÏíË ÅÍÕÇÆíÇÊ ÇáİÑæÚ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ÙØ±ÙˆØ¹: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -337,7 +337,7 @@ namespace HR_Application.Views
             {
                 var monthlyStats = new List<MonthlyStatistic>();
 
-                // ÊÌãíÚ ÇáÈíÇäÇÊ ÍÓÈ ÇáÔåÑ
+                // ØªØ¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø­Ø³Ø¨ Ø§Ù„Ø´Ù‡Ø±
                 var currentDate = fromDate;
                 decimal runningBalance = CalculateOpeningBalance(fromDate);
 
@@ -383,7 +383,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍÏíË ÅÍÕÇÆíÇÊ ÇáÔåæÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø´Ù‡ÙˆØ±: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -415,11 +415,11 @@ namespace HR_Application.Views
 
                     decimal netContribution = totalDeposits - totalWithdrawals;
 
-                    // ãÈáÛ ÕäÏæŞ ÇáÒãÇáÉ ááãæÙİ
+                    // Ù…Ø¨Ù„Øº ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© Ù„Ù„Ù…ÙˆØ¸Ù
                     var friendshipBoxSalary = user.Salaries?.FirstOrDefault(s => s.Type == 13);
                     decimal friendshipBoxAmount = friendshipBoxSalary?.Amount ?? 0;
 
-                    // ÇáÓáİ ÇáÍÇáíÉ
+                    // Ø§Ù„Ø³Ù„Ù Ø§Ù„Ø­Ø§Ù„ÙŠØ©
                     decimal currentLoans = user.Loans?
                         .Where(l => l.Status == "Approved" && l.RemainingAmount > 0)
                         .Sum(l => l.RemainingAmount) ?? 0;
@@ -428,13 +428,13 @@ namespace HR_Application.Views
                     {
                         Code = user.Code,
                         Name = user.FullName,
-                        Branch = user.Branch?.Name ?? "ÛíÑ ãÍÏÏ",
+                        Branch = user.Branch?.Name ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø­Ø¯Ø¯"),
                         TotalDeposits = totalDeposits,
                         TotalWithdrawals = totalWithdrawals,
                         NetContribution = netContribution,
                         MonthlyContribution = friendshipBoxAmount,
                         CurrentLoans = currentLoans,
-                        Status = user.CanTakeLoan ? "äÔØ" : "ÛíÑ äÔØ"
+                        Status = user.CanTakeLoan ? LocalizationManager.Translate("Ù†Ø´Ø·") : LocalizationManager.Translate("ØºÙŠØ± Ù†Ø´Ø·")
                     });
                 }
 
@@ -442,7 +442,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍÏíË ßÔİ ÍÓÇÈ ÇáãæÙİíä: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« ÙƒØ´Ù Ø­Ø³Ø§Ø¨ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -452,15 +452,15 @@ namespace HR_Application.Views
             {
                 if (dpFromDate.SelectedDate == null || dpToDate.SelectedDate == null)
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÊÍÏíÏ ÊÇÑíÎ ÇáÈÏÇíÉ æÇáäåÇíÉ ÃæáÇğ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ ØªØ­Ø¯ÙŠØ¯ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙˆØ§Ù„Ù†Ù‡Ø§ÙŠØ© Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 SaveFileDialog saveFileDialog = new SaveFileDialog
                 {
                     Filter = "Excel Files|*.xlsx",
-                    FileName = $"ßÔİ ÍÓÇÈ ÕäÏæŞ ÇáÒãÇáÉ_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx",
-                    Title = "ÊÕÏíÑ Åáì Excel"
+                    FileName = $"ÙƒØ´Ù Ø­Ø³Ø§Ø¨ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx",
+                    Title = LocalizationManager.Translate("ØªØµØ¯ÙŠØ± Ø¥Ù„Ù‰ Excel")
                 };
 
                 if (saveFileDialog.ShowDialog() == true)
@@ -470,7 +470,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÕÏíÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµØ¯ÙŠØ±: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -485,23 +485,23 @@ namespace HR_Application.Views
                     DateTime fromDate = dpFromDate.SelectedDate.Value;
                     DateTime toDate = dpToDate.SelectedDate.Value;
 
-                    // æÑŞÉ ÇáÍÑßÇÊ ÇáÊİÕíáíÉ
-                    var worksheet = workbook.Worksheets.Add("ÇáÍÑßÇÊ ÇáÊİÕíáíÉ");
+                    // ÙˆØ±Ù‚Ø© Ø§Ù„Ø­Ø±ÙƒØ§Øª Ø§Ù„ØªÙØµÙŠÙ„ÙŠØ©
+                    var worksheet = workbook.Worksheets.Add(LocalizationManager.Translate("Ø§Ù„Ø­Ø±ÙƒØ§Øª Ø§Ù„ØªÙØµÙŠÙ„ÙŠØ©"));
 
-                    // ÇáÚäæÇä
-                    worksheet.Cell(1, 1).Value = "ßÔİ ÍÓÇÈ ÕäÏæŞ ÇáÒãÇáÉ ÇáãÔÊÑß";
+                    // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
+                    worksheet.Cell(1, 1).Value = LocalizationManager.Translate("ÙƒØ´Ù Ø­Ø³Ø§Ø¨ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© Ø§Ù„Ù…Ø´ØªØ±Ùƒ");
                     worksheet.Range(1, 1, 1, 8).Merge();
                     worksheet.Cell(1, 1).Style.Font.FontSize = 16;
                     worksheet.Cell(1, 1).Style.Font.Bold = true;
                     worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    worksheet.Cell(2, 1).Value = $"ÇáİÊÑÉ ãä {fromDate:yyyy-MM-dd} Åáì {toDate:yyyy-MM-dd}";
+                    worksheet.Cell(2, 1).Value = $"Ø§Ù„ÙØªØ±Ø© Ù…Ù† {fromDate:yyyy-MM-dd} Ø¥Ù„Ù‰ {toDate:yyyy-MM-dd}";
                     worksheet.Range(2, 1, 2, 8).Merge();
                     worksheet.Cell(2, 1).Style.Font.FontSize = 12;
                     worksheet.Cell(2, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    // ÑÃÓ ÇáÌÏæá
-                    string[] headers = { "ÇáÊÇÑíÎ", "ÇáäæÚ", "ÇáãæÙİ", "ÇáßæÏ", "ÇáİÑÚ", "ÇáãÈáÛ", "ÇáÑÕíÏ ŞÈá", "ÇáÑÕíÏ ÈÚÏ", "ÇáæÕİ" };
+                    // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„
+                    string[] headers = { LocalizationManager.Translate("Ø§Ù„ØªØ§Ø±ÙŠØ®"), LocalizationManager.Translate("Ø§Ù„Ù†ÙˆØ¹"), LocalizationManager.Translate("Ø§Ù„Ù…ÙˆØ¸Ù"), LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯"), LocalizationManager.Translate("Ø§Ù„ÙØ±Ø¹"), LocalizationManager.Translate("Ø§Ù„Ù…Ø¨Ù„Øº"), LocalizationManager.Translate("Ø§Ù„Ø±ØµÙŠØ¯ Ù‚Ø¨Ù„"), LocalizationManager.Translate("Ø§Ù„Ø±ØµÙŠØ¯ Ø¨Ø¹Ø¯"), LocalizationManager.Translate("Ø§Ù„ÙˆØµÙ") };
                     for (int i = 0; i < headers.Length; i++)
                     {
                         worksheet.Cell(4, i + 1).Value = headers[i];
@@ -509,7 +509,7 @@ namespace HR_Application.Views
                         worksheet.Cell(4, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
                     }
 
-                    // ÈíÇäÇÊ ÇáÌÏæá
+                    // Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ø¯ÙˆÙ„
                     int row = 5;
                     foreach (var transaction in _transactions)
                     {
@@ -525,16 +525,16 @@ namespace HR_Application.Views
                         row++;
                     }
 
-                    // ÊäÓíŞ ÇáÃÑŞÇã
+                    // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ø£Ø±Ù‚Ø§Ù…
                     worksheet.Column(6).Style.NumberFormat.Format = "#,##0.00";
                     worksheet.Column(7).Style.NumberFormat.Format = "#,##0.00";
                     worksheet.Column(8).Style.NumberFormat.Format = "#,##0.00";
 
-                    // ÅÖÇİÉ æÑŞÉ ÅÍÕÇÆíÇÊ ÇáİÑæÚ
+                    // Ø¥Ø¶Ø§ÙØ© ÙˆØ±Ù‚Ø© Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ÙØ±ÙˆØ¹
                     if (dgBranchStatistics.ItemsSource is List<BranchStatistic> branchStats && branchStats.Any())
                     {
-                        var branchWorksheet = workbook.Worksheets.Add("ÅÍÕÇÆíÇÊ ÇáİÑæÚ");
-                        string[] branchHeaders = { "ÇáİÑÚ", "ÚÏÏ ÇáãæÙİíä", "ÇáÅíÏÇÚÇÊ", "ÇáÓÍæÈÇÊ", "ÕÇİí ÇáãÓÇåãÉ", "äÓÈÉ ÇáãÓÇåãÉ" };
+                        var branchWorksheet = workbook.Worksheets.Add(LocalizationManager.Translate("Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ÙØ±ÙˆØ¹"));
+                        string[] branchHeaders = { LocalizationManager.Translate("Ø§Ù„ÙØ±Ø¹"), LocalizationManager.Translate("Ø¹Ø¯Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†"), LocalizationManager.Translate("Ø§Ù„Ø¥ÙŠØ¯Ø§Ø¹Ø§Øª"), LocalizationManager.Translate("Ø§Ù„Ø³Ø­ÙˆØ¨Ø§Øª"), LocalizationManager.Translate("ØµØ§ÙÙŠ Ø§Ù„Ù…Ø³Ø§Ù‡Ù…Ø©"), LocalizationManager.Translate("Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ø³Ø§Ù‡Ù…Ø©") };
 
                         for (int i = 0; i < branchHeaders.Length; i++)
                         {
@@ -561,11 +561,11 @@ namespace HR_Application.Views
                         branchWorksheet.Column(6).Style.NumberFormat.Format = "0.0";
                     }
 
-                    // ÅÖÇİÉ æÑŞÉ ÅÍÕÇÆíÇÊ ÇáÔåæÑ
+                    // Ø¥Ø¶Ø§ÙØ© ÙˆØ±Ù‚Ø© Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø´Ù‡ÙˆØ±
                     if (dgMonthlyStatistics.ItemsSource is List<MonthlyStatistic> monthlyStats && monthlyStats.Any())
                     {
-                        var monthlyWorksheet = workbook.Worksheets.Add("ÅÍÕÇÆíÇÊ ÇáÔåæÑ");
-                        string[] monthlyHeaders = { "ÇáÔåÑ", "ÇáÅíÏÇÚÇÊ", "ÇáÓÍæÈÇÊ", "ÇáÓÏÇÏ", "ÇáÕÇİí", "ÇáÑÕíÏ" };
+                        var monthlyWorksheet = workbook.Worksheets.Add(LocalizationManager.Translate("Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø´Ù‡ÙˆØ±"));
+                        string[] monthlyHeaders = { LocalizationManager.Translate("Ø§Ù„Ø´Ù‡Ø±"), LocalizationManager.Translate("Ø§Ù„Ø¥ÙŠØ¯Ø§Ø¹Ø§Øª"), LocalizationManager.Translate("Ø§Ù„Ø³Ø­ÙˆØ¨Ø§Øª"), LocalizationManager.Translate("Ø§Ù„Ø³Ø¯Ø§Ø¯"), LocalizationManager.Translate("Ø§Ù„ØµØ§ÙÙŠ"), LocalizationManager.Translate("Ø§Ù„Ø±ØµÙŠØ¯") };
 
                         for (int i = 0; i < monthlyHeaders.Length; i++)
                         {
@@ -592,17 +592,17 @@ namespace HR_Application.Views
                         }
                     }
 
-                    // ÖÈØ ÚÑÖ ÇáÃÚãÏÉ
+                    // Ø¶Ø¨Ø· Ø¹Ø±Ø¶ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
                     worksheet.Columns().AdjustToContents();
 
                     workbook.SaveAs(filePath);
                 }
 
-                LocalizationManager.ShowMessage("Êã ÇáÊÕÏíÑ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø§Ù„ØªØµØ¯ÙŠØ± Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                throw new Exception($"ÎØÃ İí ÇáÊÕÏíÑ Åáì Excel: {ex.Message}", ex);
+                throw new Exception($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµØ¯ÙŠØ± Ø¥Ù„Ù‰ Excel: {ex.Message}", ex);
             }
             finally
             {
@@ -616,7 +616,7 @@ namespace HR_Application.Views
             {
                 if (dpFromDate.SelectedDate == null || dpToDate.SelectedDate == null)
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÊÍÏíÏ ÊÇÑíÎ ÇáÈÏÇíÉ æÇáäåÇíÉ ÃæáÇğ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ ØªØ­Ø¯ÙŠØ¯ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© ÙˆØ§Ù„Ù†Ù‡Ø§ÙŠØ© Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -628,12 +628,12 @@ namespace HR_Application.Views
                 {
                     var document = CreatePrintDocument(fromDate, toDate);
                     printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
-                        $"ßÔİ ÍÓÇÈ ÕäÏæŞ ÇáÒãÇáÉ - {fromDate:yyyy-MM-dd} Åáì {toDate:yyyy-MM-dd}");
+                        $"ÙƒØ´Ù Ø­Ø³Ø§Ø¨ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© - {fromDate:yyyy-MM-dd} Ø¥Ù„Ù‰ {toDate:yyyy-MM-dd}");
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáØÈÇÚÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -649,8 +649,8 @@ namespace HR_Application.Views
                 FontSize = 10
             };
 
-            // ÇáÚäæÇä ÇáÑÆíÓí
-            var title = new Paragraph(new Run("ßÔİ ÍÓÇÈ ÕäÏæŞ ÇáÒãÇáÉ ÇáãÔÊÑß"))
+            // Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ
+            var title = new Paragraph(new Run(LocalizationManager.Translate("ÙƒØ´Ù Ø­Ø³Ø§Ø¨ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø© Ø§Ù„Ù…Ø´ØªØ±Ùƒ")))
             {
                 FontSize = 16,
                 FontWeight = FontWeights.Bold,
@@ -659,8 +659,8 @@ namespace HR_Application.Views
             };
             doc.Blocks.Add(title);
 
-            // ÇáİÊÑÉ
-            var period = new Paragraph(new Run($"ÇáİÊÑÉ ãä {fromDate:yyyy-MM-dd} Åáì {toDate:yyyy-MM-dd}"))
+            // Ø§Ù„ÙØªØ±Ø©
+            var period = new Paragraph(new Run($"Ø§Ù„ÙØªØ±Ø© Ù…Ù† {fromDate:yyyy-MM-dd} Ø¥Ù„Ù‰ {toDate:yyyy-MM-dd}"))
             {
                 FontSize = 12,
                 TextAlignment = TextAlignment.Center,
@@ -668,8 +668,8 @@ namespace HR_Application.Views
             };
             doc.Blocks.Add(period);
 
-            // ÊÇÑíÎ ÇáØÈÇÚÉ
-            var printDate = new Paragraph(new Run($"ÊÇÑíÎ ÇáØÈÇÚÉ: {DateTime.Now:yyyy-MM-dd HH:mm}"))
+            // ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©
+            var printDate = new Paragraph(new Run($"ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {DateTime.Now:yyyy-MM-dd HH:mm}"))
             {
                 FontSize = 10,
                 TextAlignment = TextAlignment.Left,
@@ -677,12 +677,12 @@ namespace HR_Application.Views
             };
             doc.Blocks.Add(printDate);
 
-            // ÇáÅÍÕÇÆíÇÊ ÇáÓÑíÚÉ
+            // Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø³Ø±ÙŠØ¹Ø©
             var summaryTable = CreateSummaryTable(fromDate, toDate);
             doc.Blocks.Add(summaryTable);
 
-            // ÊİÇÕíá ÇáÍÑßÇÊ
-            var detailsHeader = new Paragraph(new Run("ÊİÇÕíá ÇáÍÑßÇÊ:"))
+            // ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø­Ø±ÙƒØ§Øª
+            var detailsHeader = new Paragraph(new Run(LocalizationManager.Translate("ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø­Ø±ÙƒØ§Øª:")))
             {
                 FontSize = 12,
                 FontWeight = FontWeights.Bold,
@@ -693,24 +693,24 @@ namespace HR_Application.Views
             var detailsTable = CreateDetailsTable();
             doc.Blocks.Add(detailsTable);
 
-            // ÅÌãÇáíÇÊ ÇáÍÑßÇÊ
+            // Ø¥Ø¬Ù…Ø§Ù„ÙŠØ§Øª Ø§Ù„Ø­Ø±ÙƒØ§Øª
             var totals = new Paragraph();
-            totals.Inlines.Add(new Run("ÅÌãÇáí ÇáÅíÏÇÚÇÊ: ") { FontWeight = FontWeights.Bold });
+            totals.Inlines.Add(new Run(LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥ÙŠØ¯Ø§Ø¹Ø§Øª: ")) { FontWeight = FontWeights.Bold });
             totals.Inlines.Add(new Run(txtTotalDeposits.Text));
-            totals.Inlines.Add(new Run("     ÅÌãÇáí ÇáÓÍæÈÇÊ: ") { FontWeight = FontWeights.Bold });
+            totals.Inlines.Add(new Run(LocalizationManager.Translate("     Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø³Ø­ÙˆØ¨Ø§Øª: ")) { FontWeight = FontWeights.Bold });
             totals.Inlines.Add(new Run(txtTotalWithdrawals.Text));
-            totals.Inlines.Add(new Run("     ÚÏÏ ÇáÍÑßÇÊ: ") { FontWeight = FontWeights.Bold });
+            totals.Inlines.Add(new Run(LocalizationManager.Translate("     Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø±ÙƒØ§Øª: ")) { FontWeight = FontWeights.Bold });
             totals.Inlines.Add(new Run(txtTransactionCount.Text));
 
             totals.Margin = new Thickness(0, 20, 0, 0);
             doc.Blocks.Add(totals);
 
-            // ÇáÊæŞíÚÇÊ
+            // Ø§Ù„ØªÙˆÙ‚ÙŠØ¹Ø§Øª
             var signatures = new Paragraph();
             signatures.Inlines.Add(new Run("\n\n\n"));
-            signatures.Inlines.Add(new Run("ãÚÏ ÇáÊŞÑíÑ: ___________________"));
-            signatures.Inlines.Add(new Run("                    ãÏŞŞ: ___________________"));
-            signatures.Inlines.Add(new Run("                    ãÏíÑ ÇáãÇáíÉ: ___________________"));
+            signatures.Inlines.Add(new Run(LocalizationManager.Translate("Ù…Ø¹Ø¯ Ø§Ù„ØªÙ‚Ø±ÙŠØ±: ___________________")));
+            signatures.Inlines.Add(new Run(LocalizationManager.Translate("                    Ù…Ø¯Ù‚Ù‚: ___________________")));
+            signatures.Inlines.Add(new Run(LocalizationManager.Translate("                    Ù…Ø¯ÙŠØ± Ø§Ù„Ù…Ø§Ù„ÙŠØ©: ___________________")));
 
             doc.Blocks.Add(signatures);
 
@@ -725,9 +725,9 @@ namespace HR_Application.Views
             table.Columns.Add(new TableColumn { Width = new GridLength(150) });
             table.Columns.Add(new TableColumn { Width = new GridLength(150) });
 
-            // ÑÃÓ ÇáÌÏæá
+            // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„
             var headerRow = new TableRow { Background = Brushes.LightGray };
-            string[] headers = { "ÇáÈäÏ", "ÇáãÈáÛ", "ÇáÈäÏ", "ÇáãÈáÛ" };
+            string[] headers = { LocalizationManager.Translate("Ø§Ù„Ø¨Ù†Ø¯"), LocalizationManager.Translate("Ø§Ù„Ù…Ø¨Ù„Øº"), LocalizationManager.Translate("Ø§Ù„Ø¨Ù†Ø¯"), LocalizationManager.Translate("Ø§Ù„Ù…Ø¨Ù„Øº") };
 
             foreach (var header in headers)
             {
@@ -744,12 +744,12 @@ namespace HR_Application.Views
             table.RowGroups.Add(new TableRowGroup());
             table.RowGroups[0].Rows.Add(headerRow);
 
-            // ÈíÇäÇÊ ÇáÌÏæá
+            // Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ø¯ÙˆÙ„
             var data = new[]
             {
-                new[] { "ÇáÑÕíÏ ÇáÇİÊÊÇÍí", txtOpeningBalance.Text, "ÅÌãÇáí ÇáÅíÏÇÚÇÊ", txtTotalDeposits.Text },
-                new[] { "ÅÌãÇáí ÇáÓÍæÈÇÊ", txtTotalWithdrawals.Text, "ÅÌãÇáí ÇáÓÏÇÏ", txtTotalRepayments.Text },
-                new[] { "ÇáÑÕíÏ ÇáÎÊÇãí", txtClosingBalance.Text, "ÚÏÏ ÇáÍÑßÇÊ", txtTransactionCount.Text }
+                new[] { LocalizationManager.Translate("Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ø§ÙØªØªØ§Ø­ÙŠ"), txtOpeningBalance.Text, LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥ÙŠØ¯Ø§Ø¹Ø§Øª"), txtTotalDeposits.Text },
+                new[] { LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø³Ø­ÙˆØ¨Ø§Øª"), txtTotalWithdrawals.Text, LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø³Ø¯Ø§Ø¯"), txtTotalRepayments.Text },
+                new[] { LocalizationManager.Translate("Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ø®ØªØ§Ù…ÙŠ"), txtClosingBalance.Text, LocalizationManager.Translate("Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø±ÙƒØ§Øª"), txtTransactionCount.Text }
             };
 
             foreach (var rowData in data)
@@ -775,18 +775,18 @@ namespace HR_Application.Views
         private Table CreateDetailsTable()
         {
             var table = new Table();
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáÊÇÑíÎ
-            table.Columns.Add(new TableColumn { Width = new GridLength(60) }); // ÇáäæÚ
-            table.Columns.Add(new TableColumn { Width = new GridLength(100) }); // ÇáãæÙİ
-            table.Columns.Add(new TableColumn { Width = new GridLength(70) }); // ÇáßæÏ
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáãÈáÛ
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáÑÕíÏ ŞÈá
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáÑÕíÏ ÈÚÏ
-            table.Columns.Add(new TableColumn { Width = new GridLength(150) }); // ÇáæÕİ
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„ØªØ§Ø±ÙŠØ®
+            table.Columns.Add(new TableColumn { Width = new GridLength(60) }); // Ø§Ù„Ù†ÙˆØ¹
+            table.Columns.Add(new TableColumn { Width = new GridLength(100) }); // Ø§Ù„Ù…ÙˆØ¸Ù
+            table.Columns.Add(new TableColumn { Width = new GridLength(70) }); // Ø§Ù„ÙƒÙˆØ¯
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„Ù…Ø¨Ù„Øº
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„Ø±ØµÙŠØ¯ Ù‚Ø¨Ù„
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„Ø±ØµÙŠØ¯ Ø¨Ø¹Ø¯
+            table.Columns.Add(new TableColumn { Width = new GridLength(150) }); // Ø§Ù„ÙˆØµÙ
 
-            // ÑÃÓ ÇáÌÏæá
+            // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„
             var headerRow = new TableRow { Background = Brushes.LightGray };
-            string[] headers = { "ÇáÊÇÑíÎ", "ÇáäæÚ", "ÇáãæÙİ", "ÇáßæÏ", "ÇáãÈáÛ", "ÇáÑÕíÏ ŞÈá", "ÇáÑÕíÏ ÈÚÏ", "ÇáæÕİ" };
+            string[] headers = { LocalizationManager.Translate("Ø§Ù„ØªØ§Ø±ÙŠØ®"), LocalizationManager.Translate("Ø§Ù„Ù†ÙˆØ¹"), LocalizationManager.Translate("Ø§Ù„Ù…ÙˆØ¸Ù"), LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯"), LocalizationManager.Translate("Ø§Ù„Ù…Ø¨Ù„Øº"), LocalizationManager.Translate("Ø§Ù„Ø±ØµÙŠØ¯ Ù‚Ø¨Ù„"), LocalizationManager.Translate("Ø§Ù„Ø±ØµÙŠØ¯ Ø¨Ø¹Ø¯"), LocalizationManager.Translate("Ø§Ù„ÙˆØµÙ") };
 
             foreach (var header in headers)
             {
@@ -803,7 +803,7 @@ namespace HR_Application.Views
             table.RowGroups.Add(new TableRowGroup());
             table.RowGroups[0].Rows.Add(headerRow);
 
-            // ÈíÇäÇÊ ÇáÌÏæá (Ãæá 50 ÍÑßÉ İŞØ ááØÈÇÚÉ)
+            // Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ø¯ÙˆÙ„ (Ø£ÙˆÙ„ 50 Ø­Ø±ÙƒØ© ÙÙ‚Ø· Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©)
             var printTransactions = _transactions.Take(50).ToList();
 
             foreach (var transaction in printTransactions)

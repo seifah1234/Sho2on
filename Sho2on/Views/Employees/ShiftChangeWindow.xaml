@@ -45,7 +45,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="تغيير الوردية" 
+            <TextBlock Text="{DynamicResource ChangeOfShift}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="18" 
@@ -58,7 +58,7 @@
             <Border Grid.Row="1" CornerRadius="0 0 20 20" Background="{DynamicResource PrimaryColor}"  >
                 <Grid>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Vertical" FlowDirection="RightToLeft">
-                        <TextBlock VerticalAlignment="Center" Text="الوردية" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColor}"/>
+                        <TextBlock VerticalAlignment="Center" Text="{DynamicResource Rosary}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                         <ComboBox KeyDown="shift_box_KeyDown" IsEditable="True" Name="shift_box" Margin="5" TabIndex="2"/>
                     </StackPanel>
                 </Grid>

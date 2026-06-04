@@ -246,7 +246,7 @@
                                    Foreground="{DynamicResource AccentColor}"
                                    VerticalAlignment="Center" Margin="0,0,8,0"/>
                                         <TextBlock Text="{Binding CurrentDateTime}"
-                       FontSize="13" Foreground="{DynamicResource ThirdColor}"
+                       FontSize="13" Foreground="{DynamicResource ThirdColorBrushBrush}"
                        VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -344,7 +344,7 @@
                                         </LinearGradientBrush>
                                     </Border.BorderBrush>
                                     <TextBlock Text="{DynamicResource HumanResourcesSystem}"
-                                               Foreground="{DynamicResource ThirdColor}"
+                                               Foreground="{DynamicResource ThirdColorBrushBrush}"
                                                FontSize="11" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"/>
                                 </Border>
@@ -393,7 +393,7 @@
                                             Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource EmployeeData}" Foreground="{DynamicResource SecondaryColor}"/>
                                     <Button Margin="3" Click="EmployeeMonthOpen"
                                             Visibility="{Binding EmploMonthP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploMonthP}"
-                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource MonthlyEmployees}"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource MonthlyEmployees}" Foreground="{DynamicResource SecondaryColor}"/>
                                 </StackPanel>
 
                                 <!-- Employee Affairs -->

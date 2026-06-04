@@ -60,7 +60,7 @@
             <Setter Property="BorderBrush" Value="#FFFFFF"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -68,7 +68,7 @@
         </Style>
         <!-- نمط للـ RadioButton -->
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="5"/>
@@ -79,7 +79,7 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -111,7 +111,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="المأموريات" 
+            <TextBlock Text="{DynamicResource Errands}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -135,11 +135,11 @@
                                              Width="120"
                                      VerticalAlignment="Bottom"
                                              KeyDown="txtEmployeeCode_KeyDown"
-                                             BorderBrush="{DynamicResource ThirdColor}"
-                                             Foreground="{DynamicResource ThirdColor}"
+                                             BorderBrush="{DynamicResource ThirdColorBrush}"
+                                             Foreground="{DynamicResource ThirdColorBrushBrush}"
                                              Margin="5"/>
                             <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
-                                <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                 <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                             </StackPanel>
                             <Button x:Name="btnSelectEmployee" 
@@ -150,21 +150,21 @@
                                             Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="AccountSearch" Width="20" Height="20" Margin="0,0,5,0"/>
-                                    <TextBlock Text="اختر الموظف"/>
+                                    <TextBlock Text="{DynamicResource SelectEmployee}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
 
                         <!-- DateTimePickers -->
                         <StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center" Text="من :" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource From2}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                             <xctk:DateTimePicker ValueChanged="from_dateTimePicker_ValueChanged" Name="from_dateTimePicker" Width="170" HorizontalContentAlignment="Center" Format="Custom" FlowDirection="LeftToRight" 
                                                  TimePickerVisibility="Visible" 
                                                  Background="Transparent"
                                                  Foreground="{DynamicResource TextPrimaryColor}"
                                                  BorderBrush="{DynamicResource TextPrimaryColor}"
                                                   FormatString="dd/MM/yyyy HH:mm" Margin="5"/>
-                            <TextBlock VerticalAlignment="Center" Margin="10 0 0 0" Text="الى :" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <TextBlock VerticalAlignment="Center" Margin="10 0 0 0" Text="{DynamicResource To3}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
                             <xctk:DateTimePicker ValueChanged="to_dateTimePicker_ValueChanged" Name="to_dateTimePicker" Width="170" HorizontalContentAlignment="Center" Format="Custom" FlowDirection="LeftToRight" 
                                                  TimePickerVisibility="Visible" 
                                                  Background="Transparent"
@@ -175,11 +175,11 @@
 
                         <!-- المدير الموافق -->
                         <GroupBox x:Name="groupApprover" 
-           Header="الموافق على المأمورية" 
+           Header="{DynamicResource ApprovalOfTheMission}" 
            FontSize="16" 
            FontWeight="Bold" 
            Foreground="{DynamicResource TextPrimaryColor}"
-                                  BorderBrush="{DynamicResource ThirdColor}"
+                                  BorderBrush="{DynamicResource ThirdColorBrush}"
            Padding="15"
            Margin="10">
                             <StackPanel Orientation="Vertical">
@@ -198,7 +198,7 @@
                      Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="AccountTie" Width="20" Height="20" Margin="0,0,5,0"/>
-                                            <TextBlock Text="اختر الموافق"/>
+                                            <TextBlock Text="{DynamicResource SelectOk}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -216,7 +216,7 @@
                         <Button Style="{DynamicResource ActionButtonStyle}" Background="{DynamicResource ButtonHoverBackground}" Foreground="{DynamicResource ButtonHoverForeground}" HorizontalAlignment="Center" x:Name="save_btn" Click="save_month_btn_Click" Margin="20">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="إضافة" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Addition}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

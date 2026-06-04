@@ -32,7 +32,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان مع تحسين الخط والظل -->
-            <TextBlock Text="بيانات المناطق" 
+            <TextBlock Text="{DynamicResource RegionsData}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="20" 
@@ -48,7 +48,7 @@
                     <!-- حقل الكود -->
                     <TextBox x:Name="code_box" 
                              Margin="0 20 0 0" 
-                             Tag="كود المنطقة" 
+                             Tag="{Binding Code}" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 
@@ -62,7 +62,7 @@
                     <!-- حقل الاسم -->
                     <TextBox x:Name="name_box" 
                              Margin="0 20 0 0" 
-                             Tag="اسم المنطقة" 
+                             Tag="{Binding Name}" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 
@@ -74,19 +74,19 @@
 
                     <!-- أزرار التعديل والحفظ -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="edit_Area">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColorBrush}" Height="45"  Width="110" Margin="5" Click="edit_Area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource ThirdColor}" Text="تعديل" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColorBrushBrush}" Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Height="45"  Width="110" Margin="5" Click="save_Area">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColorBrush}" Height="45"  Width="110" Margin="5" Click="save_Area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حفظ" Foreground="{DynamicResource ThirdColor}" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="{DynamicResource Save}" Foreground="{DynamicResource ThirdColorBrushBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -94,19 +94,19 @@
 
                     <!-- أزرار الخروج والحذف -->
                     <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}" Width="110" Margin="5" Height="45" Click="exit_Area">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColorBrush}" Width="110" Margin="5" Height="45" Click="exit_Area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource ThirdColor}" Text="خروج" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColorBrushBrush}" Text="{DynamicResource Exit}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColor}"  Width="110" Margin="5" Height="45" Click="delete_area">
+                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColorBrush}"  Width="110" Margin="5" Height="45" Click="delete_area">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColor}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource ThirdColor}" Text="حذف" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColorBrushBrush}" Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>

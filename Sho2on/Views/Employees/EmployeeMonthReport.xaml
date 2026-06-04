@@ -81,7 +81,7 @@
                         <Icon:PackIconMaterial Kind="CalendarMonth" Width="20" Height="20"
                                                Foreground="{DynamicResource TextPrimaryColor}"
                                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="شهري الموظفين"
+                        <TextBlock Text="{DynamicResource MonthlyEmployees}"
                                    FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource TextPrimaryColor}"
                                    VerticalAlignment="Center"/>
@@ -127,7 +127,7 @@
                                 <Icon:PackIconMaterial Kind="Eye" Width="16" Height="16"
                                                        Foreground="{DynamicResource AccentColor}"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="عرض البيانات" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource DisplayData}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{DynamicResource ToolbarButtonStyle}"
@@ -135,7 +135,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="EraserVariant" Width="16" Height="16"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="جديد" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource New}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{DynamicResource ToolbarButtonStyle}" Margin="0,0,6,6"
@@ -143,47 +143,46 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Printer" Width="16" Height="16"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="طباعة" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Print}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </UniformGrid>
 
                     <!-- Filters -->
                     <UniformGrid Grid.Column="1" 
-                               VerticalAlignment="Center" HorizontalAlignment="Right"
-                               FlowDirection="RightToLeft">
+                               VerticalAlignment="Center" >
 
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
-                            <Label Content="الفرع :" VerticalAlignment="Center"/>
+                        <StackPanel Width="200" HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Width="80" Content="{DynamicResource Branch2}" VerticalAlignment="Center"/>
                             <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
                                       Name="branch_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
-                            <Label Content="الادارة :" VerticalAlignment="Center"/>
+                        <StackPanel Width="200" HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Width="80" Content="{DynamicResource Administration3}" VerticalAlignment="Center"/>
                             <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
                                       Name="dept_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
-                            <Label Content="القطاع :" VerticalAlignment="Center"/>
+                        <StackPanel Width="200" HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Width="80" Content="{DynamicResource Sector2}" VerticalAlignment="Center"/>
                             <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
                                       Name="section_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
-                            <Label Content="الوظيفة :" VerticalAlignment="Center"/>
+                        <StackPanel Width="200" HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Width="80" Content="{DynamicResource Job2}" VerticalAlignment="Center"/>
                             <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id"
                                       Name="job_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
-                            <Label Content="الشهر :" VerticalAlignment="Center"/>
+                        <StackPanel Width="200" HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Width="80" Content="{DynamicResource Month2}" VerticalAlignment="Center"/>
                             <ComboBox Name="month_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
-                            <Label Content="السنة :" VerticalAlignment="Center"/>
+                        <StackPanel Width="200" HorizontalAlignment="Right" Orientation="Horizontal" Margin="6,4" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                            <Label Width="80" Content="{DynamicResource Sunnah2}" VerticalAlignment="Center"/>
                             <ComboBox Name="year_box" Style="{DynamicResource HeaderComboStyle}" Margin="6,0,0,0"/>
                         </StackPanel>
                     </UniformGrid>
@@ -205,31 +204,31 @@
                           CanUserDeleteRows="False"
                           SelectionUnit="FullRow">
                     <DataGrid.Columns>
-                        <DataGridTextColumn CanUserSort="False" Header="الكود"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Code}"
                                             Width="110" IsReadOnly="True"
                                             Binding="{Binding dataTotal.Code}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الاسم"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource TheName}"
                                             Width="130" IsReadOnly="True"
                                             Binding="{Binding dataTotal.Name}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="ساعات العمل"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource WorkingHours}"
                                             IsReadOnly="True"
                                             Binding="{Binding dataTotal.TotalWorkTime, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="التأخير"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Delay}"
                                             IsReadOnly="True"
                                             Binding="{Binding dataTotal.TotalLate, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="خ مبكر"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource ItSEarly}"
                                             IsReadOnly="True"
                                             Binding="{Binding dataTotal.TotalEarly, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الإضافي"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Extra}"
                                             IsReadOnly="True"
                                             Binding="{Binding dataTotal.TotalOT, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="ساعات الفعلية"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource ActualHours}"
                                             IsReadOnly="True"
                                             Binding="{Binding dataTotal.TotalAttendTime, StringFormat={}{0:hh\\:mm}}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الإجازات"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Vacations}"
                                             IsReadOnly="True"
                                             Binding="{Binding dataTotal.TotalHoliday}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الغياب"
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Absence}"
                                             IsReadOnly="True"
                                             Binding="{Binding dataTotal.TotalAbsence}"/>
                     </DataGrid.Columns>

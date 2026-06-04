@@ -2,13 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         FlowDirection="RightToLeft"
-        Title="معاينة الطباعة" Height="700" Width="800">
+        Title="{DynamicResource PrintPreview}" Height="700" Width="800">
 
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#34495e">
-            <Button x:Name="printBtn" Content="طباعة" Click="printBtn_Click" 
+            <Button x:Name="printBtn" Content="{DynamicResource Print}" Click="printBtn_Click" 
                     Background="#27ae60" Foreground="White" Margin="0,0,10,0" Padding="10,5"/>
-            <Button x:Name="closeBtn" Content="إغلاق" Click="closeBtn_Click" 
+            <Button x:Name="closeBtn" Content="{DynamicResource Closing}" Click="closeBtn_Click" 
                     Padding="10,5"/>
         </StackPanel>
 

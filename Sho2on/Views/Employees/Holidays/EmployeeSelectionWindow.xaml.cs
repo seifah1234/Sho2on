@@ -11,24 +11,26 @@ namespace HR_Application.Views.Employees.Holidays
     public partial class EmployeeSelectionWindow : Window
     {
         public User SelectedUser { get; private set; }
-        public string WindowTitle { get; set; } = "ÇÎÊÑ ãæÙİ";
-        public string SelectButtonText { get; set; } = "ÇÎÊíÇÑ";
+        public string WindowTitle { get; set; } = LocalizationManager.Translate("Ø§Ø®ØªØ± Ù…ÙˆØ¸Ù");
+        public string SelectButtonText { get; set; } = LocalizationManager.Translate("Ø§Ø®ØªÙŠØ§Ø±");
 
         public string? _searchCode;
 
-        public EmployeeSelectionWindow(List<User> users, bool showManagersOnly = false, string title = "ÇÎÊÑ ãæÙİ", string? searchCode = null)
+        public EmployeeSelectionWindow(List<User> users, bool showManagersOnly = false, string? title = null, string? searchCode = null)
         {
             InitializeComponent();
-
-            WindowTitle = title;
-            Title = title;
-            txtTitle.Text = title;
+            if (title != null)
+            {
+                WindowTitle = title;
+                Title = title;
+                txtTitle.Text = title;
+            }
             btnSelect.Content = SelectButtonText;
             _searchCode = searchCode;
 
             
 
-            // İáÊÑÉ ÇáãÓÊÎÏãíä ÅĞÇ ØõáÈ ÇáãÏíÑíä İŞØ
+            // ÙÙ„ØªØ±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† Ø¥Ø°Ø§ Ø·ÙÙ„Ø¨ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ† ÙÙ‚Ø·
             if (showManagersOnly)
             {
                 users = users.Where(u => u.JobTitle.IsManager.HasValue && u.JobTitle.IsManager.Value).ToList();
@@ -36,7 +38,7 @@ namespace HR_Application.Views.Employees.Holidays
 
             dgEmployees.ItemsSource = users;
 
-            // ÅÖÇİÉ ÚãæÏ ÈÍË ÓÑíÚ
+            // Ø¥Ø¶Ø§ÙØ© Ø¹Ù…ÙˆØ¯ Ø¨Ø­Ø« Ø³Ø±ÙŠØ¹
             SetupSearchFilter();
 
             if (users.Any())
@@ -88,7 +90,7 @@ namespace HR_Application.Views.Employees.Holidays
             }
             else
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ãæÙİ ãä ÇáŞÇÆãÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ù…ÙˆØ¸Ù Ù…Ù† Ø§Ù„Ù‚Ø§Ø¦Ù…Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -121,9 +123,9 @@ namespace HR_Application.Views.Employees.Holidays
         {
             if (value is bool isActive)
             {
-                return isActive ? "äÔØ" : "ÛíÑ äÔØ";
+                return isActive ? LocalizationManager.Translate("Ù†Ø´Ø·") : LocalizationManager.Translate("ØºÙŠØ± Ù†Ø´Ø·");
             }
-            return "ÛíÑ ãÚÑæİ";
+            return LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

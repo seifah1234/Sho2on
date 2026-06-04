@@ -186,8 +186,8 @@ namespace HR_Application
 
             var dayMapping = new Dictionary<string, int>
             {
-                { "ÇáÓÈÊ", 0 }, { "ÇáÃÍÏ", 1 }, { "ÇáÇËäíä", 2 }, { "ÇáËáÇËÇÁ", 3 },
-                { "ÇáÃÑÈÚÇÁ", 4 }, { "ÇáÎãíÓ", 5 }, { "ÇáÌãÚÉ", 6 }
+                { LocalizationManager.Translate("Ø§Ù„Ø³Ø¨Øª"), 0 }, { LocalizationManager.Translate("Ø§Ù„Ø£Ø­Ø¯"), 1 }, { LocalizationManager.Translate("Ø§Ù„Ø§Ø«Ù†ÙŠÙ†"), 2 }, { LocalizationManager.Translate("Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡"), 3 },
+                { LocalizationManager.Translate("Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡"), 4 }, { LocalizationManager.Translate("Ø§Ù„Ø®Ù…ÙŠØ³"), 5 }, { LocalizationManager.Translate("Ø§Ù„Ø¬Ù…Ø¹Ø©"), 6 }
             };
 
             int lateType = Properties.Settings.Default.LateType;
@@ -211,7 +211,7 @@ namespace HR_Application
                            a.AttendanceDate <= endMonth)
                 .ToListAsync();
 
-            // ÌáÈ ÌÏÇæá ÇáÊÃÎíÑ æÇáÃÖÇİí
+            // Ø¬Ù„Ø¨ Ø¬Ø¯Ø§ÙˆÙ„ Ø§Ù„ØªØ£Ø®ÙŠØ± ÙˆØ§Ù„Ø£Ø¶Ø§ÙÙŠ
             var lateRates = await _context.LateOvertimes
                 .Where(l => l.Type == 0 && (lateType == 0 ? l.MoneyType == 0 : l.MoneyType == 1))
                 .ToListAsync();
@@ -224,7 +224,7 @@ namespace HR_Application
 
             foreach (var att in attendances)
             {
-                // ÍÓÇÈ ŞíãÉ ÇáÊÃÎíÑ æÇáÃÖÇİí
+                // Ø­Ø³Ø§Ø¨ Ù‚ÙŠÙ…Ø© Ø§Ù„ØªØ£Ø®ÙŠØ± ÙˆØ§Ù„Ø£Ø¶Ø§ÙÙŠ
                 decimal lateValue = 0;
                 decimal otValue = 0;
 
@@ -476,18 +476,18 @@ namespace HR_Application
                         await transaction.CommitAsync();
 
                         await LoadAttendanceData();
-                        LocalizationManager.ShowMessage("Êã ÊÍÏíË ÇáÈíÇäÇÊ ÈäÌÇÍ");
+                        LocalizationManager.ShowMessage("ØªÙ… ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­");
                     }
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
-                        LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍÏíË ÇáÈíÇäÇÊ: {ex.Message}");
+                        LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}");
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£: {ex.Message}");
             }
         }
 
@@ -647,7 +647,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -655,7 +655,7 @@ namespace HR_Application
         {
             if (string.IsNullOrEmpty(code_box.Text) || branch_box.SelectedValue == null)
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ßÊÇÈÉ ßæÏ ÇáãæÙİ æ ÇÎÊíÇÑ ÇáİÑÚ", "ÎÙÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ ÙƒØªØ§Ø¨Ø© ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ùˆ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙØ±Ø¹", LocalizationManager.Translate("Ø®Ø¸Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             DataGet();
@@ -894,7 +894,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÍÓÇÈ ÊæÇÑíÎ ÇáÔåÑ ÇáãÎÕÕ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø³Ø§Ø¨ ØªÙˆØ§Ø±ÙŠØ® Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ù…Ø®ØµØµ: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return (DateTime.MinValue, DateTime.MaxValue);
             }
         }
@@ -930,7 +930,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1133,16 +1133,16 @@ namespace HR_Application
 
             List<StatClass> stat = new List<StatClass>
             {
-                new StatClass { name = "ÇáÛíÇÈ", value = totalAbsences },
-                new StatClass { name = "ÇáÑÇÍÉ ÇáÇÓÈæÚíÉ", value = totalWeeklyRest },
-                new StatClass { name = "ÇáÊÃÎíÑ", value = totalLate },
-                new StatClass { name = "ÇáÇÖÇİí", value = totalOT },
-                new StatClass { name = "ÎÑæÌ ãÈßÑ", value = totalEarly },
-                new StatClass { name = "ÏÎæá ãÈßÑ", value = totalINEarly },
-                new StatClass { name = "ÓÇÚÇÊ ÇáÍÖæÑ", value = AlltotalWH },
-                new StatClass { name = "ÕÇİí ÇáÓÇÚÇÊ", value = totalWH },
-                new StatClass { name = "ÅÌãÇáí ŞíãÉ ÇáÊÃÎíÑ", value = TotalLateValue.ToString("N2") },
-                new StatClass { name = "ÅÌãÇáí ŞíãÉ ÇáÃÖÇİí", value = TotalOTValue.ToString("N2") }
+                new StatClass { name = LocalizationManager.Translate("Ø§Ù„ØºÙŠØ§Ø¨"), value = totalAbsences },
+                new StatClass { name = LocalizationManager.Translate("Ø§Ù„Ø±Ø§Ø­Ø© Ø§Ù„Ø§Ø³Ø¨ÙˆØ¹ÙŠØ©"), value = totalWeeklyRest },
+                new StatClass { name = LocalizationManager.Translate("Ø§Ù„ØªØ£Ø®ÙŠØ±"), value = totalLate },
+                new StatClass { name = LocalizationManager.Translate("Ø§Ù„Ø§Ø¶Ø§ÙÙŠ"), value = totalOT },
+                new StatClass { name = LocalizationManager.Translate("Ø®Ø±ÙˆØ¬ Ù…Ø¨ÙƒØ±"), value = totalEarly },
+                new StatClass { name = LocalizationManager.Translate("Ø¯Ø®ÙˆÙ„ Ù…Ø¨ÙƒØ±"), value = totalINEarly },
+                new StatClass { name = LocalizationManager.Translate("Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ø­Ø¶ÙˆØ±"), value = AlltotalWH },
+                new StatClass { name = LocalizationManager.Translate("ØµØ§ÙÙŠ Ø§Ù„Ø³Ø§Ø¹Ø§Øª"), value = totalWH },
+                new StatClass { name = LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ù‚ÙŠÙ…Ø© Ø§Ù„ØªØ£Ø®ÙŠØ±"), value = TotalLateValue.ToString("N2") },
+                new StatClass { name = LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ù‚ÙŠÙ…Ø© Ø§Ù„Ø£Ø¶Ø§ÙÙŠ"), value = TotalOTValue.ToString("N2") }
             };
 
             StatWindow window = new StatWindow(stat);
@@ -1401,16 +1401,16 @@ namespace HR_Application
 
                         var headers = new[]
                         {
-                    "Çáíæã",
-                    "ÇáÊÇÑíÎ",
-                    "ÍÖæÑ",
-                    "İÑÚ ÇáÍÖæÑ",
-                    "ÇäÕÑÇİ",
-                    "İÑÚ ÇáÇäÕÑÇİ",
-                    "ÇáæÑÏíÉ",
-                    "Ó ÇáÚãá",
-                    "ŞíãÉ ÇáÊÃÎíÑ",
-                    "ŞíãÉ ÇáÃÖÇİí"
+                    LocalizationManager.Translate("Ø§Ù„ÙŠÙˆÙ…"),
+                    LocalizationManager.Translate("Ø§Ù„ØªØ§Ø±ÙŠØ®"),
+                    LocalizationManager.Translate("Ø­Ø¶ÙˆØ±"),
+                    LocalizationManager.Translate("ÙØ±Ø¹ Ø§Ù„Ø­Ø¶ÙˆØ±"),
+                    LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù"),
+                    LocalizationManager.Translate("ÙØ±Ø¹ Ø§Ù„Ø§Ù†ØµØ±Ø§Ù"),
+                    LocalizationManager.Translate("Ø§Ù„ÙˆØ±Ø¯ÙŠØ©"),
+                    LocalizationManager.Translate("Ø³ Ø§Ù„Ø¹Ù…Ù„"),
+                    LocalizationManager.Translate("Ù‚ÙŠÙ…Ø© Ø§Ù„ØªØ£Ø®ÙŠØ±"),
+                    LocalizationManager.Translate("Ù‚ÙŠÙ…Ø© Ø§Ù„Ø£Ø¶Ø§ÙÙŠ")
                 };
 
                         for (int i = 0; i < headers.Length; i++)
@@ -1444,12 +1444,12 @@ namespace HR_Application
                         }
 
                         workbook.SaveAs(filePath);
-                        LocalizationManager.ShowMessage("Êã ÇÓÊÎÑÇÌ ÇáÇßÓíá!");
+                        LocalizationManager.ShowMessage("ØªÙ… Ø§Ø³ØªØ®Ø±Ø§Ø¬ Ø§Ù„Ø§ÙƒØ³ÙŠÙ„!");
                     }
                 }
                 catch (Exception ex)
                 {
-                    LocalizationManager.ShowMessage(ex.Message, "ÎØÃ");
+                    LocalizationManager.ShowMessage(ex.Message, LocalizationManager.Translate("Ø®Ø·Ø£"));
                 }
             }
         }
@@ -1645,7 +1645,7 @@ namespace HR_Application
             var headerRowGroup1 = new TableRowGroup();
             System.Windows.Documents.TableRow headerRow1 = new System.Windows.Documents.TableRow();
 
-            var cell6 = CreateCell($"ÇÓã ÇáãæÙİ: {name}\nßæÏ ÇáãæÙİ: {code}\nÓÇÚÇÊ ÔåÑ : {month} - {year}", false, true);
+            var cell6 = CreateCell($"Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ¸Ù: {name}\nÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù: {code}\nØ³Ø§Ø¹Ø§Øª Ø´Ù‡Ø± : {month} - {year}", false, true);
             cell6.FontSize = 13;
             cell6.FontWeight = FontWeights.Bold;
             cell6.BorderThickness = new Thickness(0);
@@ -1673,7 +1673,7 @@ namespace HR_Application
             document.Blocks.Add(headerTable);
 
             // Title
-            var titleParagraph = new System.Windows.Documents.Paragraph(new System.Windows.Documents.Run($"ÊŞÑíÑ ÍÖæÑ æ ÇäÕÑÇİ ÊİÕíáí"))
+            var titleParagraph = new System.Windows.Documents.Paragraph(new System.Windows.Documents.Run($"ØªÙ‚Ø±ÙŠØ± Ø­Ø¶ÙˆØ± Ùˆ Ø§Ù†ØµØ±Ø§Ù ØªÙØµÙŠÙ„ÙŠ"))
             {
                 FontWeight = FontWeights.Bold,
                 FontSize = 14,
@@ -1699,21 +1699,21 @@ namespace HR_Application
             System.Windows.Documents.TableRow headerRow = new System.Windows.Documents.TableRow();
             headerRow.Background = System.Windows.Media.Brushes.LightGray;
 
-            headerRow.Cells.Add(CreateCell("Çáíæã", true, false));
-            headerRow.Cells.Add(CreateCell("ÇáÊÇÑíÎ", true, false));
-            headerRow.Cells.Add(CreateCell("ÍÖæÑ", true, false));
-            headerRow.Cells.Add(CreateCell("ÇäÕÑÇİ", true, false));
-            headerRow.Cells.Add(CreateCell("Ó ÇáÚãá", true, false));
-            headerRow.Cells.Add(CreateCell("ŞíãÉ ÇáÊÃÎíÑ", true, false));
-            headerRow.Cells.Add(CreateCell("ŞíãÉ ÇáÃÖÇİí", true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ÙŠÙˆÙ…"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ØªØ§Ø±ÙŠØ®"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø­Ø¶ÙˆØ±"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù†ØµØ±Ø§Ù"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø³ Ø§Ù„Ø¹Ù…Ù„"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ù‚ÙŠÙ…Ø© Ø§Ù„ØªØ£Ø®ÙŠØ±"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ù‚ÙŠÙ…Ø© Ø§Ù„Ø£Ø¶Ø§ÙÙŠ"), true, false));
 
             headerRowGroup.Rows.Add(headerRow);
             table.RowGroups.Add(headerRowGroup);
 
             var dayMapping = new Dictionary<string, int>
             {
-                { "ÇáÓÈÊ", 0 }, { "ÇáÃÍÏ", 1 }, { "ÇáÇËäíä", 2 }, { "ÇáËáÇËÇÁ", 3 },
-                { "ÇáÃÑÈÚÇÁ", 4 }, { "ÇáÎãíÓ", 5 }, { "ÇáÌãÚÉ", 6 }
+                { LocalizationManager.Translate("Ø§Ù„Ø³Ø¨Øª"), 0 }, { LocalizationManager.Translate("Ø§Ù„Ø£Ø­Ø¯"), 1 }, { LocalizationManager.Translate("Ø§Ù„Ø§Ø«Ù†ÙŠÙ†"), 2 }, { LocalizationManager.Translate("Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡"), 3 },
+                { LocalizationManager.Translate("Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡"), 4 }, { LocalizationManager.Translate("Ø§Ù„Ø®Ù…ÙŠØ³"), 5 }, { LocalizationManager.Translate("Ø§Ù„Ø¬Ù…Ø¹Ø©"), 6 }
             };
 
             // Populate table with data
@@ -1809,10 +1809,10 @@ namespace HR_Application
             System.Windows.Documents.TableRow summary_headerRow = new System.Windows.Documents.TableRow();
             summary_headerRow.Background = System.Windows.Media.Brushes.LightGray;
 
-            summary_headerRow.Cells.Add(CreateCell("ÈíÇä", true, false));
-            summary_headerRow.Cells.Add(CreateCell("Ú ÓÇÚÇÊ", true, false));
-            summary_headerRow.Cells.Add(CreateCell("ÈíÇä", true, false));
-            summary_headerRow.Cells.Add(CreateCell("Ú ÇíÇã", true, false));
+            summary_headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¨ÙŠØ§Ù†"), true, false));
+            summary_headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¹ Ø³Ø§Ø¹Ø§Øª"), true, false));
+            summary_headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¨ÙŠØ§Ù†"), true, false));
+            summary_headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¹ Ø§ÙŠØ§Ù…"), true, false));
 
             var empty = CreateCell("", false, false);
             empty.Background = System.Windows.Media.Brushes.White;
@@ -1827,47 +1827,47 @@ namespace HR_Application
 
             // Row 1
             System.Windows.Documents.TableRow summary_dataRow = new System.Windows.Documents.TableRow();
-            summary_dataRow.Cells.Add(CreateCell("ÇáÊÃÎíÑ", false, true));
+            summary_dataRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ØªØ£Ø®ÙŠØ±"), false, true));
             summary_dataRow.Cells.Add(CreateCell(ConvertToArabicNumerals(totalDelay.ToString()), false, true));
-            summary_dataRow.Cells.Add(CreateCell("ÛíÇÈ", false, true));
+            summary_dataRow.Cells.Add(CreateCell(LocalizationManager.Translate("ØºÙŠØ§Ø¨"), false, true));
             summary_dataRow.Cells.Add(CreateCell(ConvertToArabicNumerals(totalAbsences.ToString()), false, true));
             summary_dataRowGroup.Rows.Add(summary_dataRow);
 
             // Row 2
             System.Windows.Documents.TableRow summary_dataRow1 = new System.Windows.Documents.TableRow();
-            summary_dataRow1.Cells.Add(CreateCell("ÇÖÇİí", false, true));
+            summary_dataRow1.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ø¶Ø§ÙÙŠ"), false, true));
             summary_dataRow1.Cells.Add(CreateCell(ConvertToArabicNumerals(totalOvertime.ToString()), false, true));
-            summary_dataRow1.Cells.Add(CreateCell("ÇáÑÇÍÉ ÇáÇÓÈæÚíÉ", false, true));
+            summary_dataRow1.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø±Ø§Ø­Ø© Ø§Ù„Ø§Ø³Ø¨ÙˆØ¹ÙŠØ©"), false, true));
             summary_dataRow1.Cells.Add(CreateCell(ConvertToArabicNumerals(totalWeeklyRest.ToString()), false, true));
             summary_dataRowGroup.Rows.Add(summary_dataRow1);
 
             // Row 3
             System.Windows.Documents.TableRow summary_dataRow2 = new System.Windows.Documents.TableRow();
-            summary_dataRow2.Cells.Add(CreateCell("Ï ãÈßÑ", false, true));
+            summary_dataRow2.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¯ Ù…Ø¨ÙƒØ±"), false, true));
             summary_dataRow2.Cells.Add(CreateCell(ConvertToArabicNumerals(totalINEarly.ToString()), false, true));
-            summary_dataRow2.Cells.Add(CreateCell("ÇáÇÌÇÒÇÊ", false, true));
+            summary_dataRow2.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø¬Ø§Ø²Ø§Øª"), false, true));
             summary_dataRow2.Cells.Add(CreateCell(ConvertToArabicNumerals("0"), false, true));
             summary_dataRowGroup.Rows.Add(summary_dataRow2);
 
             // Row 4
             System.Windows.Documents.TableRow summary_dataRow3 = new System.Windows.Documents.TableRow();
-            summary_dataRow3.Cells.Add(CreateCell("ÓÇÚÇÊ ÇáÚãá", false, true));
+            summary_dataRow3.Cells.Add(CreateCell(LocalizationManager.Translate("Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ù…Ù„"), false, true));
             summary_dataRow3.Cells.Add(CreateCell(ConvertToArabicNumerals(AlltotalWH.ToString()), false, true));
-            summary_dataRow3.Cells.Add(CreateCell("Î ãÈßÑ", false, true));
+            summary_dataRow3.Cells.Add(CreateCell(LocalizationManager.Translate("Ø® Ù…Ø¨ÙƒØ±"), false, true));
             summary_dataRow3.Cells.Add(CreateCell(ConvertToArabicNumerals(totalEarly.ToString()), false, true));
             summary_dataRowGroup.Rows.Add(summary_dataRow3);
 
             // Row 5
             System.Windows.Documents.TableRow summary_dataRow4 = new System.Windows.Documents.TableRow();
-            summary_dataRow4.Cells.Add(CreateCell("ÅÌãÇáí ŞíãÉ ÇáÊÃÎíÑ", false, true));
+            summary_dataRow4.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ù‚ÙŠÙ…Ø© Ø§Ù„ØªØ£Ø®ÙŠØ±"), false, true));
             summary_dataRow4.Cells.Add(CreateCell(ConvertToArabicNumerals(TotalLateValue.ToString("N2")), false, true));
-            summary_dataRow4.Cells.Add(CreateCell("ÅÌãÇáí ŞíãÉ ÇáÃÖÇİí", false, true));
+            summary_dataRow4.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ù‚ÙŠÙ…Ø© Ø§Ù„Ø£Ø¶Ø§ÙÙŠ"), false, true));
             summary_dataRow4.Cells.Add(CreateCell(ConvertToArabicNumerals(TotalOTValue.ToString("N2")), false, true));
             summary_dataRowGroup.Rows.Add(summary_dataRow4);
 
             // Row 6
             System.Windows.Documents.TableRow summary_dataRow5 = new System.Windows.Documents.TableRow();
-            summary_dataRow5.Cells.Add(CreateCell("Ú ÓÇÚÇÊ İÚáíÉ", false, true));
+            summary_dataRow5.Cells.Add(CreateCell(LocalizationManager.Translate("Ø¹ Ø³Ø§Ø¹Ø§Øª ÙØ¹Ù„ÙŠØ©"), false, true));
             summary_dataRow5.Cells.Add(CreateCell(ConvertToArabicNumerals(totalHours.ToString()), false, true));
             summary_dataRowGroup.Rows.Add(summary_dataRow5);
 

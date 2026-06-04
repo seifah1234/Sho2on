@@ -21,7 +21,7 @@ public partial class ExportTypeDialog : Window
     {
         Width = 400;
         Height = 280;
-        Title = "اختر نوع التصدير";
+        Title = LocalizationManager.Translate("اختر نوع التصدير");
         ResizeMode = ResizeMode.NoResize;
 
         var stackPanel = new System.Windows.Controls.StackPanel
@@ -31,7 +31,7 @@ public partial class ExportTypeDialog : Window
 
         var titleText = new System.Windows.Controls.TextBlock
         {
-            Text = "اختر نوع ملف التصدير:",
+            Text = LocalizationManager.Translate("اختر نوع ملف التصدير:"),
             FontSize = 14,
             FontWeight = FontWeights.Bold,
             Margin = new Thickness(0, 0, 0, 20)
@@ -39,7 +39,7 @@ public partial class ExportTypeDialog : Window
 
         var radioForImport = new System.Windows.Controls.RadioButton
         {
-            Content = "تصدير بنفس تنسيق Template الإستيراد",
+            Content = LocalizationManager.Translate("تصدير بنفس تنسيق Template الإستيراد"),
             FontSize = 12,
             Margin = new Thickness(0, 0, 0, 10),
             Tag = ExportType.ForImport,
@@ -48,7 +48,7 @@ public partial class ExportTypeDialog : Window
 
         var radioDetailed = new System.Windows.Controls.RadioButton
         {
-            Content = "تصدير تقرير مفصل للقراءة فقط",
+            Content = LocalizationManager.Translate("تصدير تقرير مفصل للقراءة فقط"),
             FontSize = 12,
             Margin = new Thickness(0, 0, 0, 20),
             Tag = ExportType.DetailedReport
@@ -56,7 +56,7 @@ public partial class ExportTypeDialog : Window
 
         var descriptionText = new System.Windows.Controls.TextBlock
         {
-            Text = "ملاحظة: النوع الأول مناسب إذا كنت تريد تعديل البيانات وإعادة استيرادها.\nالنوع الثاني مناسب للعرض والطباعة فقط.",
+            Text = LocalizationManager.Translate("ملاحظة: النوع الأول مناسب إذا كنت تريد تعديل البيانات وإعادة استيرادها.\nالنوع الثاني مناسب للعرض والطباعة فقط."),
             FontSize = 11,
             Foreground = System.Windows.Media.Brushes.Gray,
             TextWrapping = TextWrapping.Wrap,
@@ -71,7 +71,7 @@ public partial class ExportTypeDialog : Window
 
         var btnOk = new System.Windows.Controls.Button
         {
-            Content = "موافق",
+            Content = LocalizationManager.Translate("موافق"),
             Width = 80,
             Height = 30,
             Margin = new Thickness(10),
@@ -80,7 +80,7 @@ public partial class ExportTypeDialog : Window
 
         var btnCancel = new System.Windows.Controls.Button
         {
-            Content = "إلغاء",
+            Content = LocalizationManager.Translate("إلغاء"),
             Width = 80,
             Height = 30,
             Margin = new Thickness(10),

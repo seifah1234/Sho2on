@@ -50,9 +50,9 @@ namespace HR_Application.Dashboard
                               user.Code == "0" ||
                               user.Code == "1";
 
-            bool hasAdminPermissions = permissions.Contains("مدير_النظام") ||
-                                     permissions.Contains("الصلاحيات") ||
-                                     permissions.Contains("الاعدادات العامة");
+            bool hasAdminPermissions = permissions.Contains(LocalizationManager.Translate("مدير_النظام")) ||
+                                     permissions.Contains(LocalizationManager.Translate("الصلاحيات")) ||
+                                     permissions.Contains(LocalizationManager.Translate("الاعدادات العامة"));
 
             return isSuperAdmin || hasAdminPermissions || permissions.Count >= 15;
         }
@@ -61,12 +61,12 @@ namespace HR_Application.Dashboard
         {
             var managerPermissions = new[]
             {
-                "التقارير",
-                "الحضور و الانصراف",
-                "ادارة ماليات",
-                "بيانات العاملين",
-                "شئون العاملين",
-                "المرتبات"
+                LocalizationManager.Translate("التقارير"),
+                LocalizationManager.Translate("الحضور و الانصراف"),
+                LocalizationManager.Translate("ادارة ماليات"),
+                LocalizationManager.Translate("بيانات العاملين"),
+                LocalizationManager.Translate("شئون العاملين"),
+                LocalizationManager.Translate("المرتبات")
             };
 
             return managerPermissions.Count(p => permissions.Contains(p)) >= 3;
@@ -76,12 +76,12 @@ namespace HR_Application.Dashboard
         {
             var hrPermissions = new[]
             {
-                "شئون العاملين",
-                "بيانات العاملين",
-                "الاجراءات",
-                "ادارة الاجازات",
-                "تقرير المرتبات",
-                "اضافة موظف"
+                LocalizationManager.Translate("شئون العاملين"),
+                LocalizationManager.Translate("بيانات العاملين"),
+                LocalizationManager.Translate("الاجراءات"),
+                LocalizationManager.Translate("ادارة الاجازات"),
+                LocalizationManager.Translate("تقرير المرتبات"),
+                LocalizationManager.Translate("اضافة موظف")
             };
 
             return hrPermissions.Count(p => permissions.Contains(p)) >= 3;
@@ -92,9 +92,9 @@ namespace HR_Application.Dashboard
             // إذا لم يكن لديه أي من الصلاحيات الإدارية
             var adminPermissions = new[]
             {
-                "التقارير", "الحضور و الانصراف", "ادارة ماليات",
-                "بيانات العاملين", "شئون العاملين", "الصلاحيات",
-                "الاعدادات العامة", "FingerPrints", "Settings"
+                LocalizationManager.Translate("التقارير"), LocalizationManager.Translate("الحضور و الانصراف"), LocalizationManager.Translate("ادارة ماليات"),
+                LocalizationManager.Translate("بيانات العاملين"), LocalizationManager.Translate("شئون العاملين"), LocalizationManager.Translate("الصلاحيات"),
+                LocalizationManager.Translate("الاعدادات العامة"), "FingerPrints", "Settings"
             };
 
             return !adminPermissions.Any(p => permissions.Contains(p));

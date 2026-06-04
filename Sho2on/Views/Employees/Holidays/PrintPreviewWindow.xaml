@@ -1,7 +1,7 @@
 ﻿<Window x:Class="HR_Application.Views.Employees.Holidays.PrintPreviewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="معاينة الطباعة" 
+        Title="{DynamicResource PrintPreview}" 
         Height="700" 
         Width="900"
         WindowStartupLocation="CenterScreen"
@@ -11,10 +11,10 @@
         <!-- شريط الأدوات -->
         <ToolBarTray DockPanel.Dock="Top" Background="{DynamicResource PrimaryColor}">
             <ToolBar Background="Transparent">
-                <Button x:Name="btnPrint" Background="{DynamicResource PrimaryColor}" Content="🖨️ طباعة" 
+                <Button x:Name="btnPrint" Background="{DynamicResource PrimaryColor}" Content="{DynamicResource Print2}" 
                         Click="btnPrint_Click" Padding="10,5" Margin="5"/>
                 <Separator/>
-                <Button x:Name="btnClose" Background="{DynamicResource PrimaryColor}" Content="❌ إغلاق" 
+                <Button x:Name="btnClose" Background="{DynamicResource PrimaryColor}" Content="{DynamicResource Close}" 
                         Click="btnClose_Click" Padding="10,5" Margin="5"/>
             </ToolBar>
         </ToolBarTray>

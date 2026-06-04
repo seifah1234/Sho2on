@@ -14,11 +14,11 @@ namespace HR_Application.UserControls
         // Dependency Properties
         public static readonly DependencyProperty UserNameProperty =
             DependencyProperty.Register(nameof(UserName), typeof(string), typeof(ChatItem),
-                new PropertyMetadata("اسم المستحدم"));
+                new PropertyMetadata(LocalizationManager.Translate("اسم المستحدم")));
 
         public static readonly DependencyProperty LastMessageProperty =
             DependencyProperty.Register(nameof(LastMessage), typeof(string), typeof(ChatItem),
-                new PropertyMetadata("اخر رسالة"));
+                new PropertyMetadata(LocalizationManager.Translate("اخر رسالة")));
 
         public static readonly DependencyProperty LastMessageTimeProperty =
             DependencyProperty.Register(nameof(LastMessage), typeof(string), typeof(ChatItem),

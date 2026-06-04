@@ -41,7 +41,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -50,21 +50,21 @@ namespace HR_Application.Views
             var box = await _friendshipBoxService.GetOrCreateFriendshipBoxAsync();
             var stats = await _friendshipBoxService.GetStatisticsAsync();
 
-            // ÊÍÏíË ÅÍÕÇÆíÇÊ ÇáÕäÏæŞ
+            // ØªØ­Ø¯ÙŠØ« Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚
             txtCurrentBalance.Text = box.CurrentBalance.ToString("N2");
             txtTotalDeposits.Text = box.TotalDeposits.ToString("N2");
             txtTotalLoans.Text = box.TotalLoans.ToString("N2");
             txtTotalRepayments.Text = box.TotalRepayments.ToString("N2");
 
-            // ÊÍÏíË ÇáÅÍÕÇÆíÇÊ ÇáÔåÑíÉ
+            // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø´Ù‡Ø±ÙŠØ©
             txtMonthlyDeposits.Text = stats.MonthlyDeposits.ToString("N2");
             txtMonthlyLoans.Text = stats.MonthlyLoans.ToString("N2");
             txtMonthlyNet.Text = (stats.MonthlyDeposits - stats.MonthlyLoans).ToString("N2");
 
-            // ÊÍÏíË äÓÈÉ ÇáÎÕã
+            // ØªØ­Ø¯ÙŠØ« Ù†Ø³Ø¨Ø© Ø§Ù„Ø®ØµÙ…
             txtDeductionPercentage.Text = box.DeductionPercentage.ToString("N1");
 
-            // ÍÓÇÈ ÚÏÏ ÇáÍÑßÇÊ ÇáÔåÑíÉ
+            // Ø­Ø³Ø§Ø¨ Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø±ÙƒØ§Øª Ø§Ù„Ø´Ù‡Ø±ÙŠØ©
             var monthlyTransactions = await _friendshipBoxService.GetTransactionsAsync(
                 new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
                 DateTime.Now
@@ -81,7 +81,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÍÑßÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø­Ø±ÙƒØ§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -92,17 +92,17 @@ namespace HR_Application.Views
                 if (decimal.TryParse(txtDeductionPercentage.Text, out decimal percentage))
                 {
                     await _friendshipBoxService.UpdateDeductionPercentageAsync(percentage);
-                    LocalizationManager.ShowMessage("Êã ÊÍÏíË äÓÈÉ ÇáÎÕã ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… ØªØ­Ø¯ÙŠØ« Ù†Ø³Ø¨Ø© Ø§Ù„Ø®ØµÙ… Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadDataAsync();
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá äÓÈÉ ÕÍíÍÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ù†Ø³Ø¨Ø© ØµØ­ÙŠØ­Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -140,7 +140,7 @@ namespace HR_Application.Views
 
                 var transactions = await _friendshipBoxService.GetTransactionsAsync(fromDate, toDate);
 
-                if (typeFilter != "Çáßá")
+                if (typeFilter != LocalizationManager.Translate("Ø§Ù„ÙƒÙ„"))
                 {
                     transactions = transactions.Where(t => t.TransactionType == typeFilter).ToList();
                 }
@@ -149,28 +149,28 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÕİíÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµÙÙŠØ©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void BtnGenerateMonthlyReport_Click(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ÅäÔÇÁ ÊŞÑíÑ ÔåÑí", "ÊŞÑíÑ", MessageBoxButton.OK, MessageBoxImage.Information);
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… Ø¥Ù†Ø´Ø§Ø¡ ØªÙ‚Ø±ÙŠØ± Ø´Ù‡Ø±ÙŠ", LocalizationManager.Translate("ØªÙ‚Ø±ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtnGenerateYearlyReport_Click(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ÅäÔÇÁ ÊŞÑíÑ Óäæí", "ÊŞÑíÑ", MessageBoxButton.OK, MessageBoxImage.Information);
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… Ø¥Ù†Ø´Ø§Ø¡ ØªÙ‚Ø±ÙŠØ± Ø³Ù†ÙˆÙŠ", LocalizationManager.Translate("ØªÙ‚Ø±ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtnExportToExcel_Click(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ÊÕÏíÑ ÇáÈíÇäÇÊ Åáì Excel", "ÊÕÏíÑ", MessageBoxButton.OK, MessageBoxImage.Information);
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØµØ¯ÙŠØ± Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¥Ù„Ù‰ Excel", LocalizationManager.Translate("ØªØµØ¯ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtnPrintBalanceSheet_Click(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ØÈÇÚÉ ßÔİ ÇáÑÕíÏ", "ØÈÇÚÉ", MessageBoxButton.OK, MessageBoxImage.Information);
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… Ø·Ø¨Ø§Ø¹Ø© ÙƒØ´Ù Ø§Ù„Ø±ØµÙŠØ¯", LocalizationManager.Translate("Ø·Ø¨Ø§Ø¹Ø©"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)

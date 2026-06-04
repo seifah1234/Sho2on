@@ -99,7 +99,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -110,14 +110,14 @@ namespace HR_Application.Dashboard
             var maleCount = await _context.Users.Where(u => !u.IsArchived && u.Gender == 'M').CountAsync();
             var femaleCount = await _context.Users.Where(u => !u.IsArchived && u.Gender == 'F').CountAsync();
 
-            MaleLabel.Text = $"ĞßæÑ: {maleCount}";
-            FemaleLabel.Text = $"ÅäÇË: {femaleCount}";
+            MaleLabel.Text = $"Ø°ÙƒÙˆØ±: {maleCount}";
+            FemaleLabel.Text = $"Ø¥Ù†Ø§Ø«: {femaleCount}";
 
             GenderPieChart.Series = new LiveCharts.SeriesCollection
     {
         new LiveCharts.Wpf.PieSeries
         {
-            Title  = "ĞßæÑ",
+            Title  = LocalizationManager.Translate("Ø°ÙƒÙˆØ±"),
             Values = new LiveCharts.ChartValues<int> { maleCount },
             Fill   = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#42A5F5")),
             StrokeThickness = 0,
@@ -125,7 +125,7 @@ namespace HR_Application.Dashboard
         },
         new LiveCharts.Wpf.PieSeries
         {
-            Title  = "ÅäÇË",
+            Title  = LocalizationManager.Translate("Ø¥Ù†Ø§Ø«"),
             Values = new LiveCharts.ChartValues<int> { femaleCount },
             Fill   = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F48FB1")),
             StrokeThickness = 0,
@@ -137,7 +137,7 @@ namespace HR_Application.Dashboard
             var depts = await _context.Departments
                 .Include(d => d.Users)
                 .OrderByDescending(d => d.Users.Count(u => !u.IsArchived))
-                .Take(8)   // ÃßÈÑ 8 ÅÏÇÑÇÊ
+                .Take(8)   // Ø£ÙƒØ¨Ø± 8 Ø¥Ø¯Ø§Ø±Ø§Øª
                 .ToListAsync();
 
             string[] deptColors = { "#AB47BC","#42A5F5","#66BB6A","#FFA726",
@@ -173,7 +173,7 @@ namespace HR_Application.Dashboard
     {
         new LiveCharts.Wpf.ColumnSeries
         {
-            Title           = "ãæÙİíä",
+            Title           = LocalizationManager.Translate("Ù…ÙˆØ¸ÙÙŠÙ†"),
             Values          = new LiveCharts.ChartValues<int>(branches.Select(b => b.Users.Count(u => !u.IsArchived))),
             Fill            = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#26C6DA")),
             Foreground = Brushes.Black,
@@ -196,7 +196,7 @@ namespace HR_Application.Dashboard
     {
         new LiveCharts.Wpf.ColumnSeries
         {
-            Title           = "ãæÙİíä",
+            Title           = LocalizationManager.Translate("Ù…ÙˆØ¸ÙÙŠÙ†"),
             Values          = new LiveCharts.ChartValues<int>(sectors.Select(s => s.Users.Count(u => !u.IsArchived))),
             Fill            = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AB47BC")),
             StrokeThickness = 0,
@@ -220,30 +220,30 @@ namespace HR_Application.Dashboard
                 rootNode.TotalChildren = sectors.Count;
                 rootNode.TotaBranches = branches.Count;
                 rootNode.TotalDeparts = depts.Count;
-                rootNode.Type = "ÇáÔÑßÉ";
-                rootNode.ChildrenType = "ŞØÇÚÇÊ";
+                rootNode.Type = LocalizationManager.Translate("Ø§Ù„Ø´Ø±ÙƒØ©");
+                rootNode.ChildrenType = LocalizationManager.Translate("Ù‚Ø·Ø§Ø¹Ø§Øª");
                 rootNode.Children = sectors.Select(s => new DashboardTree
                 {
                     Name = $"{s.Name}",
-                    ChildrenType = "İÑæÚ",
+                    ChildrenType = LocalizationManager.Translate("ÙØ±ÙˆØ¹"),
                     TotalEmployees = s.Users.Count(u => !u.IsArchived),
                     TotalChildren = branches.Count(b => b.Users.Any(u => u.DegreeId == s.Id)),
                     Id = s.Id,
-                    Type = "ŞØÇÚ",
+                    Type = LocalizationManager.Translate("Ù‚Ø·Ø§Ø¹"),
                     Children = branches.Where(b => b.Users.Any(u => u.DegreeId == s.Id)).Select(b => new DashboardTree
                     {
                         Name = $"{b.Name}",
                         Id = b.Id,
-                        ChildrenType = "ÇÏÇÑÇÊ",
+                        ChildrenType = LocalizationManager.Translate("Ø§Ø¯Ø§Ø±Ø§Øª"),
                         TotalChildren = depts.Count(d => d.Users.Any(u => u.DegreeId == s.Id && u.BranchId == b.Id)),
                         TotalEmployees = b.Users.Count(u => !u.IsArchived && u.BranchId == b.Id && s.Id == u.DegreeId),
-                        Type = "İÑÚ",
+                        Type = LocalizationManager.Translate("ÙØ±Ø¹"),
                         Children = depts.Where(d => d.Users.Any(u => u.DegreeId == s.Id && u.BranchId == b.Id)).Select(d => new DashboardTree
                         {
                             Name = $"{d.Name}",
                             TotalEmployees = d.Users.Count(u => !u.IsArchived && u.DegreeId == s.Id && u.BranchId == b.Id && u.DepartmentId == d.Id && u.DegreeId == s.Id),
                             Id = d.Id,
-                            Type = "ÇÏÇÑÉ"
+                            Type = LocalizationManager.Translate("Ø§Ø¯Ø§Ø±Ø©")
                         }).ToList()
                     }).ToList()
                 }).ToList();
@@ -252,7 +252,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÏÇÊÇ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¯Ø§ØªØ§: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -260,7 +260,7 @@ namespace HR_Application.Dashboard
         /// <summary>Load all sectors (Degrees) with employee + branch counts.</summary>
         private async Task LoadSectorCards()
         {
-            // Degrees = ÇáŞØÇÚÇÊ
+            // Degrees = Ø§Ù„Ù‚Ø·Ø§Ø¹Ø§Øª
             var sectors = await _context.Degrees.OrderBy(d => d.Name).ToListAsync();
 
             //SectorCountLabel.Text = sectors.Count.ToString();
@@ -310,12 +310,12 @@ namespace HR_Application.Dashboard
                 .ToListAsync();
 
             foreach (var user in expiredDocs.Take(5))
-                Alerts.Add(new Alert { Icon = "??", Message = $"ÑŞã Şæãí ãäÊåí ááãæÙİ {user.FullName}" });
+                Alerts.Add(new Alert { Icon = "??", Message = $"Ø±Ù‚Ù… Ù‚ÙˆÙ…ÙŠ Ù…Ù†ØªÙ‡ÙŠ Ù„Ù„Ù…ÙˆØ¸Ù {user.FullName}" });
 
             var pendingLoans = await _context.Loans
                 .Where(l => l.Status == "SentToManager").CountAsync();
             if (pendingLoans > 0)
-                Alerts.Add(new Alert { Icon = "??", Message = $"{pendingLoans} ØáÈ ÓáİÉ ÈÇäÊÙÇÑ ÇáãæÇİŞÉ" });
+                Alerts.Add(new Alert { Icon = "??", Message = $"{pendingLoans} Ø·Ù„Ø¨ Ø³Ù„ÙØ© Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©" });
 
             var totalUsers = await _context.Users.CountAsync();
             var attendanceCount = await _context.Attendances
@@ -323,7 +323,7 @@ namespace HR_Application.Dashboard
                 .CountAsync();
 
             if (totalUsers > 0 && attendanceCount < totalUsers * 0.8)
-                Alerts.Add(new Alert { Icon = "??", Message = "ãÚÏá ÇáÍÖæÑ Çáíæãí ãäÎİÖ" });
+                Alerts.Add(new Alert { Icon = "??", Message = LocalizationManager.Translate("Ù…Ø¹Ø¯Ù„ Ø§Ù„Ø­Ø¶ÙˆØ± Ø§Ù„ÙŠÙˆÙ…ÙŠ Ù…Ù†Ø®ÙØ¶") });
         }
 
         // ?? Navigation ????????????????????????????????????????????

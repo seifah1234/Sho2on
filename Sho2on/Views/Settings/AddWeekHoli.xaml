@@ -38,9 +38,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -74,7 +74,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="بيانات الاجازات" 
+            <TextBlock Text="{DynamicResource VacationData}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="20" 
@@ -97,13 +97,13 @@
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="edit_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="تعديل" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="save_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -113,13 +113,13 @@
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="exit_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="خروج" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Exit}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="delete_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

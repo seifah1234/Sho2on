@@ -67,10 +67,10 @@
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
         <!-- نمط للـ TextBox -->
@@ -79,10 +79,10 @@
             <Setter Property="Height" Value="35"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
@@ -95,7 +95,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="صلاحيات المستخدم" 
+            <TextBlock Text="{DynamicResource UserPermissions}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -117,18 +117,18 @@
                         <StackPanel Margin="15" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <!-- ComboBox للجروب -->
                             <StackPanel Margin="5" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <Label Margin="0" Content="الجروب" Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold"/>
+                                <Label Margin="0" Content="{DynamicResource TheGroup}" Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold"/>
                                 <ComboBox Name="roleComboBox" Margin="10 0 0 0"/>
                             </StackPanel>
 
                             <!-- TextBox لكلمة المرور -->
                             <StackPanel Margin="5" HorizontalAlignment="Left" Orientation="Vertical">
-                                <Label Content="اسم المستخددم" Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
+                                <Label Content="{DynamicResource Username3}" Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
                                 <TextBox Style="{DynamicResource UsernameTextBoxStyle}" Tag="اسم المستخدم" Name="username_box"/>
                             </StackPanel>
                             
                             <StackPanel Margin="5" HorizontalAlignment="Left" Orientation="Vertical">
-                                <Label Content="كلمة المرور" Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
+                                <Label Content="{DynamicResource Password2}" Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
                                 <PasswordBox Style="{DynamicResource PasswordTextBoxStyle}" Tag="كلمة المرور" Name="pass_box"/>
                             </StackPanel>
 
@@ -136,7 +136,7 @@
                                 <Button Style="{DynamicResource SaveButtonStyle}" Margin="10" IsDefault="True" x:Name="save_btn" Click="save_btn_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                        <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                         </StackPanel>
@@ -147,8 +147,8 @@
                 <Border Grid.Column="1" Margin="10 0 0 0" CornerRadius="10" Opacity="0.95"  >
                     <DataGrid  SelectionChanged="dataTable_SelectionChanged" AutoGenerateColumns="False" ItemsSource="{Binding usersList}" FlowDirection="RightToLeft" Name="dataTable" Margin="10">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding Code}" Width="100" Header="الكود"/>
-                            <DataGridTextColumn Binding="{Binding Name}" Width="200" Header="الاسم"/>
+                            <DataGridTextColumn Binding="{Binding Code}" Width="100" Header="{DynamicResource Code}"/>
+                            <DataGridTextColumn Binding="{Binding Name}" Width="200" Header="{DynamicResource TheName}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>

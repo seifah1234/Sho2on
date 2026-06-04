@@ -33,7 +33,7 @@ namespace HR_Application.Views.Employees.Holidays
         {
             try
             {
-                // ÊÍãíá ÃäæÇÚ ÇáÅÌÇÒÇÊ
+                // ØªØ­Ù…ÙŠÙ„ Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª
                 _leaveTypes = await _context.LeaveTypes
                     .Where(lt => lt.IsActive)
                     .OrderBy(lt => lt.Name)
@@ -41,8 +41,8 @@ namespace HR_Application.Views.Employees.Holidays
 
                 cmbLeaveType.Items.Clear();
                 cmbOwnLeaveType.Items.Clear();
-                cmbLeaveType.Items.Add(new ComboBoxItem { Content = "ÌãíÚ ÇáÃäæÇÚ", Tag = -1 });
-                cmbOwnLeaveType.Items.Add(new ComboBoxItem { Content = "ÌãíÚ ÇáÃäæÇÚ", Tag = -1 });
+                cmbLeaveType.Items.Add(new ComboBoxItem { Content = LocalizationManager.Translate("Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ù†ÙˆØ§Ø¹"), Tag = -1 });
+                cmbOwnLeaveType.Items.Add(new ComboBoxItem { Content = LocalizationManager.Translate("Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ù†ÙˆØ§Ø¹"), Tag = -1 });
 
                 foreach (var leaveType in _leaveTypes)
                 {
@@ -66,12 +66,12 @@ namespace HR_Application.Views.Employees.Holidays
 
                 List<StatusType> statuses = new List<StatusType>
                 {
-                    new StatusType{Name = "ÌãíÚ ÇáÍÇáÇÊ" , Code = -1},
-                    new StatusType{Name = "ãÓæÏÉ" , Code = 0},
-                    new StatusType{Name = "ŞíÏ ÇáÇäÊÙÇÑ" , Code = 1},
-                    new StatusType{Name = "ãæÇİŞ Úáíå" , Code = 2},
-                    new StatusType{Name = "ãÑİæÖ" , Code = 3},
-                    new StatusType{Name = "ãáÛì" , Code = 4},
+                    new StatusType{Name = LocalizationManager.Translate("Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª") , Code = -1},
+                    new StatusType{Name = LocalizationManager.Translate("Ù…Ø³ÙˆØ¯Ø©") , Code = 0},
+                    new StatusType{Name = LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±") , Code = 1},
+                    new StatusType{Name = LocalizationManager.Translate("Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡") , Code = 2},
+                    new StatusType{Name = LocalizationManager.Translate("Ù…Ø±ÙÙˆØ¶") , Code = 3},
+                    new StatusType{Name = LocalizationManager.Translate("Ù…Ù„ØºÙ‰") , Code = 4},
                 };
 
                 cmbStatus.ItemsSource = statuses;
@@ -87,7 +87,7 @@ namespace HR_Application.Views.Employees.Holidays
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -109,7 +109,7 @@ namespace HR_Application.Views.Employees.Holidays
                                (l.Status == 5 && App.CurrentUser.Department.IsHR == true))
                     .AsQueryable();
 
-                // ÊØÈíŞ ÇáİáÇÊÑ
+                // ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙÙ„Ø§ØªØ±
                 if (!string.IsNullOrEmpty(txtEmployeeId.Text))
                 {
                     query = query.Where(l => l.User.Code == txtEmployeeId.Text);
@@ -136,20 +136,20 @@ namespace HR_Application.Views.Employees.Holidays
                     query = query.Where(l => l.Status == selectedStatus.Code);
                 }
 
-                // ÊäİíĞ ÇáÇÓÊÚáÇã
+                // ØªÙ†ÙÙŠØ° Ø§Ù„Ø§Ø³ØªØ¹Ù„Ø§Ù…
                 var leaves = await query
                     .OrderByDescending(l => l.RequestDate)
                     .ToListAsync();
 
-                // ÊÍæíá Åáì ViewModel
+                // ØªØ­ÙˆÙŠÙ„ Ø¥Ù„Ù‰ ViewModel
                 _leaves = leaves.Select(l => new LeaveViewModel
                 {
                     Id = l.Id,
                     EmployeeId = l.UserId,
-                    EmployeeName = l.User?.FullName ?? "ÛíÑ ãÚÑæİ",
-                    ReplacementUserName = l.ReplacementUser?.FullName ?? "áÇ íæÌÏ",
+                    EmployeeName = l.User?.FullName ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"),
+                    ReplacementUserName = l.ReplacementUser?.FullName ?? LocalizationManager.Translate("Ù„Ø§ ÙŠÙˆØ¬Ø¯"),
                     LeaveTypeId = l.LeaveTypeId,
-                    LeaveTypeName = l.LeaveType?.Name ?? "ÛíÑ ãÚÑæİ",
+                    LeaveTypeName = l.LeaveType?.Name ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"),
                     StartDate = l.StartDate,
                     EndDate = l.EndDate,
                     Duration = l.Duration,
@@ -190,20 +190,20 @@ namespace HR_Application.Views.Employees.Holidays
                     query = query.Where(l => l.Status == selectedOwnStatus.Code);
                 }
 
-                // ÊäİíĞ ÇáÇÓÊÚáÇã
+                // ØªÙ†ÙÙŠØ° Ø§Ù„Ø§Ø³ØªØ¹Ù„Ø§Ù…
                 leaves = await query
                     .OrderByDescending(l => l.RequestDate)
                     .ToListAsync();
 
-                // ÊÍæíá Åáì ViewModel
+                // ØªØ­ÙˆÙŠÙ„ Ø¥Ù„Ù‰ ViewModel
                 _ownLeaves = leaves.Select(l => new LeaveViewModel
                 {
                     Id = l.Id,
                     EmployeeId = l.UserId,
-                    EmployeeName = l.User?.FullName ?? "ÛíÑ ãÚÑæİ",
-                    ReplacementUserName = l.ReplacementUser?.FullName ?? "áÇ íæÌÏ",
+                    EmployeeName = l.User?.FullName ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"),
+                    ReplacementUserName = l.ReplacementUser?.FullName ?? LocalizationManager.Translate("Ù„Ø§ ÙŠÙˆØ¬Ø¯"),
                     LeaveTypeId = l.LeaveTypeId,
-                    LeaveTypeName = l.LeaveType?.Name ?? "ÛíÑ ãÚÑæİ",
+                    LeaveTypeName = l.LeaveType?.Name ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"),
                     StartDate = l.StartDate,
                     EndDate = l.EndDate,
                     Duration = l.Duration,
@@ -217,7 +217,7 @@ namespace HR_Application.Views.Employees.Holidays
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ØáÈÇÊ ÇáÅÌÇÒÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -225,13 +225,13 @@ namespace HR_Application.Views.Employees.Holidays
         {
             return status switch
             {
-                0 => "ãÓæÏÉ",
-                1 => "ŞíÏ ÇáÇäÊÙÇÑ",
-                2 => "ãæÇİŞ Úáíå",
-                3 => "ãÑİæÖ",
-                4 => "ãáÛì",
-                5 => "ÊÍÊ ÇáãÑÇÌÚÉ",
-                _ => "ÛíÑ ãÚÑæİ"
+                0 => LocalizationManager.Translate("Ù…Ø³ÙˆØ¯Ø©"),
+                1 => LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±"),
+                2 => LocalizationManager.Translate("Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡"),
+                3 => LocalizationManager.Translate("Ù…Ø±ÙÙˆØ¶"),
+                4 => LocalizationManager.Translate("Ù…Ù„ØºÙ‰"),
+                5 => LocalizationManager.Translate("ØªØ­Øª Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©"),
+                _ => LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ")
             };
         }
 
@@ -277,7 +277,7 @@ namespace HR_Application.Views.Employees.Holidays
 
                 if (leave == null)
                 {
-                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì ØáÈ ÇáÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -286,39 +286,39 @@ namespace HR_Application.Views.Employees.Holidays
                     if (App.CurrentUser.Department != null && App.CurrentUser.Department.IsHR.HasValue && App.CurrentUser.Department.IsHR.Value)
                     {
                         leave.Status = 2;
-                        // ÇáÊÍŞŞ ãä ÇáÑÕíÏ ÇáãÊÈŞí
+                        // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ
                         var balance = await GetLeaveBalance(leave.UserId, leave.LeaveTypeId);
                         if (balance.Remaining < leave.Duration && leave.LeaveType.DeductFromBalance)
                         {
-                            LocalizationManager.ShowMessage($"ÇáÑÕíÏ ÇáãÊÈŞí ÛíÑ ßÇİí. ÇáãÊÈŞí: {balance.Remaining} íæã",
-                                "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            LocalizationManager.ShowMessage($"Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ ØºÙŠØ± ÙƒØ§ÙÙŠ. Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ: {balance.Remaining} ÙŠÙˆÙ…",
+                                LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
 
-                        // ÊÍÏíË ÇáÍÇáÉ
+                        // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©
                         leave.Status = 2; // Approved
                         leave.ApprovalDate = DateTime.Now;
 
-                        // ÎÕã ãä ÇáÑÕíÏ ÅĞÇ ßÇä ÇáäæÚ íÎÕã
+                        // Ø®ØµÙ… Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯ Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù†ÙˆØ¹ ÙŠØ®ØµÙ…
                         if (leave.LeaveType.DeductFromBalance)
                         {
                             await DeductLeaveBalance(leave.UserId, leave.LeaveTypeId, leave.Duration);
                         }
 
-                        // ÊÍÏíË ÓÌáÇÊ ÇáÍÖæÑ
+                        // ØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ø­Ø¶ÙˆØ±
                         await UpdateAttendanceForLeave(leave);
                     }
                     else
                     {
                         leave.Status = 5;
-                        leave.ApprovedBy = App.CurrentUser?.Id; // ÇÍÕá Úáì ÇáãÓÊÎÏã ÇáÍÇáí
+                        leave.ApprovedBy = App.CurrentUser?.Id; // Ø§Ø­ØµÙ„ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø­Ø§Ù„ÙŠ
                     }
 
-                    LocalizationManager.ShowMessage("Êã ÇáãæÇİŞÉ Úáì ØáÈ ÇáÅÌÇÒÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    // ØáÈ ÓÈÈ ÇáÑİÖ
+                    // Ø·Ù„Ø¨ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶
                     var reasonWindow = new RejectionReasonWindow();
                     reasonWindow.Owner = this;
 
@@ -329,7 +329,7 @@ namespace HR_Application.Views.Employees.Holidays
                         leave.ApprovalDate = DateTime.Now;
                         leave.ApprovedBy = App.CurrentUser?.Id;
 
-                        LocalizationManager.ShowMessage("Êã ÑİÖ ØáÈ ÇáÅÌÇÒÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
@@ -342,7 +342,7 @@ namespace HR_Application.Views.Employees.Holidays
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ãÚÇáÌÉ ÇáØáÈ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„Ø·Ù„Ø¨: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -364,39 +364,39 @@ namespace HR_Application.Views.Employees.Holidays
 
                 if (leave == null)
                 {
-                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì ØáÈ ÇáÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                if (LocalizationManager.ShowMessage("åá ÊÑíÏ ÅáÛÇÁ åĞå ÇáÅÌÇÒÉ¿", "ÊÃßíÏ ÇáÅáÛÇÁ",
+                if (LocalizationManager.ShowMessage("Ù‡Ù„ ØªØ±ÙŠØ¯ Ø¥Ù„ØºØ§Ø¡ Ù‡Ø°Ù‡ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ", LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø¥Ù„ØºØ§Ø¡"),
                     MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 {
                     return;
                 }
 
-                // ÅÑÌÇÚ ÇáÑÕíÏ ÅĞÇ ßÇäÊ ãæÇİŞ ÚáíåÇ æÊÎÕã ãä ÇáÑÕíÏ
+                // Ø¥Ø±Ø¬Ø§Ø¹ Ø§Ù„Ø±ØµÙŠØ¯ Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡Ø§ ÙˆØªØ®ØµÙ… Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯
                 if (leave.Status == 2 && leave.LeaveType.DeductFromBalance)
                 {
                     await ReturnLeaveBalance(leave.UserId, leave.LeaveTypeId, leave.Duration);
                 }
 
-                // ÊÍÏíË ÇáÍÇáÉ
+                // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©
                 leave.Status = 4; // Cancelled
                 leave.IsCancelled = true;
                 leave.CancelledDate = DateTime.Now;
                 leave.CancelledBy = App.CurrentUser?.Id;
 
-                // ÅÚÇÏÉ ÊÍÏíË ÓÌáÇÊ ÇáÍÖæÑ
+                // Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ø­Ø¶ÙˆØ±
                 await ResetAttendanceForLeave(leave);
 
                 await _context.SaveChangesAsync();
                 await LoadLeaves();
 
-                LocalizationManager.ShowMessage("Êã ÅáÛÇÁ ÇáÅÌÇÒÉ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÅáÛÇÁ ÇáÅÌÇÒÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -448,19 +448,19 @@ namespace HR_Application.Views.Employees.Holidays
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÚÑÖ ÇáÊİÇÕíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async System.Threading.Tasks.Task<LeaveBalanceInfo> GetLeaveBalance(int userId, int leaveTypeId)
         {
-            // ÇÍÕá Úáì ÑÕíÏ ÇáÅÌÇÒÉ áåĞÇ ÇáãæÙİ æåĞÇ ÇáäæÚ
+            // Ø§Ø­ØµÙ„ Ø¹Ù„Ù‰ Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ù„Ù‡Ø°Ø§ Ø§Ù„Ù…ÙˆØ¸Ù ÙˆÙ‡Ø°Ø§ Ø§Ù„Ù†ÙˆØ¹
             var leaveBalance = await _context.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.UserId == userId && lb.LeaveTypeId == leaveTypeId);
 
             if (leaveBalance == null)
             {
-                // ÅäÔÇÁ ÑÕíÏ ÌÏíÏ ÅĞÇ áã íßä ãæÌæÏÇğ
+                // Ø¥Ù†Ø´Ø§Ø¡ Ø±ØµÙŠØ¯ Ø¬Ø¯ÙŠØ¯ Ø¥Ø°Ø§ Ù„Ù… ÙŠÙƒÙ† Ù…ÙˆØ¬ÙˆØ¯Ø§Ù‹
                 var leaveType = await _context.LeaveTypes.FindAsync(leaveTypeId);
                 return new LeaveBalanceInfo
                 {
@@ -470,11 +470,11 @@ namespace HR_Application.Views.Employees.Holidays
                 };
             }
 
-            // ÍÓÇÈ ÇáÅÌÇÒÇÊ ÇáãÓÊÎÏãÉ
+            // Ø­Ø³Ø§Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…Ø©
             var usedLeaves = await _context.Leaves
                 .Where(l => l.UserId == userId &&
                            l.LeaveTypeId == leaveTypeId &&
-                           l.Status == 2) // ÇáãæÇİŞ ÚáíåÇ İŞØ
+                           l.Status == 2) // Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡Ø§ ÙÙ‚Ø·
                 .SumAsync(l => l.Duration);
 
             return new LeaveBalanceInfo
@@ -585,7 +585,7 @@ namespace HR_Application.Views.Employees.Holidays
                     attendance.IsHoliday = false;
                     attendance.IsAbsence = true;
                     attendance.LeaveId = null;
-                    // íãßäß åäÇ ÅÚÇÏÉ ÊÚííä ÇáÍÖæÑ ÅĞÇ ßÇä åäÇß äÙÇã ÍÖæÑ ÇİÊÑÇÖí
+                    // ÙŠÙ…ÙƒÙ†Ùƒ Ù‡Ù†Ø§ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ø­Ø¶ÙˆØ± Ø¥Ø°Ø§ ÙƒØ§Ù† Ù‡Ù†Ø§Ùƒ Ù†Ø¸Ø§Ù… Ø­Ø¶ÙˆØ± Ø§ÙØªØ±Ø§Ø¶ÙŠ
                 }
 
                 currentDate = currentDate.AddDays(1);
@@ -601,7 +601,7 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-            // ÇáÓãÇÍ İŞØ ÈÇáÃÑŞÇã
+            // Ø§Ù„Ø³Ù…Ø§Ø­ ÙÙ‚Ø· Ø¨Ø§Ù„Ø£Ø±Ù‚Ø§Ù…
             e.Handled = !char.IsDigit(e.Text, 0);
         }
 
@@ -623,8 +623,8 @@ namespace HR_Application.Views.Employees.Holidays
                    .Where(u => u.FullName.StartsWith(employeeName_box.Text))
                    .ToListAsync();
 
-                // İÊÍ äÇİĞÉ ÇÎÊíÇÑ ÇáãæÙİ
-                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "ÇÎÊÑ ÇáãæÙİ áØáÈ ÇáÅÌÇÒÉ");
+                // ÙØªØ­ Ù†Ø§ÙØ°Ø© Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…ÙˆØ¸Ù
+                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, LocalizationManager.Translate("Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ¸Ù Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©"));
                 employeeSelectionWindow.Owner = this;
 
                 if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
@@ -653,7 +653,7 @@ namespace HR_Application.Views.Employees.Holidays
 
     }
 
-    // İÆÇÊ ãÓÇÚÏÉ
+    // ÙØ¦Ø§Øª Ù…Ø³Ø§Ø¹Ø¯Ø©
     public class LeaveBalanceInfo
     {
         public int Total { get; set; }
@@ -670,11 +670,11 @@ namespace HR_Application.Views.Employees.Holidays
             {
                 return status switch
                 {
-                    0 => new SolidColorBrush(Colors.Gray), // ãÓæÏÉ
-                    1 => new SolidColorBrush(Colors.Orange), // ŞíÏ ÇáÇäÊÙÇÑ
-                    2 => new SolidColorBrush(Colors.Green), // ãæÇİŞ Úáíå
-                    3 => new SolidColorBrush(Colors.Red), // ãÑİæÖ
-                    4 => new SolidColorBrush(Colors.Purple), // ãáÛì
+                    0 => new SolidColorBrush(Colors.Gray), // Ù…Ø³ÙˆØ¯Ø©
+                    1 => new SolidColorBrush(Colors.Orange), // Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
+                    2 => new SolidColorBrush(Colors.Green), // Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡
+                    3 => new SolidColorBrush(Colors.Red), // Ù…Ø±ÙÙˆØ¶
+                    4 => new SolidColorBrush(Colors.Purple), // Ù…Ù„ØºÙ‰
                     _ => new SolidColorBrush(Colors.Gray)
                 };
             }
@@ -693,7 +693,7 @@ namespace HR_Application.Views.Employees.Holidays
         {
             if (value is DateTime dateTime)
             {
-                // ÇÓÊÎÏÇã ãßÊÈÉ PersianDateTime Ãæ ßÊÇÈÉ ãäØŞ ÇáÊÍæíá
+                // Ø§Ø³ØªØ®Ø¯Ø§Ù… Ù…ÙƒØªØ¨Ø© PersianDateTime Ø£Ùˆ ÙƒØªØ§Ø¨Ø© Ù…Ù†Ø·Ù‚ Ø§Ù„ØªØ­ÙˆÙŠÙ„
                 return dateTime.ToString("yyyy/MM/dd");
             }
             return string.Empty;
@@ -705,7 +705,7 @@ namespace HR_Application.Views.Employees.Holidays
         }
     }
 
-    // ÃÖİ åĞÇ ÇáÜ Converter İí äåÇíÉ Çáãáİ
+    // Ø£Ø¶Ù Ù‡Ø°Ø§ Ø§Ù„Ù€ Converter ÙÙŠ Ù†Ù‡Ø§ÙŠØ© Ø§Ù„Ù…Ù„Ù
     public class TupleConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -730,15 +730,15 @@ namespace HR_Application.Views.Employees.Holidays
             if (value is int status)
             {
 
-                // ÊÍŞŞ ãä ÕáÇÍíÇÊ ÇáãÓÊÎÏã
+                // ØªØ­Ù‚Ù‚ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
                 bool isManager = App.CurrentUser?.JobTitle?.IsManager ?? false;
                 bool isHR = App.CurrentUser?.Department?.IsHR ?? false;
 
-                // ÅÙåÇÑ ÇáÒÑ ááãÏíÑ ÅĞÇ ßÇäÊ ÇáÍÇáÉ Pending
+                // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø²Ø± Ù„Ù„Ù…Ø¯ÙŠØ± Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø­Ø§Ù„Ø© Pending
                 if (status == 1 && isManager)
                     return Visibility.Visible;
 
-                // ÅÙåÇÑ ÇáÒÑ ááãæÇÑÏ ÇáÈÔÑíÉ ÅĞÇ ßÇäÊ ÇáÍÇáÉ Under Review
+                // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø²Ø± Ù„Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø­Ø§Ù„Ø© Under Review
                 if (status == 5 && isHR)
                     return Visibility.Visible;
             }

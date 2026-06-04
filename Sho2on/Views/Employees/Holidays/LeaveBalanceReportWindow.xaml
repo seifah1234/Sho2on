@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         FlowDirection="RightToLeft"
-        Title="تقرير رصيد الإجازات" 
+        Title="{DynamicResource LeaveBalanceReport}" 
         Height="800" Width="1200"
         WindowState="Maximized"
         Background="{DynamicResource WindowRootBackground}"
@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
 
         <!-- العنوان -->
-        <TextBlock Grid.Row="0" Text="تقرير رصيد الإجازات" 
+        <TextBlock Grid.Row="0" Text="{DynamicResource LeaveBalanceReport}" 
                    FontSize="18" Foreground="{DynamicResource TextPrimaryColor}" FontWeight="Bold" 
                    HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
@@ -29,26 +29,26 @@
             <StackPanel HorizontalAlignment="Center">
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="كود الموظف" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
-                    <TextBox x:Name="txtEmployeeId" Width="120" Foreground="{DynamicResource ThirdColor}"/>
+                    <TextBlock Text="{DynamicResource EmployeeCode}" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
+                    <TextBox x:Name="txtEmployeeId" Width="120" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="اسم الموظف" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                    <TextBlock Text="{DynamicResource EmployeeName}" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                     <TextBox x:Name="txtEmployeeName" Width="200"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="5">
-                    <TextBlock Text="الإدارة" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                    <TextBlock Text="{DynamicResource Management}" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                     <ComboBox x:Name="cmbDepartment" Width="150" VerticalAlignment="Bottom" Height="30"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Margin="5" VerticalAlignment="Bottom">
-                    <Button x:Name="btnSearch" Content="بحث" Width="80" Height="30" Click="btnSearch_Click" Background="{DynamicResource ButtonHoverBackground}" Foreground="{DynamicResource ButtonHoverForeground}"/>
+                    <Button x:Name="btnSearch" Content="{DynamicResource Research}" Width="80" Height="30" Click="btnSearch_Click" Background="{DynamicResource ButtonHoverBackground}" Foreground="{DynamicResource ButtonHoverForeground}"/>
                 </StackPanel>
 
             </StackPanel>
-                <Label Name="statusTxt" Content="يتم تحميل البيانات..." Foreground="{DynamicResource ThirdColor}" HorizontalAlignment="Center" FontSize="14" Visibility="Collapsed"/>
+                <Label Name="statusTxt" Content="{DynamicResource DataIsBeingLoaded}" Foreground="{DynamicResource ThirdColorBrushBrush}" HorizontalAlignment="Center" FontSize="14" Visibility="Collapsed"/>
             </StackPanel>
         </Border>
 
@@ -67,7 +67,7 @@
                                 <!-- معلومات الموظف -->
                                 <Border Grid.Column="0" BorderBrush="{DynamicResource SecondaryColor}" BorderThickness="2" Background="{DynamicResource PrimaryColor}" Width="250" Padding="10" CornerRadius="5">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding EmployeeName}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource ThirdColor}"/>
+                                        <TextBlock Text="{Binding EmployeeName}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                         <TextBlock Text="{Binding EmployeeId, StringFormat='كود: {0}'}" Foreground="{DynamicResource TextPrimaryColor}" Margin="0,5"/>
                                         <TextBlock Text="{Binding DepartmentName, StringFormat='الإدارة: {0}'}" Foreground="{DynamicResource TextPrimaryColor}"/>
                                     </StackPanel>
@@ -109,15 +109,15 @@
 
                                                             <StackPanel Grid.Column="0">
                                                                 <TextBlock>
-                                                                    <Run Text="المجموع:" FontWeight="Bold"/>
+                                                                    <Run Text="{DynamicResource TheTotal2}" FontWeight="Bold"/>
                                                                     <Run Text="{Binding Total}"/>
                                                                 </TextBlock>
                                                                 <TextBlock>
-                                                                    <Run Text="المستخدم:" FontWeight="Bold"/>
+                                                                    <Run Text="{DynamicResource User3}" FontWeight="Bold"/>
                                                                     <Run Text="{Binding Used}"/>
                                                                 </TextBlock>
                                                                 <TextBlock>
-                                                                    <Run Text="المتبقي:" FontWeight="Bold"/>
+                                                                    <Run Text="{DynamicResource Residual2}" FontWeight="Bold"/>
                                                                     <Run Text="{Binding Remaining, Mode=OneWay}"/>
                                                                 </TextBlock>
                                                             </StackPanel>
@@ -146,9 +146,9 @@
 
         <!-- أزرار التصدير والإغلاق -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-            <Button Visibility="Collapsed" x:Name="btnExport" Content="📊 تصدير إلى Excel" Width="140" FontSize = "12" Height="35" Margin="5" Click="btnExport_Click" Background="#28A745" Foreground="White"/>
-            <Button Visibility="Collapsed" x:Name="btnPrint" Content="🖨️ طباعة" Width="100" Height="35" Margin="5" Click="btnPrint_Click" Background="#007ACC" Foreground="White"/>
-            <Button x:Name="btnClose" Content="❌ إغلاق" Width="100" Height="35" Margin="5" Click="btnClose_Click" Background="#DC3545" Foreground="White"/>
+            <Button Visibility="Collapsed" x:Name="btnExport" Content="{DynamicResource ExportToExcel2}" Width="140" FontSize = "12" Height="35" Margin="5" Click="btnExport_Click" Background="#28A745" Foreground="White"/>
+            <Button Visibility="Collapsed" x:Name="btnPrint" Content="{DynamicResource Print2}" Width="100" Height="35" Margin="5" Click="btnPrint_Click" Background="#007ACC" Foreground="White"/>
+            <Button x:Name="btnClose" Content="{DynamicResource Close}" Width="100" Height="35" Margin="5" Click="btnClose_Click" Background="#DC3545" Foreground="White"/>
         </StackPanel>
     </Grid>
 </Window>

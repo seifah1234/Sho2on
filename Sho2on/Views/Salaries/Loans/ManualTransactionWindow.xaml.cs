@@ -31,7 +31,7 @@ namespace HR_Application.Views
             _friendshipBoxService = new FriendshipBoxService(_context);
             _transactionType = transactionType;
 
-            Title = transactionType == "Deposit" ? "ÅÖÇİÉ ÅíÏÇÚ íÏæí" : "ÅÖÇİÉ ÓÍÈ íÏæí";
+            Title = transactionType == "Deposit" ? LocalizationManager.Translate("Ø¥Ø¶Ø§ÙØ© Ø¥ÙŠØ¯Ø§Ø¹ ÙŠØ¯ÙˆÙŠ") : LocalizationManager.Translate("Ø¥Ø¶Ø§ÙØ© Ø³Ø­Ø¨ ÙŠØ¯ÙˆÙŠ");
             InitializeComponent();
         }
 
@@ -47,10 +47,10 @@ namespace HR_Application.Views
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            // ÇáÚäæÇä
+            // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
             var titleText = new TextBlock
             {
-                Text = _transactionType == "Deposit" ? "ÅÖÇİÉ ÅíÏÇÚ íÏæí áÕäÏæŞ ÇáÒãÇáÉ" : "ÅÖÇİÉ ÓÍÈ íÏæí ãä ÕäÏæŞ ÇáÒãÇáÉ",
+                Text = _transactionType == "Deposit" ? LocalizationManager.Translate("Ø¥Ø¶Ø§ÙØ© Ø¥ÙŠØ¯Ø§Ø¹ ÙŠØ¯ÙˆÙŠ Ù„ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©") : LocalizationManager.Translate("Ø¥Ø¶Ø§ÙØ© Ø³Ø­Ø¨ ÙŠØ¯ÙˆÙŠ Ù…Ù† ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©"),
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -61,7 +61,7 @@ namespace HR_Application.Views
             Grid.SetRow(titleText, 0);
             grid.Children.Add(titleText);
 
-            // ãÍÊæì ÇáäãæĞÌ
+            // Ù…Ø­ØªÙˆÙ‰ Ø§Ù„Ù†Ù…ÙˆØ°Ø¬
             var stackPanel = new StackPanel
             {
                 Margin = new Thickness(20),
@@ -76,7 +76,7 @@ namespace HR_Application.Views
 
             var lblAmount = new Label
             {
-                Content = "ÇáãÈáÛ:",
+                Content = LocalizationManager.Translate("Ø§Ù„Ù…Ø¨Ù„Øº:"),
                 Width = 80,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -100,7 +100,7 @@ namespace HR_Application.Views
 
             var lblDescription = new Label
             {
-                Content = "ÇáæÕİ:",
+                Content = LocalizationManager.Translate("Ø§Ù„ÙˆØµÙ:"),
                 Width = 80,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -123,7 +123,7 @@ namespace HR_Application.Views
 
             var lblNotes = new Label
             {
-                Content = "ãáÇÍÙÇÊ:"
+                Content = LocalizationManager.Translate("Ù…Ù„Ø§Ø­Ø¸Ø§Øª:")
             };
 
             var txtNotes = new TextBox
@@ -145,7 +145,7 @@ namespace HR_Application.Views
             Grid.SetRow(stackPanel, 1);
             grid.Children.Add(stackPanel);
 
-            // ÇáÃÒÑÇÑ
+            // Ø§Ù„Ø£Ø²Ø±Ø§Ø±
             var buttonPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -155,7 +155,7 @@ namespace HR_Application.Views
 
             var btnSave = new Button
             {
-                Content = "ÍİÙ",
+                Content = LocalizationManager.Translate("Ø­ÙØ¸"),
                 Width = 100,
                 Height = 35,
                 Margin = new Thickness(5),
@@ -167,7 +167,7 @@ namespace HR_Application.Views
 
             var btnCancel = new Button
             {
-                Content = "ÅáÛÇÁ",
+                Content = LocalizationManager.Translate("Ø¥Ù„ØºØ§Ø¡"),
                 Width = 100,
                 Height = 35,
                 Margin = new Thickness(5),
@@ -197,28 +197,28 @@ namespace HR_Application.Views
 
                 if (!decimal.TryParse(txtAmount.Text, out decimal amount) || amount <= 0)
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ãÈáÛ ÕÍíÍ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ù…Ø¨Ù„Øº ØµØ­ÙŠØ­", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(txtDescription.Text))
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá æÕİ ááÚãáíÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ ÙˆØµÙ Ù„Ù„Ø¹Ù…Ù„ÙŠØ©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (_transactionType == "Withdrawal")
                 {
-                    // ÇáÊÍŞŞ ãä ÑÕíÏ ÇáÕäÏæŞ ááÓÍÈ
+                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø±ØµÙŠØ¯ Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚ Ù„Ù„Ø³Ø­Ø¨
                     var balance = await _friendshipBoxService.GetCurrentBalanceAsync();
                     if (amount > balance)
                     {
-                        LocalizationManager.ShowMessage($"ÑÕíÏ ÇáÕäÏæŞ ÛíÑ ßÇİí. ÇáÑÕíÏ ÇáãÊÇÍ: {balance:N2}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage($"Ø±ØµÙŠØ¯ Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚ ØºÙŠØ± ÙƒØ§ÙÙŠ. Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø­: {balance:N2}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
 
-                // ÊÓÌíá ÇáÍÑßÉ
+                // ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø­Ø±ÙƒØ©
                 if (_transactionType == "Deposit")
                 {
                     await _friendshipBoxService.RecordDepositAsync(0, amount, 0, txtDescription.Text);
@@ -228,13 +228,13 @@ namespace HR_Application.Views
                     await _friendshipBoxService.RecordWithdrawalAsync(0, amount, 0, txtDescription.Text);
                 }
 
-                LocalizationManager.ShowMessage("Êã ÍİÙ ÇáÍÑßÉ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø­Ø±ÙƒØ© Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 TransactionCompleted?.Invoke(this, EventArgs.Empty);
                 Close();
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -361,15 +361,15 @@ namespace HR_Application.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("#660503")]
-        public global::System.Windows.Media.Color ThirdColor
+        public global::System.Windows.Media.Color ThirdColorBrush
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["ThirdColor"]));
+                return ((global::System.Windows.Media.Color)(this["ThirdColorBrush"]));
             }
             set
             {
-                this["ThirdColor"] = value;
+                this["ThirdColorBrush"] = value;
             }
         }
 

@@ -36,11 +36,11 @@ namespace HR_Application.Views
         {
             InitializeComponent();
 
-            // ÊåíÆÉ ÇáŞæÇÆã
+            // ØªÙ‡ÙŠØ¦Ø© Ø§Ù„Ù‚ÙˆØ§Ø¦Ù…
             _administrativeCriteria = new ObservableCollection<EvaluationCriteriaModel>();
             _technicalCriteria = new ObservableCollection<EvaluationCriteriaModel>();
 
-            // ÑÈØ ÇáŞæÇÆã ÈÚäÇÕÑ ÇáÊÍßã
+            // Ø±Ø¨Ø· Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø¨Ø¹Ù†Ø§ØµØ± Ø§Ù„ØªØ­ÙƒÙ…
             administrativeItemsControl.ItemsSource = _administrativeCriteria;
             technicalItemsControl.ItemsSource = _technicalCriteria;
 
@@ -56,11 +56,11 @@ namespace HR_Application.Views
 
                 if (evaluation != null)
                 {
-                    // ÊİÑíÛ ÇáŞæÇÆã ÇáÍÇáíÉ
+                    // ØªÙØ±ÙŠØº Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ø­Ø§Ù„ÙŠØ©
                     _administrativeCriteria.Clear();
                     _technicalCriteria.Clear();
 
-                    // İÕá ÇáãÚÇííÑ ÇáÅÏÇÑíÉ æÇáİäíÉ
+                    // ÙØµÙ„ Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¥Ø¯Ø§Ø±ÙŠØ© ÙˆØ§Ù„ÙÙ†ÙŠØ©
                     foreach (var criteria in evaluation.EvaluationCriterias)
                     {
                         var criteriaModel = new EvaluationCriteriaModel
@@ -74,7 +74,7 @@ namespace HR_Application.Views
                             Notes = criteria.Notes
                         };
 
-                        // ÊÍÏíÏ äæÚ ÇáãÚíÇÑ (ÈäÇÁğ Úáì ÇÓãå Ãæ Ãí ãÚíÇÑ ÂÎÑ)
+                        // ØªØ­Ø¯ÙŠØ¯ Ù†ÙˆØ¹ Ø§Ù„Ù…Ø¹ÙŠØ§Ø± (Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ø§Ø³Ù…Ù‡ Ø£Ùˆ Ø£ÙŠ Ù…Ø¹ÙŠØ§Ø± Ø¢Ø®Ø±)
                         if (criteria.EvaluationType == EvaluationType.Technical)
                         {
                             _technicalCriteria.Add(criteriaModel);
@@ -85,18 +85,18 @@ namespace HR_Application.Views
                         }
                     }
 
-                    // ÊÍãíá ÇáãáÇÍÙÇÊ
+                    // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª
                     txtGeneralNotes.Text = evaluation.GeneralNotes;
                     txtAdministrativeNotes.Text = evaluation.AdministrativeNotes ?? "";
                     txtTechnicalNotes.Text = evaluation.TechnicalNotes ?? "";
 
-                    // ÊÍÏíË ÇáÅÍÕÇÆíÇÊ
+                    // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª
                     CalculateStatistics();
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÈíÇäÇÊ ÇáÊŞííã: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„ØªÙ‚ÙŠÙŠÙ…: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -117,19 +117,19 @@ namespace HR_Application.Views
                 if (_employee != null)
                 {
                     txtEmployeeName.Text = _employee.FullName;
-                    txtEmployeeCode.Text = $"ßæÏ: {_employee.Id}";
+                    txtEmployeeCode.Text = $"ÙƒÙˆØ¯: {_employee.Id}";
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÈíÇäÇÊ ÇáãæÙİ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void AddAdministrativeCriteria_Click(object sender, RoutedEventArgs e)
         {
-            AddCriteria(_administrativeCriteria, txtNewAdministrativeCriteria, "ÅÏÇÑí");
+            AddCriteria(_administrativeCriteria, txtNewAdministrativeCriteria, LocalizationManager.Translate("Ø¥Ø¯Ø§Ø±ÙŠ"));
         }
 
         private void userComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -208,14 +208,14 @@ namespace HR_Application.Views
 
         private void AddTechnicalCriteria_Click(object sender, RoutedEventArgs e)
         {
-            AddCriteria(_technicalCriteria, txtNewTechnicalCriteria, "İäí");
+            AddCriteria(_technicalCriteria, txtNewTechnicalCriteria, LocalizationManager.Translate("ÙÙ†ÙŠ"));
         }
 
         private void AddCriteria(ObservableCollection<EvaluationCriteriaModel> criteriaList, TextBox textBox, string type)
         {
             if (string.IsNullOrWhiteSpace(textBox.Text))
             {
-                LocalizationManager.ShowMessage($"íÑÌì ÅÏÎÇá ÇÓã ÇáãÚíÇÑ {type}", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage($"ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ù…Ø¹ÙŠØ§Ø± {type}", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -251,7 +251,7 @@ namespace HR_Application.Views
             if (criteria != null)
             {
                 criteriaList.Remove(criteria);
-                // ÅÚÇÏÉ ÊÑŞíã ÇáÚäÇÕÑ
+                // Ø¥Ø¹Ø§Ø¯Ø© ØªØ±Ù‚ÙŠÙ… Ø§Ù„Ø¹Ù†Ø§ØµØ±
                 for (int i = 0; i < criteriaList.Count; i++)
                 {
                     criteriaList[i].Index = i + 1;
@@ -269,10 +269,10 @@ namespace HR_Application.Views
             {
                 if (decimal.TryParse(textBox.Text, out decimal percentage))
                 {
-                    // ÇáÊÃßÏ ãä Ãä ÇáäÓÈÉ Èíä 0 æ 100
+                    // Ø§Ù„ØªØ£ÙƒØ¯ Ù…Ù† Ø£Ù† Ø§Ù„Ù†Ø³Ø¨Ø© Ø¨ÙŠÙ† 0 Ùˆ 100
                     criteria.Percentage = Math.Max(0, Math.Min(100, percentage));
 
-                    // ÊÍÏíË ÍÇáÉ ÇáäÌÇÍ ÈäÇÁğ Úáì ÇáäÓÈÉ (50% İãÇ İæŞ ÊÚÊÈÑ äÇÌÍÉ)
+                    // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù†Ø¬Ø§Ø­ Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø³Ø¨Ø© (50% ÙÙ…Ø§ ÙÙˆÙ‚ ØªØ¹ØªØ¨Ø± Ù†Ø§Ø¬Ø­Ø©)
                     criteria.IsSuccessful = criteria.Percentage >= 50;
                 }
                 else
@@ -300,17 +300,17 @@ namespace HR_Application.Views
 
             if (criteria != null)
             {
-                criteria.IsSuccessful = radio.Content.ToString() == "ãæİŞ";
+                criteria.IsSuccessful = radio.Content.ToString() == LocalizationManager.Translate("Ù…ÙˆÙÙ‚");
                 CalculateStatistics();
             }
         }
 
         private void EvaluationType_Changed(object sender, RoutedEventArgs e)
         {
-            // ÊÍÏíË ÍÇáÉ ÇáÊÈæíÈ ÇáäÔØ
+            // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„ØªØ¨ÙˆÙŠØ¨ Ø§Ù„Ù†Ø´Ø·
             _isAdministrativeActive = rbAdministrative.IsChecked == true;
 
-            // íãßäß ÅÖÇİÉ ãäØŞ ÅÖÇİí åäÇ ÅĞÇ ÃÑÏÊ
+            // ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ø¶Ø§ÙØ© Ù…Ù†Ø·Ù‚ Ø¥Ø¶Ø§ÙÙŠ Ù‡Ù†Ø§ Ø¥Ø°Ø§ Ø£Ø±Ø¯Øª
         }
 
         private void FinalResult_Checked(object sender, RoutedEventArgs e)
@@ -320,30 +320,30 @@ namespace HR_Application.Views
 
         private void CalculateStatistics()
         {
-            // ÍÓÇÈ ÅÍÕÇÆíÇÊ ÇáÊŞííã ÇáÅÏÇÑí
+            // Ø­Ø³Ø§Ø¨ Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø¥Ø¯Ø§Ø±ÙŠ
             CalculateSectionStatistics(_administrativeCriteria,
                 txtAdministrativeTotal,
                 txtAdministrativeSuccess,
                 txtAdministrativeUnsuccess,
                 txtAdministrativePercentage);
 
-            // ÍÓÇÈ ÅÍÕÇÆíÇÊ ÇáÊŞííã Çáİäí
+            // Ø­Ø³Ø§Ø¨ Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ØªÙ‚ÙŠÙŠÙ… Ø§Ù„ÙÙ†ÙŠ
             CalculateSectionStatistics(_technicalCriteria,
                 txtTechnicalTotal,
                 txtTechnicalSuccess,
                 txtTechnicalUnsuccess,
                 txtTechnicalPercentage);
 
-            // ÍÓÇÈ ÇáäÓÈÉ ÇáÅÌãÇáíÉ (ãÊæÓØ ÇáäÓÈÊíä)
+            // Ø­Ø³Ø§Ø¨ Ø§Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ© (Ù…ØªÙˆØ³Ø· Ø§Ù„Ù†Ø³Ø¨ØªÙŠÙ†)
             decimal administrativePercentage = GetAveragePercentage(_administrativeCriteria);
             decimal technicalPercentage = GetAveragePercentage(_technicalCriteria);
             decimal finalPercentage = (administrativePercentage + technicalPercentage) / 2;
 
-            // ÊÍÏíË ÇáäÓÈÉ ÇáÅÌãÇáíÉ
+            // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ©
             txtFinalPercentage.Text = $"{finalPercentage:F1}%";
             UpdatePercentageColor(txtFinalPercentage, finalPercentage);
 
-            // ÊÍÏíË ÇáäÊíÌÉ ÇáäåÇÆíÉ ÊáŞÇÆíÇğ ÈäÇÁğ Úáì ÇáäÓÈÉ ÇáÅÌãÇáíÉ
+            // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù†ØªÙŠØ¬Ø© Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠØ© ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ©
             if (finalPercentage > 0)
             {
                 if (finalPercentage >= 50)
@@ -409,13 +409,13 @@ namespace HR_Application.Views
             }
         }
 
-        // ÇáÊÍŞŞ ãä ÅÏÎÇá ÇáäÓÈ İŞØ (ÃÑŞÇã æäŞØÉ)
+        // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ù†Ø³Ø¨ ÙÙ‚Ø· (Ø£Ø±Ù‚Ø§Ù… ÙˆÙ†Ù‚Ø·Ø©)
         private void PercentageValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             var textBox = sender as TextBox;
             string newText = textBox.Text + e.Text;
 
-            // ÇáÓãÇÍ İŞØ ÈÇáÃÑŞÇã æÇáäŞØÉ
+            // Ø§Ù„Ø³Ù…Ø§Ø­ ÙÙ‚Ø· Ø¨Ø§Ù„Ø£Ø±Ù‚Ø§Ù… ÙˆØ§Ù„Ù†Ù‚Ø·Ø©
             e.Handled = !IsPercentageAllowed(newText);
         }
 
@@ -423,10 +423,10 @@ namespace HR_Application.Views
         {
             if (string.IsNullOrEmpty(text)) return true;
 
-            // ÇáÓãÇÍ İŞØ ÈÇáÃÑŞÇã æÇáäŞØÉ
+            // Ø§Ù„Ø³Ù…Ø§Ø­ ÙÙ‚Ø· Ø¨Ø§Ù„Ø£Ø±Ù‚Ø§Ù… ÙˆØ§Ù„Ù†Ù‚Ø·Ø©
             if (text.Count(c => c == '.') > 1) return false;
 
-            // ÇáÊÍŞŞ ãä Ãä ÇáŞíãÉ Èíä 0 æ 100
+            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø£Ù† Ø§Ù„Ù‚ÙŠÙ…Ø© Ø¨ÙŠÙ† 0 Ùˆ 100
             if (decimal.TryParse(text, out decimal value))
             {
                 return value >= 0 && value <= 100;
@@ -439,30 +439,30 @@ namespace HR_Application.Views
         {
             if (_administrativeCriteria.Count == 0 && _technicalCriteria.Count == 0)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÅÖÇİÉ ãÚÇííÑ ÊŞííã Úáì ÇáÃŞá", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¶Ø§ÙØ© Ù…Ø¹Ø§ÙŠÙŠØ± ØªÙ‚ÙŠÙŠÙ… Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (!rbSuccessful.IsChecked.HasValue && !rbUnsuccessful.IsChecked.HasValue)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÊÍÏíÏ ÇáäÊíÌÉ ÇáäåÇÆíÉ", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ù†ØªÙŠØ¬Ø© Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                // ÍĞİ ÇáÊŞííãÇÊ ÇáŞÏíãÉ
+                // Ø­Ø°Ù Ø§Ù„ØªÙ‚ÙŠÙŠÙ…Ø§Øª Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©
                 _context.EmployeeEvaluations.RemoveRange(
                     _context.EmployeeEvaluations.Where(ev => ev.EmployeeId == _employee.Id));
 
-                // ÍÓÇÈ ÇáäÓÈ
+                // Ø­Ø³Ø§Ø¨ Ø§Ù„Ù†Ø³Ø¨
                 decimal administrativePercentage = GetAveragePercentage(_administrativeCriteria);
                 decimal technicalPercentage = GetAveragePercentage(_technicalCriteria);
                 decimal finalPercentage = (administrativePercentage + technicalPercentage) / 2;
 
-                // ÅäÔÇÁ ÊŞííã ÌÏíÏ
+                // Ø¥Ù†Ø´Ø§Ø¡ ØªÙ‚ÙŠÙŠÙ… Ø¬Ø¯ÙŠØ¯
                 var evaluation = new EmployeeEvaluation
                 {
                     EmployeeId = _employee.Id,
@@ -480,10 +480,10 @@ namespace HR_Application.Views
                     TechnicalScore = technicalPercentage
                 };
 
-                // ÏãÌ ÇáãÚÇííÑ ÇáÅÏÇÑíÉ æÇáİäíÉ
+                // Ø¯Ù…Ø¬ Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¥Ø¯Ø§Ø±ÙŠØ© ÙˆØ§Ù„ÙÙ†ÙŠØ©
                 var allCriteria = new List<EvaluationCriteria>();
 
-                // ÅÖÇİÉ ÇáãÚÇííÑ ÇáÅÏÇÑíÉ
+                // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¥Ø¯Ø§Ø±ÙŠØ©
                 int orderIndex = 1;
                 foreach (var criteria in _administrativeCriteria)
                 {
@@ -499,7 +499,7 @@ namespace HR_Application.Views
                     });
                 }
 
-                // ÅÖÇİÉ ÇáãÚÇííÑ ÇáİäíÉ
+                // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„ÙÙ†ÙŠØ©
                 foreach (var criteria in _technicalCriteria)
                 {
                     allCriteria.Add(new EvaluationCriteria
@@ -518,13 +518,13 @@ namespace HR_Application.Views
                 _context.EmployeeEvaluations.Add(evaluation);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÍİÙ ÇáÊŞííã ÈäÌÇÍ", "äÌÇÍ",
+                LocalizationManager.ShowMessage("ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªÙ‚ÙŠÙŠÙ… Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"),
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ ÇáÊŞííã: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„ØªÙ‚ÙŠÙŠÙ…: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -562,7 +562,7 @@ namespace HR_Application.Views
                     }
                     else
                     {
-                        LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì ÇáãæÙİ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„Ù…ÙˆØ¸Ù", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -572,7 +572,7 @@ namespace HR_Application.Views
         {
             if (e.Key == Key.Enter)
             {
-                /*var employeeSearch = new EmployeeSelectionWindow(_context.Users.ToList(), false, "ÇÎÊÑ ÇáãæÙİ áíÊã ÊŞííãå", txtEmployeeNameSearch.Text);
+                /*var employeeSearch = new EmployeeSelectionWindow(_context.Users.ToList(), false, LocalizationManager.Translate("Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ¸Ù Ù„ÙŠØªÙ… ØªÙ‚ÙŠÙŠÙ…Ù‡"), txtEmployeeNameSearch.Text);
                 if (employeeSearch.DialogResult == true)
                 {
                     _employee = employeeSearch.SelectedUser;
@@ -583,7 +583,7 @@ namespace HR_Application.Views
         }
     }
 
-    // äãæĞÌ ãÚÇííÑ ÇáÊŞííã
+    // Ù†Ù…ÙˆØ°Ø¬ Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„ØªÙ‚ÙŠÙŠÙ…
     public class EvaluationCriteriaModel : System.ComponentModel.INotifyPropertyChanged
     {
         private string _name;
@@ -637,7 +637,7 @@ namespace HR_Application.Views
             }
         }
 
-        // ÎÇÕíÉ ãÍÓæÈÉ ááÚÑÖ
+        // Ø®Ø§ØµÙŠØ© Ù…Ø­Ø³ÙˆØ¨Ø© Ù„Ù„Ø¹Ø±Ø¶
         public bool? IsUnsuccessful
         {
             get => !IsSuccessful;
@@ -652,7 +652,7 @@ namespace HR_Application.Views
             new SolidColorBrush(Color.FromArgb(15, 0, 0, 0)) :
             Brushes.Transparent;
 
-        // ÊäİíĞ INotifyPropertyChanged
+        // ØªÙ†ÙÙŠØ° INotifyPropertyChanged
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)

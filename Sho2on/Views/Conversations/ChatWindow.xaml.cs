@@ -235,8 +235,8 @@ namespace HR_Application.Views.Conversations
                         UserCode = other.Code,
                         UserId = other.Id,
                         LastMessage = string.IsNullOrEmpty(lastMsg?.Message)
-                                          ? "?? ãÑİŞ"
-                                          : lastMsg?.Message ?? "áÇ ÊæÌÏ ÑÓÇÆá",
+                                          ? LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚")
+                                          : lastMsg?.Message ?? LocalizationManager.Translate("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„"),
                         LastMessageTime = lastMsg?.SentAt ?? DateTime.Now,
                         ProfileImageData = other.ProfileImageData
                     });
@@ -356,8 +356,8 @@ namespace HR_Application.Views.Conversations
                         GroupName = ms.Group.Name,
                         GroupImageData = ms.Group.GroupImageData,
                         LastMessage = string.IsNullOrEmpty(lastMsg?.Message)
-                                         ? "?? ãÑİŞ"
-                                         : lastMsg?.Message ?? "áÇ ÊæÌÏ ÑÓÇÆá",
+                                         ? LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚")
+                                         : lastMsg?.Message ?? LocalizationManager.Translate("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„"),
                         LastMessageTime = lastMsg?.SentAt ?? ms.Group.CreatedAt,
                         UnreadCount = ms.UnreadCount,
                         IsAdmin = ms.IsAdmin
@@ -379,7 +379,7 @@ namespace HR_Application.Views.Conversations
             {
                 await LoadGroupsAsync();
 
-                // ? ÇäÖã ááÌÑæÈ ÇáÌÏíÏ ÚÔÇä ÊÓÊŞÈá ÑÓÇíáå
+                // ? Ø§Ù†Ø¶Ù… Ù„Ù„Ø¬Ø±ÙˆØ¨ Ø§Ù„Ø¬Ø¯ÙŠØ¯ Ø¹Ø´Ø§Ù† ØªØ³ØªÙ‚Ø¨Ù„ Ø±Ø³Ø§ÙŠÙ„Ù‡
                 var newGroup = GroupList.OrderByDescending(g => g.GroupId).FirstOrDefault();
                 if (newGroup != null)
                 {
@@ -441,7 +441,7 @@ namespace HR_Application.Views.Conversations
             var groupItem = GroupList.FirstOrDefault(g => g.GroupId == groupId);
             if (groupItem != null)
             {
-                groupItem.LastMessage = string.IsNullOrEmpty(message) ? "?? ãÑİŞ" : message;
+                groupItem.LastMessage = string.IsNullOrEmpty(message) ? LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚") : message;
                 groupItem.LastMessageTime = timestamp;
                 if (!groupIsOpen)
                     groupItem.UnreadCount++;
@@ -462,13 +462,13 @@ namespace HR_Application.Views.Conversations
 
                 var displayName = !string.IsNullOrEmpty(senderName)
                     ? senderName
-                    : (await ctx.Users.FindAsync(senderId))?.FullName ?? "ãÓÊÎÏã";
+                    : (await ctx.Users.FindAsync(senderId))?.FullName ?? LocalizationManager.Translate("Ù…Ø³ØªØ®Ø¯Ù…");
 
-                var shortMsg = string.IsNullOrEmpty(message) ? "?? ãÑİŞ"
+                var shortMsg = string.IsNullOrEmpty(message) ? LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚")
                     : (message.Length > 50 ? message[..50] + "..." : message);
 
                 Helpers.NotificationsHelper.ShowPopupNotification(
-                    $"{group?.Name ?? "ÌÑæÈ"}: {displayName}",
+                    $"{group?.Name ?? "Ø¬Ø±ÙˆØ¨"}: {displayName}",
                     shortMsg, this,
                     () =>
                     {
@@ -490,7 +490,7 @@ namespace HR_Application.Views.Conversations
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
                 Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
-                Title = "ÇÎÊÑ ÎáİíÉ ááÔÇÊ"
+                Title = LocalizationManager.Translate("Ø§Ø®ØªØ± Ø®Ù„ÙÙŠØ© Ù„Ù„Ø´Ø§Øª")
             };
 
             if (dialog.ShowDialog() != true) return;
@@ -505,7 +505,7 @@ namespace HR_Application.Views.Conversations
                 bitmap.Freeze();
 
 
-                // ÍİÙ ÇáãÓÇÑ İí Settings ÚÔÇä íÊĞßÑå
+                // Ø­ÙØ¸ Ø§Ù„Ù…Ø³Ø§Ø± ÙÙŠ Settings Ø¹Ø´Ø§Ù† ÙŠØªØ°ÙƒØ±Ù‡
                 HR_Application.Properties.Settings.Default.ChatBackgroundPath = dialog.FileName;
                 HR_Application.Properties.Settings.Default.Save();
             }
@@ -555,7 +555,7 @@ namespace HR_Application.Views.Conversations
                 var chat = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
                 if (chat != null)
                 {
-                    chat.LastMessage = string.IsNullOrEmpty(e.Message) ? "?? ãÑİŞ" : e.Message;
+                    chat.LastMessage = string.IsNullOrEmpty(e.Message) ? LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚") : e.Message;
                     chat.LastMessageTime = e.Timestamp;
                     chat.UnreadCount = chatIsOpen ? 0 : _unreadMessagesCount[e.FromUserId];
                     MoveChatToTop(chat);
@@ -571,13 +571,13 @@ namespace HR_Application.Views.Conversations
                 if (!chatIsOpen)
                 {
                     var chatItem = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
-                    var userName = chatItem?.UserName ?? "ãÓÊÎÏã";
+                    var userName = chatItem?.UserName ?? LocalizationManager.Translate("Ù…Ø³ØªØ®Ø¯Ù…");
                     var shortMessage = string.IsNullOrEmpty(e.Message)
-                        ? "?? ãÑİŞ"
+                        ? LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚")
                         : (e.Message.Length > 50 ? e.Message[..50] + "..." : e.Message);
 
                     Helpers.NotificationsHelper.ShowPopupNotification(
-                        $"ÑÓÇáÉ ÌÏíÏÉ ãä {userName}",
+                        $"Ø±Ø³Ø§Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù…Ù† {userName}",
                         shortMessage,
                         this,
                         () => OpenSpecificChat(e.FromUserId)
@@ -749,9 +749,9 @@ namespace HR_Application.Views.Conversations
 
                     string lastMessageText;
                     if (lastMessage == null)
-                        lastMessageText = "áÇ ÊæÌÏ ÑÓÇÆá ÈÚÏ";
+                        lastMessageText = LocalizationManager.Translate("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„ Ø¨Ø¹Ø¯");
                     else if (string.IsNullOrEmpty(lastMessage.Message))
-                        lastMessageText = "?? ãÑİŞ";
+                        lastMessageText = LocalizationManager.Translate("?? Ù…Ø±ÙÙ‚");
                     else
                         lastMessageText = lastMessage.Message;
 
@@ -777,8 +777,8 @@ namespace HR_Application.Views.Conversations
             catch (Exception ex)
             {
                 LocalizationManager.ShowMessage(
-                    $"ÎØÃ İí ÊÍãíá ÇáãÍÇÏËÇÊ: {ex.InnerException?.Message ?? ex.Message}",
-                    "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    $"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø§Øª: {ex.InnerException?.Message ?? ex.Message}",
+                    LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -904,7 +904,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÈÍË: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨Ø­Ø«: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -914,7 +914,7 @@ namespace HR_Application.Views.Conversations
             var selectedUser = SearchResults.FirstOrDefault();
             if (selectedUser == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãÓÊÎÏã ÃæáÇğ", "ÊäÈíå",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ø³ØªØ®Ø¯Ù… Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -928,7 +928,7 @@ namespace HR_Application.Views.Conversations
 
                 if (existingChat != null)
                 {
-                    LocalizationManager.ShowMessage("ÇáãÍÇÏËÉ ãæÌæÏÉ ÈÇáİÚá", "ãÚáæãÇÊ",
+                    LocalizationManager.ShowMessage("Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ù…ÙˆØ¬ÙˆØ¯Ø© Ø¨Ø§Ù„ÙØ¹Ù„", LocalizationManager.Translate("Ù…Ø¹Ù„ÙˆÙ…Ø§Øª"),
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
                     var chatItem = new ChatItemData
@@ -936,7 +936,7 @@ namespace HR_Application.Views.Conversations
                         UserName = selectedUser.UserName,
                         UserCode = selectedUser.UserCode,
                         UserId = selectedUser.UserId,
-                        LastMessage = "ÇÈÏÃ ÇáãÍÇÏËÉ ÇáÂä",
+                        LastMessage = LocalizationManager.Translate("Ø§Ø¨Ø¯Ø£ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ø§Ù„Ø¢Ù†"),
                         ProfileImageData = selectedUser.ProfileImageData
                     };
 
@@ -961,11 +961,11 @@ namespace HR_Application.Views.Conversations
                         UserName = selectedUser.UserName,
                         UserCode = selectedUser.UserCode,
                         UserId = selectedUser.UserId,
-                        LastMessage = "ãÍÇÏËÉ ÌÏíÏÉ",
+                        LastMessage = LocalizationManager.Translate("Ù…Ø­Ø§Ø¯Ø«Ø© Ø¬Ø¯ÙŠØ¯Ø©"),
                         ProfileImageData = selectedUser.ProfileImageData
                     });
 
-                    LocalizationManager.ShowMessage("Êã ÅäÔÇÁ ÇáãÍÇÏËÉ ÈäÌÇÍ", "Êã",
+                    LocalizationManager.ShowMessage("ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("ØªÙ…"),
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
@@ -976,7 +976,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÅäÔÇÁ ÇáãÍÇÏËÉ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -1028,7 +1028,7 @@ namespace HR_Application.Views.Conversations
             var selectedUser = border.DataContext as UserSearchResult;
             if (selectedUser == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãÓÊÎÏã ÃæáÇğ", "ÊäÈíå",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ø³ØªØ®Ø¯Ù… Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªÙ†Ø¨ÙŠÙ‡"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -1042,7 +1042,7 @@ namespace HR_Application.Views.Conversations
 
                 if (existingChat != null)
                 {
-                    LocalizationManager.ShowMessage("ÇáãÍÇÏËÉ ãæÌæÏÉ ÈÇáİÚá", "ãÚáæãÇÊ",
+                    LocalizationManager.ShowMessage("Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ù…ÙˆØ¬ÙˆØ¯Ø© Ø¨Ø§Ù„ÙØ¹Ù„", LocalizationManager.Translate("Ù…Ø¹Ù„ÙˆÙ…Ø§Øª"),
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
                     var chatItem = new ChatItemData
@@ -1050,7 +1050,7 @@ namespace HR_Application.Views.Conversations
                         UserName = selectedUser.UserName,
                         UserCode = selectedUser.UserCode,
                         UserId = selectedUser.UserId,
-                        LastMessage = "ÇÈÏÃ ÇáãÍÇÏËÉ ÇáÂä",
+                        LastMessage = LocalizationManager.Translate("Ø§Ø¨Ø¯Ø£ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ø§Ù„Ø¢Ù†"),
                         ProfileImageData = selectedUser.ProfileImageData
                     };
 
@@ -1075,11 +1075,11 @@ namespace HR_Application.Views.Conversations
                         UserName = selectedUser.UserName,
                         UserCode = selectedUser.UserCode,
                         UserId = selectedUser.UserId,
-                        LastMessage = "ãÍÇÏËÉ ÌÏíÏÉ",
+                        LastMessage = LocalizationManager.Translate("Ù…Ø­Ø§Ø¯Ø«Ø© Ø¬Ø¯ÙŠØ¯Ø©"),
                         ProfileImageData = selectedUser.ProfileImageData
                     });
 
-                    LocalizationManager.ShowMessage("Êã ÅäÔÇÁ ÇáãÍÇÏËÉ ÈäÌÇÍ", "Êã",
+                    LocalizationManager.ShowMessage("ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("ØªÙ…"),
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
@@ -1090,7 +1090,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÅäÔÇÁ ÇáãÍÇÏËÉ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -1103,7 +1103,7 @@ namespace HR_Application.Views.Conversations
         private int _userId;
         private string _lastMessage;
         private DateTime _lastMessageTime;
-        private byte[] _profileImageData;  // ÊÛííÑ ãä BitmapImage Åáì byte[]
+        private byte[] _profileImageData;  // ØªØºÙŠÙŠØ± Ù…Ù† BitmapImage Ø¥Ù„Ù‰ byte[]
         private int _unreadCount;
 
         public int UnreadCount
@@ -1166,9 +1166,9 @@ namespace HR_Application.Views.Conversations
                         bitmap.BeginInit();
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         bitmap.StreamSource = stream;
-                        bitmap.DecodePixelWidth = 200; // ÊÍÌíã ÇáÕæÑÉ áÊÍÓíä ÇáÃÏÇÁ
+                        bitmap.DecodePixelWidth = 200; // ØªØ­Ø¬ÙŠÙ… Ø§Ù„ØµÙˆØ±Ø© Ù„ØªØ­Ø³ÙŠÙ† Ø§Ù„Ø£Ø¯Ø§Ø¡
                         bitmap.EndInit();
-                        bitmap.Freeze(); // ãåã ááÚãáíÇÊ ãÊÚÏÏÉ ÇáÎíæØ
+                        bitmap.Freeze(); // Ù…Ù‡Ù… Ù„Ù„Ø¹Ù…Ù„ÙŠØ§Øª Ù…ØªØ¹Ø¯Ø¯Ø© Ø§Ù„Ø®ÙŠÙˆØ·
 
                         return bitmap;
                     }
@@ -1201,7 +1201,7 @@ namespace HR_Application.Views.Conversations
         private string _userName;
         private string _userCode;
         private int _userId;
-        private byte[] _profileImageData;  // ÊÛííÑ ãä BitmapImage Åáì byte[]
+        private byte[] _profileImageData;  // ØªØºÙŠÙŠØ± Ù…Ù† BitmapImage Ø¥Ù„Ù‰ byte[]
 
         public string UserName
         {

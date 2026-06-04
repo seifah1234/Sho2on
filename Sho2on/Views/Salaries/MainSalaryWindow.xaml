@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
         WindowState="Maximized"
-        Title="إدارة المرتبات">
+        Title="{DynamicResource PayrollManagement}">
 
     <Window.Resources>
         <!-- الألوان والتدرجات -->
@@ -135,12 +135,12 @@
             <!-- الهيدر -->
             <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" CornerRadius="15,15,0,0" Padding="5">
                 <Grid>
-                    <TextBlock Text="إدارة المرتبات" 
+                    <TextBlock Text="{DynamicResource PayrollManagement}" 
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center" 
                                FontSize="20" 
                                FontWeight="Bold" 
-                               Foreground="{DynamicResource ThirdColor}"/>
+                               Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                 </Grid>
             </Border>
 
@@ -151,7 +151,7 @@
                     <!-- قسم البحث -->
                     <Border Background="{DynamicResource InputBackground}" CornerRadius="10" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock Text="بحث عن الموظف" Style="{DynamicResource SectionHeader}"/>
+                            <TextBlock Text="{DynamicResource SearchForTheEmployee}" Style="{DynamicResource SectionHeader}"/>
 
                             <Grid Margin="0,10,0,0">
                                 <Grid.ColumnDefinitions>
@@ -166,7 +166,7 @@
                                     <Button Style="{DynamicResource NavigationButton}" Click="prev_btn_Click">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ChevronRight" VerticalAlignment="Center"/>
-                                            <TextBlock Text="السابق" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                            <TextBlock Text="{DynamicResource ThePrevious}" VerticalAlignment="Center" Margin="5,0,0,0"/>
                                         </StackPanel>
                                     </Button>
 
@@ -177,7 +177,7 @@
 
                                     <Button Style="{DynamicResource NavigationButton}" Click="next_btn_Click">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="التالي" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="{DynamicResource TheNext}" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                             <Icon:PackIconMaterial Kind="ChevronLeft" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
@@ -186,22 +186,22 @@
                                 <!-- حقول البحث -->
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="كود الموظف"  Margin="0,0,0,5"/>
+                                        <TextBlock Text="{DynamicResource EmployeeCode}"  Margin="0,0,0,5"/>
                                         <TextBox x:Name="code_box" Style="{DynamicResource ModernTextBox}" Width="120"/>
                                     </StackPanel>
 
                                     <!--<StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الاسم"  Margin="0,0,0,5"/>
+                                        <TextBlock Text="{DynamicResource TheName}"  Margin="0,0,0,5"/>
                                         <TextBox x:Name="name_box" Style="{DynamicResource WideModernTextBox}" Width="200"/>
                                     </StackPanel>-->
 
                                     <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
-                                        <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                        <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                         <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Vertical" Margin="10">
-                                        <TextBlock Text="الفرع"  Margin="0,0,0,5"/>
+                                        <TextBlock Text="{DynamicResource Branch}"  Margin="0,0,0,5"/>
                                         <ComboBox x:Name="branch_box" Width="200" Height="38"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -211,7 +211,7 @@
                                     <Button Style="{DynamicResource ActionButton}" Click="data_load_btn_Click" >
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                            <TextBlock Text="بحث" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Research}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -224,7 +224,7 @@
                     <!-- معلومات الموظف -->
                     <Border Background="{DynamicResource InputBackground}" CornerRadius="10" Padding="20" Margin="0,0,0,15">
                         <StackPanel>
-                            <TextBlock x:Name="employeeInfoText" Text="معلومات الموظف" Style="{DynamicResource SectionHeader}"/>
+                            <TextBlock x:Name="employeeInfoText" Text="{DynamicResource EmployeeInformation}" Style="{DynamicResource SectionHeader}"/>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -235,18 +235,18 @@
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="الاسم:"  Margin="0,5"/>
+                                        <TextBlock Text="{DynamicResource TheName2}"  Margin="0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeNameText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
 
-                                        <TextBlock Text="الكود:"  Margin="0,5,0,5"/>
+                                        <TextBlock Text="{DynamicResource Code2}"  Margin="0,5,0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center"  x:Name="employeeCodeText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Horizontal">
 
-                                            <TextBlock Text="الفرع:"  Margin="0,5,0,5"/>
+                                            <TextBlock Text="{DynamicResource Branch3}"  Margin="0,5,0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeBranchText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
@@ -255,19 +255,19 @@
                                 <StackPanel Grid.Column="1" Margin="10,0,10,0">
                                     <StackPanel Orientation="Horizontal">
 
-                                        <TextBlock Text="الإدارة:"  Margin="0,5"/>
+                                        <TextBlock Text="{DynamicResource Management2}"  Margin="0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeDepartmentText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Horizontal">
 
-                                            <TextBlock Text="الوظيفة:"  Margin="0,5,0,5"/>
+                                            <TextBlock Text="{DynamicResource Function}"  Margin="0,5,0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeJobText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Horizontal">
 
-                                                <TextBlock Text="نظام العمل:"  Margin="0,5,0,5"/>
+                                                <TextBlock Text="{DynamicResource WorkSystem2}"  Margin="0,5,0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeWorkTypeText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
@@ -276,19 +276,19 @@
                                 <StackPanel Grid.Column="2" Margin="10,0,0,0">
                                     <StackPanel Orientation="Horizontal">
 
-                                        <TextBlock Text="تاريخ التعيين:"  Margin="0,5"/>
+                                        <TextBlock Text="{DynamicResource AppointmentDate2}"  Margin="0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeHireDateText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Horizontal">
 
-                                            <TextBlock Text="الراتب الأساسي:"  Margin="0,5,0,5"/>
+                                            <TextBlock Text="{DynamicResource BasicSalary2}"  Margin="0,5,0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeSalaryText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <StackPanel Orientation="Horizontal">
 
-                                        <TextBlock Text="حد السلف:"  Margin="0,5,0,5"/>
+                                        <TextBlock Text="{DynamicResource LimitOfAdvance}"  Margin="0,5,0,5"/>
                                         <TextBlock Margin="5" VerticalAlignment="Center" x:Name="employeeLoanLimitText" Text="-"  FontWeight="Bold"/>
                                     </StackPanel>
 
@@ -307,21 +307,21 @@
                         <!-- نوع الراتب -->
                         <Border Background="{DynamicResource InputBackground}" CornerRadius="10" Padding="20" Grid.Column="0" Width="300" Margin="0,0,15,0">
                             <StackPanel>
-                                <TextBlock Text="نوع الراتب" Style="{DynamicResource SectionHeader}"/>
+                                <TextBlock Text="{DynamicResource SalaryType}" Style="{DynamicResource SectionHeader}"/>
 
-                                <RadioButton x:Name="fixed_box" Content="راتب ثابت" 
+                                <RadioButton x:Name="fixed_box" Content="{DynamicResource FixedSalary}" 
                                              Style="{DynamicResource ModernRadioButton}" 
                                              GroupName="SalaryType" 
                                              Foreground="{DynamicResource PrimaryColor}"
                                              Checked="fixed_Checked"/>
 
-                                <RadioButton x:Name="shift" Content="قيمة الساعة يومي" 
+                                <RadioButton x:Name="shift" Content="{DynamicResource HourlyValueIsDaily}" 
                                              Foreground="{DynamicResource PrimaryColor}"
                                              Style="{DynamicResource ModernRadioButton}" 
                                              GroupName="SalaryType"
                                              Checked="shift_Checked"/>
 
-                                <RadioButton x:Name="hour" Content="قيمة الساعة شهري" 
+                                <RadioButton x:Name="hour" Content="{DynamicResource HourlyValueIsMonthly}" 
                                              Style="{DynamicResource ModernRadioButton}" 
                                              Foreground="{DynamicResource PrimaryColor}"
                                              GroupName="SalaryType"
@@ -332,7 +332,7 @@
                                         BorderBrush="#F5F5F5" Margin="0,10,0,0" BorderThickness="1"
                                         Visibility="Collapsed">
                                     <StackPanel>
-                                        <TextBlock Text="تفاصيل الساعة اليومية" 
+                                        <TextBlock Text="{DynamicResource DailyHourDetails}" 
                                                     
                                                    FontWeight="Bold" 
                                                    Margin="0,0,0,5"/>
@@ -360,7 +360,7 @@
                                         BorderBrush="#F5F5F5" Margin="0,10,0,0" BorderThickness="1"
                                         Visibility="Collapsed">
                                     <StackPanel>
-                                        <TextBlock Text="تفاصيل الساعة الشهرية" 
+                                        <TextBlock Text="{DynamicResource MonthlyHourlyDetails}" 
                                                     
                                                    FontWeight="Bold" 
                                                    Margin="0,0,0,5"/>
@@ -388,9 +388,9 @@
                         <!-- المبالغ التفصيلية -->
                         <Border Background="{DynamicResource InputBackground}" CornerRadius="10" Padding="20" Grid.Column="1">
                             <StackPanel>
-                                <TextBlock Text="تفاصيل المرتب" Style="{DynamicResource SectionHeader}"/>
+                                <TextBlock Text="{DynamicResource SalaryDetails}" Style="{DynamicResource SectionHeader}"/>
 
-                                <GroupBox Header="استحقاقات" Margin="10" Padding="10">
+                                <GroupBox Header="{DynamicResource Entitlements}" Margin="10" Padding="10">
 
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -403,7 +403,7 @@
                                         <!-- الصف الأول -->
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="الراتب الأساسي"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource BasicSalary}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="salary_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
@@ -415,28 +415,28 @@
                                         <!-- الصف الثاني -->
                                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="بدل السكن"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource HousingAllowance}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="housing_box" Tag="0" 
          Style="{DynamicResource ModernTextBox}" 
          Width="150"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="بدل الانتقال"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource RelocationAllowance}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="transmission_box" Tag="0" 
          Style="{DynamicResource ModernTextBox}" 
          Width="150"/>
                                             </StackPanel>
                                             
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="بدل الإدارة"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource ManagementAllowance4}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="depart_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="بدل طبيعة العمل"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource InsteadOfTheNatureOfTheWork}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="natural_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
@@ -447,7 +447,7 @@
                                     </Grid>
                                 </GroupBox>
 
-                                <GroupBox Header="استقطاعات" Padding="10" Margin="10">
+                                <GroupBox Header="{DynamicResource Deductions}" Padding="10" Margin="10">
 
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -461,21 +461,21 @@
                                         <!-- الصف الثاني -->
                                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="صندوق الزمالة"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource FellowshipFund}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="box_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
                                             </StackPanel>
                                             
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="تأمينات الموظف"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource EmployeeInsurances}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="insurance_box" Tag="0" 
          Style="{DynamicResource ModernTextBox}" 
          Width="150"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="تأمينات الشركة"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource CompanyInsurances}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="comp_insurance_box" Tag="0" 
           Style="{DynamicResource ModernTextBox}" 
           Width="150"/>
@@ -483,7 +483,7 @@
 
 
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="ضريبة كسب العمل"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource EmploymentGainTax}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="tax_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
@@ -494,14 +494,14 @@
                                         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
 
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="الغياب"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource Absence}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="abcence_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
                                             </StackPanel>
 
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="حد السلف"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource TheLimitOfThePredecessor}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="loanMax_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
@@ -509,7 +509,7 @@
 
 
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="أخرى"  Margin="0,0,0,5"/>
+                                                <TextBlock Text="{DynamicResource Other}"  Margin="0,0,0,5"/>
                                                 <TextBox x:Name="social_box" Tag="0" 
                                                      Style="{DynamicResource ModernTextBox}" 
                                                      Width="150"/>
@@ -526,7 +526,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Text="الإجمالي الصافي للموظف:" 
+                                        <TextBlock Text="{DynamicResource EmployeeNetTotal}" 
                                                    FontWeight="Bold"
                                                    VerticalAlignment="Center"/>
 
@@ -549,35 +549,35 @@
                     <Button Visibility="Collapsed" Style="{DynamicResource ActionButton}" Click="CalculateTotal_Click" Background="#9C27B0">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Calculator" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBlock Text="حساب الإجمالي" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource CalculateTheTotal}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
                         <Button x:Name="save_btn" Style="{DynamicResource ActionButton}" Click="save_btn_Click" Background="#4CAF50">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     
                     <Button Style="{DynamicResource ActionButton}" Click="ClearForm_Click" Background="Gray" Margin="10,0">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBlock Text="جديد" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource New}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
                     <Button Visibility="Collapsed" Style="{DynamicResource ActionButton}" Click="OpenSalaryReport_Click" Background="#FF9800" Margin="10,0">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="FileChart" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBlock Text="تقرير المرتبات" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource SalaryReport}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
                     <Button Style="{DynamicResource ActionButton}" Click="CloseWindow_Click" Background="#F44336" Margin="10,0">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Close" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBlock Text="إغلاق" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Closing}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

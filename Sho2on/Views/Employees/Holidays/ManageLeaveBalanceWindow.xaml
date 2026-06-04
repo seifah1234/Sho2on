@@ -6,7 +6,7 @@
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:HR_Application.Views.Employees.Holidays"
         mc:Ignorable="d"
-        Title="إدارة رصيد الإجازات" 
+        Title="{DynamicResource ManagingLeaveBalance}" 
         FlowDirection="RightToLeft"
         Height="700" Width="1000"
         Loaded="Window_Loaded"
@@ -45,7 +45,7 @@
         </Grid.RowDefinitions>
 
         <!-- العنوان -->
-        <TextBlock Grid.Row="0" Text="إدارة رصيد الإجازات" 
+        <TextBlock Grid.Row="0" Text="{DynamicResource ManagingLeaveBalance}" 
                    FontSize="20" FontWeight="Bold" 
                    HorizontalAlignment="Center" 
                    Foreground="{DynamicResource TextPrimaryColor}"
@@ -56,19 +56,19 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <!-- كود الموظف -->
                 <StackPanel Orientation="Vertical" Margin="10">
-                    <TextBlock Text="كود الموظف" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColor}"/>
+                    <TextBlock Text="{DynamicResource EmployeeCode}" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                     <TextBox x:Name="txtSearchEmployeeId" Width="120" Height="30" Padding="5,0"/>
                 </StackPanel>
 
                 <!-- اسم الموظف -->
                 <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
-                    <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                    <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                     <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                 </StackPanel>
 
                 <!-- أزرار البحث -->
                 <StackPanel Orientation="Vertical" Margin="10" VerticalAlignment="Bottom">
-                    <Button x:Name="btnSearch" Content="بحث" 
+                    <Button x:Name="btnSearch" Content="{DynamicResource Research}" 
                             Width="80" Height="30" 
                             Background="{DynamicResource ButtonHoverBackground}" Foreground="{DynamicResource ButtonHoverForeground}"
                             Click="btnSearch_Click"/>
@@ -96,24 +96,24 @@
 
                         <Icon:PackIconMaterial Grid.Column="0" 
                                               Kind="AccountCircle" 
-                                              Foreground="{DynamicResource ThirdColor}" 
+                                              Foreground="{DynamicResource ThirdColorBrushBrush}" 
                                               Width="40" Height="40"
                                               Margin="0,0,10,0"/>
 
                         <StackPanel Grid.Column="1">
                             <TextBlock x:Name="txtEmployeeInfo" 
-                                       Text="لم يتم اختيار موظف" 
+                                       Text="{DynamicResource NoEmployeeHasBeenSelected}" 
                                        FontSize="14" FontWeight="Bold"
-                                       Foreground="{DynamicResource ThirdColor}"/>
+                                       Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                             <TextBlock x:Name="txtEmployeeDetails" 
-                                       Text="الرجاء البحث عن موظف" 
+                                       Text="{DynamicResource PleaseSearchForAnEmployee}" 
                                        FontSize="12"
-                                       Foreground="{DynamicResource ThirdColor}"/>
+                                       Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                         </StackPanel>
 
                         <Button Grid.Column="2" 
                                 x:Name="btnClearSelection" 
-                                Content="إلغاء الاختيار"
+                                Content="{DynamicResource CancelSelection}"
                                 Width="100" Height="30"
                                 Background="#F44336" Foreground="White"
                                 Click="btnClearSelection_Click"
@@ -128,7 +128,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="رصيد الإجازات" 
+                    <TextBlock Grid.Row="0" Text="{DynamicResource LeaveBalance}" 
                                FontSize="16" FontWeight="Bold" 
                                Foreground="{DynamicResource TextPrimaryColor}"
                                Margin="0,0,0,10"/>
@@ -144,17 +144,17 @@
                               BorderThickness="1">
                         <DataGrid.Columns>
                             <!-- نوع الإجازة -->
-                            <DataGridTextColumn Header="نوع الإجازة" 
+                            <DataGridTextColumn Header="{DynamicResource LeaveType2}" 
                                                 Binding="{Binding LeaveTypeName}" 
                                                 Width="150" IsReadOnly="True"/>
 
                             <!-- الكود -->
-                            <DataGridTextColumn Header="الكود" 
+                            <DataGridTextColumn Header="{DynamicResource Code}" 
                                                 Binding="{Binding LeaveTypeCode}" 
                                                 Width="80" IsReadOnly="True"/>
 
                             <!-- الرصيد الكلي -->
-                            <DataGridTemplateColumn Header="الرصيد الكلي" Width="120">
+                            <DataGridTemplateColumn Header="{DynamicResource TotalBalance2}" Width="120">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBox Text="{Binding TotalBalance, UpdateSourceTrigger=PropertyChanged}" 
@@ -165,12 +165,12 @@
                             </DataGridTemplateColumn>
 
                             <!-- المستخدم -->
-                            <DataGridTextColumn Header="المستخدم" 
+                            <DataGridTextColumn Header="{DynamicResource User}" 
                                                 Binding="{Binding UsedBalance}" 
                                                 Width="80" IsReadOnly="True"/>
 
                             <!-- المتبقي -->
-                            <DataGridTemplateColumn Header="المتبقي" Width="120">
+                            <DataGridTemplateColumn Header="{DynamicResource Residual}" Width="120">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding RemainingBalance}" 
@@ -189,7 +189,7 @@
                             </DataGridTemplateColumn>
 
                             <!-- آخر تحديث -->
-                            <DataGridTextColumn Header="آخر تحديث" 
+                            <DataGridTextColumn Header="{DynamicResource LatestUpdate}" 
                                                 Binding="{Binding UpdatedAt, StringFormat='yyyy/MM/dd'}" 
                                                 Width="100" IsReadOnly="True"/>
 
@@ -200,7 +200,7 @@
                 <!-- ملاحظات عامة -->
                 <Border Grid.Row="2" Visibility="Collapsed" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="5" Padding="10">
                     <StackPanel>
-                        <TextBlock Text="ملاحظات عامة:" 
+                        <TextBlock Text="{DynamicResource GeneralNotes}" 
                                    FontWeight="Bold" 
                                    Margin="0,0,0,5"/>
                         <TextBox x:Name="txtGeneralNotes" 
@@ -215,14 +215,14 @@
 
         <!-- الأزرار -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-            <Button x:Name="btnSave" Content="حفظ التعديلات" 
+            <Button x:Name="btnSave" Content="{DynamicResource SaveModifications}" 
                     Width="120" Height="40"
                     Background="{DynamicResource ButtonHoverBackground}" Foreground="{DynamicResource ButtonHoverForeground}"
                     FontSize="14" FontWeight="Bold"
                     Click="btnSave_Click">
             </Button>
 
-            <Button x:Name="btnReset" Content="إعادة تعيين" 
+            <Button x:Name="btnReset" Content="{DynamicResource Reset2}" 
                     Width="120" Height="40"
                     Background="{DynamicResource ButtonHoverBackground}" Foreground="{DynamicResource ButtonHoverForeground}"
                     FontSize="14" FontWeight="Bold"
@@ -230,7 +230,7 @@
                     Margin="20,0,0,0">
             </Button>
 
-            <Button x:Name="btnClose" Content="إغلاق" 
+            <Button x:Name="btnClose" Content="{DynamicResource Closing}" 
                     Width="100" Height="40"
                     Background="#757575" Foreground="White"
                     FontSize="14" FontWeight="Bold"

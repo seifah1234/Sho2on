@@ -8,7 +8,7 @@
         WindowState="Maximized"
         FlowDirection="RightToLeft"
         Background="Transparent"
-        Title="بيانات الموظفين">
+        Title="{DynamicResource EmployeeData}">
 
     <Window.Resources>
         <!-- تدرج للقسم العلوي -->
@@ -63,7 +63,7 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -113,7 +113,7 @@
             
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="بيانات الموظفين" 
+            <TextBlock Text="{DynamicResource EmployeeData}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="14" 
@@ -139,7 +139,7 @@
                                         <StackPanel Orientation="Horizontal" Margin="5">
                                                 <TextBox Width="100" Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="2"/>
                                                 <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
-                                                    <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                                    <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                                     <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                                                 </StackPanel>
                                             </StackPanel>
@@ -152,20 +152,20 @@
                                     </StackPanel>
                                         <!-- الأزرار -->
                                         <UniformGrid Columns="2" HorizontalAlignment="Center" Margin="5" VerticalAlignment="Center">
-                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="2" ToolTip="بحث في بيانات الموظفين">
+                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="2" ToolTip="{DynamicResource SearchEmployeeData}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Icon:PackIconMaterial Kind="Magnify" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                                    <TextBlock Text="بحث" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{DynamicResource Research}" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="clear_btn" Click="clear_btn_Click" Margin="2" ToolTip="مسح جميع الفلاتر">
+                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="clear_btn" Click="clear_btn_Click" Margin="2" ToolTip="{DynamicResource ClearAllFilters}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Icon:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="0 0 5 0"/>
 
-                                                    <TextBlock Text="جديد" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{DynamicResource New}" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="2" ToolTip="تصدير البيانات إلى Excel">
+                                            <Button Style="{DynamicResource ActionButtonStyle}" x:Name="excel_btn" Click="excel_btn_Click" Margin="2" ToolTip="{DynamicResource ExportDataToExcel}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Icon:PackIconMaterial Kind="FileExcel" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                                     <TextBlock Text="Excel" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
@@ -176,29 +176,29 @@
 
                                     <!-- DatePickers للتعيين -->
                                     <StackPanel Orientation="Horizontal">
-                                        <GroupBox BorderBrush="{DynamicResource ThirdColor}" Foreground="{DynamicResource ThirdColor}" Header="التعيين" Margin="5" Padding="5">
+                                        <GroupBox BorderBrush="{DynamicResource ThirdColorBrush}" Foreground="{DynamicResource ThirdColorBrushBrush}" Header="{DynamicResource Appointment}" Margin="5" Padding="5">
 
                                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
                                                 <StackPanel>
-                                                    <Label Content="من" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource From}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <DatePicker Width="120"  Name="from_picker" Margin="2"/>
                                                 </StackPanel>
                                                 <StackPanel>
-                                                    <Label Content="الى" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource To2}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <DatePicker Width="120" Name="to_picker" Margin="2"/>
 
                                                 </StackPanel>
                                             </StackPanel>
                                         </GroupBox>
                                         <!-- DatePickers للانتهاء -->
-                                        <GroupBox BorderBrush="{DynamicResource ThirdColor}" Foreground="{DynamicResource ThirdColor}" Header="انتهاء" Margin="5" Padding="5">
+                                        <GroupBox BorderBrush="{DynamicResource ThirdColorBrush}" Foreground="{DynamicResource ThirdColorBrushBrush}" Header="{DynamicResource AnEnd}" Margin="5" Padding="5">
                                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
                                                 <StackPanel>
-                                                    <Label Content="من" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource From}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <DatePicker Width="120" Name="end_from_picker" Margin="2"/>
                                                 </StackPanel>
                                                 <StackPanel>
-                                                    <Label Content="الى" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource To2}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <DatePicker Width="120" Name="end_to_picker" Margin="2"/>
 
                                                 </StackPanel>
@@ -211,48 +211,48 @@
                                         <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="10">
                                         <UniformGrid Columns="3" HorizontalAlignment="Left">
                                                 <StackPanel Margin="5">
-                                                    <Label Content="الفرع" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource Branch}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <ComboBox x:Name="branchComboBox" Width="150"/>
                                                 </StackPanel>
                                                 
                                                 <StackPanel Margin="5">
-                                                    <Label Content="الوظيفة" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource Job}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                 <ComboBox x:Name="jobComboBox" Width="150"/>
                                                 </StackPanel>
 
                                                 <StackPanel Margin="5">
-                                                    <Label Content="في الخدمة" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource OnDuty}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <ComboBox x:Name="inDutyComboBox" Width="150"/>
                                                 </StackPanel>
                                                 
                                                 <StackPanel Margin="5">
-                                                    <Label Content="مؤمن عليه" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource Insured}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <ComboBox x:Name="insuredComboBox" DisplayMemberPath="Name" SelectedValuePath="Id" Width="150"/>
                                                 </StackPanel>
 
                                                 <StackPanel Margin="5">
-                                                    <Label Content="الادارة" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource Management3}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="deptComboBox" Width="150"/>
                                                 </StackPanel>
 
                                                 <StackPanel Margin="5">
-                                                    <Label Content="الاقامة" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource Accommodation}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="recidenceComboBox" Width="150"/>
                                                 </StackPanel>
 
                                                 <StackPanel Margin="5">
-                                                    <Label Content="الحالة الاجتماعية" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource MaritalStatus}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="maritalComboBox" Width="150"/>
                                                 </StackPanel>
 
 
                                             <StackPanel Margin="5">
-                                                <Label Content="المؤهل" Foreground="{DynamicResource ThirdColor}"/>
+                                                <Label Content="{DynamicResource Qualification}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                 <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="eduComboBox" Width="150"/>
                                             </StackPanel>
 
                                             <StackPanel Margin="5">
-                                                    <Label Content="تاريخ الميلاد" Foreground="{DynamicResource ThirdColor}"/>
+                                                    <Label Content="{DynamicResource DateOfBirth}" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
                                                     <DatePicker Name="birth_picker" Width="150"/>
                                                 </StackPanel>
 
@@ -279,15 +279,15 @@
               SelectionChanged="list_SelectionChanged"
               MouseDoubleClick="list_MouseDoubleClick">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="م" Width="40" Binding="{Binding RowNumber}"/>
-                            <DataGridTextColumn Header="الكود" Width="60" Binding="{Binding Code}"/>
-                            <DataGridTextColumn Header="الاسم" Width="200" Binding="{Binding Name}"/>
-                            <DataGridTextColumn Header="الوظيفة" Width="150" Binding="{Binding Job}"/>
-                            <DataGridTextColumn Header="الفرع" Width="120" Binding="{Binding Br}"/>
-                            <DataGridTextColumn Header="الإدارة" Width="150" Binding="{Binding Department}"/>
-                            <DataGridTextColumn Header="الرقم القومي" Width="120" Binding="{Binding CardNo}"/>
-                            <DataGridTextColumn Header="النوع" Width="60" Binding="{Binding Gender}"/>
-                            <DataGridTextColumn Header="تاريخ الميلاد" Width="100" Binding="{Binding BirthD, StringFormat=dd/MM/yyyy}">
+                            <DataGridTextColumn Header="{DynamicResource M}" Width="40" Binding="{Binding RowNumber}"/>
+                            <DataGridTextColumn Header="{DynamicResource Code}" Width="60" Binding="{Binding Code}"/>
+                            <DataGridTextColumn Header="{DynamicResource TheName}" Width="200" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="{DynamicResource Job}" Width="150" Binding="{Binding Job}"/>
+                            <DataGridTextColumn Header="{DynamicResource Branch}" Width="120" Binding="{Binding Br}"/>
+                            <DataGridTextColumn Header="{DynamicResource Management}" Width="150" Binding="{Binding Department}"/>
+                            <DataGridTextColumn Header="{DynamicResource NationalNumber}" Width="120" Binding="{Binding CardNo}"/>
+                            <DataGridTextColumn Header="{DynamicResource Type}" Width="60" Binding="{Binding Gender}"/>
+                            <DataGridTextColumn Header="{DynamicResource DateOfBirth}" Width="100" Binding="{Binding BirthD, StringFormat=dd/MM/yyyy}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="FlowDirection" Value="LeftToRight"/>
@@ -295,22 +295,14 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="العمر" Width="60" Binding="{Binding Age}">
+                            <DataGridTextColumn Header="{DynamicResource TheAge}" Width="60" Binding="{Binding Age}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="HorizontalAlignment" Value="Center"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="تاريخ التعيين" Width="100" Binding="{Binding DateT, StringFormat=dd/MM/yyyy}">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="FlowDirection" Value="LeftToRight"/>
-                                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="تاريخ نهاية العمل" Width="100" Binding="{Binding EndDate, StringFormat=dd/MM/yyyy}">
+                            <DataGridTextColumn Header="{DynamicResource AppointmentDate}" Width="100" Binding="{Binding DateT, StringFormat=dd/MM/yyyy}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="FlowDirection" Value="LeftToRight"/>
@@ -318,8 +310,16 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="العنوان" Width="200" Binding="{Binding Address}"/>
-                            <DataGridTextColumn Header="المرتب" Width="100" Binding="{Binding Salary, StringFormat={}{0:N0}}" Visibility="Visible">
+                            <DataGridTextColumn Header="{DynamicResource EndDateOfEmployment}" Width="100" Binding="{Binding EndDate, StringFormat=dd/MM/yyyy}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="{DynamicResource TheAddress}" Width="200" Binding="{Binding Address}"/>
+                            <DataGridTextColumn Header="{DynamicResource Salary2}" Width="100" Binding="{Binding Salary, StringFormat={}{0:N0}}" Visibility="Visible">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -327,22 +327,22 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="رصيد الاجازات" Width="100" Binding="{Binding HolidayBalance}">
+                            <DataGridTextColumn Header="{DynamicResource LeaveBalance2}" Width="100" Binding="{Binding HolidayBalance}">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="HorizontalAlignment" Value="Center"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="مؤمن عليه" Width="80" Binding="{Binding Insured}"/>
-                            <DataGridTextColumn Header="الهاتف" Width="120" Binding="{Binding Phone}"/>
-                            <DataGridTextColumn Header="البريد الإلكتروني" Width="180" Binding="{Binding Email}"/>
-                            <DataGridTextColumn Header="الرقم التأميني" Width="120" Binding="{Binding SSN}"/>
-                            <DataGridTextColumn Header="التأمين الصحي" Width="120" Binding="{Binding HealthInsurance}"/>
-                            <DataGridTextColumn Header="في الخدمة" Width="80" Binding="{Binding InDuty}"/>
-                            <DataGridTextColumn Header="تحت التدريب" Width="90" Binding="{Binding UnderTraining}"/>
-                            <DataGridTextColumn Header="تحت التوظيف" Width="90" Binding="{Binding UnderEmployment}"/>
-                            <DataGridTextColumn Header="القائمة السوداء" Width="90" Binding="{Binding Blacklist}"/>
+                            <DataGridTextColumn Header="{DynamicResource Insured}" Width="80" Binding="{Binding Insured}"/>
+                            <DataGridTextColumn Header="{DynamicResource Phone}" Width="120" Binding="{Binding Phone}"/>
+                            <DataGridTextColumn Header="{DynamicResource EMail}" Width="180" Binding="{Binding Email}"/>
+                            <DataGridTextColumn Header="{DynamicResource InsuranceNumber}" Width="120" Binding="{Binding SSN}"/>
+                            <DataGridTextColumn Header="{DynamicResource HealthInsurance}" Width="120" Binding="{Binding HealthInsurance}"/>
+                            <DataGridTextColumn Header="{DynamicResource OnDuty}" Width="80" Binding="{Binding InDuty}"/>
+                            <DataGridTextColumn Header="{DynamicResource UnderTraining}" Width="90" Binding="{Binding UnderTraining}"/>
+                            <DataGridTextColumn Header="{DynamicResource UnderEmployment}" Width="90" Binding="{Binding UnderEmployment}"/>
+                            <DataGridTextColumn Header="{DynamicResource BlackList}" Width="90" Binding="{Binding Blacklist}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>
@@ -359,7 +359,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="1" 
-                               Text="معلومات: اضغط مرتين على الصف لفتح بيانات الموظف للتعديل"
+                               Text="{DynamicResource InformationDoubleClickOnTheRowToOpenTheEmployeeDataForEditing}"
                                FontSize="11"
                                VerticalAlignment="Center"
                                Margin="10,0"/>

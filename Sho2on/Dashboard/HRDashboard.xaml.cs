@@ -42,7 +42,7 @@ namespace HR_Application.Dashboard
 
         private void InitializeDashboard()
         {
-            WelcomeText.Text = $"ãÑÍÈÇğ Èß¡ {App.CurrentUser?.FullName ?? "ãÓÄæá ÔÄæä ÇáãæÙİíä"}";
+            WelcomeText.Text = $"Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨ÙƒØŒ {App.CurrentUser?.FullName ?? "Ù…Ø³Ø¤ÙˆÙ„ Ø´Ø¤ÙˆÙ† Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†"}";
         }
 
         private async Task LoadDashboardDataAsync()
@@ -54,14 +54,14 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task LoadHRStatistics()
         {
-            // ÇáãæÙİíä ÇáÌÏÏ (ÎáÇá ÇáÔåÑ ÇáÍÇáí)
+            // Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ø§Ù„Ø¬Ø¯Ø¯ (Ø®Ù„Ø§Ù„ Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠ)
             var firstDayOfMonth = new DateTime(_currentYear, _currentMonth, 1);
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
 
@@ -72,7 +72,7 @@ namespace HR_Application.Dashboard
                 .CountAsync();
             NewEmployees.Text = newEmployees.ToString();
 
-            // ÇáãÛÇÏÑíä (ÎáÇá ÇáÔåÑ ÇáÍÇáí)
+            // Ø§Ù„Ù…ØºØ§Ø¯Ø±ÙŠÙ† (Ø®Ù„Ø§Ù„ Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠ)
             var leavingEmployees = await _context.Users
                 .Where(u => u.FinishJob.HasValue &&
                            u.FinishJob.Value.ToDateTime(TimeOnly.MinValue) >= firstDayOfMonth &&
@@ -80,13 +80,13 @@ namespace HR_Application.Dashboard
                 .CountAsync();
             LeavingEmployees.Text = leavingEmployees.ToString();
 
-            // ØáÈÇÊ ÇáÅÌÇÒÉ ÇáãÚáŞÉ
+            // Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø§Ù„Ù…Ø¹Ù„Ù‚Ø©
             var leaveRequests = await _context.Leaves
-                .Where(l => l.Status == 0) // ØáÈÇÊ ÈÇäÊÙÇÑ ÇáãæÇİŞÉ
+                .Where(l => l.Status == 0) // Ø·Ù„Ø¨Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©
                 .CountAsync();
             LeaveRequests.Text = leaveRequests.ToString();
 
-            // ÇáÚŞæÏ ÇáãäÊåíÉ ÎáÇá 30 íæã
+            // Ø§Ù„Ø¹Ù‚ÙˆØ¯ Ø§Ù„Ù…Ù†ØªÙ‡ÙŠØ© Ø®Ù„Ø§Ù„ 30 ÙŠÙˆÙ…
             var expiringDate = DateTime.Now.AddDays(30);
             var expiringContracts = await _context.Users
                 .Where(u => u.FinishJob.HasValue &&
@@ -101,7 +101,7 @@ namespace HR_Application.Dashboard
         {
             var changes = new ObservableCollection<EmployeeChange>();
 
-            // ÇáÊÛííÑÇÊ ÇáÃÎíÑÉ İí ÑæÇÊÈ ÇáãæÙİíä
+            // Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª Ø§Ù„Ø£Ø®ÙŠØ±Ø© ÙÙŠ Ø±ÙˆØ§ØªØ¨ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
             var recentSalaryChanges = await _context.Salaries
                 .Include(s => s.User)
                 .Where(s => s.CreatedAt >= DateTime.Now.AddDays(-30))
@@ -114,13 +114,13 @@ namespace HR_Application.Dashboard
                 changes.Add(new EmployeeChange
                 {
                     Date = salary.CreatedAt,
-                    EmployeeName = salary.User?.FullName ?? "ÛíÑ ãÚÑæİ",
+                    EmployeeName = salary.User?.FullName ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"),
                     ChangeType = GetSalaryTypeName(salary.Type),
-                    Details = $"ãÈáÛ: {salary.Amount:C2}"
+                    Details = $"Ù…Ø¨Ù„Øº: {salary.Amount:C2}"
                 });
             }
 
-            // ÇáÊÛííÑÇÊ ÇáÃÎíÑÉ İí ÈíÇäÇÊ ÇáãæÙİíä
+            // Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª Ø§Ù„Ø£Ø®ÙŠØ±Ø© ÙÙŠ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
             var recentUserChanges = await _context.Users
                 .Where(u => u.UpdatedAt >= DateTime.Now.AddDays(-30) &&
                            u.UpdatedAt != u.CreatedAt)
@@ -134,8 +134,8 @@ namespace HR_Application.Dashboard
                 {
                     Date = user.UpdatedAt,
                     EmployeeName = user.FullName,
-                    ChangeType = "ÊÚÏíá ÈíÇäÇÊ",
-                    Details = "Êã ÊÍÏíË ÇáãÚáæãÇÊ ÇáÔÎÕíÉ"
+                    ChangeType = LocalizationManager.Translate("ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª"),
+                    Details = LocalizationManager.Translate("ØªÙ… ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ©")
                 });
             }
 
@@ -148,25 +148,25 @@ namespace HR_Application.Dashboard
         {
             return type switch
             {
-                1 => "ÑÇÊÈ ÃÓÇÓí",
-                2 => "ÈÏá Óßä",
-                3 => "ÈÏá ÇäÊŞÇá",
-                4 => "ÊÃãíä",
-                5 => "ÖÑíÈÉ",
-                6 => "ãÔÇÑßÉ ÇÌÊãÇÚíÉ",
-                9 => "ÓáİÉ",
-                10 => "ÌÒÇÁ",
-                11 => "ãßÇİÃÉ",
-                12 => "ÛíÇÈ",
-                13 => "ÕäÏæŞ ÇáÒãÇáÉ",
-                14 => "ÈÏá ÅÏÇÑÉ",
-                15 => "ÈÏá ØÈíÚÉ Úãá",
-                16 => "ÚÌÒ",
-                17 => "ÅĞä",
-                18 => "ÚãæáÉ ÊÍŞíŞ",
-                19 => "ÚãæáÉ ÎÇÑÌíÉ",
-                20 => "İÇÊæÑÉ Êáíİæä",
-                _ => "ãÓÊÍŞÇÊ ÃÎÑì"
+                1 => LocalizationManager.Translate("Ø±Ø§ØªØ¨ Ø£Ø³Ø§Ø³ÙŠ"),
+                2 => LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø³ÙƒÙ†"),
+                3 => LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø§Ù†ØªÙ‚Ø§Ù„"),
+                4 => LocalizationManager.Translate("ØªØ£Ù…ÙŠÙ†"),
+                5 => LocalizationManager.Translate("Ø¶Ø±ÙŠØ¨Ø©"),
+                6 => LocalizationManager.Translate("Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©"),
+                9 => LocalizationManager.Translate("Ø³Ù„ÙØ©"),
+                10 => LocalizationManager.Translate("Ø¬Ø²Ø§Ø¡"),
+                11 => LocalizationManager.Translate("Ù…ÙƒØ§ÙØ£Ø©"),
+                12 => LocalizationManager.Translate("ØºÙŠØ§Ø¨"),
+                13 => LocalizationManager.Translate("ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©"),
+                14 => LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø¥Ø¯Ø§Ø±Ø©"),
+                15 => LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø·Ø¨ÙŠØ¹Ø© Ø¹Ù…Ù„"),
+                16 => LocalizationManager.Translate("Ø¹Ø¬Ø²"),
+                17 => LocalizationManager.Translate("Ø¥Ø°Ù†"),
+                18 => LocalizationManager.Translate("Ø¹Ù…ÙˆÙ„Ø© ØªØ­Ù‚ÙŠÙ‚"),
+                19 => LocalizationManager.Translate("Ø¹Ù…ÙˆÙ„Ø© Ø®Ø§Ø±Ø¬ÙŠØ©"),
+                20 => LocalizationManager.Translate("ÙØ§ØªÙˆØ±Ø© ØªÙ„ÙŠÙÙˆÙ†"),
+                _ => LocalizationManager.Translate("Ù…Ø³ØªØ­Ù‚Ø§Øª Ø£Ø®Ø±Ù‰")
             };
         }
 
@@ -185,19 +185,19 @@ namespace HR_Application.Dashboard
 
         private void OpenPromotions(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ äÙÇã ÇáÊÑŞíÇÊ æÇáäŞá İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± Ù†Ø¸Ø§Ù… Ø§Ù„ØªØ±Ù‚ÙŠØ§Øª ÙˆØ§Ù„Ù†Ù‚Ù„ ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OpenTerminations(object sender, RoutedEventArgs e)
         {
-            // íãßä ÅäÔÇÁ äÇİĞÉ ÎÇÕÉ ÈÅäåÇÁ ÇáÎÏãÇÊ
-            var result = LocalizationManager.ShowMessage("åá ÊÑíÏ İÊÍ äÇİĞÉ ÅäåÇÁ ÇáÎÏãÇÊ¿", "ÅäåÇÁ ÇáÎÏãÇÊ",
+            // ÙŠÙ…ÙƒÙ† Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø§ÙØ°Ø© Ø®Ø§ØµØ© Ø¨Ø¥Ù†Ù‡Ø§Ø¡ Ø§Ù„Ø®Ø¯Ù…Ø§Øª
+            var result = LocalizationManager.ShowMessage("Ù‡Ù„ ØªØ±ÙŠØ¯ ÙØªØ­ Ù†Ø§ÙØ°Ø© Ø¥Ù†Ù‡Ø§Ø¡ Ø§Ù„Ø®Ø¯Ù…Ø§ØªØŸ", LocalizationManager.Translate("Ø¥Ù†Ù‡Ø§Ø¡ Ø§Ù„Ø®Ø¯Ù…Ø§Øª"),
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
             {
-                LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ äÙÇã ÅäåÇÁ ÇáÎÏãÇÊ İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
+                LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± Ù†Ø¸Ø§Ù… Ø¥Ù†Ù‡Ø§Ø¡ Ø§Ù„Ø®Ø¯Ù…Ø§Øª ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }

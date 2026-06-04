@@ -29,7 +29,7 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -77,7 +77,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="صلاحيات الفروع" 
+            <TextBlock Text="{DynamicResource BranchPermissions}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -93,14 +93,14 @@
                         <Button Style="{DynamicResource SaveButtonStyle}" IsDefault="True" x:Name="save_btn" Click="SaveButton_Click">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
                     <!-- ComboBox والـ Label المحسنين -->
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="10">
                         <ComboBox DisplayMemberPath="FullName" SelectedValuePath="Id" x:Name="userComboBox" SelectionChanged="UserComboBox_SelectionChanged"/>
-                        <Label Content="المستخدم :" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                        <Label Content="{DynamicResource User2}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -109,7 +109,7 @@
             <Border Grid.Row="2" Margin="20" CornerRadius="10" Opacity="0.95"  >
                 <DataGrid Name="dataTable" AutoGenerateColumns="False" FlowDirection="RightToLeft" ItemsSource="{Binding BranchesList}" Margin="10">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="الفرع" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="{DynamicResource Branch}" Binding="{Binding Name}" Width="*"/>
                         <DataGridCheckBoxColumn Binding="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource DataGridCheckBoxStyle}">
                             <DataGridCheckBoxColumn.Header>
                                 <CheckBox Name="All_check" Checked="All_check_Checked" Unchecked="All_check_Unchecked" Style="{DynamicResource DataGridCheckBoxStyle}"/>

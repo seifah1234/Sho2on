@@ -38,7 +38,7 @@ namespace HR_Application
             _context = new AppDbContext(App.ConnectionString);
         }
 
-        // ÏÇáÉ ÌÏíÏÉ áÊÚííä ÈíÇäÇÊ ÇáãæÙİ ÚäÏ İÊÍ ÇáäÇİĞÉ
+        // Ø¯Ø§Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù„ØªØ¹ÙŠÙŠÙ† Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù Ø¹Ù†Ø¯ ÙØªØ­ Ø§Ù„Ù†Ø§ÙØ°Ø©
         public void SetEmployeeData(Employee employee)
         {
             _selectedEmployee = employee;
@@ -50,7 +50,7 @@ namespace HR_Application
         {
             try
             {
-                // ÊÍãíá ÇáÈíÇäÇÊ ãä ŞÇÚÏÉ ÇáÈíÇäÇÊ
+                // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                 var areas = await _context.Areas.ToListAsync();
                 area_box.ItemsSource = areas;
                 area_box.DisplayMemberPath = "Name";
@@ -108,16 +108,16 @@ namespace HR_Application
                 job_type_box.DisplayMemberPath = "Name";
                 job_type_box.SelectedValuePath = "Id";
 
-                // ÊÚííä ÇáŞíã ÇáÇİÊÑÇÖíÉ
+                // ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ù‚ÙŠÙ… Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
                 emplo_date_picker.SelectedDate = DateTime.Now;
                 inDuty_check.IsChecked = true;
 
-                // ÊÍãíá ÇáÕæÑÉ ÇáÇİÊÑÇÖíÉ
+                // ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø© Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
                 LoadDefaultImage();
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -134,22 +134,22 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÕæÑÉ ÇáÇİÊÑÇÖíÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø© Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠØ©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ÍÏË ÚäÏ ÊÛííÑ ÇÎÊíÇÑ ÇáæÙíİÉ
+        // Ø­Ø¯Ø« Ø¹Ù†Ø¯ ØªØºÙŠÙŠØ± Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙˆØ¸ÙŠÙØ©
         private async void job_box_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (job_box.SelectedItem is JobTitle selectedJob)
             {
-                // ÇáÊÍŞŞ ÅĞÇ ßÇäÊ ÇáæÙíİÉ ÊÊØáÈ ŞíÇÏÉ
+                // Ø§Ù„ØªØ­Ù‚Ù‚ Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„ÙˆØ¸ÙŠÙØ© ØªØªØ·Ù„Ø¨ Ù‚ÙŠØ§Ø¯Ø©
                 _isDriver = await IsDriverJob(selectedJob.Id);
 
-                // ÅÙåÇÑ Ãæ ÅÎİÇÁ ŞÓã ãÚáæãÇÊ ÇáŞíÇÏÉ
+                // Ø¥Ø¸Ù‡Ø§Ø± Ø£Ùˆ Ø¥Ø®ÙØ§Ø¡ Ù‚Ø³Ù… Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù‚ÙŠØ§Ø¯Ø©
                 driving_section.Visibility = _isDriver ? Visibility.Visible : Visibility.Collapsed;
 
-                // ÅĞÇ áã Êßä ÇáæÙíİÉ ÓÇÆŞ¡ ãÓÍ ÈíÇäÇÊ ÇáŞíÇÏÉ
+                // Ø¥Ø°Ø§ Ù„Ù… ØªÙƒÙ† Ø§Ù„ÙˆØ¸ÙŠÙØ© Ø³Ø§Ø¦Ù‚ØŒ Ù…Ø³Ø­ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù‚ÙŠØ§Ø¯Ø©
                 if (!_isDriver)
                 {
                     ClearDrivingData();
@@ -170,14 +170,14 @@ namespace HR_Application
             }
         }
 
-        // ÍÏË ÚäÏ ÊİÚíá ÇáÈáÇß áíÓÊ
+        // Ø­Ø¯Ø« Ø¹Ù†Ø¯ ØªÙØ¹ÙŠÙ„ Ø§Ù„Ø¨Ù„Ø§Ùƒ Ù„ÙŠØ³Øª
         private void blacklist_check_Checked(object sender, RoutedEventArgs e)
         {
             blacklist_notes_box.Visibility = Visibility.Visible;
             blacklist_notes_box.Focus();
         }
 
-        // ÍÏË ÚäÏ ÅáÛÇÁ ÇáÈáÇß áíÓÊ
+        // Ø­Ø¯Ø« Ø¹Ù†Ø¯ Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø¨Ù„Ø§Ùƒ Ù„ÙŠØ³Øª
         private void blacklist_check_Unchecked(object sender, RoutedEventArgs e)
         {
             blacklist_notes_box.Visibility = Visibility.Collapsed;
@@ -191,17 +191,17 @@ namespace HR_Application
                 if (!ValidateInput())
                     return;
 
-                // ÇáÊÍŞŞ ãä ÚÏã ÊßÑÇÑ ÇáßæÏ
+                // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ØªÙƒØ±Ø§Ø± Ø§Ù„ÙƒÙˆØ¯
                 if (_context.Users.Any(u => u.Code == emplo_code_box.Text))
                 {
-                    LocalizationManager.ShowMessage("åĞÇ ÇáßæÏ ãÓÊÎÏã ÈÇáİÚá. ÇáÑÌÇÁ ÇÓÊÎÏÇã ßæÏ ãÎÊáİ.", "ÊÍĞíÑ",
+                    LocalizationManager.ShowMessage("Ù‡Ø°Ø§ Ø§Ù„ÙƒÙˆØ¯ Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø§Ù„ÙØ¹Ù„. Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø³ØªØ®Ø¯Ø§Ù… ÙƒÙˆØ¯ Ù…Ø®ØªÙ„Ù.", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var user = new User
                 {
-                    // ÇáãÚáæãÇÊ ÇáÔÎÕíÉ
+                    // Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ©
                     Code = emplo_code_box.Text,
                     NationalID = emplo_card_box.Text,
                     PhoneNumber = emplo_tele_box.Text,
@@ -217,7 +217,7 @@ namespace HR_Application
                     ManagerId = (int?)manager_box.SelectedValue,
                     QualificationId = (int?)qualificationBox.SelectedValue,
 
-                    // ÇáãÚáæãÇÊ ÇáæÙíİíÉ
+                    // Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©
                     AreaId = (int?)area_box.SelectedValue,
                     BranchId = (int)branch_box.SelectedValue,
                     DepartmentId = (int)depart_box.SelectedValue,
@@ -228,31 +228,31 @@ namespace HR_Application
                     RecidenceId = (int?)recidenceBox.SelectedValue,
                     JobTypeId = (int?)job_type_box.SelectedValue,
 
-                    // ÇáÅÚİÇÁÇÊ
+                    // Ø§Ù„Ø¥Ø¹ÙØ§Ø¡Ø§Øª
                     ExemptLate = late_box.IsChecked == true,
                     ExemptEarlyLeave = early_end.IsChecked == true,
                     ExemptOvertime = OV1_box.IsChecked == true,
                     ExemptEarlyEnter = OV_box.IsChecked == true,
                     ExemptAbsence = absent_box.IsChecked == true,
 
-                    // ÇáãÚáæãÇÊ ÇáÅÖÇİíÉ
+                    // Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¥Ø¶Ø§ÙÙŠØ©
                     WorkHours = TimeSpan.TryParse(work_hours_box.Text, out var workHours) ? workHours : TimeSpan.Zero,
                     InDuty = inDuty_check.IsChecked == true,
                     InsuredId = (int)insuredComboBox.SelectedValue,
                     HolidayBalance = int.TryParse(holiday_balance_box.Text, out int balance) ? balance : 0,
 
-                    // ÇáÈáÇß áíÓÊ
+                    // Ø§Ù„Ø¨Ù„Ø§Ùƒ Ù„ÙŠØ³Øª
                     IsArchived = archive_check.IsChecked == true,
                     Blacklist = blacklist_check.IsChecked == true,
                     BlacklistReason = blacklist_check.IsChecked == true ? blacklist_notes_box.Text : null,
 
-                    // ãÚáæãÇÊ ÇáÊÏÑíÈ æÇáÊæÙíİ
+                    // Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ØªØ¯Ø±ÙŠØ¨ ÙˆØ§Ù„ØªÙˆØ¸ÙŠÙ
                     UnderTraining = training_check.IsChecked == true,
                     UnderEmployment = employee_check.IsChecked == true,
                     IsUser = user_check.IsChecked == true,
                     IsMobileUser = userMobile_check.IsChecked == true,
 
-                    // ÇáãÓÊäÏÇÊ
+                    // Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª
                     NationalIDExpiration = national_id_expiration.SelectedDate.HasValue ?
                         DateOnly.FromDateTime(national_id_expiration.SelectedDate.Value) : null,
                     ArmyCertificateExpiration = army_certificate_expiration.SelectedDate.HasValue ?
@@ -261,36 +261,36 @@ namespace HR_Application
                     SSN = ssn_box.Text,
                     HealthInsuranceNumber = health_insurance_box.Text,
 
-                    // ãÚáæãÇÊ ÇáŞíÇÏÉ (ÅĞÇ ßÇäÊ ÇáæÙíİÉ ÓÇÆŞ)
+                    // Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù‚ÙŠØ§Ø¯Ø© (Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„ÙˆØ¸ÙŠÙØ© Ø³Ø§Ø¦Ù‚)
                     DriverLicenseExpiration = _isDriver && driver_license_expiration.SelectedDate.HasValue ?
                         DateOnly.FromDateTime(driver_license_expiration.SelectedDate.Value) : null,
                     VehicleLicenseExpiration = _isDriver && vehicle_license_expiration.SelectedDate.HasValue ?
                         DateOnly.FromDateTime(vehicle_license_expiration.SelectedDate.Value) : null,
 
-                    // ÇáÕæÑÉ
+                    // Ø§Ù„ØµÙˆØ±Ø©
                     ProfileImageData = _profileImageData,
 
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
 
-                    // ãÚáæãÇÊ ÇáãÑÊÈ
+                    // Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…Ø±ØªØ¨
                     MainSalary = decimal.TryParse(holiday_balance_box.Text, out decimal salary) ? salary : 0
                 };
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÍİÙ ÈíÇäÇÊ ÇáãæÙİ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø­ÙØ¸ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 ClearData();
             }
             catch (DbUpdateException dbEx)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ: {dbEx.InnerException?.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {dbEx.InnerException?.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -353,14 +353,14 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì Çí ãæÙİ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§ÙŠ Ù…ÙˆØ¸Ù", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     ClearData();
                 }
 
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÈÍË: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨Ø­Ø«: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -368,7 +368,7 @@ namespace HR_Application
         {
             try
             {
-                // ÇáãÚáæãÇÊ ÇáÔÎÕíÉ
+                // Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ©
                 emplo_code_box.Text = user.Code.ToString();
                 emplo_name_box.Text = user.FullName ?? "";
                 emplo_card_box.Text = user.NationalID ?? "";
@@ -385,11 +385,11 @@ namespace HR_Application
                 if (user.FinishJob.HasValue)
                     end_date_picker.SelectedDate = user.FinishJob.Value.ToDateTime(TimeOnly.MinValue);
 
-                // ÇáäæÚ
+                // Ø§Ù„Ù†ÙˆØ¹
                 male_box.IsChecked = user.Gender == 'M';
                 female_box.IsChecked = user.Gender == 'F';
 
-                // ÇáŞæÇÆã ÇáãäÓÏáÉ
+                // Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ù…Ù†Ø³Ø¯Ù„Ø©
                 if (user.AreaId.HasValue)
                     area_box.SelectedValue = user.AreaId;
 
@@ -429,14 +429,14 @@ namespace HR_Application
                 if (user.JobTypeId.HasValue)
                     job_type_box.SelectedValue = user.JobTypeId;
 
-                // ÇáÅÚİÇÁÇÊ
+                // Ø§Ù„Ø¥Ø¹ÙØ§Ø¡Ø§Øª
                 late_box.IsChecked = user.ExemptLate;
                 early_end.IsChecked = user.ExemptEarlyLeave;
                 OV_box.IsChecked = user.ExemptEarlyEnter;
                 OV1_box.IsChecked = user.ExemptOvertime;
                 absent_box.IsChecked = user.ExemptAbsence;
 
-                // ÇáÎíÇÑÇÊ
+                // Ø§Ù„Ø®ÙŠØ§Ø±Ø§Øª
                 inDuty_check.IsChecked = user.InDuty;
                 insuredComboBox.SelectedValue = user.InsuredId;
                 user_check.IsChecked = user.IsUser;
@@ -444,7 +444,7 @@ namespace HR_Application
                 employee_check.IsChecked = user.UnderEmployment;
                 training_check.IsChecked = user.UnderTraining;
 
-                // ÇáÈáÇß áíÓÊ
+                // Ø§Ù„Ø¨Ù„Ø§Ùƒ Ù„ÙŠØ³Øª
                 blacklist_check.IsChecked = user.Blacklist;
                 archive_check.IsChecked = user.IsArchived;
                 if (user.Blacklist)
@@ -453,7 +453,7 @@ namespace HR_Application
                     blacklist_notes_box.Visibility = Visibility.Visible;
                 }
 
-                // ÇáãÚáæãÇÊ ÇáÅÖÇİíÉ
+                // Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¥Ø¶Ø§ÙÙŠØ©
                 holiday_balance_box.Text = user.HolidayBalance.ToString();
                 work_hours_box.Text = user.WorkHours.ToString(@"hh\:mm") ?? "";
                 ssn_box.Text = user.SSN ?? "";
@@ -466,14 +466,14 @@ namespace HR_Application
                 if (user.ArmyCertificateExpiration.HasValue)
                     army_certificate_expiration.SelectedDate = user.ArmyCertificateExpiration.Value.ToDateTime(TimeOnly.MinValue);
 
-                // ãÚáæãÇÊ ÇáŞíÇÏÉ
+                // Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù‚ÙŠØ§Ø¯Ø©
                 if (user.DriverLicenseExpiration.HasValue)
                     driver_license_expiration.SelectedDate = user.DriverLicenseExpiration.Value.ToDateTime(TimeOnly.MinValue);
 
                 if (user.VehicleLicenseExpiration.HasValue)
                     vehicle_license_expiration.SelectedDate = user.VehicleLicenseExpiration.Value.ToDateTime(TimeOnly.MinValue);
 
-                // ÇáÕæÑÉ
+                // Ø§Ù„ØµÙˆØ±Ø©
                 if (user.ProfileImageData != null && user.ProfileImageData.Length > 0)
                 {
                     LoadUserImage(user.ProfileImageData);
@@ -483,7 +483,7 @@ namespace HR_Application
                     LoadDefaultImage();
                 }
 
-                // ÇáÊÍŞŞ ÅĞÇ ßÇäÊ ÇáæÙíİÉ ÓÇÆŞ æÅÙåÇÑ ŞÓã ÇáŞíÇÏÉ
+                // Ø§Ù„ØªØ­Ù‚Ù‚ Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„ÙˆØ¸ÙŠÙØ© Ø³Ø§Ø¦Ù‚ ÙˆØ¥Ø¸Ù‡Ø§Ø± Ù‚Ø³Ù… Ø§Ù„Ù‚ÙŠØ§Ø¯Ø©
                 if (user.JobTitleId > 0)
                 {
                     CheckAndShowDrivingSection(user.JobTitleId);
@@ -491,7 +491,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÈíÇäÇÊ ÇáãÓÊÎÏã: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -512,7 +512,7 @@ namespace HR_Application
         {
             if (_selectedUser == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇáÈÍË Úä ÇáãæÙİ ÃæáÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ù…ÙˆØ¸Ù Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -522,35 +522,35 @@ namespace HR_Application
                 if (!ValidateInput())
                     return;
 
-                // ÇáÈÍË Úä ÇáãÓÊÎÏã İí ŞÇÚÏÉ ÇáÈíÇäÇÊ
+                // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                 string code = emplo_code_box.Text;
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Code == code);
 
                 if (user != null)
                 {
-                    // ÊÍÏíË ÇáÈíÇäÇÊ
+                    // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                     UpdateUserData(user);
                     user.UpdatedAt = DateTime.Now;
 
                     await _context.SaveChangesAsync();
-                    LocalizationManager.ShowMessage("Êã ÊÚÏíá ÈíÇäÇÊ ÇáãæÙİ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
 
                 }
             }
             catch (DbUpdateException dbEx)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ: {dbEx.InnerException?.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {dbEx.InnerException?.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÚÏíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void UpdateUserData(User user)
         {
-            // ÊÍÏíË ÌãíÚ ÇáÍŞæá
+            // ØªØ­Ø¯ÙŠØ« Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„
             user.NationalID = emplo_card_box.Text;
             user.PhoneNumber = emplo_tele_box.Text;
             user.FullName = emplo_name_box.Text;
@@ -610,7 +610,7 @@ namespace HR_Application
             user.SSN = ssn_box.Text;
             user.HealthInsuranceNumber = health_insurance_box.Text;
 
-            // ÊÍÏíË ãÚáæãÇÊ ÇáŞíÇÏÉ ÅĞÇ ßÇäÊ ÇáæÙíİÉ ÓÇÆŞ
+            // ØªØ­Ø¯ÙŠØ« Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù‚ÙŠØ§Ø¯Ø© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„ÙˆØ¸ÙŠÙØ© Ø³Ø§Ø¦Ù‚
             if (_isDriver)
             {
                 user.DriverLicenseExpiration = driver_license_expiration.SelectedDate.HasValue ?
@@ -640,7 +640,7 @@ namespace HR_Application
             {
                 users.Clear();
                 _currentEmployee = 0;
-                // ãÓÍ ÌãíÚ ÇáÍŞæá
+                // Ù…Ø³Ø­ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„
                 emplo_code_box.Clear();
                 emplo_name_box.Clear();
                 emplo_card_box.Clear();
@@ -710,7 +710,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ãÓÍ ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ù…Ø³Ø­ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -760,107 +760,107 @@ namespace HR_Application
 
         private bool ValidateInput()
         {
-            // ÇáÊÍŞŞ ãä ÇáÍŞæá ÇáÅáÒÇãíÉ
+            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ø¥Ù„Ø²Ø§Ù…ÙŠØ©
             if (string.IsNullOrEmpty(emplo_name_box.Text))
             {
-                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇÓã ÇáãæÙİ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ¸Ù", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 emplo_name_box.Focus();
                 return false;
             }
 
             if (string.IsNullOrEmpty(emplo_card_box.Text))
             {
-                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇáÑŞã ÇáŞæãí", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 emplo_card_box.Focus();
                 return false;
             }
 
             if (birth_date_picker.SelectedDate == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÊÇÑíÎ ÇáãíáÇÏ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ÙŠÙ„Ø§Ø¯", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 birth_date_picker.Focus();
                 return false;
             }
 
             if (emplo_date_picker.SelectedDate == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÊÇÑíÎ ÇáÊÚííä", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± ØªØ§Ø±ÙŠØ® Ø§Ù„ØªØ¹ÙŠÙŠÙ†", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 emplo_date_picker.Focus();
                 return false;
             }
 
             if (branch_box.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáİÑÚ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙØ±Ø¹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 branch_box.Focus();
                 return false;
             }
 
             if (depart_box.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáÅÏÇÑÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 depart_box.Focus();
                 return false;
             }
 
             if (job_box.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáæÙíİÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙˆØ¸ÙŠÙØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 job_box.Focus();
                 return false;
             }
 
             if (recidenceBox.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáÇŞÇãÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø§Ù‚Ø§Ù…Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 recidenceBox.Focus();
                 return false;
             }
 
             if (degree_box.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáŞØÇÚ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù‚Ø·Ø§Ø¹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 degree_box.Focus();
                 return false;
             }
 
             if (job_type_box.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ äÙÇã ÇáÚãá", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù†Ø¸Ø§Ù… Ø§Ù„Ø¹Ù…Ù„", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 job_type_box.Focus();
                 return false;
             }
 
             if (week_holi_box.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáÇÌÇÒÉ ÇáÇÓÈæÚíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø§Ø¬Ø§Ø²Ø© Ø§Ù„Ø§Ø³Ø¨ÙˆØ¹ÙŠØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 week_holi_box.Focus();
                 return false;
             }
 
             if (shift_box.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáæÑÏíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙˆØ±Ø¯ÙŠØ©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 shift_box.Focus();
                 return false;
             }
 
             if (insuredComboBox.SelectedItem == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáÊÃãíä", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØªØ£Ù…ÙŠÙ†", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 insuredComboBox.Focus();
                 return false;
             }
 
-            // ÇáÊÍŞŞ ãä ÇáÈáÇß áíÓÊ
+            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø¨Ù„Ø§Ùƒ Ù„ÙŠØ³Øª
             if (blacklist_check.IsChecked == true && string.IsNullOrEmpty(blacklist_notes_box.Text))
             {
-                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÓÈÈ ÇáÅÖÇİÉ ááŞÇÆãÉ ÇáÓæÏÇÁ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø¥Ø¶Ø§ÙØ© Ù„Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø³ÙˆØ¯Ø§Ø¡", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 blacklist_notes_box.Focus();
                 return false;
             }
 
-            // ÇáÊÍŞŞ ãä ÕÍÉ ÇáÈÑíÏ ÇáÅáßÊÑæäí (ÅĞÇ Êã ÅÏÎÇáå)
+            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ØµØ­Ø© Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ (Ø¥Ø°Ø§ ØªÙ… Ø¥Ø¯Ø®Ø§Ù„Ù‡)
             if (!string.IsNullOrEmpty(emplo_email_box.Text))
             {
                 try
@@ -868,14 +868,14 @@ namespace HR_Application
                     var addr = new System.Net.Mail.MailAddress(emplo_email_box.Text);
                     if (addr.Address != emplo_email_box.Text)
                     {
-                        LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÈÑíÏ ÅáßÊÑæäí ÕÍíÍ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø¨Ø±ÙŠØ¯ Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ØµØ­ÙŠØ­", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                         emplo_email_box.Focus();
                         return false;
                     }
                 }
                 catch
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÈÑíÏ ÅáßÊÑæäí ÕÍíÍ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø¨Ø±ÙŠØ¯ Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ØµØ­ÙŠØ­", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     emplo_email_box.Focus();
                     return false;
                 }
@@ -894,7 +894,7 @@ namespace HR_Application
             }
             else
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãæÙİ ÃæáÇğ", "ÊÍĞíÑ",
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…ÙˆØ¸Ù Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
@@ -908,36 +908,36 @@ namespace HR_Application
                     Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|All files (*.*)|*.*",
                     FilterIndex = 1,
                     RestoreDirectory = true,
-                    Title = "ÇÎÊÑ ÕæÑÉ ÇáãæÙİ"
+                    Title = LocalizationManager.Translate("Ø§Ø®ØªØ± ØµÙˆØ±Ø© Ø§Ù„Ù…ÙˆØ¸Ù")
                 };
 
                 if (openFileDialog.ShowDialog() == true)
                 {
                     string selectedFilePath = openFileDialog.FileName;
 
-                    // ÇáÊÍŞŞ ãä ÍÌã ÇáÕæÑÉ (ÃŞÕì 5MB)
+                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø­Ø¬Ù… Ø§Ù„ØµÙˆØ±Ø© (Ø£Ù‚ØµÙ‰ 5MB)
                     FileInfo fileInfo = new FileInfo(selectedFilePath);
                     if (fileInfo.Length > 5 * 1024 * 1024) // 5MB
                     {
-                        LocalizationManager.ShowMessage("ÍÌã ÇáÕæÑÉ ßÈíÑ ÌÏÇğ. ÇáÑÌÇÁ ÇÎÊíÇÑ ÕæÑÉ ÃŞá ãä 5 ãíÌÇÈÇíÊ.",
-                            "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        LocalizationManager.ShowMessage("Ø­Ø¬Ù… Ø§Ù„ØµÙˆØ±Ø© ÙƒØ¨ÙŠØ± Ø¬Ø¯Ø§Ù‹. Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± ØµÙˆØ±Ø© Ø£Ù‚Ù„ Ù…Ù† 5 Ù…ÙŠØ¬Ø§Ø¨Ø§ÙŠØª.",
+                            LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
-                    // ÊÍãíá ÇáÕæÑÉ æÚÑÖåÇ
+                    // ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø© ÙˆØ¹Ø±Ø¶Ù‡Ø§
                     LoadImageFromFile(selectedFilePath);
 
-                    // ÊÍæíá ÇáÕæÑÉ Åáì byte array æÍİÙåÇ
+                    // ØªØ­ÙˆÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø© Ø¥Ù„Ù‰ byte array ÙˆØ­ÙØ¸Ù‡Ø§
                     _profileImageData = File.ReadAllBytes(selectedFilePath);
 
-                    // ÊÍÏíË æÇÌåÉ ÇáãÓÊÎÏã
+                    // ØªØ­Ø¯ÙŠØ« ÙˆØ§Ø¬Ù‡Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
                     removeImage.Visibility = Visibility.Visible;
                     addImage.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÕæÑÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -950,7 +950,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÅÒÇáÉ ÇáÕæÑÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ø²Ø§Ù„Ø© Ø§Ù„ØµÙˆØ±Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -962,14 +962,14 @@ namespace HR_Application
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(filePath);
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.DecodePixelWidth = 200; // ÊÍÌíã ÇáÕæÑÉ áÊÍÓíä ÇáÃÏÇÁ
+                bitmap.DecodePixelWidth = 200; // ØªØ­Ø¬ÙŠÙ… Ø§Ù„ØµÙˆØ±Ø© Ù„ØªØ­Ø³ÙŠÙ† Ø§Ù„Ø£Ø¯Ø§Ø¡
                 bitmap.EndInit();
 
                 EmployeeImage.Source = bitmap;
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÚÑÖ ÇáÕæÑÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø¹Ø±Ø¶ Ø§Ù„ØµÙˆØ±Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -985,9 +985,9 @@ namespace HR_Application
                         bitmap.BeginInit();
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         bitmap.StreamSource = stream;
-                        bitmap.DecodePixelWidth = 200; // ÊÍÌíã ÇáÕæÑÉ áÊÍÓíä ÇáÃÏÇÁ
+                        bitmap.DecodePixelWidth = 200; // ØªØ­Ø¬ÙŠÙ… Ø§Ù„ØµÙˆØ±Ø© Ù„ØªØ­Ø³ÙŠÙ† Ø§Ù„Ø£Ø¯Ø§Ø¡
                         bitmap.EndInit();
-                        bitmap.Freeze(); // ãåã ááÚãáíÇÊ ãÊÚÏÏÉ ÇáÎíæØ
+                        bitmap.Freeze(); // Ù…Ù‡Ù… Ù„Ù„Ø¹Ù…Ù„ÙŠØ§Øª Ù…ØªØ¹Ø¯Ø¯Ø© Ø§Ù„Ø®ÙŠÙˆØ·
 
                         EmployeeImage.Source = bitmap;
                     }
@@ -1003,7 +1003,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÕæÑÉ ÇáãÓÊÎÏã: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ ØµÙˆØ±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 LoadDefaultImage();
             }
         }
@@ -1012,11 +1012,11 @@ namespace HR_Application
         {
             if (_selectedUser == null)
             {
-                LocalizationManager.ShowMessage("íÑÌì ÇáÈÍË Úä ÇáãæÙİ ÃæáÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ù…ÙˆØ¸Ù Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (LocalizationManager.ShowMessage("åá ÃäÊ ãÊÃßÏ ãä ÍĞİ åĞÇ ÇáãæÙİ¿", "ÊÃßíÏ ÇáÍĞİ",
+            if (LocalizationManager.ShowMessage("Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ù…ÙˆØ¸ÙØŸ", LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù"),
                 MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
@@ -1029,39 +1029,39 @@ namespace HR_Application
 
                 if (user != null)
                 {
-                    // ÍĞİ ÇáãæÙİ
+                    // Ø­Ø°Ù Ø§Ù„Ù…ÙˆØ¸Ù
                     _context.Users.Remove(user);
 
                     await _context.SaveChangesAsync();
-                    LocalizationManager.ShowMessage("Êã ÍĞİ ÇáãæÙİ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…ÙˆØ¸Ù Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÍĞİ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø­Ø°Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ÏÇáÉ ÌÏíÏÉ áÊÍÏíÏ ÚäæÇä ÇáäÇİĞÉ ÈäÇÁğ Úáì ÇáÅÌÑÇÁ
+        // Ø¯Ø§Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù„ØªØ­Ø¯ÙŠØ¯ Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù†Ø§ÙØ°Ø© Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡
         private void UpdateWindowTitle()
         {
             if (_selectedUser != null)
             {
-                this.Title = $"ÊÚÏíá ÈíÇäÇÊ ÇáãæÙİ - {_selectedUser.FullName}";
+                this.Title = $"ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù - {_selectedUser.FullName}";
             }
             else
             {
-                this.Title = "ÅÖÇİÉ ãæÙİ ÌÏíÏ";
+                this.Title = LocalizationManager.Translate("Ø¥Ø¶Ø§ÙØ© Ù…ÙˆØ¸Ù Ø¬Ø¯ÙŠØ¯");
             }
         }
 
-        // ÍÏË ÚäÏ ÊÍãíá ÇáäÇİĞÉ
+        // Ø­Ø¯Ø« Ø¹Ù†Ø¯ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù†Ø§ÙØ°Ø©
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadData();
             UpdateWindowTitle();
 
-            // ÅĞÇ ßÇäÊ åäÇß ÈíÇäÇÊ ãæÙİ ãÍãáÉ¡ ÇãáÃ ÇáäãæĞÌ
+            // Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ù‡Ù†Ø§Ùƒ Ø¨ÙŠØ§Ù†Ø§Øª Ù…ÙˆØ¸Ù Ù…Ø­Ù…Ù„Ø©ØŒ Ø§Ù…Ù„Ø£ Ø§Ù„Ù†Ù…ÙˆØ°Ø¬
             if (_selectedEmployee != null)
             {
                 emplo_code_box.Text = _selectedEmployee.Code.ToString();
@@ -1069,7 +1069,7 @@ namespace HR_Application
             }
         }
 
-        // ÍÏË ÚäÏ ÅÛáÇŞ ÇáäÇİĞÉ
+        // Ø­Ø¯Ø« Ø¹Ù†Ø¯ Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù†Ø§ÙØ°Ø©
         private void Window_Closed(object sender, EventArgs e)
         {
             _context?.Dispose();

@@ -84,6 +84,7 @@
                 <Setter Property="FontWeight"  Value="SemiBold"/>
                 <Setter Property="FontFamily"  Value="{DynamicResource Mada}"/>
                 <Setter Property="FontSize"    Value="13"/>
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryColor}"/>
             </Style>
 
             <!-- RadioButton -->
@@ -339,6 +340,7 @@
                 <Setter Property="BorderBrush"  Value="{DynamicResource BorderColor}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="Background"   Value="{DynamicResource InputBackground}"/>
+                <Setter Property="Foreground"   Value="{DynamicResource SecondaryColor}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ComboBox}">
@@ -359,7 +361,7 @@
                                          HorizontalAlignment="Left" VerticalAlignment="Center"
                                          Margin="10,3,28,3" Focusable="True"
                                          Background="Transparent"
-                                         Foreground="{DynamicResource ThirdColor}"
+                                         Foreground="{DynamicResource ThirdColorBrushBrush}"
                                          Visibility="Hidden"
                                          IsReadOnly="{TemplateBinding IsReadOnly}"/>
                                 <Popup Name="Popup" Placement="Bottom"
@@ -535,7 +537,7 @@
 
             <Style TargetType="{x:Type DataGridRow}">
                 <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
                 
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">

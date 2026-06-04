@@ -123,7 +123,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ArrowRight" Width="14" Height="14"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="رجوع للقطاعات"/>
+                                <TextBlock Text="{DynamicResource BackToSectors}"/>
                             </StackPanel>
                         </Button>
 
@@ -188,7 +188,7 @@
                                 <TextBlock x:Name="KpiTotalEmp" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#80DEEA" HorizontalAlignment="Center"/>
-                                <TextBlock Text="إجمالي الموظفين"
+                                <TextBlock Text="{DynamicResource TotalEmployees}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -206,7 +206,7 @@
                                 <TextBlock x:Name="KpiBranchCount" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#90CAF9" HorizontalAlignment="Center"/>
-                                <TextBlock Text="عدد الفروع"
+                                <TextBlock Text="{DynamicResource NumberOfBranches}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -224,7 +224,7 @@
                                 <TextBlock x:Name="KpiPendingLeaves" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#CE93D8" HorizontalAlignment="Center"/>
-                                <TextBlock Text="إجازات معلقة"
+                                <TextBlock Text="{DynamicResource PendingVacations}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -242,7 +242,7 @@
                                 <TextBlock x:Name="KpiTodayPresent" Text="0"
                                            FontSize="28" FontWeight="Bold"
                                            Foreground="#A5D6A7" HorizontalAlignment="Center"/>
-                                <TextBlock Text="حضور اليوم"
+                                <TextBlock Text="{DynamicResource AttendToday}"
                                            FontSize="11" Foreground="#AAFFFFFF"
                                            HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
@@ -258,7 +258,7 @@
                                         <Icon:PackIconMaterial Kind="MapMarkerMultiple" Width="18" Height="18"
                                                                Foreground="{DynamicResource AccentColor}"
                                                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <TextBlock Text="الفروع — اضغط على فرع لعرض إداراته"
+                                        <TextBlock Text="{DynamicResource BranchesClickOnABranchToViewItsDepartments}"
                                                    FontSize="15" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource TextPrimaryColor}"
                                                    VerticalAlignment="Center"/>
@@ -343,7 +343,7 @@
                                                                            FontSize="22" FontWeight="Bold"
                                                                            Foreground="White"
                                                                            HorizontalAlignment="Center"/>
-                                                                <TextBlock Text="موظف"
+                                                                <TextBlock Text="{DynamicResource Employee3}"
                                                                            FontSize="10" Foreground="#CCFFFFFF"
                                                                            HorizontalAlignment="Center"/>
                                                             </StackPanel>
@@ -354,7 +354,7 @@
                                                                            FontSize="22" FontWeight="Bold"
                                                                            Foreground="White"
                                                                            HorizontalAlignment="Center"/>
-                                                                <TextBlock Text="إدارة"
+                                                                <TextBlock Text="{DynamicResource Administration}"
                                                                            FontSize="10" Foreground="#CCFFFFFF"
                                                                            HorizontalAlignment="Center"/>
                                                             </StackPanel>
@@ -385,7 +385,7 @@
                                                                                        Foreground="White"
                                                                                        VerticalAlignment="Center"
                                                                                        Margin="0,0,5,0"/>
-                                                                <TextBlock Text="عرض الإدارات"
+                                                                <TextBlock Text="{DynamicResource ViewDepartments}"
                                                                            FontSize="10" Foreground="White"/>
                                                             </StackPanel>
                                                         </Border>

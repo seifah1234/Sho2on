@@ -57,7 +57,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="#9C27B0" Padding="20">
             <StackPanel>
-                <TextBlock Text="لوحة تحكم شؤون الموظفين" 
+                <TextBlock Text="{DynamicResource PersonnelControlPanel}" 
                          FontSize="22" 
                          FontWeight="Bold"
                          Foreground="White"/>
@@ -94,7 +94,7 @@
                                      FontSize="22" FontWeight="Bold" 
                                      Foreground="#9C27B0" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="موظفين جدد (شهرياً)" 
+                            <TextBlock Text="{DynamicResource NewEmployeesMonthly}" 
                                      FontSize="12" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -108,7 +108,7 @@
                                      FontSize="22" FontWeight="Bold" 
                                      Foreground="#F44336" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="مغادرين (شهرياً)" 
+                            <TextBlock Text="{DynamicResource DeparturesMonthly}" 
                                      FontSize="12" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -122,7 +122,7 @@
                                      FontSize="22" FontWeight="Bold" 
                                      Foreground="#2196F3" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="طلبات إجازة" 
+                            <TextBlock Text="{DynamicResource LeaveRequests2}" 
                                      FontSize="12" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -136,7 +136,7 @@
                                      FontSize="22" FontWeight="Bold" 
                                      Foreground="#FF9800" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="عقود تنتهي قريباً" 
+                            <TextBlock Text="{DynamicResource ContractsExpiringSoon}" 
                                      FontSize="12" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -153,24 +153,24 @@
                     <!-- إدارة الموظفين -->
                     <Border Grid.Column="0" Style="{DynamicResource StatCard}" Margin="0,0,5,0">
                         <StackPanel Margin="10">
-                            <TextBlock Text="👥 إدارة الموظفين" 
+                            <TextBlock Text="{DynamicResource EmployeeManagement2}" 
                                      FontSize="16" FontWeight="Bold"
                                      Margin="0,0,0,10"/>
 
                             <WrapPanel>
-                                <Button Content="إضافة موظف جديد" 
+                                <Button Content="{DynamicResource AddANewEmployee}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenAddEmployee"
                                         Margin="2"/>
-                                <Button Content="تعديل بيانات الموظفين" 
+                                <Button Content="{DynamicResource ModifyEmployeeData}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenEditEmployees"
                                         Margin="2"/>
-                                <Button Content="الترقيات والنقل" 
+                                <Button Content="{DynamicResource PromotionsAndTransfers}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenPromotions"
                                         Margin="2"/>
-                                <Button Content="إنهاء خدمات" 
+                                <Button Content="{DynamicResource TerminationOfServices2}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenTerminations"
                                         Margin="2"/>
@@ -181,24 +181,24 @@
                     <!-- المستحقات -->
                     <Border Grid.Column="1" Style="{DynamicResource StatCard}" Margin="5,0,0,0">
                         <StackPanel Margin="10">
-                            <TextBlock Text="💰 المستحقات والمستقطعات" 
+                            <TextBlock Text="{DynamicResource DuesAndDeductions}" 
                                      FontSize="16" FontWeight="Bold"
                                      Margin="0,0,0,10"/>
 
                             <WrapPanel>
-                                <Button Content="إضافة مرتب أساسي" 
+                                <Button Content="{DynamicResource AddABasicSalary}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenAddSalary"
                                         Margin="2"/>
-                                <Button Content="الإضافات والخصومات" 
+                                <Button Content="{DynamicResource AddOnsAndDiscounts}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenBenefitsDeductions"
                                         Margin="2"/>
-                                <Button Content="تقرير المرتبات" 
+                                <Button Content="{DynamicResource SalaryReport}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenSalaryReport"
                                         Margin="2"/>
-                                <Button Content="السلف والخصميات" 
+                                <Button Content="{DynamicResource AdvancesAndDeductions}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenLoans"
                                         Margin="2"/>
@@ -210,7 +210,7 @@
                 <!-- Recent Employee Changes -->
                 <Border Grid.Row="2" Style="{DynamicResource StatCard}" Margin="0,15,0,0">
                     <StackPanel Margin="10">
-                        <TextBlock Text="🔄 آخر التغييرات على الموظفين" 
+                        <TextBlock Text="{DynamicResource LatestChangesToEmployees}" 
                                  FontSize="16" FontWeight="Bold"
                                  Margin="0,0,0,10"/>
 
@@ -219,13 +219,13 @@
                                 IsReadOnly="True"
                                 Height="150">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="التاريخ" 
+                                <DataGridTextColumn Header="{DynamicResource TheDate}" 
                                                   Binding="{Binding Date, StringFormat='yyyy-MM-dd'}"/>
-                                <DataGridTextColumn Header="الموظف" 
+                                <DataGridTextColumn Header="{DynamicResource Employee}" 
                                                   Binding="{Binding EmployeeName}"/>
-                                <DataGridTextColumn Header="نوع التغيير" 
+                                <DataGridTextColumn Header="{DynamicResource TypeOfChange}" 
                                                   Binding="{Binding ChangeType}"/>
-                                <DataGridTextColumn Header="التفاصيل" 
+                                <DataGridTextColumn Header="{DynamicResource TheDetails}" 
                                                   Binding="{Binding Details}"/>
                             </DataGrid.Columns>
                         </DataGrid>

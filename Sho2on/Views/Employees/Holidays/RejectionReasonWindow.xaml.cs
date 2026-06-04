@@ -16,7 +16,7 @@ namespace HR_Application.Views.Employees.Holidays
         {
             if (string.IsNullOrWhiteSpace(txtReason.Text))
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÓÈÈ ÇáÑİÖ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

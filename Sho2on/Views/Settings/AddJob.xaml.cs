@@ -31,7 +31,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage(ex.Message, "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage(ex.Message, LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -41,7 +41,7 @@ namespace HR_Application
             {
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    LocalizationManager.ShowMessage("ÃÏÎá ÇÓã ÇáæÙíİÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ø£Ø¯Ø®Ù„ Ø§Ø³Ù… Ø§Ù„ÙˆØ¸ÙŠÙØ©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -57,12 +57,12 @@ namespace HR_Application
                 await _context.SaveChangesAsync();
 
 
-                LocalizationManager.ShowMessage("Êã ÅÖÇİÉ ÇáæÙíİÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„ÙˆØ¸ÙŠÙØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -70,7 +70,7 @@ namespace HR_Application
         {
             if (list.SelectedItem is not JobTitle selectedJob)
             {
-                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáæÙíİÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙˆØ¸ÙŠÙØ©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -78,12 +78,12 @@ namespace HR_Application
             {
                 _context.JobTitles.Remove(selectedJob);
                 await _context.SaveChangesAsync();
-                LocalizationManager.ShowMessage("Êã ÍĞİ ÇáæÙíİÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„ÙˆØ¸ÙŠÙØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ ÃËäÇÁ ÇáÍĞİ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­Ø°Ù", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -91,7 +91,7 @@ namespace HR_Application
         {
             if (list.SelectedItem is not JobTitle selectedJob)
             {
-                LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Ãí æÙíİÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ù„Ù… ØªØ®ØªØ§Ø± Ø£ÙŠ ÙˆØ¸ÙŠÙØ©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -106,12 +106,12 @@ namespace HR_Application
                 await _context.SaveChangesAsync();
 
 
-                LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáæÙíİÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ÙˆØ¸ÙŠÙØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                LocalizationManager.ShowMessage("ÍÏË ÎØÃ ÃËäÇÁ ÇáÊÚÏíá", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

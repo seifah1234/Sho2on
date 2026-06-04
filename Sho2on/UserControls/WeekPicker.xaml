@@ -14,7 +14,7 @@
         <DropShadowEffect x:Key="ShadowEffect" BlurRadius="8" ShadowDepth="3" Color="Gray"/>
         <!-- نمط للـ CheckBox -->
         <Style x:Key="DayCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="10"/>
@@ -70,19 +70,19 @@
             </Grid.ColumnDefinitions>
 
             <!-- الصف الأول -->
-            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="0" Grid.Column="0" Content="السبت" Name="D1" HorizontalAlignment="Center"/>
-            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="0" Grid.Column="1" Content="الأحد" Name="D2" HorizontalAlignment="Center"/>
+            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="0" Grid.Column="0" Content="{DynamicResource Saturday}" Name="D1" HorizontalAlignment="Center"/>
+            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="0" Grid.Column="1" Content="{DynamicResource Sunday}" Name="D2" HorizontalAlignment="Center"/>
 
             <!-- الصف الثاني -->
-            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="1" Grid.Column="0" Content="الاثنين" Name="D3" HorizontalAlignment="Center"/>
-            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="1" Grid.Column="1" Content="الثلاثاء" Name="D4" HorizontalAlignment="Center"/>
+            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="1" Grid.Column="0" Content="{DynamicResource Monday2}" Name="D3" HorizontalAlignment="Center"/>
+            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="1" Grid.Column="1" Content="{DynamicResource Tuesday}" Name="D4" HorizontalAlignment="Center"/>
 
             <!-- الصف الثالث -->
-            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="2" Grid.Column="0" Content="الأربعاء" Name="D5" HorizontalAlignment="Center"/>
-            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="2" Grid.Column="1" Content="الخميس" Name="D6" HorizontalAlignment="Center"/>
+            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="2" Grid.Column="0" Content="{DynamicResource Wednesday}" Name="D5" HorizontalAlignment="Center"/>
+            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="2" Grid.Column="1" Content="{DynamicResource Thursday}" Name="D6" HorizontalAlignment="Center"/>
 
             <!-- الصف الرابع (الجمعة فقط) -->
-            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="الجمعة" Name="D7" HorizontalAlignment="Center"/>
+            <CheckBox Style="{DynamicResource DayCheckBoxStyle}" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="{DynamicResource Friday}" Name="D7" HorizontalAlignment="Center"/>
         </Grid>
     </Border>
 </UserControl>

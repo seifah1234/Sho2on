@@ -58,7 +58,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="#4CAF50" Padding="20">
             <StackPanel>
-                <TextBlock Text="لوحة تحكم المدير" 
+                <TextBlock Text="{DynamicResource AdministratorControlPanel}" 
                          FontSize="22" 
                          FontWeight="Bold"
                          Foreground="White"/>
@@ -94,7 +94,7 @@
                                      FontSize="22" FontWeight="Bold" 
                                      Foreground="#4CAF50" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="فريق العمل" 
+                            <TextBlock Text="{DynamicResource WorkTeam}" 
                                      FontSize="12" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -108,7 +108,7 @@
                                      FontSize="22" FontWeight="Bold" 
                                      Foreground="#2196F3" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="معدل الإنتاجية" 
+                            <TextBlock Text="{DynamicResource ProductivityRate}" 
                                      FontSize="12" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -122,7 +122,7 @@
                                      FontSize="22" FontWeight="Bold" 
                                      Foreground="#FF9800" 
                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="مهام مستحقة" 
+                            <TextBlock Text="{DynamicResource DueAssignments}" 
                                      FontSize="12" Foreground="#666" 
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -132,7 +132,7 @@
                 <!-- Team Management -->
                 <Border Grid.Row="1" Style="{DynamicResource StatCard}" Margin="0,15,0,0">
                     <StackPanel Margin="10">
-                        <TextBlock Text="فريق العمل" 
+                        <TextBlock Text="{DynamicResource WorkTeam}" 
                                  FontSize="16" FontWeight="Bold"
                                  Margin="0,0,0,10"/>
 
@@ -141,13 +141,13 @@
                                 IsReadOnly="True"
                                 Height="200">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="الاسم" 
+                                <DataGridTextColumn Header="{DynamicResource TheName}" 
                                                   Binding="{Binding Name}"/>
-                                <DataGridTextColumn Header="الوظيفة" 
+                                <DataGridTextColumn Header="{DynamicResource Job}" 
                                                   Binding="{Binding Job}"/>
-                                <DataGridTextColumn Header="الحضور اليوم" 
+                                <DataGridTextColumn Header="{DynamicResource AttendanceToday}" 
                                                   Binding="{Binding TodayAttendance}"/>
-                                <DataGridTextColumn Header="حالة المهام" 
+                                <DataGridTextColumn Header="{DynamicResource TaskStatus}" 
                                                   Binding="{Binding TaskStatus}"/>
                             </DataGrid.Columns>
                         </DataGrid>
@@ -164,20 +164,20 @@
                     <!-- تقارير -->
                     <Border Grid.Column="0" Style="{DynamicResource StatCard}" Margin="0,0,5,0">
                         <StackPanel Margin="10">
-                            <TextBlock Text="📊 التقارير" 
+                            <TextBlock Text="{DynamicResource Reports3}" 
                                      FontSize="16" FontWeight="Bold"
                                      Margin="0,0,0,10"/>
 
                             <WrapPanel>
-                                <Button Content="تقرير الحضور" 
+                                <Button Content="{DynamicResource AttendanceReport}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenAttendanceReport"
                                         Margin="2"/>
-                                <Button Content="تقرير الإنتاجية" 
+                                <Button Content="{DynamicResource ProductivityReport}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenProductivityReport"
                                         Margin="2"/>
-                                <Button Content="تقرير المهام" 
+                                <Button Content="{DynamicResource TaskReport}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenTasksReport"
                                         Margin="2"/>
@@ -188,20 +188,20 @@
                     <!-- إدارة -->
                     <Border Grid.Column="1" Style="{DynamicResource StatCard}" Margin="5,0,0,0">
                         <StackPanel Margin="10">
-                            <TextBlock Text="⚙️ الإدارة" 
+                            <TextBlock Text="{DynamicResource Management4}" 
                                      FontSize="16" FontWeight="Bold"
                                      Margin="0,0,0,10"/>
 
                             <WrapPanel>
-                                <Button Content="إدارة الفريق" 
+                                <Button Content="{DynamicResource TeamManagement}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenTeamManagement"
                                         Margin="2"/>
-                                <Button Content="تقييمات الموظفين" 
+                                <Button Content="{DynamicResource EmployeeEvaluations}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenEvaluations"
                                         Margin="2"/>
-                                <Button Content="طلبات الإجازة" 
+                                <Button Content="{DynamicResource LeaveRequests3}" 
                                         Style="{DynamicResource DashboardButton}"
                                         Click="OpenLeaveRequests"
                                         Margin="2"/>

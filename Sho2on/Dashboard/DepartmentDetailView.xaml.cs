@@ -127,7 +127,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"خطأ في تحميل بيانات الإدارات: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"خطأ في تحميل بيانات الإدارات: {ex.Message}", LocalizationManager.Translate("خطأ"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -194,9 +194,9 @@ namespace HR_Application.Dashboard
         {
             DeptChipsPanel.Children.Clear();
 
-            // "جميع الإدارات" chip
+            // LocalizationManager.Translate("جميع الإدارات") chip
             DeptChipsPanel.Children.Add(
-                BuildChip(null, "جميع الإدارات", isSelected: _selectedDeptId == null));
+                BuildChip(null, LocalizationManager.Translate("جميع الإدارات"), isSelected: _selectedDeptId == null));
 
             foreach (var (id, name) in _departments)
                 DeptChipsPanel.Children.Add(
@@ -296,8 +296,8 @@ namespace HR_Application.Dashboard
             else
             {
                 ActiveFilterBadge.Visibility = Visibility.Collapsed;
-                EmployeesGridTitle.Text = "موظفو الفرع";
-                LeavesGridTitle.Text = "طلبات الإجازة المعلقة";
+                EmployeesGridTitle.Text = LocalizationManager.Translate("موظفو الفرع");
+                LeavesGridTitle.Text = LocalizationManager.Translate("طلبات الإجازة المعلقة");
             }
         }
 
@@ -420,7 +420,7 @@ namespace HR_Application.Dashboard
             // Fetch area name for the tag column
             var area = await _context.Areas
                 .FirstOrDefaultAsync(a => a.Id == _areaId.Value);
-            var areaName = area?.Name ?? "المنطقة";
+            var areaName = area?.Name ?? LocalizationManager.Translate("المنطقة");
 
             AreaManagersGrid.ItemsSource = areaManagers.Select(u => new AreaManagerViewModel
             {
@@ -455,7 +455,7 @@ namespace HR_Application.Dashboard
             {
                 new ColumnSeries
                 {
-                    Title      = "الموظفين",
+                    Title      = LocalizationManager.Translate("الموظفين"),
                     Values     = new ChartValues<int>(counts),
                     DataLabels = true
                 }

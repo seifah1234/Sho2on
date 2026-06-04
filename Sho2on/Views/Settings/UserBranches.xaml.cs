@@ -37,7 +37,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -61,7 +61,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãÓÊÎÏãíä: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -90,7 +90,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáİÑæÚ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -125,30 +125,30 @@ namespace HR_Application
             {
                 if (userComboBox.SelectedItem == null)
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãÓÊÎÏã ÃæáÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ø³ØªØ®Ø¯Ù… Ø£ÙˆÙ„Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var selectedUserName = userComboBox.SelectedItem as User;
                 if (selectedUserName == null)
                 {
-                    LocalizationManager.ShowMessage("ÇáãÓÊÎÏã ÇáãÍÏÏ ÛíÑ ÕÇáÍ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± ØµØ§Ù„Ø­", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 var selectedUser = _users.FirstOrDefault(u => u.Id == selectedUserName.Id);
 
                 if (selectedUser == null)
                 {
-                    LocalizationManager.ShowMessage("ÇáãÓÊÎÏã ÇáãÍÏÏ ÛíÑ ãæÌæÏ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // ÇáÍÕæá Úáì ÇáİÑæÚ ÇáÍÇáíÉ ááãÓÊÎÏã
+                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ø­Ø§Ù„ÙŠØ© Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
                 var currentUserBranches = await _context.UserBranches
                     .Where(ub => ub.UserID == selectedUser.Id)
                     .ToListAsync();
 
-                // ãÚÇáÌÉ ÇáİÑæÚ ÇáãÍÏÏÉ
+                // Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©
                 foreach (var branchVM in _branches)
                 {
                     var existingUserBranch = currentUserBranches
@@ -156,7 +156,7 @@ namespace HR_Application
 
                     if (branchVM.IsActive && existingUserBranch == null)
                     {
-                        // ÅÖÇİÉ İÑÚ ÌÏíÏ ááãÓÊÎÏã
+                        // Ø¥Ø¶Ø§ÙØ© ÙØ±Ø¹ Ø¬Ø¯ÙŠØ¯ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
                         var userBranch = new UserBranch
                         {
                             UserID = selectedUser.Id,
@@ -166,17 +166,17 @@ namespace HR_Application
                     }
                     else if (!branchVM.IsActive && existingUserBranch != null)
                     {
-                        // ÅÒÇáÉ İÑÚ ãä ÇáãÓÊÎÏã
+                        // Ø¥Ø²Ø§Ù„Ø© ÙØ±Ø¹ Ù…Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
                         _context.UserBranches.Remove(existingUserBranch);
                     }
                 }
 
                 await _context.SaveChangesAsync();
-                LocalizationManager.ShowMessage("Êã ÊÍÏíË ÕáÇÍíÇÊ ÇáİÑæÚ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… ØªØ­Ø¯ÙŠØ« ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„ÙØ±ÙˆØ¹ Ø¨Ù†Ø¬Ø§Ø­", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -198,20 +198,20 @@ namespace HR_Application
         {
             try
             {
-                // ÅÚÇÏÉ ÊÚííä ÌãíÚ ÇáİÑæÚ
+                // Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø¬Ù…ÙŠØ¹ Ø§Ù„ÙØ±ÙˆØ¹
                 foreach (var branch in _branches)
                 {
                     branch.IsActive = false;
                 }
 
-                // ÇáÍÕæá Úáì ÇáİÑæÚ ÇáãÓãæÍ ÈåÇ ááãÓÊÎÏã
+                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ù…Ø³Ù…ÙˆØ­ Ø¨Ù‡Ø§ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
                 var userBranches = await _context.UserBranches
                     .Where(ub => ub.UserID == user.Id)
                     .Include(ub => ub.Branch)
                     .Select(ub => ub.Branch.Id)
                     .ToListAsync();
 
-                // ÊİÚíá ÇáİÑæÚ ÇáãÓãæÍ ÈåÇ
+                // ØªÙØ¹ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ù…Ø³Ù…ÙˆØ­ Ø¨Ù‡Ø§
                 foreach (var branchId in userBranches)
                 {
                     var branchVM = _branches.FirstOrDefault(b => b.Id == branchId);
@@ -221,12 +221,12 @@ namespace HR_Application
                     }
                 }
 
-                // ÊÍÏíË DataGrid
+                // ØªØ­Ø¯ÙŠØ« DataGrid
                 dataTable.Items.Refresh();
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÕáÇÍíÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

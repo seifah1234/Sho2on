@@ -37,26 +37,26 @@ namespace HR_Application
                 _weekHolidays.Clear();
                 list.Items.Clear();
 
-                // ÊÍãíá ÇáÈíÇäÇÊ ãä ŞÇÚÏÉ ÇáÈíÇäÇÊ
+                // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                 _weekHolidays = await _context.WeekHolidays
                     .OrderBy(w => w.Name)
                     .ToListAsync();
 
-                // ÅÖÇİÉ ÚäÕÑ "áÇ íæÌÏ" İí ÇáÈÏÇíÉ
-                list.Items.Add("áÇ íæÌÏ");
+                // Ø¥Ø¶Ø§ÙØ© Ø¹Ù†ØµØ± LocalizationManager.Translate("Ù„Ø§ ÙŠÙˆØ¬Ø¯") ÙÙŠ Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©
+                list.Items.Add(LocalizationManager.Translate("Ù„Ø§ ÙŠÙˆØ¬Ø¯"));
 
-                // ÅÖÇİÉ ÇáÅÌÇÒÇÊ Åáì ÇáŞÇÆãÉ
+                // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª Ø¥Ù„Ù‰ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø©
                 foreach (var holiday in _weekHolidays)
                 {
                     list.Items.Add(holiday.Name);
                 }
 
-                // ÅÚÇÏÉ ÊÚííä ÃíÇã ÇáÃÓÈæÚ
+                // Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø£ÙŠØ§Ù… Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹
                 ResetDays();
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -77,17 +77,17 @@ namespace HR_Application
             {
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇÓã ÇáÅÌÇÒÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // ÇáÊÍŞŞ ãä ÚÏã æÌæÏ ÇÓã ãßÑÑ
+                // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ÙˆØ¬ÙˆØ¯ Ø§Ø³Ù… Ù…ÙƒØ±Ø±
                 bool exists = await _context.WeekHolidays
                     .AnyAsync(w => w.Name == name_box.Text.Trim());
 
                 if (exists)
                 {
-                    LocalizationManager.ShowMessage("ÇÓã ÇáÅÌÇÒÉ ãæÌæÏ ãÓÈŞÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("Ø§Ø³Ù… Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ù…ÙˆØ¬ÙˆØ¯ Ù…Ø³Ø¨Ù‚Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -108,12 +108,12 @@ namespace HR_Application
                 await _context.WeekHolidays.AddAsync(weekHoliday);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("Êã ÇÖÇİÉ ÇáÅÌÇÒÉ ÇáÃÓÈæÚíÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ØªÙ… Ø§Ø¶Ø§ÙØ© Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadData();
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -124,9 +124,9 @@ namespace HR_Application
 
         private async void delete_Btn(object sender, RoutedEventArgs e)
         {
-            if (list.SelectedItem == null || list.SelectedItem.ToString() == "áÇ íæÌÏ")
+            if (list.SelectedItem == null || list.SelectedItem.ToString() == LocalizationManager.Translate("Ù„Ø§ ÙŠÙˆØ¬Ø¯"))
             {
-                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -139,8 +139,8 @@ namespace HR_Application
                 if (weekHoliday != null)
                 {
                     var result = LocalizationManager.ShowMessage(
-                        $"åá ÃäÊ ãÊÃßÏ ãä ÍĞİ ÇáÅÌÇÒÉ '{selectedName}'¿",
-                        "ÊÃßíÏ ÇáÍĞİ",
+                        $"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© '{selectedName}'ØŸ",
+                        LocalizationManager.Translate("ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù"),
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Warning);
 
@@ -149,14 +149,14 @@ namespace HR_Application
                         _context.WeekHolidays.Remove(weekHoliday);
                         await _context.SaveChangesAsync();
 
-                        LocalizationManager.ShowMessage("Êã ÍĞİ ÇáÅÌÇÒÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                         await LoadData();
                     }
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍĞİ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­Ø°Ù: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -164,15 +164,15 @@ namespace HR_Application
         {
             try
             {
-                if (list.SelectedItem == null || list.SelectedItem.ToString() == "áÇ íæÌÏ")
+                if (list.SelectedItem == null || list.SelectedItem.ToString() == LocalizationManager.Translate("Ù„Ø§ ÙŠÙˆØ¬Ø¯"))
                 {
-                    LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Ãí ÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("Ù„Ù… ØªØ®ØªØ§Ø± Ø£ÙŠ Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇÓã ÇáÅÌÇÒÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -182,7 +182,7 @@ namespace HR_Application
 
                 if (weekHoliday != null)
                 {
-                    // ÇáÊÍŞŞ ãä ÚÏã æÌæÏ ÇÓã ãßÑÑ (ÅĞÇ Êã ÊÛííÑ ÇáÇÓã)
+                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ÙˆØ¬ÙˆØ¯ Ø§Ø³Ù… Ù…ÙƒØ±Ø± (Ø¥Ø°Ø§ ØªÙ… ØªØºÙŠÙŠØ± Ø§Ù„Ø§Ø³Ù…)
                     if (weekHoliday.Name != name_box.Text.Trim())
                     {
                         bool exists = await _context.WeekHolidays
@@ -190,12 +190,12 @@ namespace HR_Application
 
                         if (exists)
                         {
-                            LocalizationManager.ShowMessage("ÇÓã ÇáÅÌÇÒÉ ãæÌæÏ ãÓÈŞÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            LocalizationManager.ShowMessage("Ø§Ø³Ù… Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ù…ÙˆØ¬ÙˆØ¯ Ù…Ø³Ø¨Ù‚Ø§Ù‹", LocalizationManager.Translate("ØªØ­Ø°ÙŠØ±"), MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
                     }
 
-                    // ÊÍÏíË ÇáÈíÇäÇÊ
+                    // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                     weekHoliday.Name = name_box.Text.Trim();
                     weekHoliday.Day1 = Week.D1.IsChecked ?? false;
                     weekHoliday.Day2 = Week.D2.IsChecked ?? false;
@@ -209,19 +209,19 @@ namespace HR_Application
                     _context.WeekHolidays.Update(weekHoliday);
                     await _context.SaveChangesAsync();
 
-                    LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáÅÌÇÒÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", LocalizationManager.Translate("Ù†Ø¬Ø§Ø­"), MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadData();
                 }
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÊÚÏíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async void list_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (list.SelectedItem != null && list.SelectedItem.ToString() != "áÇ íæÌÏ")
+            if (list.SelectedItem != null && list.SelectedItem.ToString() != LocalizationManager.Translate("Ù„Ø§ ÙŠÙˆØ¬Ø¯"))
             {
                 try
                 {
@@ -243,7 +243,7 @@ namespace HR_Application
                 }
                 catch (Exception ex)
                 {
-                    LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÈíÇäÇÊ ÇáÅÌÇÒÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else

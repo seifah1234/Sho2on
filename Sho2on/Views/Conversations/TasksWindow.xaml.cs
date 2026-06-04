@@ -80,7 +80,7 @@ namespace HR_Application.Views.Conversations
             };
         }
 
-        // ÊÍãíá ÇáãåÇã ãÚ Refresh
+        // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù‡Ø§Ù… Ù…Ø¹ Refresh
         public async Task LoadTasksAsync()
         {
             try
@@ -97,7 +97,7 @@ namespace HR_Application.Views.Conversations
                 var userTasks = allUsersTasks.Where(t => t.AssignedToUserId == currentUserId);
                 var assignedTasks = allUsersTasks.Where(t => t.AssignedByUserId == currentUserId);
 
-                // ÊÍÏíË ÍÇáÉ ÇáãåÇã ÇáãÓÊŞÈáÉ
+                // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ø§Ù… Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„Ø©
                 foreach (var task in userTasks.Where(t => t.Status == (int)UserTaskStatus.Sent))
                 {
                     task.Status = (int)UserTaskStatus.Received;
@@ -107,7 +107,7 @@ namespace HR_Application.Views.Conversations
                 MyTasks = new ObservableCollection<UserTask>(userTasks);
                 AssignedTasks = new ObservableCollection<UserTask>(assignedTasks);
 
-                // ÊÍÏíË ÇáŞæÇÆã ÇáãäÓÏáÉ
+                // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ù…Ù†Ø³Ø¯Ù„Ø©
                 users = await _context.Users.ToListAsync();
                 assignToBox.ItemsSource = users;
             }
@@ -117,13 +117,13 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        // Refresh Tasks (ááÇÓÊÎÏÇã ÇáÏÇÎáí)
+        // Refresh Tasks (Ù„Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ø¯Ø§Ø®Ù„ÙŠ)
         public async void RefreshTasks()
         {
             await LoadTasksAsync();
         }
 
-        // ÅÖÇİÉ ãåãÉ ÌÏíÏÉ ãÚ ÅÔÚÇÑ SignalR
+        // Ø¥Ø¶Ø§ÙØ© Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
         public async Task AddTaskAsync(User user)
         {
             try
@@ -142,26 +142,26 @@ namespace HR_Application.Views.Conversations
                 _context.UserTasks.Add(newTask);
                 await _context.SaveChangesAsync();
 
-                // ÊÍãíá ÈíÇäÇÊ ÇáãÓÊÎÏãíä ááÑÓÇáÉ
+                // ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† Ù„Ù„Ø±Ø³Ø§Ù„Ø©
                 newTask.AssignedToUser = user;
                 newTask.AssignedByUser = App.CurrentUser;
 
-                // ÅÑÓÇá ÅÔÚÇÑ SignalR
+                // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± SignalR
                 await SendTaskNotification(newTask, "NewTask");
 
 
-                // ÅÛáÇŞ äÇİĞÉ ÇáÅÖÇİÉ
+                // Ø¥ØºÙ„Ø§Ù‚ Ù†Ø§ÙØ°Ø© Ø§Ù„Ø¥Ø¶Ø§ÙØ©
                 manageTaskGrid.Visibility = Visibility.Collapsed;
 
 
-                // ÅÙåÇÑ ÅÔÚÇÑ ááãÓÊÎÏã ÇáÍÇáí
+                // Ø¥Ø¸Ù‡Ø§Ø± Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø­Ø§Ù„ÙŠ
                 if (newTask.AssignedToUserId == App.CurrentUser.Id)
                 {
                     if (newTask.Type == (int)UserTaskType.Task)
                     {
                         Helpers.NotificationsHelper.ShowPopupNotification(
-                            "ãåãÉ ÌÏíÏÉ",
-                            $"Êã Êßáíİß ÈãåãÉ ÌÏíÏÉ: {newTask.Description}",
+                            LocalizationManager.Translate("Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©"),
+                            $"ØªÙ… ØªÙƒÙ„ÙŠÙÙƒ Ø¨Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©: {newTask.Description}",
                             this,
                             null
                         );
@@ -169,8 +169,8 @@ namespace HR_Application.Views.Conversations
                     }else
                     {
                         Helpers.NotificationsHelper.ShowPopupNotification(
-                            "ØáÈ ÌÏíÏ",
-                            $"Êã ÇÑÓÇá ØáÈ ÌÏíÏ: {newTask.Description}",
+                            LocalizationManager.Translate("Ø·Ù„Ø¨ Ø¬Ø¯ÙŠØ¯"),
+                            $"ØªÙ… Ø§Ø±Ø³Ø§Ù„ Ø·Ù„Ø¨ Ø¬Ø¯ÙŠØ¯: {newTask.Description}",
                             this,
                             null
                         );
@@ -184,7 +184,7 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        // ÊÚÏíá ãåãÉ ãÚ ÅÔÚÇÑ SignalR
+        // ØªØ¹Ø¯ÙŠÙ„ Ù…Ù‡Ù…Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
         public async Task EditTaskAsync()
         {
             try
@@ -202,10 +202,10 @@ namespace HR_Application.Views.Conversations
 
                     await _context.SaveChangesAsync();
 
-                    // ÊÍãíá ÇáÈíÇäÇÊ ÇáãÍÏËÉ
+                    // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ø¯Ø«Ø©
                     await LoadTasksAsync();
 
-                    // ÅÑÓÇá ÅÔÚÇÑ SignalR ÅĞÇ ÊÛíÑ ÇáãÓÊÎÏã
+                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± SignalR Ø¥Ø°Ø§ ØªØºÙŠØ± Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
                     if (oldAssignedTo != task.AssignedToUserId)
                     {
                         var updatedTask = await _context.UserTasks
@@ -225,7 +225,7 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        // ÍĞİ ãåãÉ ãÚ ÅÔÚÇÑ SignalR
+        // Ø­Ø°Ù Ù…Ù‡Ù…Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
         public async Task DeleteTaskAsync(int taskId)
         {
             try
@@ -235,7 +235,7 @@ namespace HR_Application.Views.Conversations
 
                 if (task != null)
                 {
-                    // ÅÑÓÇá ÅÔÚÇÑ ÈÇáÍĞİ ŞÈá ÇáÍĞİ
+                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ø¨Ø§Ù„Ø­Ø°Ù Ù‚Ø¨Ù„ Ø§Ù„Ø­Ø°Ù
 
                     _context.UserTasks.Remove(task);
                     await _context.SaveChangesAsync();
@@ -249,7 +249,7 @@ namespace HR_Application.Views.Conversations
             }
         }
 
-        // ÊÍÏíË ÍÇáÉ ÇáãåãÉ ãÚ ÅÔÚÇÑ SignalR
+        // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
         public async Task UpdateTaskStatusAsync(int taskId, int newStatus)
         {
             try
@@ -265,18 +265,18 @@ namespace HR_Application.Views.Conversations
                     task.Status = newStatus;
                     await _context.SaveChangesAsync();
 
-                    // ÅÑÓÇá ÅÔÚÇÑ ÈÊÍÏíË ÇáÍÇáÉ
+                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ø¨ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©
                     await SendTaskNotification(task, "TaskStatusChanged");
 
                     await LoadTasksAsync();
 
-                    // ÅÙåÇÑ ÅÔÚÇÑ ááãÓÊÎÏã ÇáĞí ŞÇã ÈÇáÊÍÏíË
+                    // Ø¥Ø¸Ù‡Ø§Ø± Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø°ÙŠ Ù‚Ø§Ù… Ø¨Ø§Ù„ØªØ­Ø¯ÙŠØ«
                     if (task.AssignedByUserId == App.CurrentUser.Id)
                     {
                         var statusText = GetStatusText(newStatus);
                         Helpers.NotificationsHelper.ShowPopupNotification(
-                            "ÊÍÏíË ÍÇáÉ ÇáãåãÉ",
-                            $"ŞÇã {task.AssignedToUser?.FullName} ÈÊÍÏíË ÍÇáÉ ÇáãåãÉ Åáì {statusText}",
+                            LocalizationManager.Translate("ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ø©"),
+                            $"Ù‚Ø§Ù… {task.AssignedToUser?.FullName} Ø¨ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ø© Ø¥Ù„Ù‰ {statusText}",
                             this,
                             null
                         );
@@ -294,16 +294,16 @@ namespace HR_Application.Views.Conversations
         {
             return status switch
             {
-                (int)UserTaskStatus.Sent => "ãÑÓáÉ",
-                (int)UserTaskStatus.Received => "ãÓÊáãÉ",
-                (int)UserTaskStatus.OnHold => "ãÚáŞÉ",
-                (int)UserTaskStatus.InProgress => "ŞíÏ ÇáÊäİíĞ",
-                (int)UserTaskStatus.Completed => "ãßÊãáÉ",
-                _ => "ÛíÑ ãÚÑæİ"
+                (int)UserTaskStatus.Sent => LocalizationManager.Translate("Ù…Ø±Ø³Ù„Ø©"),
+                (int)UserTaskStatus.Received => LocalizationManager.Translate("Ù…Ø³ØªÙ„Ù…Ø©"),
+                (int)UserTaskStatus.OnHold => LocalizationManager.Translate("Ù…Ø¹Ù„Ù‚Ø©"),
+                (int)UserTaskStatus.InProgress => LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªÙ†ÙÙŠØ°"),
+                (int)UserTaskStatus.Completed => LocalizationManager.Translate("Ù…ÙƒØªÙ…Ù„Ø©"),
+                _ => LocalizationManager.Translate("ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ")
             };
         }
 
-        // ÅÚÏÇÏ SignalR Listener ááãåÇã
+        // Ø¥Ø¹Ø¯Ø§Ø¯ SignalR Listener Ù„Ù„Ù…Ù‡Ø§Ù…
         private async Task SetupSignalRListener()
         {
             if (_signalRInitialized) return;
@@ -327,22 +327,22 @@ namespace HR_Application.Views.Conversations
                 if (task?.AssignedToUserId == App.CurrentUser.Id)
                 {
                     Helpers.NotificationsHelper.ShowPopupNotification(
-                        "ãåãÉ ÌÏíÏÉ",
-                        $"Êã Êßáíİß ÈãåãÉ: {taskDescription}",
+                        LocalizationManager.Translate("Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©"),
+                        $"ØªÙ… ØªÙƒÙ„ÙŠÙÙƒ Ø¨Ù…Ù‡Ù…Ø©: {taskDescription}",
                         this, null);
                     Helpers.NotificationsHelper.PlayNotificationSound();
                 }
             }
         }
 
-        // ÅÑÓÇá ÅÔÚÇÑ SignalR ááãåãÉ
+        // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± SignalR Ù„Ù„Ù…Ù‡Ù…Ø©
         private async Task SendTaskNotification(UserTask task, string notificationType)
         {
             try
             {
                 if (App.SignalRConnection != null && App.SignalRConnection.State == HubConnectionState.Connected)
                 {
-                    // ÅÑÓÇá ÅÔÚÇÑ ááãÓÊÎÏã ÇáãÚäí
+                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ù…Ø¹Ù†ÙŠ
                     if (task.AssignedToUserId != null)
                     {
                         await App.SignalRConnection.InvokeAsync("SendTaskNotification",
@@ -354,7 +354,7 @@ namespace HR_Application.Views.Conversations
                             DateTime.Now);
                     }
 
-                    // ÅÑÓÇá ÅÔÚÇÑ ááãÓÊÎÏã ÇáĞí ÃäÔÃ ÇáãåãÉ (ÅĞÇ ßÇä ãÎÊáİÇğ)
+                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø°ÙŠ Ø£Ù†Ø´Ø£ Ø§Ù„Ù…Ù‡Ù…Ø© (Ø¥Ø°Ø§ ÙƒØ§Ù† Ù…Ø®ØªÙ„ÙØ§Ù‹)
                     if (task.AssignedByUserId != task.AssignedToUserId)
                     {
                         await App.SignalRConnection.InvokeAsync("SendTaskNotification",
@@ -401,7 +401,7 @@ namespace HR_Application.Views.Conversations
             if (button != null && button.DataContext is UserTask selectedTask)
             {
                 manageTaskGrid.Visibility = Visibility.Visible;
-                manageTaskTitle.Text = "ÊÚÏíá ÇáãåãÉ";
+                manageTaskTitle.Text = LocalizationManager.Translate("ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù‡Ù…Ø©");
                 taskDescriptionBox.Text = selectedTask.Description;
                 dueDatePicker.SelectedDate = selectedTask.DueDate;
                 assignToCodeBox.Text = selectedTask.AssignedToUser.Code.ToString();
@@ -411,7 +411,7 @@ namespace HR_Application.Views.Conversations
             }
             else
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ãåãÉ ááÊÚÏíá.");
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù‡Ù…Ø© Ù„Ù„ØªØ¹Ø¯ÙŠÙ„.");
             }
         }
 
@@ -421,7 +421,7 @@ namespace HR_Application.Views.Conversations
             var button = sender as Button;
             if (button != null && button.DataContext is UserTask selectedTask)
             {
-                var result = LocalizationManager.ShowMessage("åá ÇäÊ ãÊÃßÏ ãä ÍĞİ ÇáãåãÉ?", "Confirm Delete", MessageBoxButton.YesNo);
+                var result = LocalizationManager.ShowMessage("Ù‡Ù„ Ø§Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø§Ù„Ù…Ù‡Ù…Ø©?", "Confirm Delete", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
                     await DeleteTaskAsync(selectedTask.Id);
@@ -429,7 +429,7 @@ namespace HR_Application.Views.Conversations
             }
             else
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ÇáãåãÉ áÍĞİåÇ.");
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ù‡Ù…Ø© Ù„Ø­Ø°ÙÙ‡Ø§.");
             }
         }
 
@@ -440,18 +440,18 @@ namespace HR_Application.Views.Conversations
             {
                 if (string.IsNullOrWhiteSpace(taskDescriptionBox.Text))
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÇáæÕİ.");
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„ÙˆØµÙ.");
                     return;
                 }
                 if (requestTypeBox.SelectedIndex == -1)
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÏÎÇá ÇáäæÚ");
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø¯Ø®Ø§Ù„ Ø§Ù„Ù†ÙˆØ¹");
                     return;
                 }
                 var user = users.FirstOrDefault(u => u.Code == code.ToString());
                 if (user == null)
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÑŞã ãÓÊÎÏã ÕÇáÍ.");
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ù…Ø³ØªØ®Ø¯Ù… ØµØ§Ù„Ø­.");
                     return;
                 }
                 if (_taskId == -1)
@@ -472,7 +472,7 @@ namespace HR_Application.Views.Conversations
             }
             else
             {
-                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ÇáãÓÊÎÏã ÇáĞí ÓíÊã ÊÚííä ÇáãåãÉ áå.");
+                LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø°ÙŠ Ø³ÙŠØªÙ… ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ù…Ù‡Ù…Ø© Ù„Ù‡.");
             }
         }
 
@@ -494,7 +494,7 @@ namespace HR_Application.Views.Conversations
         private void addTaskBtn_Click(object sender, RoutedEventArgs e)
         {
             manageTaskGrid.Visibility = Visibility.Visible;
-            manageTaskTitle.Text = "ÅÖÇİÉ ãåãÉ ÌÏíÏÉ";
+            manageTaskTitle.Text = LocalizationManager.Translate("Ø¥Ø¶Ø§ÙØ© Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©");
             assignToBox.SelectedIndex = -1;
             taskDescriptionBox.Text = string.Empty;
             dueDatePicker.SelectedDate = null;
@@ -519,12 +519,12 @@ namespace HR_Application.Views.Conversations
                     }
                     else
                     {
-                        LocalizationManager.ShowMessage("ÇáãÓÊÎÏã ÛíÑ ãæÌæÏ.");
+                        LocalizationManager.ShowMessage("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯.");
                     }
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÑŞã ãÓÊÎÏã ÕÇáÍ.");
+                    LocalizationManager.ShowMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ù…Ø³ØªØ®Ø¯Ù… ØµØ§Ù„Ø­.");
                 }
             }
         }

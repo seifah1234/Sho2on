@@ -16,7 +16,7 @@
     <SolidColorBrush x:Key="AccentColor"         Color="#00BCD4"/>
     <SolidColorBrush x:Key="AccentDeepColor"     Color="#0D47A1"/>
     <SolidColorBrush x:Key="SecondaryColor"      Color="#E0F7FA"/>
-    <SolidColorBrush x:Key="ThirdColor"          Color="#80DEEA"/>
+    <SolidColorBrush x:Key="ThirdColorBrushBrush"          Color="#80DEEA"/>
     <SolidColorBrush x:Key="SurfaceColor"        Color="#0B1929"/>
     <SolidColorBrush x:Key="SurfaceLightColor"   Color="#0D2233"/>
     <SolidColorBrush x:Key="TextMenuColor"       Color="#CFD8DC"/>

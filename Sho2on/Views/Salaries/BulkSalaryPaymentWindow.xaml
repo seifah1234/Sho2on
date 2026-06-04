@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HR_Application.Views"
         mc:Ignorable="d"
-        Title="صرف المرتبات الجماعي" 
+        Title="{DynamicResource BulkSalaryPayment}" 
         Height="700" Width="1100"
         WindowStartupLocation="CenterScreen"
         Background="Transparent">
@@ -34,7 +34,7 @@
 
             <!-- العنوان -->
             <Border Grid.Row="0" Background="{DynamicResource InputBackground}" CornerRadius="10,10,0,0" Padding="10">
-                <TextBlock Text="صرف المرتبات الجماعي" 
+                <TextBlock Text="{DynamicResource BulkSalaryPayment}" 
                            Foreground="{DynamicResource TextPrimaryColor}" 
                            FontSize="18" 
                            FontWeight="Bold"
@@ -57,28 +57,28 @@
 
                     <!-- الفلاتر الأساسية -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                        <Label Content="الشهر:" VerticalAlignment="Center" Margin="5"/>
+                        <Label Content="{DynamicResource Month3}" VerticalAlignment="Center" Margin="5"/>
                         <ComboBox x:Name="cmbMonth" Width="120" Height="30" Margin="5"/>
-                        <Label Content="السنة:" VerticalAlignment="Center" Margin="5"/>
+                        <Label Content="{DynamicResource Sunnah3}" VerticalAlignment="Center" Margin="5"/>
                         <ComboBox x:Name="cmbYear" Width="100" Height="30" Margin="5"/>
-                        <Button x:Name="btnLoadEmployees" Content="تحميل الموظفين" Width="120" Height="30" Margin="5" Click="BtnLoadEmployees_Click"/>
+                        <Button x:Name="btnLoadEmployees" Content="{DynamicResource LoadingStaff}" Width="120" Height="30" Margin="5" Click="BtnLoadEmployees_Click"/>
                     </StackPanel>
 
                     <!-- خيارات الصرف -->
                     <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
-                        <CheckBox x:Name="chkIncludeAll" Content="تضمين الجميع" Style="{DynamicResource CheckBoxStyle}"/>
-                        <CheckBox x:Name="chkAutoCalculate" Content="حساب تلقائي" IsChecked="True" Style="{DynamicResource CheckBoxStyle}"/>
-                        <CheckBox x:Name="chkIncludeFriendshipBox" Content="تضمين صندوق الزمالة" IsChecked="True" Style="{DynamicResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="chkIncludeAll" Content="{DynamicResource IncludeEveryone}" Style="{DynamicResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="chkAutoCalculate" Content="{DynamicResource AutomaticCalculation}" IsChecked="True" Style="{DynamicResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="chkIncludeFriendshipBox" Content="{DynamicResource IncludeAFellowshipFund}" IsChecked="True" Style="{DynamicResource CheckBoxStyle}"/>
                     </StackPanel>
 
                     <!-- إعدادات صندوق الزمالة -->
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="4">
-                        <Label Content="نسبة صندوق الزمالة (%):" VerticalAlignment="Center" Margin="5"/>
+                        <Label Content="{DynamicResource FellowshipFundPercentage}" VerticalAlignment="Center" Margin="5"/>
                         <TextBox x:Name="txtFriendshipBoxPercentage" Width="80" Height="30" Margin="5" Text="2"/>
-                        <Button x:Name="btnApplyPercentage" Content="تطبيق النسبة" Width="120" Height="30" Margin="5" Click="BtnApplyPercentage_Click"/>
-                        <Button x:Name="btnCalculateAll" Content="حساب الكل" Width="100" Height="30" Margin="5" Click="BtnCalculateAll_Click"/>
-                        <Button x:Name="btnSelectAll" Content="تحديد الكل" Width="100" Height="30" Margin="5" Click="BtnSelectAll_Click"/>
-                        <Button x:Name="btnDeselectAll" Content="إلغاء التحديد" Width="100" Height="30" Margin="5" Click="BtnDeselectAll_Click"/>
+                        <Button x:Name="btnApplyPercentage" Content="{DynamicResource ApplyTheRatio}" Width="120" Height="30" Margin="5" Click="BtnApplyPercentage_Click"/>
+                        <Button x:Name="btnCalculateAll" Content="{DynamicResource CalculateAll}" Width="100" Height="30" Margin="5" Click="BtnCalculateAll_Click"/>
+                        <Button x:Name="btnSelectAll" Content="{DynamicResource SelectAll}" Width="100" Height="30" Margin="5" Click="BtnSelectAll_Click"/>
+                        <Button x:Name="btnDeselectAll" Content="{DynamicResource Deselect}" Width="100" Height="30" Margin="5" Click="BtnDeselectAll_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -94,16 +94,16 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="الكود" Binding="{Binding Code}" Width="80"/>
-                    <DataGridTextColumn Header="الاسم" Binding="{Binding Name}" Width="150"/>
-                    <DataGridTextColumn Header="الفرع" Binding="{Binding Branch}" Width="100"/>
-                    <DataGridTextColumn Header="الراتب الأساسي" Binding="{Binding BasicSalary, StringFormat=N2}" Width="100"/>
-                    <DataGridTextColumn Header="الإضافات" Binding="{Binding Additions, StringFormat=N2}" Width="100"/>
-                    <DataGridTextColumn Header="الاستقطاعات" Binding="{Binding Deductions, StringFormat=N2}" Width="100"/>
-                    <DataGridTextColumn Header="صندوق الزمالة" Binding="{Binding FriendshipBoxAmount, StringFormat=N2}" Width="100"/>
-                    <DataGridTextColumn Header="السلف" Binding="{Binding LoanDeduction, StringFormat=N2}" Width="80"/>
-                    <DataGridTextColumn Header="صافي الراتب" Binding="{Binding NetSalary, StringFormat=N2}" Width="100"/>
-                    <DataGridTextColumn Header="حالة الصرف" Binding="{Binding PaymentStatus}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource Code}" Binding="{Binding Code}" Width="80"/>
+                    <DataGridTextColumn Header="{DynamicResource TheName}" Binding="{Binding Name}" Width="150"/>
+                    <DataGridTextColumn Header="{DynamicResource Branch}" Binding="{Binding Branch}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource BasicSalary}" Binding="{Binding BasicSalary, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource Extras}" Binding="{Binding Additions, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource Deductions2}" Binding="{Binding Deductions, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource FellowshipFund}" Binding="{Binding FriendshipBoxAmount, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource Predecessor}" Binding="{Binding LoanDeduction, StringFormat=N2}" Width="80"/>
+                    <DataGridTextColumn Header="{DynamicResource NetSalary}" Binding="{Binding NetSalary, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource ExchangeStatus}" Binding="{Binding PaymentStatus}" Width="100"/>
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -123,13 +123,13 @@
 
                     <!-- أزرار التنفيذ -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="btnPreview" Content="معاينة" Width="100" Height="35" Margin="5" 
+                        <Button x:Name="btnPreview" Content="{DynamicResource Preview}" Width="100" Height="35" Margin="5" 
                                 Background="#FF9800" Foreground="White" FontWeight="Bold" Click="BtnPreview_Click"/>
-                        <Button x:Name="btnPaySelected" Content="صرف المحددين" Width="120" Height="35" Margin="5"
+                        <Button x:Name="btnPaySelected" Content="{DynamicResource ExchangeTheSpecifiedOnes}" Width="120" Height="35" Margin="5"
                                 Background="#4CAF50" Foreground="White" FontWeight="Bold" Click="BtnPaySelected_Click"/>
-                        <Button x:Name="btnPayAll" Content="صرف الكل" Width="100" Height="35" Margin="5"
+                        <Button x:Name="btnPayAll" Content="{DynamicResource SpendAll}" Width="100" Height="35" Margin="5"
                                 Background="#2196F3" Foreground="White" FontWeight="Bold" Click="BtnPayAll_Click"/>
-                        <Button x:Name="btnExport" Content="تصدير Excel" Width="120" Height="35" Margin="5"
+                        <Button x:Name="btnExport" Content="{DynamicResource ExcelExport}" Width="120" Height="35" Margin="5"
                                 Background="#9C27B0" Foreground="White" FontWeight="Bold" Click="BtnExport_Click"/>
                     </StackPanel>
                 </Grid>

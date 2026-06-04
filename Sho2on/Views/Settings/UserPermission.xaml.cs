@@ -39,7 +39,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแศํวไวส: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ุฎุทุฃ ูู ุชุญู…ูู ุงูุจูุงูุงุช: {ex.Message}", LocalizationManager.Translate("ุฎุทุฃ"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -50,28 +50,28 @@ namespace HR_Application
                 roleComboBox.Items.Clear();
                 _roles.Clear();
 
-                // สอใํแ วแรฯๆวั ใไ Þวฺฯษ วแศํวไวส
+                // ุชุญู…ูู ุงูุฃุฏูุงุฑ ู…ู ูุงุนุฏุฉ ุงูุจูุงูุงุช
                 var roles = await _context.Roles
                     .OrderBy(r => r.RoleName)
                     .ToListAsync();
 
-                // ลึวÝษ ฺไีั "แว ิํม"
-                _roles.Add(new Role { RoleID = 0, RoleName = "แว ิํม" });
+                // ุฅุถุงูุฉ ุนูุตุฑ LocalizationManager.Translate("ูุง ุดูุก")
+                _roles.Add(new Role { RoleID = 0, RoleName = LocalizationManager.Translate("ูุง ุดูุก") });
 
-                // ลึวÝษ วแรฯๆวั วแรฮั์
+                // ุฅุถุงูุฉ ุงูุฃุฏูุงุฑ ุงูุฃุฎุฑู
                 foreach (var role in roles)
                 {
                     _roles.Add(role);
                 }
 
-                // สฺํํไ ใีฯั วแศํวไวส แแ฿ๆใศๆศๆ฿ำ
+                // ุชุนููู ู…ุตุฏุฑ ุงูุจูุงูุงุช ููููู…ุจูุจููุณ
                 roleComboBox.ItemsSource = _roles;
                 roleComboBox.DisplayMemberPath = "RoleName";
                 roleComboBox.SelectedValuePath = "RoleID";
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแรฯๆวั: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ุฎุทุฃ ูู ุชุญู…ูู ุงูุฃุฏูุงุฑ: {ex.Message}", LocalizationManager.Translate("ุฎุทุฃ"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -81,7 +81,7 @@ namespace HR_Application
             {
                 _usersList.Clear();
 
-                // สอใํแ วแใำสฮฯใํไ วแะํไ แฯํๅใ ีแวอํษ IsUser = true
+                // ุชุญู…ูู ุงูู…ุณุชุฎุฏู…ูู ุงูุฐูู ูุฏููู… ุตูุงุญูุฉ IsUser = true
                 var users = await _context.Users
                     .Where(u => u.IsUser)
                     .Include(u => u.UserRoles)
@@ -97,7 +97,7 @@ namespace HR_Application
                         Name = user.FullName,
                         Username = user.Username,
                         Code = user.Id,
-                        // วแอีๆแ ฺแ์ วแฯๆั วแรๆแ ละว ฿วไ ใๆฬๆฯว๐
+                        // ุงูุญุตูู ุนูู ุงูุฏูุฑ ุงูุฃูู ุฅุฐุง ูุงู ู…ูุฌูุฏุงู
                         RoleID = user.UserRoles.FirstOrDefault()?.RoleId ?? 0,
                         Password = user.PasswordHash
                     };
@@ -109,7 +109,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแใำสฮฯใํไ: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ุฎุทุฃ ูู ุชุญู…ูู ุงูู…ุณุชุฎุฏู…ูู: {ex.Message}", LocalizationManager.Translate("ุฎุทุฃ"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -132,10 +132,10 @@ namespace HR_Application
         {
             if (dataTable.SelectedItem is UserViewModel selectedUser)
             {
-                // สฺํํไ วแฯๆั วแใอฯฯ
+                // ุชุนููู ุงูุฏูุฑ ุงูู…ุญุฏุฏ
                 roleComboBox.SelectedValue = selectedUser.RoleID;
 
-                // สฺํํไ ฿แใษ วแใัๆั (ํใ฿ไ ลูๅวัๅว ศิ฿แ ใิÝั ละว แาใ วแรใั)
+                // ุชุนููู ููู…ุฉ ุงูู…ุฑูุฑ (ูู…ูู ุฅุธูุงุฑูุง ุจุดูู ู…ุดูุฑ ุฅุฐุง ูุฒู… ุงูุฃู…ุฑ)
                 pass_box.Password = selectedUser.Password;
                 username_box.Text = selectedUser.Username;
             }
@@ -147,28 +147,28 @@ namespace HR_Application
             {
                 if (dataTable.SelectedItem is not UserViewModel selectedUser)
                 {
-                    LocalizationManager.ShowMessage("ํัฬ์ วฮสํวั ใำสฮฯใ ๆวอฯ", "สอะํั", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ูุฑุฌู ุงุฎุชูุงุฑ ู…ุณุชุฎุฏู… ูุงุญุฏ", LocalizationManager.Translate("ุชุญุฐูุฑ"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (roleComboBox.SelectedItem is not Role selectedRole)
                 {
-                    LocalizationManager.ShowMessage("ํัฬ์ วฮสํวั ฯๆั", "สอะํั", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ูุฑุฌู ุงุฎุชูุงุฑ ุฏูุฑ", LocalizationManager.Translate("ุชุญุฐูุฑ"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // วแอีๆแ ฺแ์ วแใำสฮฯใ ใไ Þวฺฯษ วแศํวไวส
+                // ุงูุญุตูู ุนูู ุงูู…ุณุชุฎุฏู… ู…ู ูุงุนุฏุฉ ุงูุจูุงูุงุช
                 var user = await _context.Users
                     .Include(u => u.UserRoles)
                     .FirstOrDefaultAsync(u => u.Id == selectedUser.Id);
 
                 if (user == null)
                 {
-                    LocalizationManager.ShowMessage("วแใำสฮฯใ Ûํั ใๆฬๆฯ", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ุงูู…ุณุชุฎุฏู… ุบูุฑ ู…ูุฌูุฏ", LocalizationManager.Translate("ุฎุทุฃ"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // สอฯํห ฿แใษ วแใัๆั ละว สใ ลฯฮวแๅว
+                // ุชุญุฏูุซ ููู…ุฉ ุงูู…ุฑูุฑ ุฅุฐุง ุชู… ุฅุฏุฎุงููุง
                 if (!string.IsNullOrEmpty(pass_box.Password))
                 {
                     var passwordHash = pass_box.Password;
@@ -176,35 +176,35 @@ namespace HR_Application
                     user.PasswordHash = passwordHash;
                 }
 
-                // สอฯํห ฿แใษ วแใัๆั ละว สใ ลฯฮวแๅว
+                // ุชุญุฏูุซ ููู…ุฉ ุงูู…ุฑูุฑ ุฅุฐุง ุชู… ุฅุฏุฎุงููุง
                 if (!string.IsNullOrEmpty(username_box.Text))
                 {
                     user.Username = username_box.Text;
                 }
 
-                // ลฯวัษ รฯๆวั วแใำสฮฯใ
+                // ุฅุฏุงุฑุฉ ุฃุฏูุงุฑ ุงูู…ุณุชุฎุฏู…
                 await ManageUserRolesAsync(user, selectedRole.RoleID);
 
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("สใ สอฯํห ีแวอํวส วแใำสฮฯใ ศไฬวอ", "ไฬวอ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("ุชู… ุชุญุฏูุซ ุตูุงุญูุงุช ุงูู…ุณุชุฎุฏู… ุจูุฌุงุญ", LocalizationManager.Translate("ูุฌุงุญ"), MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // ลฺวฯษ สอใํแ วแศํวไวส แสอฯํห วแๆวฬๅษ
+                // ุฅุนุงุฏุฉ ุชุญู…ูู ุงูุจูุงูุงุช ูุชุญุฏูุซ ุงููุงุฌูุฉ
                 await LoadUsersAsync();
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"อฯห ฮุร รหไวม วแอÝู: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ุญุฏุซ ุฎุทุฃ ุฃุซูุงุก ุงูุญูุธ: {ex.Message}", LocalizationManager.Translate("ุฎุทุฃ"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task ManageUserRolesAsync(User user, int roleId)
         {
-            // ลาวแษ ฬใํฺ วแรฯๆวั วแอวแํษ แแใำสฮฯใ
+            // ุฅุฒุงูุฉ ุฌู…ูุน ุงูุฃุฏูุงุฑ ุงูุญุงููุฉ ููู…ุณุชุฎุฏู…
             var currentUserRoles = user.UserRoles.ToList();
             _context.UserRoles.RemoveRange(currentUserRoles);
 
-            // ลึวÝษ วแฯๆั วแฬฯํฯ ละว แใ ํ฿ไ "แว ิํม"
+            // ุฅุถุงูุฉ ุงูุฏูุฑ ุงูุฌุฏูุฏ ุฅุฐุง ูู… ููู LocalizationManager.Translate("ูุง ุดูุก")
             if (roleId > 0)
             {
                 var userRole = new UserRole
@@ -216,11 +216,11 @@ namespace HR_Application
             }
         }
 
-        // ฯวแษ ใำวฺฯษ แสิÝํั ฿แใษ วแใัๆั (ํใ฿ไ ลึวÝสๅว ละว แาใ วแรใั)
+        // ุฏุงูุฉ ู…ุณุงุนุฏุฉ ูุชุดููุฑ ููู…ุฉ ุงูู…ุฑูุฑ (ูู…ูู ุฅุถุงูุชูุง ุฅุฐุง ูุฒู… ุงูุฃู…ุฑ)
         private string HashPassword(string password)
         {
-            // ํใ฿ไ วำสฮฯวใ ใ฿สศษ ใหแ BCrypt.Net ๅไว
-            return password; // ๅะว ใหวแ ศำํุก Ýํ วแสุศํÞ วแอÞํÞํ ํฬศ สิÝํั ฿แใษ วแใัๆั
+            // ูู…ูู ุงุณุชุฎุฏุงู… ู…ูุชุจุฉ ู…ุซู BCrypt.Net ููุง
+            return password; // ูุฐุง ู…ุซุงู ุจุณูุทุ ูู ุงูุชุทุจูู ุงูุญูููู ูุฌุจ ุชุดููุฑ ููู…ุฉ ุงูู…ุฑูุฑ
         }
     }
 }

@@ -46,7 +46,7 @@
 
                 <Button x:Name="ManageMembersBtn" Grid.Column="2"
                         Background="Transparent" BorderThickness="0"
-                        Click="ManageMembers_Click" ToolTip="إدارة الأعضاء"
+                        Click="ManageMembers_Click" ToolTip="{DynamicResource MemberManagement}"
                         Visibility="Collapsed">
                     <icons:PackIconMaterial Kind="AccountCog" Width="20" Height="20"
                                             Foreground="{DynamicResource AccentColor}"/>
@@ -73,8 +73,8 @@
                                         CornerRadius="0,12,12,12" Padding="10,7" MaxWidth="400">
                                     <Border.ContextMenu>
                                         <ContextMenu FlowDirection="RightToLeft">
-                                            <MenuItem Header="✏️ تعديل" Click="EditGroupMessage_Click" Tag="{Binding}"/>
-                                            <MenuItem Header="🗑️ حذف"   Click="DeleteGroupMessage_Click" Tag="{Binding}"/>
+                                            <MenuItem Header="{DynamicResource Edit}" Click="EditGroupMessage_Click" Tag="{Binding}"/>
+                                            <MenuItem Header="{DynamicResource Delete2}"   Click="DeleteGroupMessage_Click" Tag="{Binding}"/>
                                         </ContextMenu>
                                     </Border.ContextMenu>
                                     <StackPanel>
@@ -207,10 +207,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="EditingLabel" Text="✏️ تعديل رسالة..."
+                <TextBlock x:Name="EditingLabel" Text="{DynamicResource EditMessage}"
                            Foreground="{DynamicResource AccentColor}" FontSize="12"
                            VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="✕ إلغاء"
+                <Button Grid.Column="1" Content="{DynamicResource Cancel}"
                         Background="Transparent" BorderThickness="0"
                         Foreground="{DynamicResource AccentColor}"
                         Click="CancelEdit_Click"/>
@@ -258,7 +258,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <icons:PackIconMaterial Kind="Chat" Width="80" Height="80" Opacity="0.3" 
                                         Foreground="{DynamicResource SecondaryColor}"/>
-                <TextBlock Text="اختر جروب للبدء" FontSize="16" 
+                <TextBlock Text="{DynamicResource ChooseAGroupToGetStarted}" FontSize="16" 
                            Foreground="{DynamicResource SecondaryColor}"
                            Opacity="0.5" Margin="0,20,0,0"/>
             </StackPanel>

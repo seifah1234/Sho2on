@@ -10,8 +10,8 @@
         </Grid.ColumnDefinitions>
 
         <ComboBox Name="A_P" Grid.Column="0" Foreground="Black" Background="#ffffff" BorderThickness="0" FlowDirection="RightToLeft">
-                <ComboBoxItem Content="صباحاً" HorizontalAlignment="Center"/>
-                <ComboBoxItem Content="مسائاً" HorizontalAlignment="Center" />
+                <ComboBoxItem Content="{DynamicResource AM}" HorizontalAlignment="Center"/>
+                <ComboBoxItem Content="{DynamicResource Evening}" HorizontalAlignment="Center" />
             </ComboBox>
 
         <ComboBox Name="clock" Margin="10 0 10 0" Grid.Column="1" Foreground="Black" Background="#ffffff" BorderThickness="0" FlowDirection="RightToLeft">

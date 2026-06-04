@@ -193,7 +193,7 @@ namespace HR_Application
             var employeeSelectionWindow = new EmployeeSelectionWindow(
                 _context.Users.ToList(),
                 false,
-                "ÇÎÊÑ ÇáãæÙİ áØáÈ ÇáÅĞä",
+                LocalizationManager.Translate("Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ¸Ù Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø°Ù†"),
                 searchText);
             employeeSelectionWindow.Owner = this;
 
@@ -223,7 +223,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãÏíÑíä: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ†: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -331,7 +331,7 @@ namespace HR_Application
 
                         _context.SaveChanges();
 
-                        LocalizationManager.ShowMessage("Êã ÇÖÇİÉ ÇáÇÌÑÇÁ");
+                        LocalizationManager.ShowMessage("ØªÙ… Ø§Ø¶Ø§ÙØ© Ø§Ù„Ø§Ø¬Ø±Ø§Ø¡");
                     }
                     catch (Exception ex)
                     {
@@ -377,7 +377,7 @@ namespace HR_Application
 
                             _context.SaveChanges();
 
-                            LocalizationManager.ShowMessage("Êã ÊŞÏíã ÇáØáÈ");
+                            LocalizationManager.ShowMessage("ØªÙ… ØªÙ‚Ø¯ÙŠÙ… Ø§Ù„Ø·Ù„Ø¨");
                         }
                         catch (Exception ex)
                         {
@@ -426,11 +426,11 @@ namespace HR_Application
         {
             if (_managers.Count == 0)
             {
-                LocalizationManager.ShowMessage("áÇ íæÌÏ ãÏíÑíä ãÊÇÍíä ááÇÎÊíÇÑ", "ãÚáæãÉ", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø¯ÙŠØ±ÙŠÙ† Ù…ØªØ§Ø­ÙŠÙ† Ù„Ù„Ø§Ø®ØªÙŠØ§Ø±", LocalizationManager.Translate("Ù…Ø¹Ù„ÙˆÙ…Ø©"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            var managerSelectionWindow = new EmployeeSelectionWindow(_managers, true, "ÇÎÊÑ ÇáãæÇİŞ Úáì ÇáãÃãæÑíÉ");
+            var managerSelectionWindow = new EmployeeSelectionWindow(_managers, true, LocalizationManager.Translate("Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ©"));
             managerSelectionWindow.Owner = this;
 
             if (managerSelectionWindow.ShowDialog() == true && managerSelectionWindow.SelectedUser != null)

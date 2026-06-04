@@ -34,14 +34,14 @@ namespace HR_Application
 
         private Color _primaryColor = Colors.Blue; // Default #007bff
         private Color _secondaryColor = Colors.Blue;
-        private Color _thirdColor = Colors.Blue;
+        private Color _ThirdColorBrush = Colors.Blue;
         private Color _primaryColorBackgroundColor = Colors.Blue; // Default #007bff
         private Color _mainMenuColorColor = Colors.Blue;
         private Color _primaryTextBrush = Colors.Blue;
         private Color _secondaryTextBrush = Colors.Blue;
         private string _primaryColorHex = "#007BFF";
         private string _secondaryColorHex = "#007BFF";
-        private string _thirdColorHex = "#007BFF";
+        private string _ThirdColorBrushHex = "#007BFF";
         private string _primaryColorBackgroundColorHex = "#ececec";
         private string _mainMenuColorHex = "#0047ab";
         private string _primaryTextBrushHex = "#0047ab";
@@ -59,10 +59,10 @@ namespace HR_Application
             set { _secondaryColor = value; UpdateColorResource("SecondaryColor", value); OnPropertyChanged(nameof(SecondaryColor)); }
         }
 
-        public Color ThirdColor
+        public Color ThirdColorBrush
         {
-            get => _thirdColor;
-            set { _thirdColor = value; UpdateColorResource("ThirdColor", value); OnPropertyChanged(nameof(ThirdColor)); }
+            get => _ThirdColorBrush;
+            set { _ThirdColorBrush = value; UpdateColorResource("ThirdColorBrush", value); OnPropertyChanged(nameof(ThirdColorBrush)); }
         }
 
         public Color PrimaryColorBackground
@@ -102,8 +102,8 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÊäÓíŞ áæä ÛíÑ ÕÇáÍ. ÇÓÊÎÏã ÊäÓíŞ #RRGGBB",
-                       "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ØªÙ†Ø³ÙŠÙ‚ Ù„ÙˆÙ† ØºÙŠØ± ØµØ§Ù„Ø­. Ø§Ø³ØªØ®Ø¯Ù… ØªÙ†Ø³ÙŠÙ‚ #RRGGBB",
+                       LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -121,27 +121,27 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÊäÓíŞ áæä ÛíÑ ÕÇáÍ. ÇÓÊÎÏã ÊäÓíŞ #RRGGBB",
-                       "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ØªÙ†Ø³ÙŠÙ‚ Ù„ÙˆÙ† ØºÙŠØ± ØµØ§Ù„Ø­. Ø§Ø³ØªØ®Ø¯Ù… ØªÙ†Ø³ÙŠÙ‚ #RRGGBB",
+                       LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
-        public string ThirdColorHex
+        public string ThirdColorBrushHex
         {
-            get => _thirdColorHex;
+            get => _ThirdColorBrushHex;
             set
             {
                 if (TryParseHexColor(value, out Color color))
                 {
-                    _thirdColorHex = value;
-                    ThirdColor = color;
-                    OnPropertyChanged(nameof(ThirdColorHex));
+                    _ThirdColorBrushHex = value;
+                    ThirdColorBrush = color;
+                    OnPropertyChanged(nameof(ThirdColorBrushHex));
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÊäÓíŞ áæä ÛíÑ ÕÇáÍ. ÇÓÊÎÏã ÊäÓíŞ #RRGGBB",
-                        "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ØªÙ†Ø³ÙŠÙ‚ Ù„ÙˆÙ† ØºÙŠØ± ØµØ§Ù„Ø­. Ø§Ø³ØªØ®Ø¯Ù… ØªÙ†Ø³ÙŠÙ‚ #RRGGBB",
+                        LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -161,8 +161,8 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÊäÓíŞ áæä ÛíÑ ÕÇáÍ. ÇÓÊÎÏã ÊäÓíŞ #RRGGBB",
-                       "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ØªÙ†Ø³ÙŠÙ‚ Ù„ÙˆÙ† ØºÙŠØ± ØµØ§Ù„Ø­. Ø§Ø³ØªØ®Ø¯Ù… ØªÙ†Ø³ÙŠÙ‚ #RRGGBB",
+                       LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -180,8 +180,8 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÊäÓíŞ áæä ÛíÑ ÕÇáÍ. ÇÓÊÎÏã ÊäÓíŞ #RRGGBB",
-                         "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ØªÙ†Ø³ÙŠÙ‚ Ù„ÙˆÙ† ØºÙŠØ± ØµØ§Ù„Ø­. Ø§Ø³ØªØ®Ø¯Ù… ØªÙ†Ø³ÙŠÙ‚ #RRGGBB",
+                         LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -199,8 +199,8 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÊäÓíŞ áæä ÛíÑ ÕÇáÍ. ÇÓÊÎÏã ÊäÓíŞ #RRGGBB",
-                       "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ØªÙ†Ø³ÙŠÙ‚ Ù„ÙˆÙ† ØºÙŠØ± ØµØ§Ù„Ø­. Ø§Ø³ØªØ®Ø¯Ù… ØªÙ†Ø³ÙŠÙ‚ #RRGGBB",
+                       LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -218,8 +218,8 @@ namespace HR_Application
                 }
                 else
                 {
-                    LocalizationManager.ShowMessage("ÊäÓíŞ áæä ÛíÑ ÕÇáÍ. ÇÓÊÎÏã ÊäÓíŞ #RRGGBB",
-                        "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ØªÙ†Ø³ÙŠÙ‚ Ù„ÙˆÙ† ØºÙŠØ± ØµØ§Ù„Ø­. Ø§Ø³ØªØ®Ø¯Ù… ØªÙ†Ø³ÙŠÙ‚ #RRGGBB",
+                        LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -234,7 +234,7 @@ namespace HR_Application
 
         private void UpdateColorResource(string key, Color color)
         {
-            // äÍÏÏ ÇáÜ LightTheme.xaml
+            // Ù†Ø­Ø¯Ø¯ Ø§Ù„Ù€ LightTheme.xaml
             var lightTheme = Application.Current.Resources.MergedDictionaries
                 .FirstOrDefault(rd => rd.Source != null && rd.Source.OriginalString.Contains("LightTheme.xaml"));
 
@@ -242,7 +242,7 @@ namespace HR_Application
             {
                 lightTheme[key] = new SolidColorBrush(color);
 
-                // äÍİÙ ÇáŞíãÉ İí Settings
+                // Ù†Ø­ÙØ¸ Ø§Ù„Ù‚ÙŠÙ…Ø© ÙÙŠ Settings
                 Properties.Settings.Default[key] = color;
                 Properties.Settings.Default.Save();
             }
@@ -282,7 +282,7 @@ namespace HR_Application
             {
                 PrimaryColor = Properties.Settings.Default.PrimaryColor;
                 SecondaryColor = Properties.Settings.Default.SecondaryColor;
-                ThirdColor = Properties.Settings.Default.ThirdColor;
+                ThirdColorBrush = Properties.Settings.Default.ThirdColorBrush;
                 PrimaryColorBackground = Properties.Settings.Default.PrimaryColorBackground;
                 MainMenuColor = Properties.Settings.Default.MainMenuColor;
                 PrimaryTextBrush = Properties.Settings.Default.PrimaryTextBrush;
@@ -290,7 +290,7 @@ namespace HR_Application
 
                 PrimaryColorHex = ColorToHex(PrimaryColor);
                 SecondaryColorHex = ColorToHex(SecondaryColor);
-                ThirdColorHex = ColorToHex(ThirdColor);
+                ThirdColorBrushHex = ColorToHex(ThirdColorBrush);
 
                 PrimaryColorBackgroundHex = ColorToHex(PrimaryColorBackground);
                 MainMenuColorHex = ColorToHex(MainMenuColor);
@@ -299,7 +299,7 @@ namespace HR_Application
 
                 string month_data = "";
                 
-                 month_data = $"ÇÚÏÇÏÇÊ ÈÏÇíÉ ÇáÔåÑ ÇáÍÇáíÉ : {Properties.Settings.Default.StartOfMonth} æ äåÇíÊå : {Properties.Settings.Default.EndOfMonth}";
+                 month_data = $"Ø§Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¨Ø¯Ø§ÙŠØ© Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠØ© : {Properties.Settings.Default.StartOfMonth} Ùˆ Ù†Ù‡Ø§ÙŠØªÙ‡ : {Properties.Settings.Default.EndOfMonth}";
                 begin_month.Text = Properties.Settings.Default.StartOfMonth.ToString();
                 end_month.Text = Properties.Settings.Default.EndOfMonth.ToString();
                 month_detail_txt.FlowDirection = System.Windows.FlowDirection.RightToLeft;
@@ -373,7 +373,7 @@ namespace HR_Application
                 Properties.Settings.Default.EndOfMonth = Convert.ToInt32(end_month.Text);
                 Properties.Settings.Default.Save();
             }
-            string month_data = $"ÇÚÏÇÏÇÊ ÈÏÇíÉ ÇáÔåÑ ÇáÍÇáíÉ : {Properties.Settings.Default.StartOfMonth} æ äåÇíÊå : {Properties.Settings.Default.EndOfMonth}";
+            string month_data = $"Ø§Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¨Ø¯Ø§ÙŠØ© Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠØ© : {Properties.Settings.Default.StartOfMonth} Ùˆ Ù†Ù‡Ø§ÙŠØªÙ‡ : {Properties.Settings.Default.EndOfMonth}";
 
             month_detail_txt.FlowDirection = System.Windows.FlowDirection.RightToLeft;
             month_detail_txt.Content = month_data;

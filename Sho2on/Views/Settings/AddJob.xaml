@@ -62,7 +62,7 @@
 
         <!-- CheckBox override for this window -->
         <Style x:Key="CardCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Foreground"  Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground"  Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="FontSize"    Value="13"/>
             <Setter Property="FontWeight"  Value="SemiBold"/>
             <Setter Property="FontFamily"  Value="{DynamicResource Mada}"/>
@@ -101,7 +101,7 @@
                         <Icon:PackIconMaterial Kind="Briefcase" Width="20" Height="20"
                                                Foreground="{DynamicResource TextPrimaryColor}"
                                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="بيانات الوظائف"
+                        <TextBlock Text="{DynamicResource JobData}"
                                    FontSize="20" FontWeight="Bold"
                                    Foreground="{DynamicResource TextPrimaryColor}"
                                    VerticalAlignment="Center"/>
@@ -128,7 +128,7 @@
                             <Icon:PackIconMaterial Kind="FormatListBulleted" Width="16" Height="16"
                                                    Foreground="{DynamicResource AccentColor}"
                                                    VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="قائمة الوظائف"
+                            <TextBlock Text="{DynamicResource ListOfJobs}"
                                        FontSize="13" FontWeight="SemiBold"
                                        Foreground="{DynamicResource AccentColor}"
                                        VerticalAlignment="Center"/>
@@ -184,9 +184,9 @@
                     <Border CornerRadius="10" Padding="14,10" Margin="0,0,0,24"
                             BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <CheckBox Name="isDriver_box"  Content="سائق"  Style="{DynamicResource CardCheckBoxStyle}"/>
+                            <CheckBox Name="isDriver_box"  Content="{DynamicResource Driver}"  Style="{DynamicResource CardCheckBoxStyle}"/>
                             <CheckBox Name="isHR_box"      Content="HR"     Style="{DynamicResource CardCheckBoxStyle}"/>
-                            <CheckBox Name="isManager_box" Content="مدير"   Style="{DynamicResource CardCheckBoxStyle}"/>
+                            <CheckBox Name="isManager_box" Content="{DynamicResource Boss}"   Style="{DynamicResource CardCheckBoxStyle}"/>
                         </StackPanel>
                     </Border>
 
@@ -211,8 +211,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="NewBox" Width="15" Height="15"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"
-                                                       Foreground="{DynamicResource ThirdColor}"/>
-                                <TextBlock Text="جديد" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource ThirdColorBrushBrush}"/>
+                                <TextBlock Text="{DynamicResource New}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -226,8 +226,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Pencil" Width="15" Height="15"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"
-                                                       Foreground="{DynamicResource ThirdColor}"/>
-                                <TextBlock Text="تعديل" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource ThirdColorBrushBrush}"/>
+                                <TextBlock Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -238,7 +238,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ContentSave" Width="15" Height="15"
                                                        VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource ButtonHoverForeground}"/>
-                                <TextBlock Text="حفظ" VerticalAlignment="Center" Foreground="{DynamicResource ButtonHoverForeground}"/>
+                                <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center" Foreground="{DynamicResource ButtonHoverForeground}"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -256,7 +256,7 @@
                                                        
                                                        VerticalAlignment="Center" Margin="0,0,6,0"
                                                        Foreground="{DynamicResource ButtonHoverForeground}"/>
-                                <TextBlock Text="خروج" VerticalAlignment="Center" Foreground="{DynamicResource ButtonHoverForeground}"/>
+                                <TextBlock Text="{DynamicResource Exit}" VerticalAlignment="Center" Foreground="{DynamicResource ButtonHoverForeground}"/>
                             </StackPanel>
                         </Button>
                         <Button 
@@ -269,7 +269,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Delete" Width="15" Height="15"
                                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

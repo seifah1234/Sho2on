@@ -153,7 +153,7 @@
         <!-- ════ Action button base ════ -->
         <Style x:Key="ActionButton" TargetType="Button">
             <Setter Property="Background"      Value="{DynamicResource SurfaceLightColor}"/>
-            <Setter Property="Foreground"      Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush"     Value="{DynamicResource BorderColor}"/>
             <Setter Property="Height"          Value="42"/>
@@ -257,7 +257,7 @@
                                                    Foreground="#FFFFFF"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="بيانات الموظف"
+                        <TextBlock Text="{DynamicResource EmployeeData3}"
                                    FontSize="19" FontWeight="Bold"
                                    Foreground="{DynamicResource TextPrimaryColor}"
                                    VerticalAlignment="Center"/>
@@ -306,7 +306,7 @@
                         <!-- Avatar card -->
                         <Border Style="{StaticResource SectionCard}">
                             <StackPanel>
-                                <TextBlock Text="صورة الموظف" Style="{StaticResource SectionHeader}"/>
+                                <TextBlock Text="{DynamicResource EmployeePhoto}" Style="{StaticResource SectionHeader}"/>
 
                                 <!-- Avatar ring -->
                                 <Border Width="160" Height="160"
@@ -383,22 +383,22 @@
                         <!-- Exemptions card -->
                         <Border Style="{StaticResource SectionCard}">
                             <StackPanel>
-                                <TextBlock Text="الإعفاءات" Style="{StaticResource SectionHeader}"/>
-                                <CheckBox x:Name="OV1_box"   Content="معفي من إضافي بعد اوقات العمل" Style="{StaticResource CardCheckBox}"/>
-                                <CheckBox Visibility="Collapsed" x:Name="OV_box" Content="معفي من إضافي قبل اوقات العمل" Style="{StaticResource CardCheckBox}"/>
-                                <CheckBox x:Name="late_box"   Content="معفي من تأخير"     Style="{StaticResource CardCheckBox}"/>
-                                <CheckBox x:Name="absent_box" Content="معفي من غياب"      Style="{StaticResource CardCheckBox}"/>
-                                <CheckBox Visibility="Collapsed" x:Name="early_end" Content="معفي من خروج مبكر" Style="{StaticResource CardCheckBox}"/>
+                                <TextBlock Text="{DynamicResource Exemptions}" Style="{StaticResource SectionHeader}"/>
+                                <CheckBox x:Name="OV1_box"   Content="{DynamicResource ExemptFromAdditionalFeesAfterWorkingHours}" Style="{StaticResource CardCheckBox}"/>
+                                <CheckBox Visibility="Collapsed" x:Name="OV_box" Content="{DynamicResource ExemptFromAdditionalFeesBeforeWorkingHours}" Style="{StaticResource CardCheckBox}"/>
+                                <CheckBox x:Name="late_box"   Content="{DynamicResource ExemptFromDelay}"     Style="{StaticResource CardCheckBox}"/>
+                                <CheckBox x:Name="absent_box" Content="{DynamicResource ExemptFromAbsence}"      Style="{StaticResource CardCheckBox}"/>
+                                <CheckBox Visibility="Collapsed" x:Name="early_end" Content="{DynamicResource ExemptFromEarlyExit}" Style="{StaticResource CardCheckBox}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Status card -->
                         <Border Style="{StaticResource SectionCard}">
                             <StackPanel>
-                                <TextBlock Text="الحالة" Style="{StaticResource SectionHeader}"/>
-                                <CheckBox x:Name="archive_check" Content="غير نشط"
+                                <TextBlock Text="{DynamicResource TheCondition}" Style="{StaticResource SectionHeader}"/>
+                                <CheckBox x:Name="archive_check" Content="{DynamicResource Inactive}"
                                           Visibility="Collapsed" Style="{StaticResource CardCheckBox}"/>
-                                <CheckBox x:Name="blacklist_check" Content="القائمة السوداء"
+                                <CheckBox x:Name="blacklist_check" Content="{DynamicResource BlackList}"
                                           Style="{StaticResource CardCheckBox}"
                                           Checked="blacklist_check_Checked"
                                           Unchecked="blacklist_check_Unchecked"/>
@@ -427,7 +427,7 @@
                                                 <Icon:PackIconMaterial Kind="ArchiveOutline" Width="16" Height="16"
                                                                        Foreground="{DynamicResource AccentColor}"
                                                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                <TextBlock Text="الارشيف" Foreground="{DynamicResource ThirdColor}"
+                                                <TextBlock Text="{DynamicResource Archive}" Foreground="{DynamicResource ThirdColorBrushBrush}"
                                                            FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Border>
@@ -462,7 +462,7 @@
                                     <Icon:PackIconMaterial Kind="AccountCircle" Width="16" Height="16"
                                                            Foreground="{DynamicResource AccentColor}"
                                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="المعلومات الشخصية"
+                                    <TextBlock Text="{DynamicResource PersonalInformation}"
                                                Foreground="{DynamicResource AccentColor}"
                                                FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -479,7 +479,7 @@
                                         <TextBox x:Name="emplo_code_box"    Tag="كود الموظف"      Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <TextBox x:Name="emplo_name_box"    Tag="الاسم بالكامل"   Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <TextBox x:Name="emplo_card_box"    Tag="الرقم القومي"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <Label Content="المؤهل" Style="{StaticResource FieldLabel}" Margin="0 10"/>
+                                        <Label Content="{DynamicResource Qualification}" Style="{StaticResource FieldLabel}" Margin="0 10"/>
                                         <ComboBox x:Name="qualificationBox" SelectedValuePath="Id" DisplayMemberPath="Name"/>
                                     </StackPanel>
 
@@ -487,17 +487,17 @@
                                         <TextBox x:Name="emplo_tele_box"    Tag="رقم الهاتف (واتساب)"            Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <TextBox x:Name="emplo_email_box"   Tag="البريد الإلكتروني"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <TextBox x:Name="emplo_address_box" Tag="العنوان"               Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <Label Content="الاقامة" Style="{StaticResource FieldLabel}" Margin="0 10"/>
+                                        <Label Content="{DynamicResource Accommodation}" Style="{StaticResource FieldLabel}" Margin="0 10"/>
                                         <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="recidenceBox"/>
 
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" Margin="10,0,0,0">
-                                        <Label Content="تاريخ الميلاد" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource DateOfBirth}" Style="{StaticResource FieldLabel}"/>
                                         <DatePicker x:Name="birth_date_picker" Style="{StaticResource ModernDatePicker}"/>
                                         
                                         
-                                        <Label Content="الحالة الاجتماعية" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource MaritalStatus}" Style="{StaticResource FieldLabel}"/>
                                         <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="maritalBox"/>
 
                                         <!-- Gender pills -->
@@ -505,7 +505,7 @@
                                             <Border CornerRadius="20" Padding="14,6" Margin="0,0,8,0"
                                                     Background="{DynamicResource SurfaceLightColor}"
                                                     BorderThickness="1" BorderBrush="{DynamicResource BorderColor}">
-                                                <RadioButton x:Name="male_box" Content="ذكر"
+                                                <RadioButton x:Name="male_box" Content="{DynamicResource Male}"
                                                              GroupName="Gender"
                                                              Foreground="{DynamicResource TextSecondaryColor}"
                                                              FontSize="13"/>
@@ -513,7 +513,7 @@
                                             <Border CornerRadius="20" Padding="14,6"
                                                     Background="{DynamicResource SurfaceLightColor}"
                                                     BorderThickness="1" BorderBrush="{DynamicResource BorderColor}">
-                                                <RadioButton x:Name="female_box" Content="أنثى"
+                                                <RadioButton x:Name="female_box" Content="{DynamicResource Feminine}"
                                                              GroupName="Gender"
                                                              Foreground="{DynamicResource TextSecondaryColor}"
                                                              FontSize="13"/>
@@ -531,7 +531,7 @@
                                     <Icon:PackIconMaterial Kind="Briefcase" Width="16" Height="16"
                                                            Foreground="{DynamicResource AccentColor}"
                                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="المعلومات الوظيفية"
+                                    <TextBlock Text="{DynamicResource FunctionalInformation}"
                                                Foreground="{DynamicResource AccentColor}"
                                                FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -545,31 +545,31 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                        <Label Content="المنطقة المسؤول عنها"   Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource TheAreaHeIsResponsibleFor}"   Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="area_box" Margin="0,0,0,10"/>
-                                        <Label Content="الفرع"   Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource Branch}"   Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="branch_box" Margin="0,0,0,10"/>
-                                        <Label Content="الإدارة" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource Management}" Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="depart_box" Margin="0,0,0,10"/>
-                                        <Label Content="الوظيفة" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource Job}" Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="job_box" SelectionChanged="job_box_SelectionChanged"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,10,0">
-                                        <Label Content="القطاع"         Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource Sector}"         Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="degree_box"   Margin="0,0,0,10"/>
-                                        <Label Content="نظام العمل"     Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource WorkSystem}"     Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="job_type_box" Margin="0,0,0,10"/>
-                                        <Label Content="الإجازة الأسبوعية" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource WeeklyVacation}" Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="week_holi_box"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" Margin="10,0,0,0">
-                                        <Label Content="المدير"             Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource TheBoss}"             Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="manager_box" DisplayMemberPath="FullName" SelectedValuePath="Id" Margin="0,0,0,10"/>
-                                        <Label Content="تاريخ بدء العمل"   Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource WorkStartDate}"   Style="{StaticResource FieldLabel}"/>
                                         <DatePicker x:Name="emplo_date_picker" Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
-                                        <Label Content="تاريخ انتهاء العمل" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource WorkEndDate}" Style="{StaticResource FieldLabel}"/>
                                         <DatePicker x:Name="end_date_picker" Style="{StaticResource ModernDatePicker}"/>
                                     </StackPanel>
                                 </Grid>
@@ -583,7 +583,7 @@
                                     <Icon:PackIconMaterial Kind="ClockOutline" Width="16" Height="16"
                                                            Foreground="{DynamicResource AccentColor}"
                                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="معلومات الدوام"
+                                    <TextBlock Text="{DynamicResource WorkingHoursInformation}"
                                                Foreground="{DynamicResource AccentColor}"
                                                FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -597,38 +597,38 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                        <Label Content="الوردية" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource Rosary}" Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="shift_box" SelectionChanged="shift_changed"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,10,0">
-                                        <Label Content="ساعات العمل" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource WorkingHours}" Style="{StaticResource FieldLabel}"/>
                                         <TextBox x:Name="work_hours_box" Style="{StaticResource ModernTextBox}" IsReadOnly="True"/>
                                     </StackPanel>
 
                                     <!-- Hidden break / holiday balance -->
                                     <StackPanel Visibility="Collapsed" Grid.Column="1" Margin="10,0,10,0">
-                                        <Label Content="الراحة" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource Comfort}" Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="break_box" Margin="0,0,0,10"/>
                                         <TextBox Visibility="Collapsed" x:Name="holiday_balance_box" Tag="رصيد الإجازات" Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                     </StackPanel>
 
                                     <!-- Status checkboxes -->
                                     <StackPanel Grid.Column="2" Margin="10,0,0,0">
-                                        <Label Content="الحالة الوظيفية" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource EmploymentStatus}" Style="{StaticResource FieldLabel}"/>
                                         <Grid Margin="0,6,0,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
-                                                <CheckBox x:Name="user_check"     Content="مستخدم"         Style="{StaticResource CardCheckBox}"/>
-                                                <CheckBox x:Name="inDuty_check"   Content="في الخدمة"      Style="{StaticResource CardCheckBox}"/>
-                                                <CheckBox x:Name="employee_check" Content="تحت التوظيف"    Style="{StaticResource CardCheckBox}"/>
+                                                <CheckBox x:Name="user_check"     Content="{DynamicResource User4}"         Style="{StaticResource CardCheckBox}"/>
+                                                <CheckBox x:Name="inDuty_check"   Content="{DynamicResource OnDuty}"      Style="{StaticResource CardCheckBox}"/>
+                                                <CheckBox x:Name="employee_check" Content="{DynamicResource UnderEmployment}"    Style="{StaticResource CardCheckBox}"/>
                                             </StackPanel>
                                             <StackPanel Grid.Column="1">
-                                                <CheckBox x:Name="userMobile_check" Content="مستخدم اندرويد"  Style="{StaticResource CardCheckBox}" IsChecked="False"/>
-                                                <CheckBox x:Name="training_check"   Content="تحت التدريب"     Style="{StaticResource CardCheckBox}"/>
+                                                <CheckBox x:Name="userMobile_check" Content="{DynamicResource AndroidUser}"  Style="{StaticResource CardCheckBox}" IsChecked="False"/>
+                                                <CheckBox x:Name="training_check"   Content="{DynamicResource UnderTraining}"     Style="{StaticResource CardCheckBox}"/>
                                             </StackPanel>
                                         </Grid>
                                     </StackPanel>
@@ -644,7 +644,7 @@
                                     <Icon:PackIconMaterial Kind="Car" Width="16" Height="16"
                                                            Foreground="{DynamicResource AccentColor}"
                                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="معلومات القيادة"
+                                    <TextBlock Text="{DynamicResource DrivingInformation}"
                                                Foreground="{DynamicResource AccentColor}"
                                                FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -652,12 +652,12 @@
 
                                 <StackPanel Orientation="Horizontal">
                                     <StackPanel Margin="0,0,24,0">
-                                        <Label Content="انتهاء رخصة القيادة" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource ExpiryOfDrivingLicense}" Style="{StaticResource FieldLabel}"/>
                                         <DatePicker Width="200" x:Name="driver_license_expiration"
                                                     Style="{StaticResource ModernDatePicker}"/>
                                     </StackPanel>
                                     <StackPanel>
-                                        <Label Content="انتهاء رخصة المركبة" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource ExpiryOfVehicleLicense}" Style="{StaticResource FieldLabel}"/>
                                         <DatePicker Width="200" x:Name="vehicle_license_expiration"
                                                     Style="{StaticResource ModernDatePicker}"/>
                                     </StackPanel>
@@ -672,7 +672,7 @@
                                     <Icon:PackIconMaterial Kind="CardAccountDetails" Width="16" Height="16"
                                                            Foreground="{DynamicResource AccentColor}"
                                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="معلومات إضافية"
+                                    <TextBlock Text="{DynamicResource AdditionalInformation}"
                                                Foreground="{DynamicResource AccentColor}"
                                                FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -685,7 +685,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                        <Label Content="مؤمن عليه" Style="{DynamicResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource Insured}" Style="{DynamicResource FieldLabel}"/>
                                         <ComboBox x:Name="insuredComboBox"       Tag="مؤمن عليه"               DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,20,0,0"/>
                                         <TextBox  x:Name="ssn_box"               Tag="الرقم التأميني"          Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <TextBox  x:Name="health_insurance_box"  Tag="رقم التأمين الصحي"       Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
@@ -693,9 +693,9 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <Label Content="انتهاء البطاقة"          Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource CardExpires}"          Style="{StaticResource FieldLabel}"/>
                                         <DatePicker x:Name="national_id_expiration"    Style="{StaticResource ModernDatePicker}" Margin="0,0,0,10"/>
-                                        <Label Content="انتهاء الشهادة العسكرية" Style="{StaticResource FieldLabel}"/>
+                                        <Label Content="{DynamicResource ExpiryOfMilitaryCertificate}" Style="{StaticResource FieldLabel}"/>
                                         <DatePicker x:Name="army_certificate_expiration" Style="{StaticResource ModernDatePicker}"/>
                                     </StackPanel>
                                 </Grid>
@@ -727,7 +727,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="ContentSave" Width="15" Height="15"
                                                    Foreground="#66BB6A" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="حفظ" VerticalAlignment="Center" Foreground="#66BB6A"/>
+                            <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center" Foreground="#66BB6A"/>
                         </StackPanel>
                     </Button>
 
@@ -738,7 +738,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Pencil" Width="15" Height="15"
                                                    Foreground="#FFA726" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="تعديل" VerticalAlignment="Center"  Foreground="#FFA726"/>
+                            <TextBlock Text="{DynamicResource Amendment}" VerticalAlignment="Center"  Foreground="#FFA726"/>
                         </StackPanel>
                     </Button>
 
@@ -748,18 +748,18 @@
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Delete" Width="15" Height="15"
                                                    Foreground="#EF5350" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="حذف" VerticalAlignment="Center" Foreground="#EF5350"/>
+                            <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center" Foreground="#EF5350"/>
                         </StackPanel>
                     </Button>
 
                     <!-- Search -->
                     <Button IsDefault="True" Style="{StaticResource ActionButton}" Click="search_btn_Click"
-                            Background="#003343" BorderBrush="#004455" Foreground="{DynamicResource ThirdColor}">
+                            Background="#003343" BorderBrush="#004455" Foreground="{DynamicResource ThirdColorBrushBrush}">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Magnify" Width="15" Height="15"
                                                    Foreground="{DynamicResource AccentColor}"
                                                    VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="بحث" VerticalAlignment="Center" Foreground="{DynamicResource AccentColor}"/>
+                            <TextBlock Text="{DynamicResource Research}" VerticalAlignment="Center" Foreground="{DynamicResource AccentColor}"/>
                         </StackPanel>
                     </Button>
 
@@ -771,7 +771,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Refresh" Width="15" Height="15"
                                                    VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="جديد" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource New}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -787,7 +787,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="SkipNext" Width="15" Height="15"
                                                        Foreground="#AED581" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="التالي" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource TheNext}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -796,14 +796,14 @@
                                 BorderThickness="1" BorderBrush="{DynamicResource BorderColor}">
                             <TextBlock Name="currentIndexTxt" Text="0 / 0"
                                        FontSize="14" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource ThirdColor}"
+                                       Foreground="{DynamicResource ThirdColorBrushBrush}"
                                        VerticalAlignment="Center"/>
                         </Border>
 
                         <Button Style="{StaticResource ActionButton}" Click="prev_btn_Click"
                                 Background="#1A3A00" BorderBrush="#234D00" Foreground="#C5E1A5">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="السابق" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource ThePrevious}" VerticalAlignment="Center"/>
                                 <Icon:PackIconMaterial Kind="SkipPrevious" Width="15" Height="15"
                                                        Foreground="#AED581" VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </StackPanel>

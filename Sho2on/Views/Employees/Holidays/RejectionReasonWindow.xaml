@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="سبب الرفض" 
+        Title="{DynamicResource ReasonForRejection}" 
         FlowDirection="RightToLeft"
         Height="300" Width="400"
         Background="{DynamicResource WindowRootBackground}"
@@ -18,7 +18,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="الرجاء إدخال سبب رفض طلب الإجازة:" 
+        <TextBlock Text="{DynamicResource PleaseEnterTheReasonForRejectingYourLeaveRequest}" 
                    Foreground="{DynamicResource TextPrimaryColor}"
                    FontWeight="Bold" Margin="0,0,0,10"/>
 
@@ -33,8 +33,8 @@
                  MaxHeight="200"/>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-            <Button x:Name="btnOK" Content="موافق" Width="80" Height="30" Margin="5" Click="btnOK_Click"/>
-            <Button x:Name="btnCancel" Content="إلغاء" Width="80" Height="30" Margin="5" Click="btnCancel_Click"/>
+            <Button x:Name="btnOK" Content="{DynamicResource Ok}" Width="80" Height="30" Margin="5" Click="btnOK_Click"/>
+            <Button x:Name="btnCancel" Content="{DynamicResource Cancellation}" Width="80" Height="30" Margin="5" Click="btnCancel_Click"/>
         </StackPanel>
     </Grid>
 </Window>

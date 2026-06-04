@@ -40,7 +40,7 @@ namespace HR_Application.Dashboard
 
         private void InitializeDashboard()
         {
-            WelcomeText.Text = $"ãÑÍÈÇğ Èß¡ {App.CurrentUser?.FullName ?? "ÇáãÏíÑ"}";
+            WelcomeText.Text = $"Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨ÙƒØŒ {App.CurrentUser?.FullName ?? "Ø§Ù„Ù…Ø¯ÙŠØ±"}";
         }
 
         private async Task LoadDashboardDataAsync()
@@ -52,14 +52,14 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task LoadTeamStatistics()
         {
-            // İÑíŞ ÇáÚãá ÊÍÊ ÅÏÇÑÊí
+            // ÙØ±ÙŠÙ‚ Ø§Ù„Ø¹Ù…Ù„ ØªØ­Øª Ø¥Ø¯Ø§Ø±ØªÙŠ
             var teamCount = await _context.Users
                 .Where(u => u.BranchId == App.CurrentUser.BranchId &&
                            u.DepartmentId == App.CurrentUser.DepartmentId &&
@@ -67,7 +67,7 @@ namespace HR_Application.Dashboard
                 .CountAsync();
             TeamCount.Text = teamCount.ToString();
 
-            // ÍÓÇÈ ÇáÅäÊÇÌíÉ
+            // Ø­Ø³Ø§Ø¨ Ø§Ù„Ø¥Ù†ØªØ§Ø¬ÙŠØ©
             var today = DateTime.Today;
             var teamAttendance = await _context.Attendances
                 .Where(a => a.AttendanceDate.Date == today &&
@@ -79,15 +79,15 @@ namespace HR_Application.Dashboard
             var attendanceRate = teamCount > 0 ? (teamAttendance * 100.0 / teamCount) : 0;
             Productivity.Text = $"{attendanceRate:F0}%";
 
-            // ÇáãåÇã ÇáãÓÊÍŞÉ
+            // Ø§Ù„Ù…Ù‡Ø§Ù… Ø§Ù„Ù…Ø³ØªØ­Ù‚Ø©
             var pendingTasks = await GetPendingTasksCount();
             PendingTasks.Text = pendingTasks.ToString();
         }
 
         private async Task<int> GetPendingTasksCount()
         {
-            // íãßä ÅÖÇİÉ ãäØŞ ÎÇÕ ÈÇáãåÇã åäÇ
-            // åĞÇ ãËÇá ÈÓíØ íÚÊãÏ Úáì ÊŞÇÑíÑ ÇáÍÖæÑ ÇáãÊÃÎÑÉ
+            // ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØ© Ù…Ù†Ø·Ù‚ Ø®Ø§Øµ Ø¨Ø§Ù„Ù…Ù‡Ø§Ù… Ù‡Ù†Ø§
+            // Ù‡Ø°Ø§ Ù…Ø«Ø§Ù„ Ø¨Ø³ÙŠØ· ÙŠØ¹ØªÙ…Ø¯ Ø¹Ù„Ù‰ ØªÙ‚Ø§Ø±ÙŠØ± Ø§Ù„Ø­Ø¶ÙˆØ± Ø§Ù„Ù…ØªØ£Ø®Ø±Ø©
             var today = DateTime.Today;
             var lateEmployees = await _context.Attendances
                 .Where(a => a.AttendanceDate.Date == today &&
@@ -121,10 +121,10 @@ namespace HR_Application.Dashboard
                 var memberData = new TeamMember
                 {
                     Name = member.FullName,
-                    Job = member.JobTitle?.Name ?? "ÛíÑ ãÍÏÏ",
+                    Job = member.JobTitle?.Name ?? LocalizationManager.Translate("ØºÙŠØ± Ù…Ø­Ø¯Ø¯"),
                     TodayAttendance = todayAttendance != null ?
-                        (todayAttendance.CheckInTime.HasValue ? "ÍÇÖÑ" : "ÛÇÆÈ") : "áã íÓÌá",
-                    TaskStatus = "ãÓÊæì ÇáÃÏÇÁ: ÌíÏ" // íãßä ÌáÈ åĞÇ ãä ÊŞííãÇÊ ÇáãæÙİíä
+                        (todayAttendance.CheckInTime.HasValue ? LocalizationManager.Translate("Ø­Ø§Ø¶Ø±") : LocalizationManager.Translate("ØºØ§Ø¦Ø¨")) : LocalizationManager.Translate("Ù„Ù… ÙŠØ³Ø¬Ù„"),
+                    TaskStatus = LocalizationManager.Translate("Ù…Ø³ØªÙˆÙ‰ Ø§Ù„Ø£Ø¯Ø§Ø¡: Ø¬ÙŠØ¯") // ÙŠÙ…ÙƒÙ† Ø¬Ù„Ø¨ Ù‡Ø°Ø§ Ù…Ù† ØªÙ‚ÙŠÙŠÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
                 };
 
                 teamData.Add(memberData);
@@ -142,14 +142,14 @@ namespace HR_Application.Dashboard
 
         private void OpenProductivityReport(object sender, RoutedEventArgs e)
         {
-            // íãßä ÅäÔÇÁ äÇİĞÉ ÊŞÑíÑ ÅäÊÇÌíÉ ÎÇÕÉ
-            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ ÊŞÑíÑ ÇáÅäÊÇÌíÉ İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
+            // ÙŠÙ…ÙƒÙ† Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø§ÙØ°Ø© ØªÙ‚Ø±ÙŠØ± Ø¥Ù†ØªØ§Ø¬ÙŠØ© Ø®Ø§ØµØ©
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¥Ù†ØªØ§Ø¬ÙŠØ© ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OpenTasksReport(object sender, RoutedEventArgs e)
         {
-            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ ÊŞÑíÑ ÇáãåÇã İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ù‡Ø§Ù… ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -161,8 +161,8 @@ namespace HR_Application.Dashboard
 
         private void OpenEvaluations(object sender, RoutedEventArgs e)
         {
-            // íãßä ÅäÔÇÁ äÇİĞÉ ÊŞííãÇÊ ÇáãæÙİíä
-            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ ÊŞííãÇÊ ÇáãæÙİíä İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
+            // ÙŠÙ…ÙƒÙ† Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø§ÙØ°Ø© ØªÙ‚ÙŠÙŠÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
+            LocalizationManager.ShowMessage("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± ØªÙ‚ÙŠÙŠÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", LocalizationManager.Translate("Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HR_Application.Views"
         mc:Ignorable="d"
-        Title="الموافقة على السلفات" 
+        Title="{DynamicResource LoanApproval}" 
         Height="650" Width="900"
         FlowDirection="RightToLeft"
         WindowStartupLocation="CenterScreen"
@@ -37,7 +37,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="الموافقة على طلبات السلفة" 
+                    <TextBlock Grid.Column="0" Text="{DynamicResource ApprovalOfAdvanceRequests}" 
                                Foreground="White" 
                                FontSize="18" 
                                FontWeight="Bold"
@@ -45,13 +45,13 @@
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                         <ComboBox x:Name="cmbStatus" Width="150" Height="30" Margin="5" SelectedIndex="0">
-                            <ComboBoxItem Content="جميع الحالات"/>
-                            <ComboBoxItem Content="بانتظار الموافقة"/>
-                            <ComboBoxItem Content="تمت الموافقة"/>
-                            <ComboBoxItem Content="مرفوض"/>
+                            <ComboBoxItem Content="{DynamicResource AllCases}"/>
+                            <ComboBoxItem Content="{DynamicResource WaitingForApproval}"/>
+                            <ComboBoxItem Content="{DynamicResource Approved}"/>
+                            <ComboBoxItem Content="{DynamicResource Unacceptable}"/>
                         </ComboBox>
-                        <Button x:Name="btnFilter" Content="تصفية" Width="80" Height="30" Margin="5" Click="BtnFilter_Click"/>
-                        <Button x:Name="btnRefresh" Content="تحديث" Width="80" Height="30" Margin="5" Click="BtnRefresh_Click"/>
+                        <Button x:Name="btnFilter" Content="{DynamicResource Filtering}" Width="80" Height="30" Margin="5" Click="BtnFilter_Click"/>
+                        <Button x:Name="btnRefresh" Content="{DynamicResource ToUpdate}" Width="80" Height="30" Margin="5" Click="BtnRefresh_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -60,14 +60,14 @@
             <DataGrid Grid.Row="1" x:Name="dgLoans" Margin="10"
                       SelectionChanged="DgLoans_SelectionChanged">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="الكود" Binding="{Binding User.Code}" Width="80"/>
-                    <DataGridTextColumn Header="الاسم" Binding="{Binding User.FullName}" Width="150"/>
-                    <DataGridTextColumn Header="مبلغ السلفة" Binding="{Binding LoanAmount, StringFormat=N2}" Width="100"/>
-                    <DataGridTextColumn Header="عدد الأشهر" Binding="{Binding InstallmentCount}" Width="80"/>
-                    <DataGridTextColumn Header="القسط الشهري" Binding="{Binding MonthlyInstallment, StringFormat=N2}" Width="100"/>
-                    <DataGridTextColumn Header="تاريخ الطلب" Binding="{Binding LoanDate, StringFormat=yyyy-MM-dd}" Width="100"/>
-                    <DataGridTextColumn Header="الحالة" Binding="{Binding Status}" Width="100"/>
-                    <DataGridTextColumn Header="السبب" Binding="{Binding Reason}" Width="200"/>
+                    <DataGridTextColumn Header="{DynamicResource Code}" Binding="{Binding User.Code}" Width="80"/>
+                    <DataGridTextColumn Header="{DynamicResource TheName}" Binding="{Binding User.FullName}" Width="150"/>
+                    <DataGridTextColumn Header="{DynamicResource AdvanceAmount}" Binding="{Binding LoanAmount, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource NumberOfMonths}" Binding="{Binding InstallmentCount}" Width="80"/>
+                    <DataGridTextColumn Header="{DynamicResource MonthlyInstallment}" Binding="{Binding MonthlyInstallment, StringFormat=N2}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource OrderDate}" Binding="{Binding LoanDate, StringFormat=yyyy-MM-dd}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource TheCondition}" Binding="{Binding Status}" Width="100"/>
+                    <DataGridTextColumn Header="{DynamicResource TheReason}" Binding="{Binding Reason}" Width="200"/>
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -86,11 +86,11 @@
 
                     <!-- أزرار التحكم -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="btnApprove" Content="موافقة" Width="100" Height="35" Margin="5" 
+                        <Button x:Name="btnApprove" Content="{DynamicResource Consent}" Width="100" Height="35" Margin="5" 
                                 Background="#4CAF50" Foreground="White" FontWeight="Bold" Click="BtnApprove_Click"/>
-                        <Button x:Name="btnReject" Content="رفض" Width="100" Height="35" Margin="5"
+                        <Button x:Name="btnReject" Content="{DynamicResource ToReject}" Width="100" Height="35" Margin="5"
                                 Background="#F44336" Foreground="White" FontWeight="Bold" Click="BtnReject_Click"/>
-                        <Button x:Name="btnViewDetails" Content="عرض التفاصيل" Width="120" Height="35" Margin="5"
+                        <Button x:Name="btnViewDetails" Content="{DynamicResource ViewDetails}" Width="120" Height="35" Margin="5"
                                 Background="#2196F3" Foreground="White" FontWeight="Bold" Click="BtnViewDetails_Click"/>
                     </StackPanel>
                 </Grid>

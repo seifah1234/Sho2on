@@ -322,7 +322,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -342,7 +342,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÍÓÇÈ ÊæÇÑíÎ ÇáÔåÑ ÇáãÎÕÕ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø³Ø§Ø¨ ØªÙˆØ§Ø±ÙŠØ® Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ù…Ø®ØµØµ: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return (DateTime.MinValue, DateTime.MaxValue);
             }
         }
@@ -449,7 +449,7 @@ namespace HR_Application.Views
         {
             try
             {
-                // ãÓÍ ÇáŞÇÆãÉ ÇáŞÏíãÉ ÃæáÇğ
+                // Ù…Ø³Ø­ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© Ø£ÙˆÙ„Ø§Ù‹
                 await Dispatcher.InvokeAsync(() =>
                 {
                     employeeSalaryCollection.Clear();
@@ -459,7 +459,7 @@ namespace HR_Application.Views
 
                 var filters = new Dictionary<string, string>();
 
-                // ÈäÇÁ ÇáİáÇÊÑ ßãÇ İí ßæÏß
+                // Ø¨Ù†Ø§Ø¡ Ø§Ù„ÙÙ„Ø§ØªØ± ÙƒÙ…Ø§ ÙÙŠ ÙƒÙˆØ¯Ùƒ
                 string name = name_box.Text?.Trim();
                 string code = code_box.Text?.Trim();
                 string job = (jobComboBox.SelectedItem != null) ?
@@ -480,18 +480,18 @@ namespace HR_Application.Views
                 if (!string.IsNullOrEmpty(depart))
                     filters.Add("depart", depart);
 
-                // ÇáÍÕæá Úáì ÊæÇÑíÎ ÇáÔåÑ
+                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ ØªÙˆØ§Ø±ÙŠØ® Ø§Ù„Ø´Ù‡Ø±
                 int monthNumber = DateTime.ParseExact(monthComboBox.Text, "MMMM", CultureInfo.CurrentCulture).Month;
                 int year = Convert.ToInt16(yearComboBox.Text);
                 (DateTime startMonth, DateTime endMonth) = GetCustomMonthDates(monthNumber, year);
 
-                // ÌáÈ ÇáÈíÇäÇÊ
+                // Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
                 var salaryData = await BuildQueryAsync(filters, startMonth, endMonth);
 
-                // ãÚÇáÌÉ ßá ãæÙİ ÈÔßá ãäİÕá
+                // Ù…Ø¹Ø§Ù„Ø¬Ø© ÙƒÙ„ Ù…ÙˆØ¸Ù Ø¨Ø´ÙƒÙ„ Ù…Ù†ÙØµÙ„
                 foreach (var data in salaryData)
                 {
-                    // ÅÚÇÏÉ ÊÚííä ÇáãÊÛíÑÇÊ áßá ãæÙİ
+                    // Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ù…ØªØºÙŠØ±Ø§Øª Ù„ÙƒÙ„ Ù…ÙˆØ¸Ù
                     ResetVariables();
                     weekHoli.Clear();
                     weekHoli.Add(data.Day1 ? 1 : 0);
@@ -581,8 +581,8 @@ namespace HR_Application.Views
             {
                 await Dispatcher.InvokeAsync(() =>
                 {
-                    LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}",
-                        "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}",
+                        LocalizationManager.Translate("Ø®Ø·Ø£"), MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
         }
@@ -609,24 +609,24 @@ namespace HR_Application.Views
         {
             try
             {
-                // ÅÙåÇÑ ãÄÔÑ ÊÍãíá
+                // Ø¥Ø¸Ù‡Ø§Ø± Ù…Ø¤Ø´Ø± ØªØ­Ù…ÙŠÙ„
                 data_load_btn.IsEnabled = false;
-                data_load_btn.Content = "ÌÇÑí ÇáÊÍãíá...";
+                data_load_btn.Content = LocalizationManager.Translate("Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„...");
 
-                // ÊäİíĞ ÇáÚãáíÉ ÈÔßá ãÊÒÇãä
+                // ØªÙ†ÙÙŠØ° Ø§Ù„Ø¹Ù…Ù„ÙŠØ© Ø¨Ø´ÙƒÙ„ Ù…ØªØ²Ø§Ù…Ù†
                 await GetDataSalary();
 
 
             }
             catch (Exception ex)
             {
-                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
+                LocalizationManager.ShowMessage($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", LocalizationManager.Translate("Ø®Ø·Ø£"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 data_load_btn.IsEnabled = true;
-                data_load_btn.Content = "ÊÍãíá ÇáÈíÇäÇÊ";
+                data_load_btn.Content = LocalizationManager.Translate("ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª");
             }
         }
 
@@ -650,10 +650,10 @@ namespace HR_Application.Views
 
                         var headers = new[]
                         {
-                            "ÇáßæÏ", "ÇáÇÓã", "ÇáİÑÚ", "ÇáæÙíİÉ", "ÇáÑÇÊÈ", "ÈÏá Óßä", "ÈÏá ÇäÊŞÇá",
-                            "ÈÏá ÇÏÇÑÉ", "ÈÏá ØÈíÚÉ Úãá", "ÇÖÇİí", "ãßÇİÂÊ", "ÚãæáÇÊ ÊÍŞíŞ", "ÚãæáÇÊ ÎÇÑÌíÉ", "ÇÌãÇáí ÇáÇÓÊÍŞÇŞÇÊ",
-                            "ÇáÛíÇÈ", "ÇáÊÃÎíÑ", "Óáİ", "ÌÒÇÁ", "ÖÑíÈÉ", "ÊÃãíä", "ÕäÏæŞ ÇáÒãÇáÉ",
-                            "ãÔÇÑßÉ ÇÌÊãÇÚí", "ÇÌãÇáí ÇáÇÓÊŞØÇÚÇÊ", "ÇáÇÌãÇáí"
+                            LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯"), LocalizationManager.Translate("Ø§Ù„Ø§Ø³Ù…"), LocalizationManager.Translate("Ø§Ù„ÙØ±Ø¹"), LocalizationManager.Translate("Ø§Ù„ÙˆØ¸ÙŠÙØ©"), LocalizationManager.Translate("Ø§Ù„Ø±Ø§ØªØ¨"), LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø³ÙƒÙ†"), LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø§Ù†ØªÙ‚Ø§Ù„"),
+                            LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø§Ø¯Ø§Ø±Ø©"), LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø·Ø¨ÙŠØ¹Ø© Ø¹Ù…Ù„"), LocalizationManager.Translate("Ø§Ø¶Ø§ÙÙŠ"), LocalizationManager.Translate("Ù…ÙƒØ§ÙØ¢Øª"), LocalizationManager.Translate("Ø¹Ù…ÙˆÙ„Ø§Øª ØªØ­Ù‚ÙŠÙ‚"), LocalizationManager.Translate("Ø¹Ù…ÙˆÙ„Ø§Øª Ø®Ø§Ø±Ø¬ÙŠØ©"), LocalizationManager.Translate("Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø§Ø³ØªØ­Ù‚Ø§Ù‚Ø§Øª"),
+                            LocalizationManager.Translate("Ø§Ù„ØºÙŠØ§Ø¨"), LocalizationManager.Translate("Ø§Ù„ØªØ£Ø®ÙŠØ±"), LocalizationManager.Translate("Ø³Ù„Ù"), LocalizationManager.Translate("Ø¬Ø²Ø§Ø¡"), LocalizationManager.Translate("Ø¶Ø±ÙŠØ¨Ø©"), LocalizationManager.Translate("ØªØ£Ù…ÙŠÙ†"), LocalizationManager.Translate("ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©"),
+                            LocalizationManager.Translate("Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠ"), LocalizationManager.Translate("Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª"), LocalizationManager.Translate("Ø§Ù„Ø§Ø¬Ù…Ø§Ù„ÙŠ")
                         };
 
                         for (int i = 0; i < headers.Length; i++)
@@ -701,12 +701,12 @@ namespace HR_Application.Views
                         }
 
                         workbook.SaveAs(filePath);
-                        LocalizationManager.ShowMessage("Êã ÇÓÊÎÑÇÌ ÇáÇßÓíá!");
+                        LocalizationManager.ShowMessage("ØªÙ… Ø§Ø³ØªØ®Ø±Ø§Ø¬ Ø§Ù„Ø§ÙƒØ³ÙŠÙ„!");
                     }
                 }
                 catch (Exception e)
                 {
-                    LocalizationManager.ShowMessage(e.Message, "ÎØÃ");
+                    LocalizationManager.ShowMessage(e.Message, LocalizationManager.Translate("Ø®Ø·Ø£"));
                 }
             }
         }
@@ -732,7 +732,7 @@ namespace HR_Application.Views
             var headerRowGroup1 = new TableRowGroup();
             System.Windows.Documents.TableRow headerRow1 = new System.Windows.Documents.TableRow();
 
-            var cell6 = CreateCell($"ÕÇİí ãÑÊÈÇÊ ÔåÑ : {month} - {year}", false, true);
+            var cell6 = CreateCell($"ØµØ§ÙÙŠ Ù…Ø±ØªØ¨Ø§Øª Ø´Ù‡Ø± : {month} - {year}", false, true);
             cell6.FontSize = 14;
             cell6.FontWeight = FontWeights.Bold;
             cell6.BorderThickness = new Thickness(0);
@@ -758,7 +758,7 @@ namespace HR_Application.Views
             headerTable.RowGroups.Add(headerRowGroup1);
             document.Blocks.Add(headerTable);
 
-            var titleParagraph = new System.Windows.Documents.Paragraph(new System.Windows.Documents.Run($"ÊŞÑíÑ ãÑÊÈÇÊ ÊİÕíáí"))
+            var titleParagraph = new System.Windows.Documents.Paragraph(new System.Windows.Documents.Run($"ØªÙ‚Ø±ÙŠØ± Ù…Ø±ØªØ¨Ø§Øª ØªÙØµÙŠÙ„ÙŠ"))
             {
                 FontWeight = FontWeights.Bold,
                 FontSize = 15,
@@ -792,13 +792,13 @@ namespace HR_Application.Views
             headerRow.FontSize = 13;
             headerRow.FontWeight = FontWeights.Bold;
 
-            headerRow.Cells.Add(CreateCell("ÇáÇÓã", true, false));
-            headerRow.Cells.Add(CreateCell("ÇáİÑÚ", true, false));
-            headerRow.Cells.Add(CreateCell("ÇáæÙíİÉ", true, false));
-            headerRow.Cells.Add(CreateCell("ÇáÑÇÊÈ", true, false));
-            headerRow.Cells.Add(CreateCell("ÇÌãÇáí ÇáÇÓÊÍŞÇŞÇÊ", true, false));
-            headerRow.Cells.Add(CreateCell("ÇÌãÇáí ÇáÇÓÊŞØÇÚÇÊ", true, false));
-            headerRow.Cells.Add(CreateCell("ÕÇİí ÇáÑÇÊÈ", true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø³Ù…"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ÙØ±Ø¹"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ÙˆØ¸ÙŠÙØ©"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø±Ø§ØªØ¨"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø§Ø³ØªØ­Ù‚Ø§Ù‚Ø§Øª"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª"), true, false));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("ØµØ§ÙÙŠ Ø§Ù„Ø±Ø§ØªØ¨"), true, false));
 
             headerRowGroup.Rows.Add(headerRow);
             table.RowGroups.Add(headerRowGroup);
@@ -873,19 +873,19 @@ namespace HR_Application.Views
             // Employee Name and Code
             table.RowGroups.Add(new TableRowGroup());
             var headerRow = new TableRow();
-            headerRow.Cells.Add(CreateCell("ÇáÇÓã:", true, 1));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø³Ù…:"), true, 1));
             headerRow.Cells.Add(CreateCell(employee.Name, false, 3));
             table.RowGroups[0].Rows.Add(headerRow);
 
             headerRow = new TableRow();
-            headerRow.Cells.Add(CreateCell("ÇáßæÏ:", true, 1));
+            headerRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„ÙƒÙˆØ¯:"), true, 1));
             headerRow.Cells.Add(CreateCell(employee.Code, false, 3));
             table.RowGroups[0].Rows.Add(headerRow);
 
             // Section Headers
             var sectionHeaderRow = new TableRow();
-            sectionHeaderRow.Cells.Add(CreateCell("ÇáÇÓÊÍŞÇŞÇÊ", true, 2));
-            sectionHeaderRow.Cells.Add(CreateCell("ÇáÇÓÊŞØÇÚÇÊ", true, 2));
+            sectionHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø³ØªØ­Ù‚Ø§Ù‚Ø§Øª"), true, 2));
+            sectionHeaderRow.Cells.Add(CreateCell(LocalizationManager.Translate("Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª"), true, 2));
             table.RowGroups[0].Rows.Add(sectionHeaderRow);
 
             int hours = employee.LateH;
@@ -921,24 +921,24 @@ namespace HR_Application.Views
             string AllOT = ForamttedTime(hours, min);
 
             // Salary Details
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÇáãÑÊÈ:", employee.Salary, "Ö ßÓÈ Úãá:", employee.Tax));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÈÏá Óßä:", employee.Houseing, "ÊÃãíäÇÊ ÇáãæÙİ:", employee.Insurance));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÈÏá ÇÏÇÑÉ:", employee.Depart, "ãÔÇÑßÉ ÇÌÊãÇÚíÉ:", employee.Social));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÈÏá ØÈíÚÉ Úãá:", employee.Nature, "Õ ÇáÒãÇáÉ:", employee.Box));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÈÏá ÇäÊŞÇá:", employee.Transmission, "ÌÒÇÁ:", employee.Penalty));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÇÖÇİí:", AllOT, "Óáİ:", employee.Ancestor));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ŞíãÉ ÇÖÇİí:", employee.Added, "ÚÌÒ:", employee.Deficit));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ãßÇİÂÊ:", employee.Reward, "ÇáÛíÇÈ:", Abcense.ToString()));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÚãæáÇÊ ÊÍŞíŞ", employee.TargetCommission, "ŞíãÉ ÇáÛíÇÈ:", employee.Abcence));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ÚãæáÇÊ ÎÇÑÌíÉ", employee.ExternalCommission, "ÇáÊÃÎíÑ:", AllLate));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "ŞíãÉ ÇáÊÃÎíÑ:", employee.Late));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "ÊÃãíä ÇáÔÑßÉ:", employee.CompanyInsurance));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "ÇĞæäÇÊ:", employee.Permission));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "İÇÊæÑÉ ÊáíŞæä:", employee.Phone));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø§Ù„Ù…Ø±ØªØ¨:"), employee.Salary, LocalizationManager.Translate("Ø¶ ÙƒØ³Ø¨ Ø¹Ù…Ù„:"), employee.Tax));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø³ÙƒÙ†:"), employee.Houseing, LocalizationManager.Translate("ØªØ£Ù…ÙŠÙ†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù:"), employee.Insurance));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø§Ø¯Ø§Ø±Ø©:"), employee.Depart, LocalizationManager.Translate("Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©:"), employee.Social));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø·Ø¨ÙŠØ¹Ø© Ø¹Ù…Ù„:"), employee.Nature, LocalizationManager.Translate("Øµ Ø§Ù„Ø²Ù…Ø§Ù„Ø©:"), employee.Box));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø¨Ø¯Ù„ Ø§Ù†ØªÙ‚Ø§Ù„:"), employee.Transmission, LocalizationManager.Translate("Ø¬Ø²Ø§Ø¡:"), employee.Penalty));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø§Ø¶Ø§ÙÙŠ:"), AllOT, LocalizationManager.Translate("Ø³Ù„Ù:"), employee.Ancestor));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ù‚ÙŠÙ…Ø© Ø§Ø¶Ø§ÙÙŠ:"), employee.Added, LocalizationManager.Translate("Ø¹Ø¬Ø²:"), employee.Deficit));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ù…ÙƒØ§ÙØ¢Øª:"), employee.Reward, LocalizationManager.Translate("Ø§Ù„ØºÙŠØ§Ø¨:"), Abcense.ToString()));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø¹Ù…ÙˆÙ„Ø§Øª ØªØ­Ù‚ÙŠÙ‚"), employee.TargetCommission, LocalizationManager.Translate("Ù‚ÙŠÙ…Ø© Ø§Ù„ØºÙŠØ§Ø¨:"), employee.Abcence));
+            table.RowGroups[0].Rows.Add(CreateDataRow(LocalizationManager.Translate("Ø¹Ù…ÙˆÙ„Ø§Øª Ø®Ø§Ø±Ø¬ÙŠØ©"), employee.ExternalCommission, LocalizationManager.Translate("Ø§Ù„ØªØ£Ø®ÙŠØ±:"), AllLate));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", LocalizationManager.Translate("Ù‚ÙŠÙ…Ø© Ø§Ù„ØªØ£Ø®ÙŠØ±:"), employee.Late));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", LocalizationManager.Translate("ØªØ£Ù…ÙŠÙ† Ø§Ù„Ø´Ø±ÙƒØ©:"), employee.CompanyInsurance));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", LocalizationManager.Translate("Ø§Ø°ÙˆÙ†Ø§Øª:"), employee.Permission));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", LocalizationManager.Translate("ÙØ§ØªÙˆØ±Ø© ØªÙ„ÙŠÙ‚ÙˆÙ†:"), employee.Phone));
 
             // Final Salary Row
             var totalRow = new TableRow();
-            totalRow.Cells.Add(CreateCell("ÕÇİí ÇáÑÇÊÈ:", true, 2));
+            totalRow.Cells.Add(CreateCell(LocalizationManager.Translate("ØµØ§ÙÙŠ Ø§Ù„Ø±Ø§ØªØ¨:"), true, 2));
             totalRow.Cells.Add(CreateCell(employee.Total, false, 2));
             table.RowGroups[0].Rows.Add(totalRow);
 

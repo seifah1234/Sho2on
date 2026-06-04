@@ -73,7 +73,7 @@
             <Setter Property="Height" Value="50"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ThirdColorBrushBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -140,7 +140,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="تعديل البيانات" 
+            <TextBlock Text="{DynamicResource ModifyData}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -160,11 +160,11 @@
                                 <StackPanel VerticalAlignment="Center">
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
                                         <DatePicker Width="150" Language="en-GB" Name="from_picker" FlowDirection="RightToLeft"/>
-                                        <Label Content="من :" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                                        <Label Content="{DynamicResource From2}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}" Margin="10 0 0 0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
                                         <DatePicker Width="150" Language="en-GB" Name="to_picker" FlowDirection="RightToLeft"/>
-                                        <Label Content="الى :" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColor}" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                                        <Label Content="{DynamicResource To3}" FlowDirection="RightToLeft" Foreground="{DynamicResource ThirdColorBrushBrush}" Margin="10 0 0 0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </StackPanel>
 
@@ -175,22 +175,22 @@
                                             <!--<TextBox Width="250" Name="name_box" Tag="اسم الموظف" FlowDirection="RightToLeft" Margin="5"/>-->
                                             <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
                                                 <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
-                                                <Label Foreground="{DynamicResource ThirdColor}" FontSize="14" FontWeight="Bold" Content="اسم الموظف" VerticalAlignment="Center" Margin="10 0 0 0"/>
+                                                <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                             </StackPanel>
                                             <TextBox Name="code_box" Tag="كود الموظف" FlowDirection="RightToLeft" Margin="5"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel FlowDirection="RightToLeft" VerticalAlignment="Center" Orientation="Horizontal" Margin="0 0 10 0">
                                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Label VerticalAlignment="Center" Content="الفرع" Foreground="{DynamicResource ThirdColor}" HorizontalAlignment="Center"/>
+                                            <Label VerticalAlignment="Center" Content="{DynamicResource Branch}" Foreground="{DynamicResource ThirdColorBrushBrush}" HorizontalAlignment="Center"/>
                                             <ComboBox FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                                         </StackPanel>
                                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Label VerticalAlignment="Center" Content="السنة" Foreground="{DynamicResource ThirdColor}" HorizontalAlignment="Center"/>
+                                            <Label VerticalAlignment="Center" Content="{DynamicResource Sunnah}" Foreground="{DynamicResource ThirdColorBrushBrush}" HorizontalAlignment="Center"/>
                                             <ComboBox FlowDirection="LeftToRight" Name="year_box" Margin="5 0 0 0"/>
                                         </StackPanel>
                                         <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Label VerticalAlignment="Center" Content="الشهر" Foreground="{DynamicResource ThirdColor}" HorizontalAlignment="Center"/>
+                                            <Label VerticalAlignment="Center" Content="{DynamicResource Month}" Foreground="{DynamicResource ThirdColorBrushBrush}" HorizontalAlignment="Center"/>
                                             <ComboBox FlowDirection="LeftToRight" Name="month_box" Margin="5 0 0 0"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -203,13 +203,13 @@
                             <Button Style="{DynamicResource ActionButtonStyle}" IsDefault="True" x:Name="data_load_btn" Click="data_load_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Eye" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="عرض البيانات" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource DisplayData}" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{DynamicResource ActionButtonStyle}" x:Name="save_btn" Click="save_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حفظ" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
+                                    <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -219,13 +219,13 @@
                             <Button Style="{DynamicResource ActionButtonStyle}" x:Name="add_btn" Click="add_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="إضافة" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Addition}" Foreground="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{DynamicResource ActionButtonStyle}" x:Name="get_btn" Click="get_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Download" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="سحب" VerticalAlignment="Center"/>
+                                    <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="{DynamicResource ToWithdraw}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -234,14 +234,14 @@
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10 0">
                             <Button Style="{DynamicResource ActionButtonStyle}" Background="#D32F2F" x:Name="delete_btn" Click="exit_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Foreground="{DynamicResource ThirdColor}" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Foreground="{DynamicResource ThirdColorBrushBrush}" Margin="0 0 5 0"/>
+                                    <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{DynamicResource ActionButtonStyle}" Background="#D32F2F" x:Name="deleteDuplicate_btn" Click="deleteDuplicate_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="DeleteSweep" Foreground="{DynamicResource ThirdColor}" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="حذف المكرر" VerticalAlignment="Center"/>
+                                    <Icon:PackIconMaterial Kind="DeleteSweep" Foreground="{DynamicResource ThirdColorBrushBrush}" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="{DynamicResource DeleteDuplicate}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -257,7 +257,7 @@
                             <Button Style="{DynamicResource SecondaryButtonStyle}" x:Name="night_btn" Click="night_btn_Click" Margin="5">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="WeatherNight" Foreground="{DynamicResource SecondaryColor}" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="وردية مسائية" Foreground="{DynamicResource SecondaryColor}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource EveningShift}" Foreground="{DynamicResource SecondaryColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -273,17 +273,17 @@
                             <design:TimePicker Name="time_picker" VerticalAlignment="Center" Margin="5" Background="Black" Foreground="Black" BorderBrush="Black" BorderThickness="1" Padding="2" FontSize="12"/>
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="5">
                                 <DatePicker Style="{DynamicResource DatePickerStyle}" VerticalAlignment="Center" Language="en-GB" Name="add_date_picker" FlowDirection="RightToLeft"/>
-                                <Label Content="التاريخ :" FlowDirection="RightToLeft" Foreground="#424242" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                                <Label Content="{DynamicResource TheDate2}" FlowDirection="RightToLeft" Foreground="#424242" Margin="10 0 0 0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <RadioButton Style="{DynamicResource RadioButtonStyle}" Content="انصراف" Name="dep_radio"/>
-                            <RadioButton Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Content="حضور" Name="att_radio"/>
+                            <RadioButton Style="{DynamicResource RadioButtonStyle}" Content="{DynamicResource Departure}" Name="dep_radio"/>
+                            <RadioButton Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Content="{DynamicResource Presence}" Name="att_radio"/>
                         </StackPanel>
                         <Button Style="{DynamicResource ActionButtonStyle}" x:Name="add_print_btn" Click="add_print_btn_Click" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="إضافة" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Addition}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -294,9 +294,9 @@
             <Border Grid.Row="2" Opacity="0.95" Margin="20">
                 <DataGrid LoadingRow="list_LoadingRow" KeyDown="list_KeyDown" SelectionUnit="FullRow" Visibility="Visible" FlowDirection="RightToLeft" AutoGenerateColumns="False" Name="list" Margin="10">
                     <DataGrid.Columns>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="50" Header="م" Binding="{Binding rowNumber}"/>
-                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="130" Header="التاريخ" Binding="{Binding date}"/>
-                        <DataGridTemplateColumn CanUserSort="False" CanUserResize="False" Header="تعديل التاريخ" Width="130">
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="50" Header="{DynamicResource M}" Binding="{Binding rowNumber}"/>
+                        <DataGridTextColumn CanUserSort="False" IsReadOnly="True" CanUserResize="False" Width="130" Header="{DynamicResource TheDate}" Binding="{Binding date}"/>
+                        <DataGridTemplateColumn CanUserSort="False" CanUserResize="False" Header="{DynamicResource EditDate}" Width="130">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Foreground="{DynamicResource PrimaryColor}" Text="{Binding dateEdit, StringFormat=HH:mm:ss}" />
@@ -308,7 +308,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn CanUserSort="False" Header="الحالة" Width="100" CanUserResize="False" IsReadOnly="True">
+                        <DataGridTemplateColumn CanUserSort="False" Header="{DynamicResource TheCondition}" Width="100" CanUserResize="False" IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding status}" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown">
@@ -330,10 +330,10 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn CanUserSort="False" Header="الاجراءات" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding procedures}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="الفرع" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding branch}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="اليوم" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding day}"/>
-                        <DataGridTextColumn CanUserSort="False" Header="المستخدم" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding user}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Requests}" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding procedures}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Branch}" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding branch}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource Today}" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding day}"/>
+                        <DataGridTextColumn CanUserSort="False" Header="{DynamicResource User}" Width="100" CanUserResize="False" IsReadOnly="True" Binding="{Binding user}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>

@@ -51,9 +51,9 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThirdColorBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -87,7 +87,7 @@
             </Grid.RowDefinitions>
 
             <!-- العنوان المحسن -->
-            <TextBlock Text="بيانات الماكينات" 
+            <TextBlock Text="{DynamicResource MachineData}" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        FontSize="22" 
@@ -102,7 +102,7 @@
                     <!-- ComboBox للفرع -->
                     <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0 15 0 0">
                         <ComboBox x:Name="branch_box" FlowDirection="RightToLeft"/>
-                        <Label FontWeight="SemiBold" Content="الفرع" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        <Label FontWeight="SemiBold" Content="{DynamicResource Branch}" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                     </StackPanel>
 
                    
@@ -118,13 +118,13 @@
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="reset_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Refresh" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="جديد" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource New}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="save_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -135,20 +135,20 @@
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="delete_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="حذف" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{DynamicResource ActionButtonStyle}" Click="edit_Btn" Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                <TextBlock Text="تعديل" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
                     <Button Style="{DynamicResource ActionButtonStyle}" Click="exit_Btn" Margin="5">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                            <TextBlock Text="خروج" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Exit}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -158,10 +158,10 @@
             <Border Grid.Row="1" Grid.Column="0" CornerRadius="0 20 20 0" Opacity="0.95"   Margin="20">
                 <DataGrid SelectionChanged="list_Changed" AutoGenerateColumns="False" FlowDirection="RightToLeft" Margin="10" x:Name="list">
                     <DataGrid.Columns>
-                        <DataGridTextColumn IsReadOnly="True" Header="م" Width="30" Binding="{Binding RowNumber}"/>
-                        <DataGridTextColumn IsReadOnly="True" Header="كود الفرع" Width="80" Binding="{Binding Code}"/>
-                        <DataGridTextColumn Header="اسم الفرع" IsReadOnly="True" Width="120" Binding="{Binding Branch}"/>
-                        <DataGridTextColumn Header="رقم الماكينة" Width="120" IsReadOnly="True" Binding="{Binding MIP}"/>
+                        <DataGridTextColumn IsReadOnly="True" Header="{DynamicResource M}" Width="30" Binding="{Binding RowNumber}"/>
+                        <DataGridTextColumn IsReadOnly="True" Header="{DynamicResource BranchCode}" Width="80" Binding="{Binding Code}"/>
+                        <DataGridTextColumn Header="{DynamicResource BranchName}" IsReadOnly="True" Width="120" Binding="{Binding Branch}"/>
+                        <DataGridTextColumn Header="{DynamicResource MachineNumber}" Width="120" IsReadOnly="True" Binding="{Binding MIP}"/>
                         <DataGridTextColumn Header="Machine IP" Width="120" IsReadOnly="True" Binding="{Binding MT}"/>
                         <DataGridTextColumn Header="Server IP" Width="120" IsReadOnly="True" Binding="{Binding SIP}"/>
                     </DataGrid.Columns>

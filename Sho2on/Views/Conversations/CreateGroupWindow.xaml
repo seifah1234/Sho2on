@@ -8,7 +8,7 @@
         xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Title="إنشاء مجموعة جديدة"
+        Title="{DynamicResource CreateANewGroup2}"
         Height="550" Width="800"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource MainBackground}"
@@ -30,7 +30,7 @@
 
         <!-- العنوان -->
         <TextBlock Grid.Row="0" 
-                   Text="إنشاء مجموعة جديدة" 
+                   Text="{DynamicResource CreateANewGroup2}" 
                    FontSize="20" 
                    FontWeight="Bold" 
                    HorizontalAlignment="Center" 
@@ -66,7 +66,7 @@
                         Margin="0,0,0,5">
                     <StackPanel Orientation="Horizontal">
                         <icons:PackIconMaterial Kind="Camera" Width="16" Height="16" Margin="0,0,5,0"/>
-                        <TextBlock Text="اختر صورة للمجموعة"/>
+                        <TextBlock Text="{DynamicResource ChooseAPhotoForTheGroup}"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="RemoveImageButton" 
@@ -79,7 +79,7 @@
                         Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal">
                         <icons:PackIconMaterial Kind="Delete" Width="16" Height="16" Margin="0,0,5,0"/>
-                        <TextBlock Text="إزالة الصورة"/>
+                        <TextBlock Text="{DynamicResource RemoveImage}"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -87,7 +87,7 @@
 
         <!-- اسم المجموعة -->
         <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,0,0,15">
-            <TextBlock Text="اسم المجموعة" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Bold"/>
+            <TextBlock Text="{DynamicResource GroupName}" VerticalAlignment="Center" Margin="0,0,10,5" FontWeight="Bold"/>
             <TextBox x:Name="GroupNameBox" 
                      Tag="مثال: فريق المشاريع"
                      MinHeight="35"
@@ -108,7 +108,7 @@
             
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Grid.Row="0" Grid.Column="0">
                 
-            <TextBlock VerticalAlignment="Center" Text="إضافة أعضاء" Margin="0,0,0,5" FontWeight="Bold"/>
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource AddMembers}" Margin="0,0,0,5" FontWeight="Bold"/>
             <TextBox x:Name="SearchMemberBox" 
                      Tag="ابحث باسم المستخدم..."
                      MinHeight="35"
@@ -164,7 +164,7 @@
 
             <!-- الأعضاء المختارين -->
                     
-            <TextBlock Text="الأعضاء المختارين" Margin="0,0,0,5" FontWeight="Bold" Grid.Column="1" Grid.Row="0"/>
+            <TextBlock Text="{DynamicResource SelectedMembers}" Margin="0,0,0,5" FontWeight="Bold" Grid.Column="1" Grid.Row="0"/>
             
             <ScrollViewer MaxHeight="150" Grid.Column="1" Grid.Row="1">
                 <ItemsControl x:Name="SelectedMembersList" ItemsSource="{Binding SelectedMembers}">
@@ -203,7 +203,7 @@
                                             Background="Transparent"
                                             BorderThickness="0"
                                             Cursor="Hand"
-                                            ToolTip="إزالة">
+                                            ToolTip="{DynamicResource Removal}">
                                         <icons:PackIconMaterial Kind="Close" Width="16" Height="16" Foreground="Red"/>
                                     </Button>
                                 </Grid>
@@ -221,7 +221,7 @@
                     HorizontalAlignment="Center" 
                     Margin="0,20,0,0">
             <Button x:Name="CreateButton" 
-                    Content="إنشاء" 
+                    Content="{DynamicResource Construction}" 
                     Width="100" 
                     Height="35"
                     Margin="5"
@@ -229,7 +229,7 @@
                     Foreground="White"
                     Click="CreateGroup_Click"/>
             <Button x:Name="CancelButton" 
-                    Content="إلغاء" 
+                    Content="{DynamicResource Cancellation}" 
                     Width="100" 
                     Height="35"
                     Margin="5"
