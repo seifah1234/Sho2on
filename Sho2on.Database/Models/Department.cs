@@ -16,4 +16,6 @@ public class Department
 
     public DateTime? EditedAt { get; set; } = DateTime.Now;
 
+    public ICollection<User> Users { get; set; }
+
 }

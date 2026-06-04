@@ -1,12 +1,14 @@
-ï»¿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using HR_Application.Dashboard;
 using HR_Application.Helpers;
 using HR_Application.Services;
 using HR_Application.Views;
+using HR_Application.Views.Conversations;
 using HR_Application.Views.Employees;
 using HR_Application.Views.Employees.Holidays;
 using HR_Application.Views.Salaries;
 using HR_Application.Views.Settings;
+using MahApps.Metro.IconPacks;
 using MahApps.Metro.IconPacks;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
@@ -17,24 +19,23 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using WpfAnimatedGif;
 using static FastReport.Export.Html.HTMLExport;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
-using MahApps.Metro.IconPacks;
-using HR_Application.Views.Conversations;
 
 namespace HR_Application
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private bool _isSettingVisible;
         private bool _isReportVisible;
@@ -47,11 +48,22 @@ namespace HR_Application
         private List<string> UserPerm = App.userPermissions;
         private ExcelReaderService _excelReader;
         private CommissionProcessorService _commissionProcessor;
+        private DispatcherTimer _timer;
+        private string _currentDateTime;
+
+        protected virtual void OnPropertyChanged(string name) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private int _totalUnreadCount = 0;
+
+        public string CurrentDateTime
+        {
+            get => _currentDateTime;
+            set { _currentDateTime = value; OnPropertyChanged(nameof(CurrentDateTime)); }
+        }
+
         public MainWindow()
         {
-            Language = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag);
             InitializeComponent();
             DataContext = this;
 
@@ -66,11 +78,18 @@ namespace HR_Application
             await RefreshUnreadBadge();
         }
 
+        private void StartTimer()
+        {
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _timer.Tick += (_, __) =>
+                CurrentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            _timer.Start();
+        }
         private async Task SetupGlobalNotifications()
         {
             var manager = SignalRManager.Instance;
 
-            // ReceiveMessage â€” always active regardless of which window is open
+            // ReceiveMessage — always active regardless of which window is open
             manager.OnMessageReceived += async (fromUserId, toUserId, message, timestamp) =>
             {
                 if (toUserId != App.CurrentUser.Id) return;
@@ -81,7 +100,7 @@ namespace HR_Application
                 {
                     var sender = await GetUserNameAsync(fromUserId);
                     Helpers.NotificationsHelper.ShowPopupNotification(
-                        $"Ø±Ø³Ø§Ù„Ø© Ù…Ù† {sender}",
+                        $"ÑÓÇáÉ ãä {sender}",
                         message.Length > 60 ? message[..60] + "..." : message,
                         this,
                         () => OpenChatWith(fromUserId)
@@ -110,11 +129,11 @@ namespace HR_Application
                     using var ctx = new AppDbContext(App.ConnectionString);
                     var group = await ctx.ChatGroups.FindAsync(groupId);
 
-                    var shortMsg = string.IsNullOrEmpty(message) ? "ğŸ“ Ù…Ø±ÙÙ‚"
+                    var shortMsg = string.IsNullOrEmpty(message) ? "?? ãÑİŞ"
                         : (message.Length > 60 ? message[..60] + "..." : message);
 
                     Helpers.NotificationsHelper.ShowPopupNotification(
-                        $"{group?.Name ?? "Ø¬Ø±ÙˆØ¨"}: {senderName}",
+                        $"{group?.Name ?? "ÌÑæÈ"}: {senderName}",
                         shortMsg, this, null
                     );
                     Helpers.NotificationsHelper.PlayNotificationSound();
@@ -131,10 +150,10 @@ namespace HR_Application
 
                 string title = notificationType switch
                 {
-                    "NewTask" => "Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©",
-                    "TaskStatusChanged" => "ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ù…Ù‡Ù…Ø©",
-                    "TaskDeleted" => "ØªÙ… Ø­Ø°Ù Ù…Ù‡Ù…Ø©",
-                    _ => "Ø¥Ø´Ø¹Ø§Ø± Ù…Ù‡Ù…Ø©"
+                    "NewTask" => "ãåãÉ ÌÏíÏÉ",
+                    "TaskStatusChanged" => "ÊÍÏíË ÍÇáÉ ãåãÉ",
+                    "TaskDeleted" => "Êã ÍĞİ ãåãÉ",
+                    _ => "ÅÔÚÇÑ ãåãÉ"
                 };
 
                 Helpers.NotificationsHelper.ShowPopupNotification(
@@ -205,9 +224,9 @@ namespace HR_Application
             {
                 using var ctx = new AppDbContext(App.ConnectionString);
                 var user = await ctx.Users.FindAsync(userId);
-                return user?.FullName ?? "Ù…Ø³ØªØ®Ø¯Ù…";
+                return user?.FullName ?? "ãÓÊÎÏã";
             }
-            catch { return "Ù…Ø³ØªØ®Ø¯Ù…"; }
+            catch { return "ãÓÊÎÏã"; }
         }
 
         private void OpenChatWith(int userId)
@@ -227,7 +246,7 @@ namespace HR_Application
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            var result = MessageBox.Show("Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ø®Ø±ÙˆØ¬ Ù…Ù† Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬ ØŸ", "Ø®Ø±ÙˆØ¬", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = LocalizationManager.ShowMessage("åá ÊÑíÏ ÇáÎÑæÌ ãä ÇáÈÑäÇãÌ ¿", "ÎÑæÌ", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 Application.Current.Shutdown();
@@ -238,64 +257,65 @@ namespace HR_Application
             }
         }
     
-        public bool ReportP => UserPerm.Contains("Ø§Ù„ØªÙ‚Ø§Ø±ÙŠØ±");
-        public bool EmploP => UserPerm.Contains("Ø´Ø¦ÙˆÙ† Ø§Ù„Ø¹Ø§Ù…Ù„ÙŠÙ†");
-        public bool AttendanceP => UserPerm.Contains("Ø§Ù„Ø­Ø¶ÙˆØ± Ùˆ Ø§Ù„Ø§Ù†ØµØ±Ø§Ù");
+        public bool ReportP => UserPerm.Contains("ÇáÊŞÇÑíÑ");
+        public bool EmploP => UserPerm.Contains("ÔÆæä ÇáÚÇãáíä");
+        public bool AttendanceP => UserPerm.Contains("ÇáÍÖæÑ æ ÇáÇäÕÑÇİ");
         public bool MachineP => UserPerm.Contains("FingerPrints");
         public bool SettingsP => UserPerm.Contains("Settings");
-        public bool EmploDataP => UserPerm.Contains("Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¹Ø§Ù…Ù„ÙŠÙ†");
-        public bool EmploSalaryDataP => UserPerm.Contains("Ø¨ÙŠØ§Ù†Ø§Øª Ùˆ Ù…Ø±ØªØ¨Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†");
+        public bool EmploDataP => UserPerm.Contains("ÈíÇäÇÊ ÇáÚÇãáíä");
+        public bool EmploSalaryDataP => UserPerm.Contains("ÈíÇäÇÊ æ ãÑÊÈÇÊ ÇáãæÙİíä");
         public bool HoliReqP => true;
-        public bool BulkSalaryPaymentP => UserPerm.Contains("ØµØ±Ù Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª Ø§Ù„Ø¬Ù…Ø§Ø¹ÙŠ");
-        public bool LoanRequestP => UserPerm.Contains("Ø·Ù„Ø¨ Ø³Ù„ÙØ©");
-        public bool LoanManagementP => UserPerm.Contains("Ø§Ø¯Ø§Ø±Ø© Ø§Ù„Ø³Ù„Ù");
-        public bool LoanApproveP => UserPerm.Contains("Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø³Ù„ÙØ§Øª");
-        public bool FriendBoxReportP => UserPerm.Contains("ÙƒØ´Ù Ø­Ø³Ø§Ø¨ Øµ Ø§Ù„Ø²Ù…Ø§Ù„Ø©");
-        public bool uploadEmployeesP => App.CurrentUser.FullName == "OR" || App.CurrentUser.Code == "0";
-        public bool HolidaysManagementP => UserPerm.Contains("Ø§Ø¯Ø§Ø±Ø© Ø§Ù„Ø§Ø¬Ø§Ø²Ø§Øª");
-        public bool EmploMonthP => UserPerm.Contains("Ø´Ù‡Ø±ÙŠ Ø§Ù„Ø¹Ø§Ù…Ù„ÙŠÙ†");
-        public bool DataEditP => UserPerm.Contains("Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ø­Ø±ÙƒØ§Øª");
-        public bool UploadDataP => UserPerm.Contains("ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¯Ø§ØªØ§");
-        public bool DownloadDataP => UserPerm.Contains("ØªÙ†Ø²ÙŠÙ„ Ø§Ù„Ø¯Ø§ØªØ§");
+        public bool BulkSalaryPaymentP => UserPerm.Contains("ÕÑİ ÇáãÑÊÈÇÊ ÇáÌãÇÚí");
+        public bool LoanRequestP => UserPerm.Contains("ØáÈ ÓáİÉ");
+        public bool LoanManagementP => UserPerm.Contains("ÇÏÇÑÉ ÇáÓáİ");
+        public bool LoanApproveP => UserPerm.Contains("ÇáãæÇİŞÉ Úáì ÇáÓáİÇÊ");
+        public bool FriendBoxReportP => UserPerm.Contains("ßÔİ ÍÓÇÈ Õ ÇáÒãÇáÉ");
+        public bool uploadEmployeesP => (App.CurrentUser.JobTitle.IsManager.HasValue && App.CurrentUser.JobTitle.IsManager.Value) || App.CurrentUser.Username == "OR";
+        public bool HolidaysManagementP => UserPerm.Contains("ÇÏÇÑÉ ÇáÇÌÇÒÇÊ");
+        public bool EmploMonthP => UserPerm.Contains("ÔåÑí ÇáÚÇãáíä");
+        public bool DataEditP => UserPerm.Contains("ãÑÇÌÚÉ ÇáÍÑßÇÊ");
+        public bool UploadDataP => UserPerm.Contains("ÊÍãíá ÇáÏÇÊÇ");
+        public bool DownloadDataP => UserPerm.Contains("ÊäÒíá ÇáÏÇÊÇ");
         public bool ManualP => UserPerm.Contains("Manual");
-        public bool ErrandP => UserPerm.Contains("Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª");
-        public bool MonthlyP => UserPerm.Contains("Ø§Ù„Ø­Ø±ÙƒØ§Øª Ø§Ù„Ø´Ù‡Ø±ÙŠØ©");
-        public bool AddMachineP => UserPerm.Contains("Ø¥Ø¶Ø§ÙØ©");
-        public bool GetDataP => UserPerm.Contains("ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª");
-        public bool BranchP => UserPerm.Contains("Ø§Ù„ÙØ±ÙˆØ¹");
-        public bool RoleP => UserPerm.Contains("Ø§Ù„Ø¬Ø±ÙˆØ¨Ø§Øª");
-        public bool DepartP => UserPerm.Contains("Ø§Ù„Ø§Ø¯Ø§Ø±Ø§Øª");
-        public bool QualificationP => UserPerm.Contains("Ø§Ù„Ù…Ø¤Ù‡Ù„Ø§Øª");
-        public bool JobP => UserPerm.Contains("Ø§Ù„ÙˆØ¸Ø§Ø¦Ù");
-        public bool DegreeP => UserPerm.Contains("Ø§Ù„Ù‚Ø·Ø§Ø¹Ø§Øª");
-        public bool AreaP => UserPerm.Contains("Ø§Ù„Ù…Ù†Ø§Ø·Ù‚");
-        public bool AddEmploP => UserPerm.Contains("Ø§Ø¶Ø§ÙØ© Ù…ÙˆØ¸Ù");
-        public bool AllDatasP => UserPerm.Contains("Ø§Ø¶Ø§ÙØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª");
-        public bool AllPermissionP => UserPerm.Contains("Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª");
-        public bool AllSettingsP => UserPerm.Contains("Ø§Ù„Ø§Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø¹Ø§Ù…Ø©");
-        public bool ShiftP => UserPerm.Contains("Ø§Ù„ÙˆØ±Ø¯ÙŠØ§Øª");
-        public bool BreakP => UserPerm.Contains("Ø§Ù„Ø±Ø§Ø­Ø§Øª");
-        public bool LateP => UserPerm.Contains("Ø§Ù„ØªØ£Ø®ÙŠØ±Ø§Øª");
-        public bool WHP => UserPerm.Contains("Ø§Ù„Ø§Ø¬Ø§Ø²Ø§Øª Ø§Ù„Ø§Ø³Ø¨ÙˆØ¹ÙŠØ©");
-        public bool HTypeP => UserPerm.Contains("Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø§Øª");
-        public bool EmpEvalP => UserPerm.Contains("ØªÙ‚ÙŠÙŠÙ… Ù…ÙˆØ¸Ù");
-        public bool PermissionP => UserPerm.Contains("ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬");
-        public bool MonthSettingP => UserPerm.Contains("Ø§Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø´Ù‡Ø±");
-        public bool UserPermissionP => UserPerm.Contains("ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…");
-        public bool BranchPermissionP => UserPerm.Contains("ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„ÙØ±ÙˆØ¹");
+        public bool ErrandP => UserPerm.Contains("ÅÌÑÇÁÇÊ");
+        public bool OfficalsP => UserPerm.Contains("ÇáãÓÄæáæä");
+        public bool MonthlyP => UserPerm.Contains("ÇáÍÑßÇÊ ÇáÔåÑíÉ");
+        public bool AddMachineP => UserPerm.Contains("ÅÖÇİÉ");
+        public bool GetDataP => UserPerm.Contains("ÊÍãíá ÇáÈíÇäÇÊ");
+        public bool BranchP => UserPerm.Contains("ÇáİÑæÚ");
+        public bool RoleP => UserPerm.Contains("ÇáÌÑæÈÇÊ");
+        public bool DepartP => UserPerm.Contains("ÇáÇÏÇÑÇÊ");
+        public bool QualificationP => UserPerm.Contains("ÇáãÄåáÇÊ");
+        public bool JobP => UserPerm.Contains("ÇáæÙÇÆİ");
+        public bool DegreeP => UserPerm.Contains("ÇáŞØÇÚÇÊ");
+        public bool AreaP => UserPerm.Contains("ÇáãäÇØŞ");
+        public bool AddEmploP => UserPerm.Contains("ÇÖÇİÉ ãæÙİ");
+        public bool AllDatasP => UserPerm.Contains("ÇÖÇİÉ ÇáÈíÇäÇÊ");
+        public bool AllPermissionP => UserPerm.Contains("ÇáÕáÇÍíÇÊ");
+        public bool AllSettingsP => UserPerm.Contains("ÇáÇÚÏÇÏÇÊ ÇáÚÇãÉ");
+        public bool ShiftP => UserPerm.Contains("ÇáæÑÏíÇÊ");
+        public bool BreakP => UserPerm.Contains("ÇáÑÇÍÇÊ");
+        public bool LateP => UserPerm.Contains("ÇáÊÃÎíÑÇÊ");
+        public bool WHP => UserPerm.Contains("ÇáÇÌÇÒÇÊ ÇáÇÓÈæÚíÉ");
+        public bool HTypeP => UserPerm.Contains("ÃäæÇÚ ÇáÇÌÇÒÇÊ");
+        public bool EmpEvalP => UserPerm.Contains("ÊŞííã ãæÙİ");
+        public bool PermissionP => UserPerm.Contains("ÕáÇÍíÇÊ ÇáÈÑäÇãÌ");
+        public bool MonthSettingP => UserPerm.Contains("ÇÚÏÇÏÇÊ ÇáÔåÑ");
+        public bool UserPermissionP => UserPerm.Contains("ÕáÇÍíÇÊ ÇáãÓÊÎÏã");
+        public bool BranchPermissionP => UserPerm.Contains("ÕáÇÍíÇÊ ÇáİÑæÚ");
         public bool Backup => UserPerm.Contains("Backup");
-        public bool AddMainSalaryP => UserPerm.Contains("Ø§Ø¯Ø§Ø±Ø© Ù…Ø§Ù„ÙŠØ§Øª Ù…ÙˆØ¸Ù");
-        public bool SalaryP => UserPerm.Contains("Ø§Ù„Ø§Ø¬ÙˆØ± ÙˆØ§Ù„Ù…Ø±ØªØ¨Ø§Øª");
-        public bool AddDeductionsP => UserPerm.Contains("Ø§Ø³ØªØ­Ù‚Ø§Ù‚Øª Ùˆ Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª");
-        public bool SalaryReportP => UserPerm.Contains("ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª");
-        public bool ArchiveP => UserPerm.Contains("Ø§Ù„Ø§Ø±Ø´ÙŠÙ");
-        public bool ManageBalanceP => UserPerm.Contains("Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø±ØµÙŠØ¯");
-        public bool HoliRequestsP => UserPerm.Contains("Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø§Ø¬Ø§Ø²Ø©");
-        public bool NewRequestP => UserPerm.Contains("Ø·Ù„Ø¨ Ø¥Ø¬Ø§Ø²Ø©");
-        public bool ManageLeaveTypesP => UserPerm.Contains("Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª");
-        public bool BalanceReportP => UserPerm.Contains("ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø±ØµÙŠØ¯");
-        public bool NewMissionP => UserPerm.Contains("Ø·Ù„Ø¨ Ù…Ø£Ù…ÙˆØ±ÙŠØ©");
-        public bool ManageMissionP => UserPerm.Contains("Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ§Øª");
+        public bool AddMainSalaryP => UserPerm.Contains("ÇÏÇÑÉ ãÇáíÇÊ ãæÙİ");
+        public bool SalaryP => UserPerm.Contains("ÇáÇÌæÑ æÇáãÑÊÈÇÊ");
+        public bool AddDeductionsP => UserPerm.Contains("ÇÓÊÍŞÇŞÊ æ ÇÓÊŞØÇÚÇÊ");
+        public bool SalaryReportP => UserPerm.Contains("ÊŞÑíÑ ÇáãÑÊÈÇÊ");
+        public bool ArchiveP => UserPerm.Contains("ÇáÇÑÔíİ");
+        public bool ManageBalanceP => UserPerm.Contains("ÅÏÇÑÉ ÇáÑÕíÏ");
+        public bool HoliRequestsP => UserPerm.Contains("ØáÈÇÊ ÇáÇÌÇÒÉ");
+        public bool NewRequestP => UserPerm.Contains("ØáÈ ÅÌÇÒÉ");
+        public bool ManageLeaveTypesP => UserPerm.Contains("ÃäæÇÚ ÇáÅÌÇÒÇÊ");
+        public bool BalanceReportP => UserPerm.Contains("ÊŞÑíÑ ÇáÑÕíÏ");
+        public bool NewMissionP => UserPerm.Contains("ØáÈ ãÃãæÑíÉ");
+        public bool ManageMissionP => UserPerm.Contains("ØáÈÇÊ ÇáãÃãæÑíÇÊ");
         public bool StorageP => true;
 
         private void ThemeToggle_Click(object sender, RoutedEventArgs e)
@@ -470,6 +490,7 @@ namespace HR_Application
         private void StorageOpen(object sender, RoutedEventArgs e) => OpenWindow<NetworkSettingsWindow>();
 
         private void AddLateOpen(object sender, RoutedEventArgs e) => OpenWindow<AddLate>();
+        private void AddOfficalsOpen(object sender, RoutedEventArgs e) => OpenWindow<AddOffical>();
 
         private void AddJobDegreeOpen(object sender, RoutedEventArgs e) => OpenWindow<AddJobDegree>();
 
@@ -488,9 +509,9 @@ namespace HR_Application
             var filePath = ExcelTemplateHelper.GenerateImportTemplate();
             if (!string.IsNullOrEmpty(filePath))
             {
-                MessageBox.Show($"ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù‚Ø§Ù„Ø¨ Ø¨Ù†Ø¬Ø§Ø­: {filePath}");
+                LocalizationManager.ShowMessage($"Êã ÅäÔÇÁ ÇáŞÇáÈ ÈäÌÇÍ: {filePath}");
 
-                // ÙØªØ­ Ø§Ù„Ù…Ù„Ù ÙÙŠ Excel
+                // İÊÍ Çáãáİ İí Excel
                 try
                 {
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -501,18 +522,18 @@ namespace HR_Application
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù‚Ø§Ù„Ø¨ ÙˆÙ„ÙƒÙ† Ø­Ø¯Ø« Ø®Ø·Ø£ ÙÙŠ ÙØªØ­Ù‡: {ex.Message}");
+                    LocalizationManager.ShowMessage($"Êã ÅäÔÇÁ ÇáŞÇáÈ æáßä ÍÏË ÎØÃ İí İÊÍå: {ex.Message}");
                 }
             }
         }
 
         private async void upload_data_btn_ButtonClicked(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-        "ØªØ­Ø°ÙŠØ±: Ø³ÙŠØªÙ… Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ù…Ù„Ù Excel.\n" +
-        "Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙƒØ±Ø±Ø© Ø³ÙŠØªÙ… ØªØ­Ø¯ÙŠØ«Ù‡Ø§.\n" +
-        "Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø©ØŸ",
-        "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯",
+            var result = LocalizationManager.ShowMessage(
+        "ÊÍĞíÑ: ÓíÊã ÇÓÊíÑÇÏ ÇáÈíÇäÇÊ ãä ãáİ Excel.\n" +
+        "ÇáÈíÇäÇÊ ÇáãßÑÑÉ ÓíÊã ÊÍÏíËåÇ.\n" +
+        "åá ÊÑíÏ ÇáãÊÇÈÚÉ¿",
+        "ÊÃßíÏ ÇáÇÓÊíÑÇÏ",
         MessageBoxButton.YesNo,
         MessageBoxImage.Warning);
 
@@ -529,7 +550,7 @@ namespace HR_Application
 
         public static async Task ExportAttendanceData(string connectionString)
         {
-            // Ø¹Ø±Ø¶ Ù†Ø§ÙØ°Ø© Ø§Ø®ØªÙŠØ§Ø± Ù†ÙˆØ¹ Ø§Ù„ØªØµØ¯ÙŠØ±
+            // ÚÑÖ äÇİĞÉ ÇÎÊíÇÑ äæÚ ÇáÊÕÏíÑ
             var dialog = new ExportTypeDialog();
             dialog.ShowDialog();
 
@@ -542,7 +563,7 @@ namespace HR_Application
                 Title = "Export Attendance Data"
             };
 
-            // ØªØ¹ÙŠÙŠÙ† Ø§Ø³Ù… Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ù†ÙˆØ¹ Ø§Ù„ØªØµØ¯ÙŠØ±
+            // ÊÚííä ÇÓã Çáãáİ ÇáÇİÊÑÇÖí ÈäÇÁğ Úáì äæÚ ÇáÊÕÏíÑ
             if (dialog.ExportType == ExportType.ForImport)
             {
                 saveFileDialog.FileName = $"Attendance_Data_ForImport_{DateTime.Now:yyyyMMdd}.xlsx";
@@ -571,7 +592,7 @@ namespace HR_Application
 
                         if (!attendanceData.Any())
                         {
-                            MessageBox.Show("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù„ØªØµØ¯ÙŠØ±");
+                            LocalizationManager.ShowMessage("áÇ ÊæÌÏ ÈíÇäÇÊ ááÊÕÏíÑ");
                             return;
                         }
 
@@ -579,28 +600,28 @@ namespace HR_Application
                         {
                             if (dialog.ExportType == ExportType.ForImport)
                             {
-                                // Ø§Ù„ØªØµØ¯ÙŠØ± Ø¨Ù†ÙØ³ ØªÙ†Ø³ÙŠÙ‚ Template Ø§Ù„Ø¥Ø³ØªÙŠØ±Ø§Ø¯
+                                // ÇáÊÕÏíÑ ÈäİÓ ÊäÓíŞ Template ÇáÅÓÊíÑÇÏ
                                 ExportForImport(workbook, attendanceData);
                             }
                             else
                             {
-                                // Ø§Ù„ØªØµØ¯ÙŠØ± Ø¨ØªÙ‚Ø±ÙŠØ± Ù…ÙØµÙ„
+                                // ÇáÊÕÏíÑ ÈÊŞÑíÑ ãİÕá
                                 ExportDetailedReport(workbook, attendanceData);
                             }
 
                             workbook.SaveAs(saveFileDialog.FileName);
 
-                            string message = $"ØªÙ… Ø§Ù„ØªØµØ¯ÙŠØ± Ø¨Ù†Ø¬Ø§Ø­ Ø¥Ù„Ù‰: {saveFileDialog.FileName}";
+                            string message = $"Êã ÇáÊÕÏíÑ ÈäÌÇÍ Åáì: {saveFileDialog.FileName}";
 
                             if (dialog.ExportType == ExportType.ForImport)
                             {
-                                message += "\n\nÙ…Ù„Ø§Ø­Ø¸Ø©: ØªÙ… ØªØµØ¯ÙŠØ± Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†ÙØ³ ØªÙ†Ø³ÙŠÙ‚ Template Ø§Ù„Ø¥Ø³ØªÙŠØ±Ø§Ø¯.";
-                                message += "\nÙŠÙ…ÙƒÙ†Ùƒ ØªØ¹Ø¯ÙŠÙ„ Ù‡Ø°Ø§ Ø§Ù„Ù…Ù„Ù Ø«Ù… Ø¥Ø¹Ø§Ø¯Ø© Ø§Ø³ØªÙŠØ±Ø§Ø¯Ù‡.";
+                                message += "\n\nãáÇÍÙÉ: Êã ÊÕÏíÑ ÇáÈíÇäÇÊ ÈäİÓ ÊäÓíŞ Template ÇáÅÓÊíÑÇÏ.";
+                                message += "\níãßäß ÊÚÏíá åĞÇ Çáãáİ Ëã ÅÚÇÏÉ ÇÓÊíÑÇÏå.";
                             }
 
-                            MessageBox.Show(message, "ØªÙ… Ø§Ù„ØªØµØ¯ÙŠØ±");
+                            LocalizationManager.ShowMessage(message, "Êã ÇáÊÕÏíÑ");
 
-                            // ÙØªØ­ Ø§Ù„Ù…Ù„Ù ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹
+                            // İÊÍ Çáãáİ ÊáŞÇÆíÇğ
                             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                             {
                                 FileName = saveFileDialog.FileName,
@@ -611,7 +632,7 @@ namespace HR_Application
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµØ¯ÙŠØ±: {ex.Message}");
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÕÏíÑ: {ex.Message}");
                 }
             }
         }
@@ -620,7 +641,7 @@ namespace HR_Application
         {
             var worksheet = workbook.Worksheets.Add("AttendanceData");
 
-            // ÙƒØªØ§Ø¨Ø© Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ† Ù…Ù† Template
+            // ßÊÇÈÉ ÇáÚäÇæíä ãä Template
             for (int i = 0; i < ExcelTemplateHelper.TemplateHeaders.Count; i++)
             {
                 var cell = worksheet.Cell(1, i + 1);
@@ -631,7 +652,7 @@ namespace HR_Application
                 cell.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
             }
 
-            // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†ÙØ³ Ø§Ù„ØªÙ†Ø³ÙŠÙ‚
+            // ÅÖÇİÉ ÇáÈíÇäÇÊ ÈäİÓ ÇáÊäÓíŞ
             int row = 2;
             foreach (var attendance in attendanceData)
             {
@@ -695,37 +716,37 @@ namespace HR_Application
                 row++;
             }
 
-            // Ø¶Ø¨Ø· Ø¹Ø±Ø¶ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+            // ÖÈØ ÚÑÖ ÇáÃÚãÏÉ
             worksheet.Columns().AdjustToContents();
 
-            // Ø¥Ø¶Ø§ÙØ© ØªØ¹Ù„ÙŠÙ…Ø§Øª ÙÙŠ ÙˆØ±Ù‚Ø© Ù…Ù†ÙØµÙ„Ø©
-            var instructionsSheet = workbook.Worksheets.Add("ØªØ¹Ù„ÙŠÙ…Ø§Øª");
+            // ÅÖÇİÉ ÊÚáíãÇÊ İí æÑŞÉ ãäİÕáÉ
+            var instructionsSheet = workbook.Worksheets.Add("ÊÚáíãÇÊ");
 
-            instructionsSheet.Cell(1, 1).Value = "ØªØ¹Ù„ÙŠÙ…Ø§Øª Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ù„Ù";
+            instructionsSheet.Cell(1, 1).Value = "ÊÚáíãÇÊ ÇÓÊÎÏÇã Çáãáİ";
             instructionsSheet.Cell(1, 1).Style.Font.Bold = true;
             instructionsSheet.Cell(1, 1).Style.Font.FontSize = 14;
 
             var instructions = new[]
             {
-        "Ù‡Ø°Ø§ Ø§Ù„Ù…Ù„Ù ØªÙ… ØªØµØ¯ÙŠØ±Ù‡ Ø¨Ù†ÙØ³ ØªÙ†Ø³ÙŠÙ‚ Template Ø§Ù„Ø¥Ø³ØªÙŠØ±Ø§Ø¯",
+        "åĞÇ Çáãáİ Êã ÊÕÏíÑå ÈäİÓ ÊäÓíŞ Template ÇáÅÓÊíÑÇÏ",
         "",
-        "Ù„Ø¥Ø¹Ø§Ø¯Ø© Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ø¹Ø¯ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„:",
-        "1. ÙŠÙ…ÙƒÙ†Ùƒ ØªØ¹Ø¯ÙŠÙ„ Ø£ÙŠ Ø­Ù‚Ù„ ÙÙŠ ÙˆØ±Ù‚Ø© AttendanceData",
-        "2. Ø§Ø­ØªÙØ¸ Ø¨Ù†ÙØ³ Ø£Ø³Ù…Ø§Ø¡ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©",
-        "3. Ø§Ø­ØªÙØ¸ Ø¨Ù†ÙØ³ Ø§Ù„ØªÙ†Ø³ÙŠÙ‚ Ù„Ù„ØªÙˆØ§Ø±ÙŠØ® ÙˆØ§Ù„Ø£ÙˆÙ‚Ø§Øª",
-        "4. Ø¹Ù†Ø¯ Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ù…Ù„Ù Ø¨Ø¹Ø¯ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„:",
-        "   - Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ù…ÙƒØ±Ø±Ø© (Ø¨Ù†ÙØ³ UserId Ùˆ AttendanceDate) Ø³ÙŠØªÙ… ØªØ­Ø¯ÙŠØ«Ù‡Ø§",
-        "   - Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© Ø³ÙŠØªÙ… Ø¥Ø¶Ø§ÙØªÙ‡Ø§",
-        "   - Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ù…Ø­Ø°ÙˆÙØ© Ù…Ù† Ø§Ù„Ù…Ù„Ù Ù„Ù† ØªØ­Ø°Ù Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª",
+        "áÅÚÇÏÉ ÇÓÊíÑÇÏ ÇáÈíÇäÇÊ ÈÚÏ ÇáÊÚÏíá:",
+        "1. íãßäß ÊÚÏíá Ãí ÍŞá İí æÑŞÉ AttendanceData",
+        "2. ÇÍÊİÙ ÈäİÓ ÃÓãÇÁ ÇáÃÚãÏÉ",
+        "3. ÇÍÊİÙ ÈäİÓ ÇáÊäÓíŞ ááÊæÇÑíÎ æÇáÃæŞÇÊ",
+        "4. ÚäÏ ÇÓÊíÑÇÏ Çáãáİ ÈÚÏ ÇáÊÚÏíá:",
+        "   - ÇáÓÌáÇÊ ÇáãßÑÑÉ (ÈäİÓ UserId æ AttendanceDate) ÓíÊã ÊÍÏíËåÇ",
+        "   - ÇáÓÌáÇÊ ÇáÌÏíÏÉ ÓíÊã ÅÖÇİÊåÇ",
+        "   - ÇáÓÌáÇÊ ÇáãÍĞæİÉ ãä Çáãáİ áä ÊÍĞİ ãä ŞÇÚÏÉ ÇáÈíÇäÇÊ",
         "",
-        "ØªÙ†Ø³ÙŠÙ‚Ø§Øª Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª:",
-        "- Ø§Ù„ØªÙˆØ§Ø±ÙŠØ®: yyyy-MM-dd (Ù…Ø«Ø§Ù„: 2024-12-30)",
-        "- Ø§Ù„Ø£ÙˆÙ‚Ø§Øª: HH:mm:ss (Ù…Ø«Ø§Ù„: 08:30:00)",
-        "- Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…Ù†Ø·Ù‚ÙŠØ©: true Ø£Ùˆ false",
-        "- Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ø±Ù‚Ù…ÙŠØ©: Ø£Ø±Ù‚Ø§Ù… ÙÙ‚Ø·",
+        "ÊäÓíŞÇÊ ÇáÈíÇäÇÊ:",
+        "- ÇáÊæÇÑíÎ: yyyy-MM-dd (ãËÇá: 2024-12-30)",
+        "- ÇáÃæŞÇÊ: HH:mm:ss (ãËÇá: 08:30:00)",
+        "- ÇáÍŞæá ÇáãäØŞíÉ: true Ãæ false",
+        "- ÇáÍŞæá ÇáÑŞãíÉ: ÃÑŞÇã İŞØ",
         "",
-        "Ù…Ù„Ø§Ø­Ø¸Ø©: ØªØ£ÙƒØ¯ Ù…Ù† ØµØ­Ø© Ø§Ù„Ù€ IDs (UserId, ShiftId, BranchId)",
-        "Ù‚Ø¨Ù„ Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯"
+        "ãáÇÍÙÉ: ÊÃßÏ ãä ÕÍÉ ÇáÜ IDs (UserId, ShiftId, BranchId)",
+        "ŞÈá ÇáÇÓÊíÑÇÏ"
     };
 
             for (int i = 0; i < instructions.Length; i++)
@@ -738,42 +759,42 @@ namespace HR_Application
 
         private static void ExportDetailedReport(XLWorkbook workbook, List<Attendance> attendanceData)
         {
-            var worksheet = workbook.Worksheets.Add("ØªÙ‚Ø±ÙŠØ± ØªÙØµÙŠÙ„ÙŠ");
+            var worksheet = workbook.Worksheets.Add("ÊŞÑíÑ ÊİÕíáí");
 
-            // Ø¹Ù†Ø§ÙˆÙŠÙ† Ø§Ù„ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…ÙØµÙ„
+            // ÚäÇæíä ÇáÊŞÑíÑ ÇáãİÕá
             var detailedHeaders = new[]
             {
         "ID",
-        "ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù",
-        "Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ¸Ù",
-        "Ø§Ù„ØªØ§Ø±ÙŠØ®",
-        "ÙˆÙ‚Øª Ø§Ù„Ø­Ø¶ÙˆØ±",
-        "ÙˆÙ‚Øª Ø§Ù„Ø§Ù†ØµØ±Ø§Ù",
-        "Ø§Ù„ÙˆØ±Ø¯ÙŠØ©",
-        "ÙˆÙ‚Øª Ø§Ù„Ø¯ÙˆØ§Ù… Ø§Ù„Ø±Ø³Ù…ÙŠ",
-        "ÙˆÙ‚Øª Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡ Ø§Ù„Ø±Ø³Ù…ÙŠ",
-        "Ø§Ù„ØªØ£Ø®ÙŠØ±",
-        "Ø§Ù„Ø§Ù†ØµØ±Ø§Ù Ø§Ù„Ù…Ø¨ÙƒØ±",
-        "Ø§Ù„Ø­Ø¶ÙˆØ± Ø§Ù„Ù…Ø¨ÙƒØ±",
-        "ÙˆÙ‚Øª Ø¥Ø¶Ø§ÙÙŠ",
-        "Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ù…Ù„",
-        "ÙØ±Ø¹ Ø§Ù„Ø­Ø¶ÙˆØ±",
-        "ÙØ±Ø¹ Ø§Ù„Ø§Ù†ØµØ±Ø§Ù",
-        "Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø­Ø¶ÙˆØ±",
-        "Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø§Ù†ØµØ±Ø§Ù",
-        "Ù…Ø¹ÙÙŠ Ù…Ù† Ø§Ù„ØªØ£Ø®ÙŠØ±",
-        "Ù…Ø¹ÙÙŠ Ù…Ù† Ø§Ù„Ø§Ù†ØµØ±Ø§Ù Ø§Ù„Ù…Ø¨ÙƒØ±",
-        "Ù…Ø¹ÙÙŠ Ù…Ù† Ø§Ù„ÙˆÙ‚Øª Ø§Ù„Ø¥Ø¶Ø§ÙÙŠ",
-        "Ø¥Ø¬Ø§Ø²Ø©",
-        "ØºÙŠØ§Ø¨",
-        "Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©",
-        "Ø®Ø· Ø§Ù„Ø¹Ø±Ø¶ (Ø­Ø¶ÙˆØ±)",
-        "Ø®Ø· Ø§Ù„Ø·ÙˆÙ„ (Ø­Ø¶ÙˆØ±)",
-        "Ø®Ø· Ø§Ù„Ø¹Ø±Ø¶ (Ø§Ù†ØµØ±Ø§Ù)",
-        "Ø®Ø· Ø§Ù„Ø·ÙˆÙ„ (Ø§Ù†ØµØ±Ø§Ù)"
+        "ßæÏ ÇáãæÙİ",
+        "ÇÓã ÇáãæÙİ",
+        "ÇáÊÇÑíÎ",
+        "æŞÊ ÇáÍÖæÑ",
+        "æŞÊ ÇáÇäÕÑÇİ",
+        "ÇáæÑÏíÉ",
+        "æŞÊ ÇáÏæÇã ÇáÑÓãí",
+        "æŞÊ ÇáÇäÊåÇÁ ÇáÑÓãí",
+        "ÇáÊÃÎíÑ",
+        "ÇáÇäÕÑÇİ ÇáãÈßÑ",
+        "ÇáÍÖæÑ ÇáãÈßÑ",
+        "æŞÊ ÅÖÇİí",
+        "ÓÇÚÇÊ ÇáÚãá",
+        "İÑÚ ÇáÍÖæÑ",
+        "İÑÚ ÇáÇäÕÑÇİ",
+        "ãæŞÚ ÇáÍÖæÑ",
+        "ãæŞÚ ÇáÇäÕÑÇİ",
+        "ãÚİí ãä ÇáÊÃÎíÑ",
+        "ãÚİí ãä ÇáÇäÕÑÇİ ÇáãÈßÑ",
+        "ãÚİí ãä ÇáæŞÊ ÇáÅÖÇİí",
+        "ÅÌÇÒÉ",
+        "ÛíÇÈ",
+        "äæÚ ÇáÅÌÇÒÉ",
+        "ÎØ ÇáÚÑÖ (ÍÖæÑ)",
+        "ÎØ ÇáØæá (ÍÖæÑ)",
+        "ÎØ ÇáÚÑÖ (ÇäÕÑÇİ)",
+        "ÎØ ÇáØæá (ÇäÕÑÇİ)"
     };
 
-            // ÙƒØªØ§Ø¨Ø© Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ†
+            // ßÊÇÈÉ ÇáÚäÇæíä
             for (int i = 0; i < detailedHeaders.Length; i++)
             {
                 var cell = worksheet.Cell(1, i + 1);
@@ -783,13 +804,13 @@ namespace HR_Application
                 cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             }
 
-            // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+            // ÅÖÇİÉ ÇáÈíÇäÇÊ
             int row = 2;
             foreach (var attendance in attendanceData)
             {
                 worksheet.Cell(row, 1).Value = attendance.Id;
                 worksheet.Cell(row, 2).Value = attendance.UserId;
-                worksheet.Cell(row, 3).Value = attendance.User?.FullName ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+                worksheet.Cell(row, 3).Value = attendance.User?.FullName ?? "ÛíÑ ãÍÏÏ";
                 worksheet.Cell(row, 4).Value = attendance.AttendanceDate.ToString("yyyy-MM-dd");
 
                 if (attendance.CheckInTime.HasValue)
@@ -798,7 +819,7 @@ namespace HR_Application
                 if (attendance.CheckOutTime.HasValue)
                     worksheet.Cell(row, 6).Value = attendance.CheckOutTime.Value.ToString("HH:mm");
 
-                worksheet.Cell(row, 7).Value = attendance.Shift?.Name ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+                worksheet.Cell(row, 7).Value = attendance.Shift?.Name ?? "ÛíÑ ãÍÏÏ";
                 worksheet.Cell(row, 8).Value = attendance.Shift?.StartTime.ToString(@"hh\:mm") ?? "";
                 worksheet.Cell(row, 9).Value = attendance.Shift?.EndTime.ToString(@"hh\:mm") ?? "";
 
@@ -817,15 +838,15 @@ namespace HR_Application
                 if (attendance.TotalWorkHours.HasValue)
                     worksheet.Cell(row, 14).Value = attendance.TotalWorkHours.Value.ToString(@"hh\:mm");
 
-                worksheet.Cell(row, 15).Value = attendance.CheckInBranch?.Name ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
-                worksheet.Cell(row, 16).Value = attendance.CheckOutBranch?.Name ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+                worksheet.Cell(row, 15).Value = attendance.CheckInBranch?.Name ?? "ÛíÑ ãÍÏÏ";
+                worksheet.Cell(row, 16).Value = attendance.CheckOutBranch?.Name ?? "ÛíÑ ãÍÏÏ";
                 worksheet.Cell(row, 17).Value = attendance.CheckInLocation ?? "";
                 worksheet.Cell(row, 18).Value = attendance.CheckOutLocation ?? "";
-                worksheet.Cell(row, 19).Value = attendance.ExemptLate ? "Ù†Ø¹Ù…" : "Ù„Ø§";
-                worksheet.Cell(row, 20).Value = attendance.ExemptEarlyLeave ? "Ù†Ø¹Ù…" : "Ù„Ø§";
-                worksheet.Cell(row, 21).Value = attendance.ExemptOvertime ? "Ù†Ø¹Ù…" : "Ù„Ø§";
-                worksheet.Cell(row, 22).Value = attendance.IsHoliday ? "Ù†Ø¹Ù…" : "Ù„Ø§";
-                worksheet.Cell(row, 23).Value = attendance.IsAbsence ? "Ù†Ø¹Ù…" : "Ù„Ø§";
+                worksheet.Cell(row, 19).Value = attendance.ExemptLate ? "äÚã" : "áÇ";
+                worksheet.Cell(row, 20).Value = attendance.ExemptEarlyLeave ? "äÚã" : "áÇ";
+                worksheet.Cell(row, 21).Value = attendance.ExemptOvertime ? "äÚã" : "áÇ";
+                worksheet.Cell(row, 22).Value = attendance.IsHoliday ? "äÚã" : "áÇ";
+                worksheet.Cell(row, 23).Value = attendance.IsAbsence ? "äÚã" : "áÇ";
                 worksheet.Cell(row, 24).Value = attendance.Leave?.LeaveType?.Name ?? "";
 
                 worksheet.Cell(row, 25).Value = attendance.CheckInLatitude;
@@ -852,13 +873,13 @@ namespace HR_Application
             {
                 try
                 {
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„ØªÙ†Ø³ÙŠÙ‚
+                    // ÇáÊÍŞŞ ãä ÇáÊäÓíŞ
                     if (!IsValidTemplateFormat(openFileDialog.FileName))
                     {
-                        var result = MessageBox.Show(
-                            "ÙŠØ¨Ø¯Ùˆ Ø£Ù† Ù‡Ø°Ø§ Ø§Ù„Ù…Ù„Ù Ù„ÙŠØ³ Ø¨Ù†ÙØ³ ØªÙ†Ø³ÙŠÙ‚ Template Ø§Ù„Ø¥Ø³ØªÙŠØ±Ø§Ø¯.\n" +
-                            "Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø© Ø¹Ù„Ù‰ Ø£ÙŠ Ø­Ø§Ù„ØŸ",
-                            "ØªØ­Ø°ÙŠØ±",
+                        var result = LocalizationManager.ShowMessage(
+                            "íÈÏæ Ãä åĞÇ Çáãáİ áíÓ ÈäİÓ ÊäÓíŞ Template ÇáÅÓÊíÑÇÏ.\n" +
+                            "åá ÊÑíÏ ÇáãÊÇÈÚÉ Úáì Ãí ÍÇá¿",
+                            "ÊÍĞíÑ",
                             MessageBoxButton.YesNo,
                             MessageBoxImage.Warning);
 
@@ -869,7 +890,7 @@ namespace HR_Application
                     var progressWindow = new ProgressDialog();
                     progressWindow.Show();
 
-                    progressWindow.UpdateStatus("Ø¬Ø§Ø±ÙŠ Ø±ÙØ¹ Ø§Ù„Ø­Ø±ÙƒØ§Øª...");
+                    progressWindow.UpdateStatus("ÌÇÑí ÑİÚ ÇáÍÑßÇÊ...");
 
                     await ImportFileAsync(openFileDialog.FileName, connectionString, progressWindow);
 
@@ -877,7 +898,7 @@ namespace HR_Application
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯: {ex.Message}");
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÇÓÊíÑÇÏ: {ex.Message}");
                 }
             }
         }
@@ -894,19 +915,19 @@ namespace HR_Application
                     var firstRow = worksheet.FirstRowUsed();
                     if (firstRow == null) return false;
 
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ø¯ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+                    // ÇáÊÍŞŞ ãä ÚÏÏ ÇáÃÚãÏÉ
                     int columnCount = firstRow.CellsUsed().Count();
                     if (columnCount != ExcelTemplateHelper.TemplateHeaders.Count)
                         return false;
 
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¨Ø¹Ø¶ Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©
+                    // ÇáÊÍŞŞ ãä ÈÚÖ ÇáÚäÇæíä ÇáÑÆíÓíÉ
                     var headers = new List<string>();
                     foreach (var cell in firstRow.CellsUsed())
                     {
                         headers.Add(cell.GetString().ToLower());
                     }
 
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙˆØ¬ÙˆØ¯ Ø¹Ù†Ø§ÙˆÙŠÙ† Ø£Ø³Ø§Ø³ÙŠØ©
+                    // ÇáÊÍŞŞ ãä æÌæÏ ÚäÇæíä ÃÓÇÓíÉ
                     var requiredHeaders = new[] { "userid", "attendancedate" };
                     foreach (var required in requiredHeaders)
                     {
@@ -932,7 +953,7 @@ namespace HR_Application
                     var worksheet = workbook.Worksheet("AttendanceData");
                     if (worksheet == null)
                     {
-                        MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ ÙˆØ±Ù‚Ø© Ø¨Ø§Ø³Ù… 'AttendanceData'");
+                        LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì æÑŞÉ ÈÇÓã 'AttendanceData'");
                         return;
                     }
 
@@ -950,7 +971,7 @@ namespace HR_Application
                         try
                         {
                             processed++;
-                            progressWindow.UpdateStatus($"Ù…Ø¹Ø§Ù„Ø¬Ø© Ø³Ø·Ø± {processed} Ù…Ù† {totalRows}");
+                            progressWindow.UpdateStatus($"ãÚÇáÌÉ ÓØÑ {processed} ãä {totalRows}");
 
                             var userId = row.Cell(1).GetValue<int?>();
                             var dateStr = row.Cell(2).GetString();
@@ -958,7 +979,7 @@ namespace HR_Application
                             if (!userId.HasValue || string.IsNullOrWhiteSpace(dateStr))
                             {
                                 errors++;
-                                errorMessages.Add($"Ø³Ø·Ø± {row.RowNumber()}: Ø¨ÙŠØ§Ù†Ø§Øª Ù†Ø§Ù‚ØµØ©");
+                                errorMessages.Add($"ÓØÑ {row.RowNumber()}: ÈíÇäÇÊ äÇŞÕÉ");
                                 continue;
                             }
 
@@ -966,11 +987,11 @@ namespace HR_Application
                                 CultureInfo.InvariantCulture, DateTimeStyles.None, out var attendanceDate))
                             {
                                 errors++;
-                                errorMessages.Add($"Ø³Ø·Ø± {row.RowNumber()}: ØªÙ†Ø³ÙŠÙ‚ ØªØ§Ø±ÙŠØ® ØºÙŠØ± ØµØ­ÙŠØ­");
+                                errorMessages.Add($"ÓØÑ {row.RowNumber()}: ÊäÓíŞ ÊÇÑíÎ ÛíÑ ÕÍíÍ");
                                 continue;
                             }
 
-                            // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø³Ø¬Ù„ Ù…ÙˆØ¬ÙˆØ¯
+                            // ÇáÈÍË Úä ÓÌá ãæÌæÏ
                             var existingAttendance = await context.Attendances
                                 .FirstOrDefaultAsync(a =>
                                     a.UserId == userId.Value &&
@@ -982,15 +1003,15 @@ namespace HR_Application
                                 AttendanceDate = attendanceDate
                             };
 
-                            // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Excel
+                            // ÊÍÏíË ÇáÈíÇäÇÊ ãä Excel
                             UpdateAttendanceFromExcel(row, attendance);
 
-                            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„ØµØ­Ø©
+                            // ÇáÊÍŞŞ ãä ÇáÕÍÉ
                             var validation = await ValidateAttendance(context, attendance);
                             if (!validation.IsValid)
                             {
                                 errors++;
-                                errorMessages.Add($"Ø³Ø·Ø± {row.RowNumber()}: {validation.ErrorMessage}");
+                                errorMessages.Add($"ÓØÑ {row.RowNumber()}: {validation.ErrorMessage}");
                                 continue;
                             }
 
@@ -1004,7 +1025,7 @@ namespace HR_Application
                                 updated++;
                             }
 
-                            // Ø­ÙØ¸ ÙƒÙ„ 100 Ø³Ø¬Ù„
+                            // ÍİÙ ßá 100 ÓÌá
                             if (processed % 100 == 0)
                             {
                                 await context.SaveChangesAsync();
@@ -1013,14 +1034,14 @@ namespace HR_Application
                         catch (Exception ex)
                         {
                             errors++;
-                            errorMessages.Add($"Ø³Ø·Ø± {row.RowNumber()}: {ex.Message}");
+                            errorMessages.Add($"ÓØÑ {row.RowNumber()}: {ex.Message}");
                         }
                     }
 
-                    // Ø­ÙØ¸ Ø§Ù„Ø¨Ø§Ù‚ÙŠ
+                    // ÍİÙ ÇáÈÇŞí
                     await context.SaveChangesAsync();
 
-                    // Ø¹Ø±Ø¶ Ø§Ù„Ù†ØªØ§Ø¦Ø¬
+                    // ÚÑÖ ÇáäÊÇÆÌ
                     ShowImportResults(imported, errorMessages);
                 }
             }
@@ -1082,7 +1103,7 @@ namespace HR_Application
             if (TimeSpan.TryParse(value, out var result))
                 return result;
 
-            // Ù…Ø­Ø§ÙˆÙ„Ø© ØªØ­ÙˆÙŠÙ„ ØªÙ†Ø³ÙŠÙ‚ hh:mm:ss Ø¥Ø°Ø§ ÙƒØ§Ù† ÙÙŠÙ‡ Ø´Ø±Ø·Ø©
+            // ãÍÇæáÉ ÊÍæíá ÊäÓíŞ hh:mm:ss ÅĞÇ ßÇä İíå ÔÑØÉ
             if (value.Contains(':'))
             {
                 var parts = value.Split(':');
@@ -1103,36 +1124,36 @@ namespace HR_Application
             if (string.IsNullOrWhiteSpace(value)) return false;
 
             value = value.Trim().ToLower();
-            return value == "true" || value == "yes" || value == "Ù†Ø¹Ù…" || value == "1";
+            return value == "true" || value == "yes" || value == "äÚã" || value == "1";
         }
 
         private static async Task<(bool IsValid, string ErrorMessage)> ValidateAttendance(
             AppDbContext context, Attendance attendance)
         {
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙˆØ¬ÙˆØ¯ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+            // ÇáÊÍŞŞ ãä æÌæÏ ÇáãÓÊÎÏã
             var userExists = await context.Users.AnyAsync(u => u.Id == attendance.UserId);
             if (!userExists)
             {
-                return (false, $"Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø±Ù‚Ù… {attendance.UserId} ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯");
+                return (false, $"ÇáãÓÊÎÏã ÈÑŞã {attendance.UserId} ÛíÑ ãæÌæÏ");
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙˆØ¬ÙˆØ¯ Shift Ø¥Ø°Ø§ ØªÙ… ØªØ­Ø¯ÙŠØ¯Ù‡
+            // ÇáÊÍŞŞ ãä æÌæÏ Shift ÅĞÇ Êã ÊÍÏíÏå
             if (attendance.ShiftId.HasValue)
             {
                 var shiftExists = await context.Shifts.AnyAsync(s => s.Id == attendance.ShiftId.Value);
                 if (!shiftExists)
                 {
-                    return (false, $"Ø§Ù„ÙˆØ±Ø¯ÙŠØ© Ø¨Ø±Ù‚Ù… {attendance.ShiftId} ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©");
+                    return (false, $"ÇáæÑÏíÉ ÈÑŞã {attendance.ShiftId} ÛíÑ ãæÌæÏÉ");
                 }
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙˆØ¬ÙˆØ¯ Ø§Ù„ÙØ±ÙˆØ¹
+            // ÇáÊÍŞŞ ãä æÌæÏ ÇáİÑæÚ
             if (attendance.CheckInBranchId.HasValue)
             {
                 var branchExists = await context.Branches.AnyAsync(b => b.Id == attendance.CheckInBranchId.Value);
                 if (!branchExists)
                 {
-                    return (false, $"Ø§Ù„ÙØ±Ø¹ Ø¨Ø±Ù‚Ù… {attendance.CheckInBranchId} ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯");
+                    return (false, $"ÇáİÑÚ ÈÑŞã {attendance.CheckInBranchId} ÛíÑ ãæÌæÏ");
                 }
             }
 
@@ -1141,16 +1162,16 @@ namespace HR_Application
                 var branchExists = await context.Branches.AnyAsync(b => b.Id == attendance.CheckOutBranchId.Value);
                 if (!branchExists)
                 {
-                    return (false, $"Ø§Ù„ÙØ±Ø¹ Ø¨Ø±Ù‚Ù… {attendance.CheckOutBranchId} ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯");
+                    return (false, $"ÇáİÑÚ ÈÑŞã {attendance.CheckOutBranchId} ÛíÑ ãæÌæÏ");
                 }
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„ØªÙˆØ§Ø±ÙŠØ®
+            // ÇáÊÍŞŞ ãä ÇáÊæÇÑíÎ
             if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue)
             {
                 if (attendance.CheckOutTime.Value < attendance.CheckInTime.Value)
                 {
-                    return (false, "ÙˆÙ‚Øª Ø§Ù„Ø§Ù†ØµØ±Ø§Ù Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø£Ù† ÙŠÙƒÙˆÙ† Ù‚Ø¨Ù„ ÙˆÙ‚Øª Ø§Ù„Ø­Ø¶ÙˆØ±");
+                    return (false, "æŞÊ ÇáÇäÕÑÇİ áÇ íãßä Ãä íßæä ŞÈá æŞÊ ÇáÍÖæÑ");
                 }
             }
 
@@ -1158,6 +1179,8 @@ namespace HR_Application
         }
 
         bool IsDrawer = false;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private void menu_btn_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
@@ -1354,7 +1377,7 @@ namespace HR_Application
             {
                 try
                 {
-                    // Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø³Ø®Ø© Ø§Ø­ØªÙŠØ§Ø·ÙŠØ© Ù…Ø¨Ø§Ø´Ø±Ø© Ù…Ù† SQL Server
+                    // ÅäÔÇÁ äÓÎÉ ÇÍÊíÇØíÉ ãÈÇÔÑÉ ãä SQL Server
                     string backupQuery = $@"
                 BACKUP DATABASE [{GetDatabaseName(connectionString)}] 
                 TO DISK = '{saveFileDialog.FileName}' 
@@ -1370,11 +1393,11 @@ namespace HR_Application
                         }
                     }
 
-                    MessageBox.Show($"ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø³Ø®Ø© Ø§Ø­ØªÙŠØ§Ø·ÙŠØ© Ø¨Ù†Ø¬Ø§Ø­: {saveFileDialog.FileName}");
+                    LocalizationManager.ShowMessage($"Êã ÅäÔÇÁ äÓÎÉ ÇÍÊíÇØíÉ ÈäÌÇÍ: {saveFileDialog.FileName}");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠØ©: {ex.Message}");
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÅäÔÇÁ ÇáäÓÎÉ ÇáÇÍÊíÇØíÉ: {ex.Message}");
                 }
             }
         }
@@ -1395,58 +1418,58 @@ namespace HR_Application
         {
             try
             {
-                // ÙØªØ­ Ù…Ù„Ù Excel
+                // İÊÍ ãáİ Excel
                 var openFileDialog = new OpenFileDialog
                 {
                     Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls",
-                    Title = "Ø§Ø®ØªØ± Ù…Ù„Ù Excel Ù„Ù„Ø¹Ù…ÙˆÙ„Ø§Øª"
+                    Title = "ÇÎÊÑ ãáİ Excel ááÚãæáÇÊ"
                 };
 
                 if (openFileDialog.ShowDialog() != true)
                     return;
 
-                // Ù‚Ø±Ø§Ø¡Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Excel
+                // ŞÑÇÁÉ ÇáÈíÇäÇÊ ãä Excel
                 var commissionData = _excelReader.ReadCommissionExcel(openFileDialog.FileName);
 
                 if (commissionData.Count == 0)
                 {
-                    MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø¨ÙŠØ§Ù†Ø§Øª ØµØ§Ù„Ø­Ø© ÙÙŠ Ø§Ù„Ù…Ù„Ù", "ØªØ­Ø°ÙŠØ±",
+                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì ÈíÇäÇÊ ÕÇáÍÉ İí Çáãáİ", "ÊÍĞíÑ",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                // ãÚÇáÌÉ ÇáÈíÇäÇÊ
                 var (salaries, errors) = _commissionProcessor.ProcessCommissions(commissionData);
 
-                // Ø¹Ø±Ø¶ Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                // ÚÑÖ ÇáäÊÇÆÌ ááãÓÊÎÏã
                 ShowImportResults(salaries.Count, errors);
 
                 if (salaries.Count > 0)
                 {
-                    // Ø­ÙØ¸ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                    // ÍİÙ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ
                     await SaveSalariesToDatabase(salaries);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇÓÊíÑÇÏ ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void ShowImportResults(int successCount, List<string> errors)
         {
-            string message = $"ØªÙ… Ù…Ø¹Ø§Ù„Ø¬Ø© {successCount} Ø¹Ù…ÙˆÙ„Ø© Ø¨Ù†Ø¬Ø§Ø­";
+            string message = $"Êã ãÚÇáÌÉ {successCount} ÚãæáÉ ÈäÌÇÍ";
 
             if (errors.Count > 0)
             {
-                message += $"\n\nØ§Ù„Ø£Ø®Ø·Ø§Ø¡ ({errors.Count}):\n" + string.Join("\n", errors.Take(10));
+                message += $"\n\nÇáÃÎØÇÁ ({errors.Count}):\n" + string.Join("\n", errors.Take(10));
 
                 if (errors.Count > 10)
-                    message += $"\n...Ùˆ {errors.Count - 10} Ø®Ø·Ø£ Ø¢Ø®Ø±";
+                    message += $"\n...æ {errors.Count - 10} ÎØÃ ÂÎÑ";
             }
 
-            MessageBox.Show(message, "Ù†ØªÙŠØ¬Ø© Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯",
+            LocalizationManager.ShowMessage(message, "äÊíÌÉ ÇáÇÓÊíÑÇÏ",
                 MessageBoxButton.OK,
                 errors.Count > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
         }
@@ -1458,12 +1481,12 @@ namespace HR_Application
                 _context.Salaries.AddRange(salaries);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show($"ØªÙ… Ø­ÙØ¸ {salaries.Count} Ø¹Ù…ÙˆÙ„Ø© ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­",
+                LocalizationManager.ShowMessage($"Êã ÍİÙ {salaries.Count} ÚãæáÉ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ ÈäÌÇÍ", "äÌÇÍ",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -1472,31 +1495,31 @@ namespace HR_Application
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Ù…Ù„ÙØ§Øª Excel|*.xls;*.xlsx",
-                Title = "Ø§Ø®ØªØ± Ù…Ù„Ù Excel Ù„Ù„Ù…ÙˆØ¸ÙÙŠÙ†"
+                Filter = "ãáİÇÊ Excel|*.xls;*.xlsx",
+                Title = "ÇÎÊÑ ãáİ Excel ááãæÙİíä"
             };
 
             if (openFileDialog.ShowDialog() != true)
                 return;
 
-            // Ø¥Ù†Ø´Ø§Ø¡ ÙˆÙ†Ø´Ø± Ù†Ø§ÙØ°Ø© Ø§Ù„ØªØ­Ù…ÙŠÙ„
+            // ÅäÔÇÁ æäÔÑ äÇİĞÉ ÇáÊÍãíá
             var progressDialog = new ProgressDialog
             {
                 Owner = this
             };
 
-            // Ù…ØªØºÙŠØ± Ù„ØªØªØ¨Ø¹ Ø§Ù„Ø¥Ù„ØºØ§Ø¡
+            // ãÊÛíÑ áÊÊÈÚ ÇáÅáÛÇÁ
             bool isCancelled = false;
 
-            // Ø¹Ø±Ø¶ Ù†Ø§ÙØ°Ø© Ø§Ù„ØªØ­Ù…ÙŠÙ„
+            // ÚÑÖ äÇİĞÉ ÇáÊÍãíá
             progressDialog.Show();
 
             try
             {
-                // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„ØªØ­Ù…ÙŠÙ„
-                progressDialog.UpdateStatus("Ø¬Ø§Ø±ÙŠ Ù‚Ø±Ø§Ø¡Ø© Ù…Ù„Ù Excel...");
+                // ÊÍÏíË ÍÇáÉ ÇáÊÍãíá
+                progressDialog.UpdateStatus("ÌÇÑí ŞÑÇÁÉ ãáİ Excel...");
 
-                // Ø¥Ù†Ø´Ø§Ø¡ Service Ù„Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ù…Ø¹ callback Ù„Ù„ØªÙ‚Ø¯Ù…
+                // ÅäÔÇÁ Service ááÇÓÊíÑÇÏ ãÚ callback ááÊŞÏã
                 var userImporter = new UserImportService(_context, (current, total, status) =>
                 {
                     if (isCancelled) return false;
@@ -1510,7 +1533,7 @@ namespace HR_Application
                     return true;
                 });
 
-                // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©
+                // ÇáÊÍŞŞ ãä ÅáÛÇÁ ÇáÚãáíÉ
                 progressDialog.Closing += (s, args) =>
                 {
                     if (progressDialog.IsCancelled)
@@ -1520,7 +1543,7 @@ namespace HR_Application
                     }
                 };
 
-                // Ø¨Ø¯Ø¡ Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯ (ÙÙŠ thread Ù…Ù†ÙØµÙ„)
+                // ÈÏÁ ÇáÇÓÊíÑÇÏ (İí thread ãäİÕá)
                 int importedCount = 0;
                 var importTask = Task.Run(async () =>
                 {
@@ -1531,39 +1554,39 @@ namespace HR_Application
                     }
                     catch (OperationCanceledException)
                     {
-                        return -1; // ØªÙ… Ø§Ù„Ø¥Ù„ØºØ§Ø¡
+                        return -1; // Êã ÇáÅáÛÇÁ
                     }
                     catch (Exception ex)
                     {
-                        throw; // Ø±Ù…ÙŠ Ø§Ù„Ø§Ø³ØªØ«Ù†Ø§Ø¡ Ù„Ù„ØªØ¹Ø§Ù…Ù„ Ù…Ø¹Ù‡ ÙÙŠ Ø§Ù„Ø®Ø§Ø±Ø¬
+                        throw; // Ñãí ÇáÇÓÊËäÇÁ ááÊÚÇãá ãÚå İí ÇáÎÇÑÌ
                     }
                 });
 
-                // Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø± Ø­ØªÙ‰ Ø§Ù†ØªÙ‡Ø§Ø¡ Ø§Ù„Ù…Ù‡Ù…Ø©
+                // ÇáÇäÊÙÇÑ ÍÊì ÇäÊåÇÁ ÇáãåãÉ
                 var result = await importTask;
 
-                // Ø¥ØºÙ„Ø§Ù‚ Ù†Ø§ÙØ°Ø© Ø§Ù„ØªØ­Ù…ÙŠÙ„
+                // ÅÛáÇŞ äÇİĞÉ ÇáÊÍãíá
                 Dispatcher.Invoke(() => progressDialog.Close());
 
-                // Ø¹Ø±Ø¶ Ø§Ù„Ù†ØªØ§Ø¦Ø¬
+                // ÚÑÖ ÇáäÊÇÆÌ
                 if (isCancelled)
                 {
-                    MessageBox.Show("ØªÙ… Ø¥Ù„ØºØ§Ø¡ Ø¹Ù…Ù„ÙŠØ© Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯", "Ø¥Ù„ØºØ§Ø¡",
+                    LocalizationManager.ShowMessage("Êã ÅáÛÇÁ ÚãáíÉ ÇáÇÓÊíÑÇÏ", "ÅáÛÇÁ",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else if (result == -1)
                 {
-                    MessageBox.Show("ØªÙ… Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©", "Ø¥Ù„ØºØ§Ø¡",
+                    LocalizationManager.ShowMessage("Êã ÅáÛÇÁ ÇáÚãáíÉ", "ÅáÛÇÁ",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else if (result > 0)
                 {
-                    MessageBox.Show($"ØªÙ… Ø§Ø³ØªÙŠØ±Ø§Ø¯ {result} Ù…ÙˆØ¸Ù Ø¨Ù†Ø¬Ø§Ø­!", "Ù†Ø¬Ø§Ø­",
+                    LocalizationManager.ShowMessage($"Êã ÇÓÊíÑÇÏ {result} ãæÙİ ÈäÌÇÍ!", "äÌÇÍ",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø£ÙŠ Ù…ÙˆØ¸ÙÙŠÙ†", "ØªØ­Ø°ÙŠØ±",
+                    LocalizationManager.ShowMessage("áã íÊã ÇÓÊíÑÇÏ Ãí ãæÙİíä", "ÊÍĞíÑ",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
@@ -1572,8 +1595,8 @@ namespace HR_Application
                 Dispatcher.Invoke(() =>
                 {
                     progressDialog.Close();
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†: {ex.Message}",
-                        "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯",
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÇÓÊíÑÇÏ ÇáãæÙİíä: {ex.Message}",
+                        "ÎØÃ İí ÇáÇÓÊíÑÇÏ",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
@@ -1600,15 +1623,20 @@ namespace HR_Application
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ThemeManager.Initialize();
             InitializeFlags();
             LoadGIFAsync();
             DashboardManager dashboardManager = new DashboardManager();
             dashboardControl.Children.Add(dashboardManager.GetDashboardWindow());
             UpdateThemeButton();
-            if (Properties.Settings.Default.Logo != null)
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.Logo))
                 GIFBack.Source = new BitmapImage(new Uri(Properties.Settings.Default.Logo));
-            WelcomeText.Text = $"Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨ÙƒØŒ {App.CurrentUser.FullName}";
+            if (Properties.Settings.Default.Language == "ar")
+                WelcomeText.Text = $"ãÑÍÈÇğ Èß¡ {App.CurrentUser.FullName}";
+            else
+                WelcomeText.Text = $"Welcome, {App.CurrentUser.FullName}";
+
+
+            StartTimer();
 
 
         }
@@ -1675,3 +1703,4 @@ namespace HR_Application
         }
     }
 }
+

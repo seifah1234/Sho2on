@@ -393,7 +393,7 @@
                                         </Border>
 
                                         <!-- Folder body -->
-                                        <Border Width="140" Height="90"
+                                        <Border Width="140" FontSize = "12" Height="90"
                                                 CornerRadius="0 8 8 8">
                                             <Border.Background>
                                                 <SolidColorBrush Color="{Binding FolderColor.Color}"/>

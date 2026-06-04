@@ -1,13 +1,13 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -50,7 +50,7 @@ namespace HR_Application
             }
             catch (Exception e)
             {
-                System.Windows.MessageBox.Show(e.Message);
+                LocalizationManager.ShowMessage(e.Message);
             }
             
         }
@@ -68,20 +68,20 @@ namespace HR_Application
                 int areaId = (area_box.SelectedItem as Area)?.Id ?? 0;
                 if (_context.Branches.Any(b => b.Id == id))
                 {
-                    MessageBox.Show("Ø§Ù„ÙØ±Ø¹ Ù…ÙˆØ¬ÙˆØ¯ Ø¨Ø§Ù„ÙØ¹Ù„!");
+                    LocalizationManager.ShowMessage("ÇáİÑÚ ãæÌæÏ ÈÇáİÚá!");
                     return;
                 }
                 var branch = new Branch { Id = id, Name = name, AreaId = areaId };
                 _context.Branches.Add(branch);
                 _context.SaveChanges();
 
-                System.Windows.MessageBox.Show("ØªÙ… Ø§Ø¶Ø§ÙØ© Ø§Ù„ÙØ±Ø¹", "ØªÙ…", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÇÖÇİÉ ÇáİÑÚ", "Êã", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
 
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
 
             }
         }
@@ -95,7 +95,7 @@ namespace HR_Application
         { 
             if (branch_list.SelectedItem is not Branch branch)
             {
-                System.Windows.MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙØ±Ø¹", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáİÑÚ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
@@ -103,12 +103,12 @@ namespace HR_Application
                 {
                     _context.Branches.Remove(branch);
                     await _context.SaveChangesAsync();
-                    System.Windows.MessageBox.Show("ØªÙ… Ø­Ø°Ù Ø§Ù„ÙØ±Ø¹", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÍĞİ ÇáİÑÚ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 catch
                 {
-                    System.Windows.MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -127,18 +127,18 @@ namespace HR_Application
                     branch.AreaId = areaId;
                     _context.Branches.Update(branch);
                     await  _context.SaveChangesAsync();
-                    System.Windows.MessageBox.Show("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ÙØ±Ø¹", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáİÑÚ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show("Ù„Ù… ØªØ®ØªØ§Ø± Ø§ÙŠ ÙØ±Ø¹", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Çí İÑÚ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
             }
             catch
             {
-                System.Windows.MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -164,3 +164,4 @@ namespace HR_Application
 
     }
 }
+

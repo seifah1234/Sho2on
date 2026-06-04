@@ -1,14 +1,14 @@
-ï»¿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HR_Application.ViewModels;
 using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -53,7 +53,7 @@ namespace HR_Application.Views.Employees
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -144,7 +144,7 @@ namespace HR_Application.Views.Employees
                                (p.Status == PermissionStatus.UnderReview && App.CurrentUser.Department.IsHR == true))
                     .ToListAsync();
 
-                // ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙÙ„Ø§ØªØ±
+                // ÊØÈíŞ ÇáİáÇÊÑ
                 if (int.TryParse(txtEmployeeId.Text, out int employeeId) && employeeId > 0)
                 {
                     query = query.Where(p => p.UserId == employeeId).ToList();
@@ -172,7 +172,7 @@ namespace HR_Application.Views.Employees
                 {
                     Id = p.Id,
                     EmployeeId = p.UserId,
-                    EmployeeName = p.User?.FullName ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
+                    EmployeeName = p.User?.FullName ?? "ÛíÑ ãÚÑæİ",
                     PermissionType = p.PermissionType,
                     PermissionTypeName = GetPermissionTypeName(p.PermissionType),
                     StartDateTime = p.StartDateTime,
@@ -182,9 +182,9 @@ namespace HR_Application.Views.Employees
                     Status = GetStatusText(p.Status),
                     StatusEn = p.Status,
                     CreatedAt = p.CreatedAt,
-                    EmployeeDepartment = p.User?.Department?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    ApprovedByName = p.ApprovedBy?.FullName ?? "Ù„Ù… ØªØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¨Ø¹Ø¯",
+                    EmployeeDepartment = p.User?.Department?.Name ?? "ÛíÑ ãÚÑæİ",
+                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ÛíÑ ãÚÑæİ",
+                    ApprovedByName = p.ApprovedBy?.FullName ?? "áã ÊÊã ÇáãæÇİŞÉ ÈÚÏ",
                     ApprovedDate = p.ApprovedDate,
                     RejectionReason = p.RejectionReason
                 }).ToList();
@@ -221,7 +221,7 @@ namespace HR_Application.Views.Employees
                 {
                     Id = p.Id,
                     EmployeeId = p.UserId,
-                    EmployeeName = p.User?.FullName ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
+                    EmployeeName = p.User?.FullName ?? "ÛíÑ ãÚÑæİ",
                     PermissionType = p.PermissionType,
                     PermissionTypeName = GetPermissionTypeName(p.PermissionType),
                     StartDateTime = p.StartDateTime,
@@ -231,9 +231,9 @@ namespace HR_Application.Views.Employees
                     Status = GetStatusText(p.Status),
                     StatusEn = p.Status,
                     CreatedAt = p.CreatedAt,
-                    EmployeeDepartment = p.User?.Department?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    ApprovedByName = p.ApprovedBy?.FullName ?? "Ù„Ù… ØªØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¨Ø¹Ø¯",
+                    EmployeeDepartment = p.User?.Department?.Name ?? "ÛíÑ ãÚÑæİ",
+                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ÛíÑ ãÚÑæİ",
+                    ApprovedByName = p.ApprovedBy?.FullName ?? "áã ÊÊã ÇáãæÇİŞÉ ÈÚÏ",
                     ApprovedDate = p.ApprovedDate,
                     RejectionReason = p.RejectionReason
                 }).ToList();
@@ -242,19 +242,19 @@ namespace HR_Application.Views.Employees
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø°Ù†: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ØáÈÇÊ ÇáÅĞä: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private string GetPermissionTypeName(string permissionType)
         {
             return permissionType switch
             {
-                "EarlyLeave" => "Ø®Ø±ÙˆØ¬ Ù…Ø¨ÙƒØ±",
-                "LateEntry" => "Ø¯Ø®ÙˆÙ„ Ù…ØªØ£Ø®Ø±",
-                "PersonalLeave" => "Ø¥Ø°Ù† Ø´Ø®ØµÙŠ",
-                "Emergency" => "Ø·Ø§Ø±Ø¦",
-                "Official" => "Ø±Ø³Ù…ÙŠ",
-                "Other" => "Ø£Ø®Ø±Ù‰",
+                "EarlyLeave" => "ÎÑæÌ ãÈßÑ",
+                "LateEntry" => "ÏÎæá ãÊÃÎÑ",
+                "PersonalLeave" => "ÅĞä ÔÎÕí",
+                "Emergency" => "ØÇÑÆ",
+                "Official" => "ÑÓãí",
+                "Other" => "ÃÎÑì",
                 _ => permissionType
             };
         }
@@ -263,11 +263,11 @@ namespace HR_Application.Views.Employees
         {
             return status switch
             {
-                "UnderReview" => "ØªØ­Øª Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©",
-                "Pending" => "Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±",
-                "Approved" => "Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡",
-                "Rejected" => "Ù…Ø±ÙÙˆØ¶",
-                "Draft" => "Ù…Ø³ÙˆØ¯Ø©",
+                "UnderReview" => "ÊÍÊ ÇáãÑÇÌÚÉ",
+                "Pending" => "ŞíÏ ÇáÇäÊÙÇÑ",
+                "Approved" => "ãæÇİŞ Úáíå",
+                "Rejected" => "ãÑİæÖ",
+                "Draft" => "ãÓæÏÉ",
                 _ => status
             };
         }
@@ -312,7 +312,7 @@ namespace HR_Application.Views.Employees
 
                 if (permission == null)
                 {
-                    MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø°Ù†", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì ØáÈ ÇáÅĞä", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -323,7 +323,7 @@ namespace HR_Application.Views.Employees
                         permission.Status = PermissionStatus.Approved;
                         permission.ApprovedDate = DateTime.Now;
 
-                        // ØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„ Ø§Ù„Ø­Ø¶ÙˆØ±
+                        // ÊÍÏíË ÓÌá ÇáÍÖæÑ
                         await UpdateAttendanceForPermission(permission);
                     }
                     else
@@ -333,7 +333,7 @@ namespace HR_Application.Views.Employees
                     }
                     
 
-                    MessageBox.Show("ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø°Ù†", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÇáãæÇİŞÉ Úáì ØáÈ ÇáÅĞä", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -347,7 +347,7 @@ namespace HR_Application.Views.Employees
                         permission.ApprovedDate = DateTime.Now;
                         permission.ApprovedByUserId = App.CurrentUser?.Id;
 
-                        MessageBox.Show("ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø°Ù†", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("Êã ÑİÖ ØáÈ ÇáÅĞä", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
@@ -360,13 +360,13 @@ namespace HR_Application.Views.Employees
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„Ø·Ù„Ø¨: {ex.InnerException}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ãÚÇáÌÉ ÇáØáÈ: {ex.InnerException}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async System.Threading.Tasks.Task UpdateAttendanceForPermission(EmployeePermission permission)
         {
-            // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø³Ø¬Ù„ Ø§Ù„Ø­Ø¶ÙˆØ± Ù„Ù‡Ø°Ø§ Ø§Ù„ÙŠÙˆÙ…
+            // ÇáÈÍË Úä ÓÌá ÇáÍÖæÑ áåĞÇ Çáíæã
             var attendanceDate = permission.StartDateTime.Date;
             var attendance = await _context.Attendances
                 .FirstOrDefaultAsync(a => a.UserId == permission.UserId &&
@@ -374,7 +374,7 @@ namespace HR_Application.Views.Employees
 
             if (attendance != null)
             {
-                // ØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„ Ø§Ù„Ø­Ø¶ÙˆØ± Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø°Ù†
+                // ÊÍÏíË ÓÌá ÇáÍÖæÑ ÈäÇÁğ Úáì äæÚ ÇáÅĞä
                 switch (permission.PermissionType)
                 {
                     case "EarlyLeave":
@@ -413,23 +413,23 @@ namespace HR_Application.Views.Employees
 
                 if (permission != null)
                 {
-                    // ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø§ÙØ°Ø© Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„ Ù‡Ù†Ø§
-                    var detailsMessage = $"ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¥Ø°Ù†:\n\n" +
-                                         $"Ø§Ù„Ù…ÙˆØ¸Ù: {permission.User?.FullName}\n" +
-                                         $"Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø°Ù†: {GetPermissionTypeName(permission.PermissionType)}\n" +
-                                         $"Ù…Ù†: {permission.StartDateTime:yyyy/MM/dd HH:mm}\n" +
-                                         $"Ø¥Ù„Ù‰: {permission.EndDateTime:yyyy/MM/dd HH:mm}\n" +
-                                         $"Ø§Ù„Ù…Ø¯Ø©: {permission.Duration} Ø³Ø§Ø¹Ø©\n" +
-                                         $"Ø§Ù„Ø³Ø¨Ø¨: {permission.Reason}\n" +
-                                         $"Ø§Ù„Ø­Ø§Ù„Ø©: {GetStatusText(permission.Status)}\n" +
-                                         $"ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ù„Ø¨: {permission.CreatedAt:yyyy/MM/dd}";
+                    // íãßäß ÅäÔÇÁ äÇİĞÉ ÚÑÖ ÇáÊİÇÕíá åäÇ
+                    var detailsMessage = $"ÊİÇÕíá ÇáÅĞä:\n\n" +
+                                         $"ÇáãæÙİ: {permission.User?.FullName}\n" +
+                                         $"äæÚ ÇáÅĞä: {GetPermissionTypeName(permission.PermissionType)}\n" +
+                                         $"ãä: {permission.StartDateTime:yyyy/MM/dd HH:mm}\n" +
+                                         $"Åáì: {permission.EndDateTime:yyyy/MM/dd HH:mm}\n" +
+                                         $"ÇáãÏÉ: {permission.Duration} ÓÇÚÉ\n" +
+                                         $"ÇáÓÈÈ: {permission.Reason}\n" +
+                                         $"ÇáÍÇáÉ: {GetStatusText(permission.Status)}\n" +
+                                         $"ÊÇÑíÎ ÇáØáÈ: {permission.CreatedAt:yyyy/MM/dd}";
 
-                    MessageBox.Show(detailsMessage, "ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¥Ø°Ù†", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage(detailsMessage, "ÊİÇÕíá ÇáÅĞä", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÚÑÖ ÇáÊİÇÕíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -442,7 +442,7 @@ namespace HR_Application.Views.Employees
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-            // Ø§Ù„Ø³Ù…Ø§Ø­ ÙÙ‚Ø· Ø¨Ø§Ù„Ø£Ø±Ù‚Ø§Ù…
+            // ÇáÓãÇÍ İŞØ ÈÇáÃÑŞÇã
             e.Handled = !char.IsDigit(e.Text, 0);
         }
 
@@ -475,11 +475,11 @@ namespace HR_Application.Views.Employees
             {
                 return status switch
                 {
-                    "Draft" => new SolidColorBrush(Colors.Gray), // Ù…Ø³ÙˆØ¯Ø©
-                    "Under Review" => new SolidColorBrush(Colors.Blue), // Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
-                    "Pending" => new SolidColorBrush(Colors.Orange), // Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
-                    "Approved" => new SolidColorBrush(Colors.Green), // Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡
-                    "Rejected" => new SolidColorBrush(Colors.Red), // Ù…Ø±ÙÙˆØ¶
+                    "Draft" => new SolidColorBrush(Colors.Gray), // ãÓæÏÉ
+                    "Under Review" => new SolidColorBrush(Colors.Blue), // ŞíÏ ÇáÇäÊÙÇÑ
+                    "Pending" => new SolidColorBrush(Colors.Orange), // ŞíÏ ÇáÇäÊÙÇÑ
+                    "Approved" => new SolidColorBrush(Colors.Green), // ãæÇİŞ Úáíå
+                    "Rejected" => new SolidColorBrush(Colors.Red), // ãÑİæÖ
                     _ => new SolidColorBrush(Colors.Gray)
                 };
             }
@@ -498,7 +498,7 @@ namespace HR_Application.Views.Employees
         {
             if (value is DateTime dateTime)
             {
-                // Ø§Ø³ØªØ®Ø¯Ø§Ù… Ù…ÙƒØªØ¨Ø© PersianDateTime Ø£Ùˆ ÙƒØªØ§Ø¨Ø© Ù…Ù†Ø·Ù‚ Ø§Ù„ØªØ­ÙˆÙŠÙ„
+                // ÇÓÊÎÏÇã ãßÊÈÉ PersianDateTime Ãæ ßÊÇÈÉ ãäØŞ ÇáÊÍæíá
                 return dateTime.ToString("yyyy/MM/dd");
             }
             return string.Empty;
@@ -510,7 +510,7 @@ namespace HR_Application.Views.Employees
         }
     }
 
-    // Ø£Ø¶Ù Ù‡Ø°Ø§ Ø§Ù„Ù€ Converter ÙÙŠ Ù†Ù‡Ø§ÙŠØ© Ø§Ù„Ù…Ù„Ù
+    // ÃÖİ åĞÇ ÇáÜ Converter İí äåÇíÉ Çáãáİ
     public class TupleConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -534,15 +534,15 @@ namespace HR_Application.Views.Employees
         {
             if (value is string status)
             {
-                // ØªØ­Ù‚Ù‚ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                // ÊÍŞŞ ãä ÕáÇÍíÇÊ ÇáãÓÊÎÏã
                 bool isManager = App.CurrentUser?.JobTitle?.IsManager ?? false;
                 bool isHR = App.CurrentUser?.Department?.IsHR ?? false;
 
-                // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø²Ø± Ù„Ù„Ù…Ø¯ÙŠØ± Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø­Ø§Ù„Ø© Pending
+                // ÅÙåÇÑ ÇáÒÑ ááãÏíÑ ÅĞÇ ßÇäÊ ÇáÍÇáÉ Pending
                 if (status == "Pending" && isManager)
                     return Visibility.Visible;
 
-                // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø²Ø± Ù„Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø­Ø§Ù„Ø© Under Review
+                // ÅÙåÇÑ ÇáÒÑ ááãæÇÑÏ ÇáÈÔÑíÉ ÅĞÇ ßÇäÊ ÇáÍÇáÉ Under Review
                 if (status == "Under Review" && isHR)
                     return Visibility.Visible;
             }

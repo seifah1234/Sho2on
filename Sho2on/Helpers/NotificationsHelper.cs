@@ -1,9 +1,9 @@
-ï»¿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
-using System;
+using System; using HR_Application.Helpers;
 using System.IO;
 using System.Media;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
@@ -19,7 +19,7 @@ namespace HR_Application.Helpers
     {
         private static readonly string SoundPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "sounds", "notification.wav");
 
-        // ØªØ´ØºÙŠÙ„ ØµÙˆØª Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±
+        // ÊÔÛíá ÕæÊ ÇáÅÔÚÇÑ
         public static void PlayNotificationSound()
         {
             try
@@ -39,19 +39,19 @@ namespace HR_Application.Helpers
             catch { }
         }
 
-        // Ø¥Ø¸Ù‡Ø§Ø± Toast Notification
+        // ÅÙåÇÑ Toast Notification
         public static void ShowToastNotification(string title, string message, Action onClickAction = null)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                // Ø¥ÙŠØ¬Ø§Ø¯ Ø§Ù„Ù†Ø§ÙØ°Ø© Ø§Ù„Ù†Ø´Ø·Ø©
+                // ÅíÌÇÏ ÇáäÇÝÐÉ ÇáäÔØÉ
                 var mainWindow = Application.Current.MainWindow;
                 if (mainWindow is MetroWindow metroWindow)
                 {
-                    // Ø§Ø³ØªØ®Ø¯Ø§Ù… MahApps Metro Toast
+                    // ÇÓÊÎÏÇã MahApps Metro Toast
                     metroWindow.ShowMessageAsync(title, message, MessageDialogStyle.Affirmative, new MetroDialogSettings
                     {
-                        AffirmativeButtonText = "Ø¹Ø±Ø¶",
+                        AffirmativeButtonText = "ÚÑÖ",
                         DialogMessageFontSize = 14,
                         DialogTitleFontSize = 16,
                         ColorScheme = MetroDialogColorScheme.Accented
@@ -65,13 +65,13 @@ namespace HR_Application.Helpers
                 }
                 else
                 {
-                    // Ø§Ø³ØªØ®Ø¯Ø§Ù… MessageBox Ø§Ù„Ø¹Ø§Ø¯ÙŠ ÙƒØ¨Ø¯ÙŠÙ„
-                    MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                    // ÇÓÊÎÏÇã MessageBox ÇáÚÇÏí ßÈÏíá
+                    LocalizationManager.ShowMessage(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             });
         }
 
-        // Ø¥Ø¸Ù‡Ø§Ø± Popup ØµØºÙŠØ± ÙÙŠ Ø§Ù„Ø²Ø§ÙˆÙŠØ©
+        // ÅÙåÇÑ Popup ÕÛíÑ Ýí ÇáÒÇæíÉ
         public static void ShowPopupNotification(string title, string message, Window owner, Action onClickAction = null)
         {
             Application.Current.Dispatcher.Invoke(() =>
@@ -79,10 +79,10 @@ namespace HR_Application.Helpers
                 var popup = new Popup
                 {
                     PlacementTarget = owner,
-                    Placement = PlacementMode.Absolute, // Ø£Ùˆ Absolute
+                    Placement = PlacementMode.Absolute, // Ãæ Absolute
                     AllowsTransparency = true,
-                    HorizontalOffset = owner.Width - 10, // 320 Ù‡Ùˆ Ø¹Ø±Ø¶ Ø§Ù„Ø¨ÙˆØ¨ã‚¢ãƒƒãƒ—
-                    VerticalOffset = 10, // 120 Ù‡Ùˆ Ø§Ø±ØªÙØ§Ø¹ Ø§Ù„Ø¨ÙˆØ¨ã‚¢ãƒƒãƒ—
+                    HorizontalOffset = owner.Width - 10, // 320 åæ ÚÑÖ ÇáÈæÈ???
+                    VerticalOffset = 10, // 120 åæ ÇÑÊÝÇÚ ÇáÈæÈ???
                     Margin = new Thickness(20),
                     StaysOpen = false
                 };
@@ -120,7 +120,7 @@ namespace HR_Application.Helpers
                 popup.Child = border;
                 popup.IsOpen = true;
 
-                // Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù€ Popup Ø¨Ø¹Ø¯ 5 Ø«ÙˆØ§Ù†ÙŠ
+                // ÅÛáÇÞ ÇáÜ Popup ÈÚÏ 5 ËæÇäí
                 var timer = new DispatcherTimer
                 {
                     Interval = TimeSpan.FromSeconds(5)
@@ -132,7 +132,7 @@ namespace HR_Application.Helpers
                 };
                 timer.Start();
 
-                // Ø¥Ø¶Ø§ÙØ© Ø­Ø¯Ø« Ø¹Ù†Ø¯ Ø§Ù„Ø¶ØºØ·
+                // ÅÖÇÝÉ ÍÏË ÚäÏ ÇáÖÛØ
                 border.MouseLeftButtonUp += (s, e) =>
                 {
                     popup.IsOpen = false;

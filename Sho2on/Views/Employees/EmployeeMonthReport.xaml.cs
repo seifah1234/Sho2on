@@ -1,11 +1,11 @@
-๏ปฟusing ClosedXML.Excel;
+using ClosedXML.Excel;
 using HR_Application.Views;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -69,10 +69,10 @@ namespace HR_Application
                 FontSize = 13,
                 FontWeight = FontWeights.Bold,
                 Inlines = {
-                    new Run($"ุงููุฑุน: {branch}"),
+                    new Run($"วแÝัฺ: {branch}"),
                     new LineBreak(),
                     new LineBreak(),
-                    new Run($"ุดูุฑ: {month} - {year}")
+                    new Run($"ิๅั: {month} - {year}")
                 }
             });
             branchCell.BorderThickness = new Thickness(0);
@@ -100,7 +100,7 @@ namespace HR_Application
             flowDocument.Blocks.Add(headerTable);
 
             // Add title paragraph
-            Paragraph titleParagraph = new Paragraph(new Run("ุชูุฑูุฑ ุณุงุนุงุช ุนู…ู ุดูุฑู"))
+            Paragraph titleParagraph = new Paragraph(new Run("สÞัํั ำวฺวส ฺใแ ิๅัํ"))
             {
                 FontWeight = FontWeights.Bold,
                 FontSize = 14,
@@ -136,15 +136,15 @@ namespace HR_Application
             dataHeaderRow.FontWeight = FontWeights.Bold;
 
             // Add header cells
-            dataHeaderRow.Cells.Add(CreateCell("ุงูููุฏ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ุงูุงุณู…", true, true));
-            dataHeaderRow.Cells.Add(CreateCell("ุน ุงูุณุงุนุงุช", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ุงูุชุฃุฎูุฑ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ุฎ ู…ุจูุฑ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ุงูุงุถุงูู", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ุณ ุงููุนููุฉ", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ุงูุงุฌุงุฒุงุช", true, false));
-            dataHeaderRow.Cells.Add(CreateCell("ุงูุบูุงุจ", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("วแ฿ๆฯ", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("วแวำใ", true, true));
+            dataHeaderRow.Cells.Add(CreateCell("ฺ วแำวฺวส", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("วแสรฮํั", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("ฮ ใศ฿ั", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("วแวึวÝํ", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("ำ วแÝฺแํษ", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("วแวฬวาวส", true, false));
+            dataHeaderRow.Cells.Add(CreateCell("วแÛํวศ", true, false));
 
             // Add header row to the data table
             headerRowGroupData.Rows.Add(dataHeaderRow);
@@ -208,7 +208,7 @@ namespace HR_Application
 
         private string ConvertToArabicNumerals(string input)
         {
-            string arabicNumerals = "ู ูกูขูฃูคูฅูฆูงูจูฉ";
+            string arabicNumerals = "0123456789";
             string westernNumerals = "0123456789";
 
             return new string(input.Select(c =>
@@ -245,15 +245,15 @@ namespace HR_Application
 
                         var headers = new[]
                         {
-                            "ุงูููุฏ",
-                            "ุงูุงุณู…",
-                            "ุณ ุฑุณู…ูุฉ",
-                            "ุงูุชุฃุฎูุฑ",
-                            "ุฎ ู…ุจูุฑ",
-                            "ุงูุงุถุงูู",
-                            "ุณ ูุนููุฉ",
-                            "ุงูุงุฌุงุฒุงุช",
-                            "ุงูุบูุงุจ"
+                            "วแ฿ๆฯ",
+                            "วแวำใ",
+                            "ำ ัำใํษ",
+                            "วแสรฮํั",
+                            "ฮ ใศ฿ั",
+                            "วแวึวÝํ",
+                            "ำ Ýฺแํษ",
+                            "วแวฬวาวส",
+                            "วแÛํวศ"
                         };
 
                         for (int i = 0; i < headers.Length; i++)
@@ -286,12 +286,12 @@ namespace HR_Application
                         }
 
                         workbook.SaveAs(filePath);
-                        MessageBox.Show("ุชู… ุงุณุชุฎุฑุงุฌ ุงูุงูุณูู!");
+                        LocalizationManager.ShowMessage("สใ วำสฮัวฬ วแว฿ำํแ!");
                     }
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message, "ุฎุทุฃ");
+                    LocalizationManager.ShowMessage(e.Message, "ฮุร");
                 }
             }
         }
@@ -334,7 +334,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ุฎุทุฃ ูู ุชุญู…ูู ุงูุจูุงูุงุช: {ex.Message}", "ุฎุทุฃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแศํวไวส: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -354,7 +354,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ุฎุทุฃ ูู ุญุณุงุจ ุชูุงุฑูุฎ ุงูุดูุฑ ุงูู…ุฎุตุต: {ex.Message}", "ุฎุทุฃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ฮุร Ýํ อำวศ สๆวัํฮ วแิๅั วแใฮีี: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
                 return (DateTime.MinValue, DateTime.MaxValue);
             }
         }
@@ -368,8 +368,8 @@ namespace HR_Application
 
             var dayMapping = new Dictionary<string, int>
             {
-                { "ุงูุณุจุช", 0 }, { "ุงูุฃุญุฏ", 1 }, { "ุงูุงุซููู", 2 }, { "ุงูุซูุงุซุงุก", 3 },
-                { "ุงูุฃุฑุจุนุงุก", 4 }, { "ุงูุฎู…ูุณ", 5 }, { "ุงูุฌู…ุนุฉ", 6 }
+                { "วแำศส", 0 }, { "วแรอฯ", 1 }, { "วแวหไํไ", 2 }, { "วแหแวหวม", 3 },
+                { "วแรัศฺวม", 4 }, { "วแฮใํำ", 5 }, { "วแฬใฺษ", 6 }
             };
 
 
@@ -491,7 +491,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                LocalizationManager.ShowMessage(ex.Message);
             }
             
         }

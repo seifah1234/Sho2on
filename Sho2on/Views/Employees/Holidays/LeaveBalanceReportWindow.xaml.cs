@@ -1,15 +1,15 @@
-ï»¿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -61,7 +61,7 @@ namespace HR_Application.Views.Employees.Holidays
                     .ToList();
 
                 cmbDepartment.Items.Clear();
-                cmbDepartment.Items.Add(new ComboBoxItem { Content = "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø§Øª", Tag = -1 });
+                cmbDepartment.Items.Add(new ComboBoxItem { Content = "ÌãíÚ ÇáÅÏÇÑÇÊ", Tag = -1 });
 
                 foreach (var department in departments)
                 {
@@ -77,7 +77,7 @@ namespace HR_Application.Views.Employees.Holidays
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÅÏÇÑÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -91,7 +91,7 @@ namespace HR_Application.Views.Employees.Holidays
                     .Where(u => u.InDuty)
                     .AsQueryable();
 
-                // ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙÙ„Ø§ØªØ±
+                // ÊØÈíŞ ÇáİáÇÊÑ
                 if (int.TryParse(txtEmployeeId.Text, out int employeeId) && employeeId > 0)
                 {
                     query = query.Where(u => u.Id == employeeId);
@@ -117,10 +117,10 @@ namespace HR_Application.Views.Employees.Holidays
                     {
                         EmployeeId = user.Id,
                         EmployeeName = user.FullName,
-                        DepartmentName = user.Department?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"
+                        DepartmentName = user.Department?.Name ?? "ÛíÑ ãÚÑæİ"
                     };
 
-                    // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø¬Ù…ÙŠØ¹ Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª Ø§Ù„Ù†Ø´Ø·Ø©
+                    // ÇáÍÕæá Úáì ÌãíÚ ÃäæÇÚ ÇáÅÌÇÒÇÊ ÇáäÔØÉ
                     var leaveTypes = await _context.LeaveTypes
                         .Where(lt => lt.IsActive)
                         .OrderBy(lt => lt.Name)
@@ -147,13 +147,13 @@ namespace HR_Application.Views.Employees.Holidays
                 ReportData = reportData;
                 itemsReport.ItemsSource = ReportData;
 
-                // Ø¥Ø¸Ù‡Ø§Ø± Ø¥Ø­ØµØ§Ø¦ÙŠØ©
+                // ÅÙåÇÑ ÅÍÕÇÆíÉ
                 ShowStatistics();
                 
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØªÙ‚Ø±ÙŠØ±: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÊŞÑíÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -180,7 +180,7 @@ namespace HR_Application.Views.Employees.Holidays
             var usedLeaves = await _context.Leaves
                 .Where(l => l.UserId == userId &&
                            l.LeaveTypeId == leaveTypeId &&
-                           l.Status == 2) // Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡Ø§
+                           l.Status == 2) // ÇáãæÇİŞ ÚáíåÇ
                 .SumAsync(l => (int?)l.Duration) ?? 0;
 
             return new LeaveBalanceInfo
@@ -222,17 +222,17 @@ namespace HR_Application.Views.Employees.Holidays
             {
                 if (!ReportData.Any())
                 {
-                    MessageBox.Show("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù„ØªØµØ¯ÙŠØ±", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("áÇ ÊæÌÏ ÈíÇäÇÊ ááÊÕÏíÑ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // ÙƒÙˆØ¯ Ø§Ù„ØªØµØ¯ÙŠØ± Ø¥Ù„Ù‰ Excel
-                // ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ù…ÙƒØªØ¨Ø© Ù…Ø«Ù„ ClosedXML Ø£Ùˆ EPPlus
+                // ßæÏ ÇáÊÕÏíÑ Åáì Excel
+                // íãßäß ÇÓÊÎÏÇã ãßÊÈÉ ãËá ClosedXML Ãæ EPPlus
                 ExportToExcel();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµØ¯ÙŠØ±: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÕÏíÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -243,32 +243,32 @@ private void ExportToExcel()
         {
             if (!ReportData.Any())
             {
-                MessageBox.Show("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù„ØªØµØ¯ÙŠØ±", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("áÇ ÊæÌÏ ÈíÇäÇÊ ááÊÕÏíÑ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Ø¥Ù†Ø´Ø§Ø¡ Ø­ÙˆØ§Ø± Ù„Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù
+            // ÅäÔÇÁ ÍæÇÑ áÍİÙ Çáãáİ
             var saveFileDialog = new Microsoft.Win32.SaveFileDialog
             {
-                Filter = "Ù…Ù„ÙØ§Øª Excel|*.xlsx",
-                FileName = $"ØªÙ‚Ø±ÙŠØ±_Ø±ØµÙŠØ¯_Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx",
-                Title = "Ø­ÙØ¸ Ù…Ù„Ù Excel"
+                Filter = "ãáİÇÊ Excel|*.xlsx",
+                FileName = $"ÊŞÑíÑ_ÑÕíÏ_ÇáÅÌÇÒÇÊ_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx",
+                Title = "ÍİÙ ãáİ Excel"
             };
 
             if (saveFileDialog.ShowDialog() == true)
             {
                 using (var workbook = new XLWorkbook())
                 {
-                    // ØµÙØ­Ø© Ø§Ù„ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©
-                    var worksheet = workbook.Worksheets.Add("ØªÙ‚Ø±ÙŠØ± Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª");
+                    // ÕİÍÉ ÇáÊŞÑíÑ ÇáÑÆíÓíÉ
+                    var worksheet = workbook.Worksheets.Add("ÊŞÑíÑ ÑÕíÏ ÇáÅÌÇÒÇÊ");
 
-                    // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ù†Øµ Ù…Ù† Ø§Ù„ÙŠÙ…ÙŠÙ† Ù„Ù„ÙŠØ³Ø§Ø±
+                    // ÊäÓíŞ ÇáäÕ ãä Çáíãíä ááíÓÇÑ
                     worksheet.RightToLeft = true;
 
-                    // Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ
+                    // ÇáÚäæÇä ÇáÑÆíÓí
                     var titleRange = worksheet.Range(1, 1, 1, 8);
                     titleRange.Merge();
-                    titleRange.Value = "ØªÙ‚Ø±ÙŠØ± Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª";
+                    titleRange.Value = "ÊŞÑíÑ ÑÕíÏ ÇáÅÌÇÒÇÊ";
                     titleRange.Style.Font.Bold = true;
                     titleRange.Style.Font.FontSize = 16;
                     titleRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -279,15 +279,15 @@ private void ExportToExcel()
                     titleRange.Style.Border.OutsideBorderColor = XLColor.Black;
                     worksheet.Row(1).Height = 30;
 
-                    // Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ØªÙ‚Ø±ÙŠØ±
-                    worksheet.Cell(2, 1).Value = "ØªØ§Ø±ÙŠØ® Ø§Ù„ØªØµØ¯ÙŠØ±:";
+                    // ãÚáæãÇÊ ÇáÊŞÑíÑ
+                    worksheet.Cell(2, 1).Value = "ÊÇÑíÎ ÇáÊÕÏíÑ:";
                     worksheet.Cell(2, 2).Value = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
-                    worksheet.Cell(3, 1).Value = "Ø¹Ø¯Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†:";
+                    worksheet.Cell(3, 1).Value = "ÚÏÏ ÇáãæÙİíä:";
                     worksheet.Cell(3, 2).Value = ReportData.Count;
-                    worksheet.Cell(4, 1).Value = "Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª:";
+                    worksheet.Cell(4, 1).Value = "ÃäæÇÚ ÇáÅÌÇÒÇÊ:";
                     worksheet.Cell(4, 2).Value = ReportData.FirstOrDefault()?.LeaveBalances.Count ?? 0;
 
-                    // ØªÙ†Ø³ÙŠÙ‚ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ØªÙ‚Ø±ÙŠØ±
+                    // ÊäÓíŞ ãÚáæãÇÊ ÇáÊŞÑíÑ
                     for (int i = 2; i <= 4; i++)
                     {
                         worksheet.Cell(i, 1).Style.Font.Bold = true;
@@ -295,49 +295,49 @@ private void ExportToExcel()
                         worksheet.Cell(i, 2).Style.Font.FontColor = XLColor.DarkGreen;
                     }
 
-                    // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„ - Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©
+                    // ÑÃÓ ÇáÌÏæá - ãÚáæãÇÊ ÇáãæÙİíä ÇáÃÓÇÓíÉ
                     int currentRow = 6;
-                    worksheet.Cell(currentRow, 1).Value = "ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù";
-                    worksheet.Cell(currentRow, 2).Value = "Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ¸Ù";
-                    worksheet.Cell(currentRow, 3).Value = "Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©";
+                    worksheet.Cell(currentRow, 1).Value = "ßæÏ ÇáãæÙİ";
+                    worksheet.Cell(currentRow, 2).Value = "ÇÓã ÇáãæÙİ";
+                    worksheet.Cell(currentRow, 3).Value = "ÇáÅÏÇÑÉ";
 
-                    // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„ - Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª
+                    // ÑÃÓ ÇáÌÏæá - ÃäæÇÚ ÇáÅÌÇÒÇÊ
                     int colIndex = 4;
                     var leaveTypes = ReportData.FirstOrDefault()?.LeaveBalances ?? new List<LeaveBalanceDetail>();
 
                     foreach (var leaveType in leaveTypes)
                     {
-                        // Ø¹Ù†ÙˆØ§Ù† Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+                        // ÚäæÇä äæÚ ÇáÅÌÇÒÉ
                         worksheet.Cell(currentRow, colIndex).Value = leaveType.LeaveTypeName;
                         worksheet.Cell(currentRow, colIndex).Style.Font.Bold = true;
                         worksheet.Cell(currentRow, colIndex).Style.Font.FontColor = XLColor.White;
                         worksheet.Cell(currentRow, colIndex).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         worksheet.Cell(currentRow, colIndex).Style.Fill.BackgroundColor = XLColor.FromArgb(0, 112, 192);
 
-                        // Ø±Ø¤ÙˆØ³ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø© Ø§Ù„ÙØ±Ø¹ÙŠØ©
-                        worksheet.Cell(currentRow + 1, colIndex).Value = "Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹";
-                        worksheet.Cell(currentRow + 1, colIndex + 1).Value = "Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…";
-                        worksheet.Cell(currentRow + 1, colIndex + 2).Value = "Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ";
-                        worksheet.Cell(currentRow + 1, colIndex + 3).Value = "Ø§Ù„Ù†Ø³Ø¨Ø© %";
+                        // ÑÄæÓ ÇáÃÚãÏÉ ÇáİÑÚíÉ
+                        worksheet.Cell(currentRow + 1, colIndex).Value = "ÇáãÌãæÚ";
+                        worksheet.Cell(currentRow + 1, colIndex + 1).Value = "ÇáãÓÊÎÏã";
+                        worksheet.Cell(currentRow + 1, colIndex + 2).Value = "ÇáãÊÈŞí";
+                        worksheet.Cell(currentRow + 1, colIndex + 3).Value = "ÇáäÓÈÉ %";
 
                         colIndex += 4;
                     }
 
-                    // Ø¯Ù…Ø¬ Ø®Ù„Ø§ÙŠØ§ Ø¹Ù†ÙˆØ§Ù† Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+                    // ÏãÌ ÎáÇíÇ ÚäæÇä äæÚ ÇáÅÌÇÒÉ
                     for (int i = 0; i < leaveTypes.Count; i++)
                     {
                         var mergeRange = worksheet.Range(currentRow, 4 + (i * 4), currentRow, 7 + (i * 4));
                         mergeRange.Merge();
                     }
 
-                    // ØªÙ†Ø³ÙŠÙ‚ Ø±Ø¤ÙˆØ³ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø© Ø§Ù„ÙØ±Ø¹ÙŠØ©
+                    // ÊäÓíŞ ÑÄæÓ ÇáÃÚãÏÉ ÇáİÑÚíÉ
                     var subHeaderRange = worksheet.Range(currentRow + 1, 1, currentRow + 1, colIndex - 1);
                     subHeaderRange.Style.Font.Bold = true;
                     subHeaderRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     subHeaderRange.Style.Fill.BackgroundColor = XLColor.FromArgb(218, 238, 243);
                     subHeaderRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
-                    // Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
+                    // ÈíÇäÇÊ ÇáãæÙİíä
                     currentRow += 2;
                     int dataStartRow = currentRow;
 
@@ -347,7 +347,7 @@ private void ExportToExcel()
                         worksheet.Cell(currentRow, 2).Value = employee.EmployeeName;
                         worksheet.Cell(currentRow, 3).Value = employee.DepartmentName;
 
-                        // ØªÙ†Ø³ÙŠÙ‚ Ø®Ù„Ø§ÙŠØ§ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù
+                        // ÊäÓíŞ ÎáÇíÇ ãÚáæãÇÊ ÇáãæÙİ
                         for (int i = 1; i <= 3; i++)
                         {
                             worksheet.Cell(currentRow, i).Style.Font.Bold = true;
@@ -355,25 +355,25 @@ private void ExportToExcel()
                             worksheet.Cell(currentRow, i).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                         }
 
-                        // Ø¨ÙŠØ§Ù†Ø§Øª Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª
+                        // ÈíÇäÇÊ ÑÕíÏ ÇáÅÌÇÒÇÊ
                         colIndex = 4;
                         foreach (var balance in employee.LeaveBalances)
                         {
-                            worksheet.Cell(currentRow, colIndex).Value = balance.Total;     // Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹
-                            worksheet.Cell(currentRow, colIndex + 1).Value = balance.Used;   // Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
-                            worksheet.Cell(currentRow, colIndex + 2).Value = balance.Remaining; // Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ
+                            worksheet.Cell(currentRow, colIndex).Value = balance.Total;     // ÇáãÌãæÚ
+                            worksheet.Cell(currentRow, colIndex + 1).Value = balance.Used;   // ÇáãÓÊÎÏã
+                            worksheet.Cell(currentRow, colIndex + 2).Value = balance.Remaining; // ÇáãÊÈŞí
 
-                            // Ø­Ø³Ø§Ø¨ Ø§Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ø¦ÙˆÙŠØ© Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                            // ÍÓÇÈ ÇáäÓÈÉ ÇáãÆæíÉ ááãÓÊÎÏã
                             double percentage = balance.Total > 0 ?
                                 Math.Round((balance.Used / (double)balance.Total) * 100, 1) : 0;
                             worksheet.Cell(currentRow, colIndex + 3).Value = percentage;
 
-                            // ØªÙ„ÙˆÙŠÙ† Ø§Ù„Ø®Ù„Ø§ÙŠØ§ Ø­Ø³Ø¨ Ø§Ù„Ù‚ÙŠÙ…
-                            ColorCellBasedOnValue(worksheet.Cell(currentRow, colIndex), balance.Total, true); // Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ - Ø£Ø®Ø¶Ø±
-                            ColorCellBasedOnValue(worksheet.Cell(currentRow, colIndex + 1), balance.Used, false); // Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… - Ø¨Ø±ØªÙ‚Ø§Ù„ÙŠ
-                            ColorCellBasedOnValue(worksheet.Cell(currentRow, colIndex + 2), balance.Remaining, true); // Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ - Ø£Ø²Ø±Ù‚
+                            // Êáæíä ÇáÎáÇíÇ ÍÓÈ ÇáŞíã
+                            ColorCellBasedOnValue(worksheet.Cell(currentRow, colIndex), balance.Total, true); // ÇáãÌãæÚ - ÃÎÖÑ
+                            ColorCellBasedOnValue(worksheet.Cell(currentRow, colIndex + 1), balance.Used, false); // ÇáãÓÊÎÏã - ÈÑÊŞÇáí
+                            ColorCellBasedOnValue(worksheet.Cell(currentRow, colIndex + 2), balance.Remaining, true); // ÇáãÊÈŞí - ÃÒÑŞ
 
-                            // ØªÙ„ÙˆÙŠÙ† Ø®Ù„ÙŠØ© Ø§Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ø¦ÙˆÙŠØ©
+                            // Êáæíä ÎáíÉ ÇáäÓÈÉ ÇáãÆæíÉ
                             ColorPercentageCell(worksheet.Cell(currentRow, colIndex + 3), percentage);
 
                             colIndex += 4;
@@ -382,10 +382,10 @@ private void ExportToExcel()
                         currentRow++;
                     }
 
-                    // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
-                    worksheet.Column(1).Width = 10;  // ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù
-                    worksheet.Column(2).Width = 25;  // Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ¸Ù
-                    worksheet.Column(3).Width = 20;  // Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©
+                    // ÊäÓíŞ ÇáÃÚãÏÉ
+                    worksheet.Column(1).Width = 10;  // ßæÏ ÇáãæÙİ
+                    worksheet.Column(2).Width = 25;  // ÇÓã ÇáãæÙİ
+                    worksheet.Column(3).Width = 20;  // ÇáÅÏÇÑÉ
 
                     for (int i = 4; i <= colIndex; i++)
                     {
@@ -393,12 +393,12 @@ private void ExportToExcel()
                         worksheet.Column(i).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     }
 
-                    // Ø¥Ø¶Ø§ÙØ© Ø­Ø¯ÙˆØ¯ Ù„Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                    // ÅÖÇİÉ ÍÏæÏ ááÈíÇäÇÊ
                     var dataRange = worksheet.Range(dataStartRow, 1, currentRow - 1, colIndex - 1);
                     dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
                     dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
-                    // Ø¥Ø¶Ø§ÙØ© ØªÙ†Ø³ÙŠÙ‚ Ø´Ø±Ø·ÙŠ Ù„Ù„Ù…ØªØ¨Ù‚ÙŠ
+                    // ÅÖÇİÉ ÊäÓíŞ ÔÑØí ááãÊÈŞí
                     var remainingRange = dataRange.Range(dataStartRow, 6, currentRow - 1, colIndex - 1);
                     for (int col = 6; col < colIndex; col += 4)
                     {
@@ -407,20 +407,20 @@ private void ExportToExcel()
                         cf.WhenLessThan(0).Font.FontColor = XLColor.Red;
                     }
 
-                    // Ø¥Ø¶Ø§ÙØ© Ù…Ù„Ø®Øµ ÙÙŠ ØµÙØ­Ø© Ù…Ù†ÙØµÙ„Ø©
+                    // ÅÖÇİÉ ãáÎÕ İí ÕİÍÉ ãäİÕáÉ
                     AddSummarySheet(workbook);
 
-                    // Ø¥Ø¶Ø§ÙØ© ØµÙØ­Ø© Ù„Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª
+                    // ÅÖÇİÉ ÕİÍÉ ááÅÍÕÇÆíÇÊ
                     AddStatisticsSheet(workbook);
 
-                    // Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù
+                    // ÍİÙ Çáãáİ
                     workbook.SaveAs(saveFileDialog.FileName);
 
-                    MessageBox.Show($"ØªÙ… ØªØµØ¯ÙŠØ± Ø§Ù„ØªÙ‚Ø±ÙŠØ± Ø¨Ù†Ø¬Ø§Ø­ Ø¥Ù„Ù‰:\n{saveFileDialog.FileName}",
-                        "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage($"Êã ÊÕÏíÑ ÇáÊŞÑíÑ ÈäÌÇÍ Åáì:\n{saveFileDialog.FileName}",
+                        "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // ÙØªØ­ Ø§Ù„Ù…Ù„Ù Ø¨Ø¹Ø¯ Ø§Ù„ØªØµØ¯ÙŠØ± (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)
-                    if (MessageBox.Show("Ù‡Ù„ ØªØ±ÙŠØ¯ ÙØªØ­ Ù…Ù„Ù Excel Ø§Ù„Ø¢Ù†ØŸ", "ÙØªØ­ Ø§Ù„Ù…Ù„Ù",
+                    // İÊÍ Çáãáİ ÈÚÏ ÇáÊÕÏíÑ (ÇÎÊíÇÑí)
+                    if (LocalizationManager.ShowMessage("åá ÊÑíÏ İÊÍ ãáİ Excel ÇáÂä¿", "İÊÍ Çáãáİ",
                         MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -434,8 +434,8 @@ private void ExportToExcel()
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµØ¯ÙŠØ±: {ex.Message}\n\n{ex.InnerException?.Message}",
-                "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+            LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÕÏíÑ: {ex.Message}\n\n{ex.InnerException?.Message}",
+                "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -445,26 +445,26 @@ private void ExportToExcel()
 
         if (value == 0)
         {
-            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(242, 242, 242); // Ø±Ù…Ø§Ø¯ÙŠ ÙØ§ØªØ­
+            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(242, 242, 242); // ÑãÇÏí İÇÊÍ
             cell.Style.Font.FontColor = XLColor.Gray;
         }
         else if (isPositive)
         {
             if (value > 0)
             {
-                cell.Style.Fill.BackgroundColor = XLColor.FromArgb(226, 239, 218); // Ø£Ø®Ø¶Ø± ÙØ§ØªØ­
+                cell.Style.Fill.BackgroundColor = XLColor.FromArgb(226, 239, 218); // ÃÎÖÑ İÇÊÍ
                 cell.Style.Font.FontColor = XLColor.DarkGreen;
                 cell.Style.Font.Bold = true;
             }
             else
             {
-                cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 230, 230); // Ø£Ø­Ù…Ø± ÙØ§ØªØ­
+                cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 230, 230); // ÃÍãÑ İÇÊÍ
                 cell.Style.Font.FontColor = XLColor.Red;
             }
         }
         else
         {
-            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 242, 204); // Ø£ØµÙØ±/Ø¨Ø±ØªÙ‚Ø§Ù„ÙŠ ÙØ§ØªØ­
+            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 242, 204); // ÃÕİÑ/ÈÑÊŞÇáí İÇÊÍ
             cell.Style.Font.FontColor = XLColor.DarkOrange;
         }
     }
@@ -481,18 +481,18 @@ private void ExportToExcel()
         }
         else if (percentage < 50)
         {
-            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(226, 239, 218); // Ø£Ø®Ø¶Ø± ÙØ§ØªØ­
+            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(226, 239, 218); // ÃÎÖÑ İÇÊÍ
             cell.Style.Font.FontColor = XLColor.DarkGreen;
         }
         else if (percentage < 80)
         {
-            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 242, 204); // Ø£ØµÙØ± ÙØ§ØªØ­
+            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 242, 204); // ÃÕİÑ İÇÊÍ
             cell.Style.Font.FontColor = XLColor.DarkOrange;
             cell.Style.Font.Bold = true;
         }
         else
         {
-            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 230, 230); // Ø£Ø­Ù…Ø± ÙØ§ØªØ­
+            cell.Style.Fill.BackgroundColor = XLColor.FromArgb(255, 230, 230); // ÃÍãÑ İÇÊÍ
             cell.Style.Font.FontColor = XLColor.Red;
             cell.Style.Font.Bold = true;
         }
@@ -500,23 +500,23 @@ private void ExportToExcel()
 
     private void AddSummarySheet(XLWorkbook workbook)
     {
-        var summarySheet = workbook.Worksheets.Add("Ù…Ù„Ø®Øµ");
+        var summarySheet = workbook.Worksheets.Add("ãáÎÕ");
 
-        // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ù†Øµ Ù…Ù† Ø§Ù„ÙŠÙ…ÙŠÙ† Ù„Ù„ÙŠØ³Ø§Ø±
+        // ÊäÓíŞ ÇáäÕ ãä Çáíãíä ááíÓÇÑ
         summarySheet.RightToLeft = true;
 
-        // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
-        summarySheet.Cell(1, 1).Value = "Ù…Ù„Ø®Øµ Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª";
+        // ÇáÚäæÇä
+        summarySheet.Cell(1, 1).Value = "ãáÎÕ ÑÕíÏ ÇáÅÌÇÒÇÊ";
         summarySheet.Cell(1, 1).Style.Font.Bold = true;
         summarySheet.Cell(1, 1).Style.Font.FontSize = 14;
         summarySheet.Range(1, 1, 1, 4).Merge();
         summarySheet.Row(1).Height = 25;
 
-        // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„
-        summarySheet.Cell(3, 1).Value = "Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©";
-        summarySheet.Cell(3, 2).Value = "Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø±ØµÙŠØ¯";
-        summarySheet.Cell(3, 3).Value = "Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…";
-        summarySheet.Cell(3, 4).Value = "Ù…ØªÙˆØ³Ø· Ø§Ù„Ù†Ø³Ø¨Ø© %";
+        // ÑÃÓ ÇáÌÏæá
+        summarySheet.Cell(3, 1).Value = "äæÚ ÇáÅÌÇÒÉ";
+        summarySheet.Cell(3, 2).Value = "ÅÌãÇáí ÇáÑÕíÏ";
+        summarySheet.Cell(3, 3).Value = "ÅÌãÇáí ÇáãÓÊÎÏã";
+        summarySheet.Cell(3, 4).Value = "ãÊæÓØ ÇáäÓÈÉ %";
 
         var headerRange = summarySheet.Range(3, 1, 3, 4);
         headerRange.Style.Font.Bold = true;
@@ -550,16 +550,16 @@ private void ExportToExcel()
             summarySheet.Cell(row, 1).Value = leaveType.LeaveTypeName;
             summarySheet.Cell(row, 2).Value = totalBalance;
             summarySheet.Cell(row, 3).Value = totalUsed;
-            summarySheet.Cell(row, 4).Value = avgPercentage / 100; // Ù„ØªØ­ÙˆÙŠÙ„Ù‡Ø§ Ø¥Ù„Ù‰ ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ø¦ÙˆÙŠØ© ÙÙŠ Excel
+            summarySheet.Cell(row, 4).Value = avgPercentage / 100; // áÊÍæíáåÇ Åáì ÊäÓíŞ ÇáäÓÈÉ ÇáãÆæíÉ İí Excel
 
-            // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ø¦ÙˆÙŠØ©
+            // ÊäÓíŞ ÇáäÓÈÉ ÇáãÆæíÉ
             summarySheet.Cell(row, 4).Style.NumberFormat.Format = "0.0%";
             ColorPercentageCell(summarySheet.Cell(row, 4), avgPercentage);
 
             row++;
         }
 
-        // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+        // ÊäÓíŞ ÇáÃÚãÏÉ
         summarySheet.Column(1).Width = 25;
         summarySheet.Column(2).Width = 15;
         summarySheet.Column(3).Width = 15;
@@ -569,40 +569,40 @@ private void ExportToExcel()
 
     private void AddStatisticsSheet(XLWorkbook workbook)
     {
-        var statsSheet = workbook.Worksheets.Add("Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª");
+        var statsSheet = workbook.Worksheets.Add("ÅÍÕÇÆíÇÊ");
 
-        // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ù†Øµ Ù…Ù† Ø§Ù„ÙŠÙ…ÙŠÙ† Ù„Ù„ÙŠØ³Ø§Ø±
+        // ÊäÓíŞ ÇáäÕ ãä Çáíãíä ááíÓÇÑ
         statsSheet.RightToLeft = true;
 
-        // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
-        statsSheet.Cell(1, 1).Value = "Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„ØªÙ‚Ø±ÙŠØ±";
+        // ÇáÚäæÇä
+        statsSheet.Cell(1, 1).Value = "ÅÍÕÇÆíÇÊ ÇáÊŞÑíÑ";
         statsSheet.Cell(1, 1).Style.Font.Bold = true;
         statsSheet.Cell(1, 1).Style.Font.FontSize = 14;
         statsSheet.Range(1, 1, 1, 2).Merge();
         statsSheet.Row(1).Height = 25;
 
-        // Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø¹Ø§Ù…Ø©
+        // ÅÍÕÇÆíÇÊ ÚÇãÉ
         int row = 3;
-        statsSheet.Cell(row, 1).Value = "Ø¹Ø¯Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†:";
+        statsSheet.Cell(row, 1).Value = "ÚÏÏ ÇáãæÙİíä:";
         statsSheet.Cell(row, 2).Value = ReportData.Count;
 
-        statsSheet.Cell(++row, 1).Value = "Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª:";
+        statsSheet.Cell(++row, 1).Value = "ÃäæÇÚ ÇáÅÌÇÒÇÊ:";
         statsSheet.Cell(row, 2).Value = ReportData.FirstOrDefault()?.LeaveBalances.Count ?? 0;
 
-        statsSheet.Cell(++row, 1).Value = "ØªØ§Ø±ÙŠØ® Ø§Ù„ØªØµØ¯ÙŠØ±:";
+        statsSheet.Cell(++row, 1).Value = "ÊÇÑíÎ ÇáÊÕÏíÑ:";
         statsSheet.Cell(row, 2).Value = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
 
-        statsSheet.Cell(++row, 1).Value = "Ø¹Ø¯Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ø¨Ø¯ÙˆÙ† Ø±ØµÙŠØ¯:";
+        statsSheet.Cell(++row, 1).Value = "ÚÏÏ ÇáãæÙİíä ÈÏæä ÑÕíÏ:";
         int zeroBalanceCount = ReportData.Count(e => e.LeaveBalances.All(l => l.Remaining == 0));
         statsSheet.Cell(row, 2).Value = zeroBalanceCount;
 
-        statsSheet.Cell(++row, 1).Value = "Ù†Ø³Ø¨Ø© Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ø¨Ø¯ÙˆÙ† Ø±ØµÙŠØ¯:";
+        statsSheet.Cell(++row, 1).Value = "äÓÈÉ ÇáãæÙİíä ÈÏæä ÑÕíÏ:";
         double zeroBalancePercentage = ReportData.Count > 0 ?
             Math.Round((zeroBalanceCount / (double)ReportData.Count) * 100, 1) : 0;
         statsSheet.Cell(row, 2).Value = zeroBalancePercentage / 100;
         statsSheet.Cell(row, 2).Style.NumberFormat.Format = "0.0%";
 
-        // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ø¬Ø¯ÙˆÙ„
+        // ÊäÓíŞ ÇáÌÏæá
         for (int i = 3; i <= row; i++)
         {
             statsSheet.Cell(i, 1).Style.Font.Bold = true;
@@ -612,7 +612,7 @@ private void ExportToExcel()
             statsSheet.Cell(i, 2).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
         }
 
-        // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+        // ÊäÓíŞ ÇáÃÚãÏÉ
         statsSheet.Column(1).Width = 25;
         statsSheet.Column(2).Width = 20;
     }
@@ -625,12 +625,12 @@ private void ExportToExcel()
                 var printDialog = new PrintDialog();
                 if (printDialog.ShowDialog() == true)
                 {
-                    printDialog.PrintVisual(itemsReport, "ØªÙ‚Ø±ÙŠØ± Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª");
+                    printDialog.PrintVisual(itemsReport, "ÊŞÑíÑ ÑÕíÏ ÇáÅÌÇÒÇÊ");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáØÈÇÚÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -640,7 +640,7 @@ private void ExportToExcel()
         }
     }
 
-    // ÙØ¦Ø§Øª Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+    // İÆÇÊ ÇáÈíÇäÇÊ
     public class EmployeeLeaveBalanceReport
     {
         public int EmployeeId { get; set; }
@@ -714,14 +714,14 @@ private void ExportToExcel()
     }
 
 
-    // Converter Ù„ØªØ­ÙˆÙŠÙ„ Ø§Ù„Ù†Ø³Ø¨Ø© Ø¥Ù„Ù‰ Ø§Ø±ØªÙØ§Ø¹
+    // Converter áÊÍæíá ÇáäÓÈÉ Åáì ÇÑÊİÇÚ
     public class ProgressPercentageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is double percentage)
             {
-                // Ø§Ø±ØªÙØ§Ø¹ Ø§Ù„Ø´Ø±ÙŠØ· ÙƒÙ†Ø³Ø¨Ø© Ù…Ø¦ÙˆÙŠØ©
+                // ÇÑÊİÇÚ ÇáÔÑíØ ßäÓÈÉ ãÆæíÉ
                 return new GridLength(percentage, GridUnitType.Star);
             }
             return new GridLength(0, GridUnitType.Star);

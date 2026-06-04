@@ -1,10 +1,10 @@
-ï»¿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using static HR_Application.EmployeeData;
@@ -109,21 +109,21 @@ namespace HR_Application.Views
         {
             try
             {
-                // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ØµØ­Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¯Ø®Ù„Ø©
+                // ÇáÊÍŞŞ ãä ÕÍÉ ÇáÈíÇäÇÊ ÇáãÏÎáÉ
                 if (!ValidateInput())
                     return;
 
-                // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù„Ù„ÙˆØµÙˆÙ„ Ø¥Ù„Ù‰ Ù‡Ø°Ø§ Ø§Ù„Ù…ÙˆØ¸Ù
+                // ÇáÊÍŞŞ ãä ÕáÇÍíÉ ÇáãÓÊÎÏã ááæÕæá Åáì åĞÇ ÇáãæÙİ
                 var employee = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == _employeeCode && u.BranchId.ToString() == branch_box.SelectedValue.ToString());
 
                 if (employee == null)
                 {
-                    MessageBox.Show("Ù„ÙŠØ³ Ù„Ø¯ÙŠÙƒ ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„ÙˆØµÙˆÙ„ Ø¥Ù„Ù‰ Ù‡Ø°Ø§ Ø§Ù„Ù…ÙˆØ¸Ù", "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ©", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áíÓ áÏíß ÕáÇÍíÉ ÇáæÕæá Åáì åĞÇ ÇáãæÙİ", "ÎØÃ İí ÇáÕáÇÍíÉ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ØªÙƒØ±Ø§Ø± Ø§Ù„Ø³Ø¬Ù„ Ù„Ù†ÙØ³ Ø§Ù„Ù†ÙˆØ¹ ÙÙŠ Ù†ÙØ³ Ø§Ù„ÙŠÙˆÙ…
+                // ÇáÊÍŞŞ ãä ÚÏã ÊßÑÇÑ ÇáÓÌá áäİÓ ÇáäæÚ İí äİÓ Çáíæã
                 bool recordExists = await _context.Salaries
                     .AnyAsync(so => so.UserId == _employeeCode &&
                                    so.Type == _type &&
@@ -131,11 +131,11 @@ namespace HR_Application.Views
 
                 if (recordExists)
                 {
-                    MessageBox.Show("Ù‡Ù†Ø§Ùƒ Ø³Ø¬Ù„ Ù…Ø³Ø¨Ù‚ Ù„Ù†ÙØ³ Ø§Ù„Ù†ÙˆØ¹ ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„ØªØ§Ø±ÙŠØ®", "ØªÙ†Ø¨ÙŠÙ‡", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("åäÇß ÓÌá ãÓÈŞ áäİÓ ÇáäæÚ İí åĞÇ ÇáÊÇÑíÎ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Ø¥Ù†Ø´Ø§Ø¡ Ø³Ø¬Ù„ Ø¬Ø¯ÙŠØ¯
+                // ÅäÔÇÁ ÓÌá ÌÏíÏ
                 var salaryOperation = new Salary
                 {
                     UserId = _employeeCode,
@@ -151,16 +151,16 @@ namespace HR_Application.Views
                 await _context.Salaries.AddAsync(salaryOperation);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÅÖÇİÉ ÇáÈíÇäÇÊ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 ResetForm();
             }
             catch (FormatException)
             {
-                MessageBox.Show("Ø§Ù„Ù‚ÙŠÙ…Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ø±Ù‚Ù…ÙŠØ© ØµØ­ÙŠØ­Ø©", "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¥Ø¯Ø®Ø§Ù„", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÇáŞíãÉ íÌÈ Ãä Êßæä ÑŞãíÉ ÕÍíÍÉ", "ÎØÃ İí ÇáÅÏÎÇá", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -168,28 +168,28 @@ namespace HR_Application.Views
         {
             if (string.IsNullOrWhiteSpace(text_box.Text))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙˆØµÙ Ù„Ù„Ø¹Ù…Ù„ÙŠØ©", "Ø­Ù‚Ù„ Ù…Ø·Ù„ÙˆØ¨", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá æÕİ ááÚãáíÉ", "ÍŞá ãØáæÈ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 text_box.Focus();
                 return false;
             }
 
             if (date_picker.SelectedDate == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØªØ§Ø±ÙŠØ®", "Ø­Ù‚Ù„ Ù…Ø·Ù„ÙˆØ¨", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáÊÇÑíÎ", "ÍŞá ãØáæÈ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 date_picker.Focus();
                 return false;
             }
 
             if (date_picker.SelectedDate > DateTime.Now)
             {
-                MessageBox.Show("Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ø®ØªÙŠØ§Ø± ØªØ§Ø±ÙŠØ® Ù…Ø³ØªÙ‚Ø¨Ù„ÙŠ", "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØ§Ø±ÙŠØ®", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("áÇ íãßä ÇÎÊíÇÑ ÊÇÑíÎ ãÓÊŞÈáí", "ÎØÃ İí ÇáÊÇÑíÎ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 date_picker.Focus();
                 return false;
             }
 
             if (!decimal.TryParse(value_box.Text, out decimal value) || value < 0)
             {
-                MessageBox.Show("Ø§Ù„Ù‚ÙŠÙ…Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ø±Ù‚Ù…ÙŠØ© Ù…ÙˆØ¬Ø¨Ø©", "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ù‚ÙŠÙ…Ø©", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÇáŞíãÉ íÌÈ Ãä Êßæä ÑŞãíÉ ãæÌÈÉ", "ÎØÃ İí ÇáŞíãÉ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 value_box.Focus();
                 return false;
             }
@@ -211,7 +211,7 @@ namespace HR_Application.Views
             {
                 if (branch_box.SelectedValue == null || string.IsNullOrWhiteSpace(code_box.Text) || !string.IsNullOrWhiteSpace(code_box.Text))
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙˆØ¯ Ù…ÙˆØ¸Ù ØµØ­ÙŠØ­ Ùˆ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙØ±Ø¹", "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¥Ø¯Ø®Ø§Ù„", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ßæÏ ãæÙİ ÕÍíÍ æ ÇÎÊíÇÑ ÇáİÑÚ", "ÎØÃ İí ÇáÅÏÎÇá", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -225,14 +225,14 @@ namespace HR_Application.Views
                 }
                 else
                 {
-                    MessageBox.Show("Ø§Ù„Ù…ÙˆØ¸Ù ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ Ø£Ùˆ Ù„ÙŠØ³ Ù„Ø¯ÙŠÙƒ ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„ÙˆØµÙˆÙ„", "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ÙˆØµÙˆÙ„", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáãæÙİ ÛíÑ ãæÌæÏ Ãæ áíÓ áÏíß ÕáÇÍíÉ ÇáæÕæá", "ÎØÃ İí ÇáæÕæá", MessageBoxButton.OK, MessageBoxImage.Error);
                     code_box.Clear();
                     user_box.Text = "";
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -246,7 +246,7 @@ namespace HR_Application.Views
             }
         }
 
-        // Ø£Ø­Ø¯Ø§Ø« Ø£Ø²Ø±Ø§Ø± Ø§Ù„Ø±Ø§Ø¯ÙŠÙˆ
+        // ÃÍÏÇË ÃÒÑÇÑ ÇáÑÇÏíæ
         private void addes_Checked(object sender, RoutedEventArgs e)
         {
             _type = 7;

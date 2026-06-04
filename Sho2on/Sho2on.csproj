@@ -44,6 +44,7 @@
     <None Remove="assets\images\exit.png" />
     <None Remove="assets\images\Fingerprint.png" />
     <None Remove="assets\images\fingerprint1.png" />
+    <None Remove="assets\images\group_avatar.jpg" />
     <None Remove="assets\images\icon.gif" />
     <None Remove="assets\images\loading.png" />
     <None Remove="assets\images\loadingbar.gif" />
@@ -234,9 +235,12 @@
     <Resource Include="assets\images\new.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="assets\images\avatar.jpg">
+    <Content Include="assets\images\avatar.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
+    <Content Include="assets\images\group_avatar.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="assets\images\print.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

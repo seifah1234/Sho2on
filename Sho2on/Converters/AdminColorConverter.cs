@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System; using HR_Application.Helpers;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;

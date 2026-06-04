@@ -1,10 +1,11 @@
-﻿using HR_Application.Services;
+using HR_Application.Services;
 using HR_Application.Views.Conversations;
 using Microsoft.AspNetCore.SignalR.Client;
+using HR_Application.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -84,7 +85,7 @@ namespace HR_Application.UserControls
                 });
             }
 
-            // ── Load ─────────────────────────────────────────────────────────────
+            // ?? Load ?????????????????????????????????????????????????????????????
 
             public async void LoadGroup(int groupId, string groupName,
                                         byte[] groupImage = null)
@@ -116,7 +117,7 @@ namespace HR_Application.UserControls
                 {
                     using var ctx = new AppDbContext(App.ConnectionString);
 
-                    // جيب الرسائل اللي لسه ما قرأتهاش
+                    // ��� ������� ���� ��� �� �������
                     var readMessageIds = await ctx.ChatGroupMessageReads
                         .Where(r => r.UserId == App.CurrentUser.Id)
                         .Select(r => r.MessageId)
@@ -238,7 +239,7 @@ namespace HR_Application.UserControls
                     var membersCount = await ctx.ChatGroupMembers
                         .CountAsync(m => m.GroupId == groupId);
 
-                    MembersCountText.Text = $"{membersCount} عضو";
+                    MembersCountText.Text = $"{membersCount} ���";
 
                     var myMembership = await ctx.ChatGroupMembers
                         .FirstOrDefaultAsync(m => m.GroupId == groupId
@@ -254,7 +255,7 @@ namespace HR_Application.UserControls
                 }
             }
 
-        // ── Send ─────────────────────────────────────────────────────────────
+        // ?? Send ?????????????????????????????????????????????????????????????
 
         private async void SendMessage(string message)
         {
@@ -308,7 +309,7 @@ namespace HR_Application.UserControls
 
                 if (dbMsg == null || dbMsg.SenderId != App.CurrentUser.Id)
                 {
-                    MessageBox.Show("لا يمكن تعديل هذه الرسالة", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("�� ���� ����� ��� �������", "���", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -346,7 +347,7 @@ namespace HR_Application.UserControls
                     }
                 }
 
-                // ✅ FIXED: Send notification via SignalR
+                // ? FIXED: Send notification via SignalR
                 if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
                     Console.WriteLine($"GroupChatBox: Sending GroupMessageEdited via SignalR - MsgId={messageId}, GroupId={SelectedGroupId}");
@@ -365,7 +366,7 @@ namespace HR_Application.UserControls
             catch (Exception ex)
             {
                 Console.WriteLine($"EditGroupMessage error: {ex.Message}");
-                MessageBox.Show($"خطأ في تعديل الرسالة: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"��� �� ����� �������: {ex.Message}", "���", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -376,7 +377,7 @@ namespace HR_Application.UserControls
                 {
                     using var ctx = new AppDbContext(App.ConnectionString);
 
-                    // حفظ الرسالة
+                    // ��� �������
                     var dbMsg = new ChatGroupMessage
                     {
                         GroupId = SelectedGroupId,
@@ -392,7 +393,7 @@ namespace HR_Application.UserControls
                     if (tempMsg != null)
                         tempMsg.MessageDbId = dbMsg.Id;
 
-                    // حفظ المرفقات
+                    // ��� ��������
                     foreach (var att in attachments)
                     {
                         ctx.ChatGroupAttachments.Add(new ChatGroupAttachment
@@ -406,7 +407,7 @@ namespace HR_Application.UserControls
                         });
                     }
 
-                    // زوّد UnreadCount لباقي الأعضاء
+                    // ���� UnreadCount ����� �������
                     var otherMembers = await ctx.ChatGroupMembers
                         .Where(m => m.GroupId == SelectedGroupId
                                  && m.UserId != App.CurrentUser.Id)
@@ -425,7 +426,7 @@ namespace HR_Application.UserControls
                     GroupMessageUpdated?.Invoke(this, new GroupMessageUpdatedEventArgs
                     {
                         GroupId = SelectedGroupId,
-                        LastMessage = string.IsNullOrEmpty(message) ? "📎 مرفق" : message,
+                        LastMessage = string.IsNullOrEmpty(message) ? "?? ����" : message,
                         LastMessageTime = DateTime.Now,
                         UpdateType = "NewMessage"
                     });
@@ -451,7 +452,7 @@ namespace HR_Application.UserControls
                     {
                         await App.SignalRConnection.StartAsync();
 
-                        // إعادة تسجيل المستخدم بعد إعادة الاتصال
+                        // ����� ����� �������� ��� ����� �������
                         if (App.CurrentUser != null && App.CurrentUser.Id > 0)
                         {
                             await App.SignalRConnection.InvokeAsync("SetUserIdentifier", App.CurrentUser.Id.ToString());
@@ -459,7 +460,7 @@ namespace HR_Application.UserControls
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Reconnect failed: {ex.Message}");
+                        LocalizationManager.ShowMessage($"Reconnect failed: {ex.Message}");
                         return;
                     }
                 }
@@ -472,12 +473,12 @@ namespace HR_Application.UserControls
 
                 await App.SignalRConnection.InvokeAsync("SendGroupMessage",
                     SelectedGroupId, App.CurrentUser.Id, message, App.CurrentUser.FullName);
-                // إرسال الرسالة
+                // ����� �������
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SignalR error: {ex.Message}");
+                LocalizationManager.ShowMessage($"SignalR error: {ex.Message}");
             }
         }
 
@@ -487,7 +488,7 @@ namespace HR_Application.UserControls
             var msg = GetGroupMessageFromContextMenu(sender);
             if (msg == null || !msg.IsFromMe) return;
 
-            var confirm = MessageBox.Show("هل تريد حذف هذه الرسالة؟", "تأكيد",
+            var confirm = LocalizationManager.ShowMessage("�� ���� ��� ��� ������ɿ", "�����",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
@@ -505,7 +506,7 @@ namespace HR_Application.UserControls
 
                 Messages.Remove(msg);
 
-                // ✅ FIXED: Send notification via SignalR with correct method name
+                // ? FIXED: Send notification via SignalR with correct method name
                 if (App.SignalRConnection?.State == HubConnectionState.Connected)
                 {
                     Console.WriteLine($"GroupChatBox: Sending GroupMessageDeleted via SignalR - MsgId={msg.MessageDbId}, GroupId={SelectedGroupId}");
@@ -545,7 +546,7 @@ namespace HR_Application.UserControls
             MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
 
             EditBar.Visibility = Visibility.Visible;
-            EditingLabel.Text = $"✏️ تعديل: {(msg.MessageText?.Length > 30 ? msg.MessageText[..30] + "..." : msg.MessageText)}";
+            EditingLabel.Text = $"?? �����: {(msg.MessageText?.Length > 30 ? msg.MessageText[..30] + "..." : msg.MessageText)}";
         }
 
         private void CancelGroupEdit_Click(object sender, RoutedEventArgs e)
@@ -574,8 +575,8 @@ namespace HR_Application.UserControls
         private string GetLastMessageText()
             {
                 var lastMsg = Messages.LastOrDefault();
-                if (lastMsg == null) return "لا توجد رسائل";
-                if (string.IsNullOrEmpty(lastMsg.MessageText)) return "📎 مرفق";
+                if (lastMsg == null) return "�� ���� �����";
+                if (string.IsNullOrEmpty(lastMsg.MessageText)) return "?? ����";
                 return lastMsg.MessageText;
             }
 
@@ -585,7 +586,7 @@ namespace HR_Application.UserControls
                 return lastMsg?.SentAt ?? DateTime.Now;
             }
 
-            // ── Unread ───────────────────────────────────────────────────────────
+            // ?? Unread ???????????????????????????????????????????????????????????
 
             private async Task ResetUnreadCountAsync(int groupId)
             {
@@ -619,7 +620,7 @@ namespace HR_Application.UserControls
             EditBar.Visibility = Visibility.Collapsed;
         }
 
-        // ── SignalR ──────────────────────────────────────────────────────────
+        // ?? SignalR ??????????????????????????????????????????????????????????
 
         private void SetupSignalRListener()
         {
@@ -748,7 +749,7 @@ namespace HR_Application.UserControls
 
             await Application.Current.Dispatcher.InvokeAsync(async () =>
             {
-                // ✅ FIX: Get the message from database with attachments
+                // ? FIX: Get the message from database with attachments
                 int messageId = 0;
                 var attachments = new List<ChatAttachmentItem>();
 
@@ -804,7 +805,7 @@ namespace HR_Application.UserControls
                     IsRead = true
                 };
 
-                // ✅ Add attachments to UI message
+                // ? Add attachments to UI message
                 foreach (var att in attachments)
                 {
                     uiMsg.Attachments.Add(att);
@@ -830,7 +831,7 @@ namespace HR_Application.UserControls
             catch { }
         }
 
-        // ── Members Management ───────────────────────────────────────────────
+        // ?? Members Management ???????????????????????????????????????????????
 
         private void ManageMembers_Click(object sender, RoutedEventArgs e)
             {
@@ -841,7 +842,7 @@ namespace HR_Application.UserControls
                 _ = LoadMembersInfoAsync(SelectedGroupId);
             }
 
-            // ── Attachments ──────────────────────────────────────────────────────
+            // ?? Attachments ??????????????????????????????????????????????????????
 
             private void AttachButton_Click(object sender, RoutedEventArgs e)
             {
@@ -857,7 +858,7 @@ namespace HR_Application.UserControls
                     var info = new FileInfo(path);
                     if (info.Length > 10 * 1024 * 1024)
                     {
-                        MessageBox.Show($"الملف {info.Name} أكبر من 10MB");
+                        LocalizationManager.ShowMessage($"����� {info.Name} ���� �� 10MB");
                         continue;
                     }
 
@@ -906,17 +907,17 @@ namespace HR_Application.UserControls
                     try
                     {
                         File.WriteAllBytes(dialog.FileName, attachment.FileData);
-                        MessageBox.Show("تم حفظ الملف بنجاح", "تم", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("�� ��� ����� �����", "��", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"خطأ في حفظ الملف: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage($"��� �� ��� �����: {ex.Message}", "���", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
         }
 
-        // ── UI Helpers ───────────────────────────────────────────────────────
+        // ?? UI Helpers ???????????????????????????????????????????????????????
 
         private void SendButton_Click(object sender, RoutedEventArgs e) =>
                 SendMessage(MessageTextBox.Text);

@@ -1,14 +1,14 @@
-ï»¿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Office.Interop.Excel;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using static HR_Application.EmployeeData;
@@ -42,30 +42,30 @@ namespace HR_Application.Views
 
         private async Task InitializeDictionaries()
         {
-            _operations.Add(0, "Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª");
-            _operations.Add(1, "Ø§Ø³ØªØ­Ù‚Ø§Ù‚Ø§Øª");
+            _operations.Add(0, "ÇÓÊŞØÇÚÇÊ");
+            _operations.Add(1, "ÇÓÊÍŞÇŞÇÊ");
 
-            _types.Add(11, "Ù…ÙƒØ§ÙØ£Ø©");
-            _types.Add(10, "Ø¬Ø²Ø§Ø¡");
-            _types.Add(9, "Ø³Ù„ÙØ©");
-            _types.Add(16, "Ø¹Ø¬Ø²");
+            _types.Add(11, "ãßÇİÃÉ");
+            _types.Add(10, "ÌÒÇÁ");
+            _types.Add(9, "ÓáİÉ");
+            _types.Add(16, "ÚÌÒ");
 
-            _types.Add(1, "Ø§Ù„Ù…Ø±ØªØ¨");
-            _types.Add(2, "Ø¨Ø¯Ù„ Ø³ÙƒÙ†");
-            _types.Add(3, "Ø¨Ø¯Ù„ Ø§Ù†ØªÙ‚Ø§Ù„");
-            _types.Add(4, "ØªØ£Ù…ÙŠÙ†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù");
+            _types.Add(1, "ÇáãÑÊÈ");
+            _types.Add(2, "ÈÏá Óßä");
+            _types.Add(3, "ÈÏá ÇäÊŞÇá");
+            _types.Add(4, "ÊÃãíäÇÊ ÇáãæÙİ");
 
-            _types.Add(5, "Ø¶. ÙƒØ³Ø¨ Ø¹Ù…Ù„");
-            _types.Add(6, "Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©");
-            _types.Add(12, "ØºÙŠØ§Ø¨");
-            _types.Add(13, "ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©");
+            _types.Add(5, "Ö. ßÓÈ Úãá");
+            _types.Add(6, "ãÔÇÑßÉ ÇÌÊãÇÚíÉ");
+            _types.Add(12, "ÛíÇÈ");
+            _types.Add(13, "ÕäÏæŞ ÇáÒãÇáÉ");
 
-            _types.Add(14, "Ø¨Ø¯Ù„ Ø¥Ø¯Ø§Ø±Ø©");
-            _types.Add(15, "Ø¨Ø¯Ù„ Ø·Ø¨ÙŠØ¹Ø© Ø¹Ù…Ù„");
+            _types.Add(14, "ÈÏá ÅÏÇÑÉ");
+            _types.Add(15, "ÈÏá ØÈíÚÉ Úãá");
 
-            _types.Add(18, "Ø¹Ù…ÙˆÙ„Ø§Øª ØªØ­Ù‚ÙŠÙ‚");
-            _types.Add(19, "Ø¹Ù…ÙˆÙ„Ø§Øª Ø®Ø§Ø±Ø¬ÙŠØ©");
-            _types.Add(20, "ÙØ§ØªÙˆØ±Ø© ØªÙ„ÙŠÙÙˆÙ†");
+            _types.Add(18, "ÚãæáÇÊ ÊÍŞíŞ");
+            _types.Add(19, "ÚãæáÇÊ ÎÇÑÌíÉ");
+            _types.Add(20, "İÇÊæÑÉ Êáíİæä");
 
             branch_box.ItemsSource = await _context.Branches
                 .Where(b => App.userBranches.Contains(b.Id))
@@ -175,7 +175,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø³Ø§Ø¨ ØªÙˆØ§Ø±ÙŠØ® Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ù…Ø®ØµØµ: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÍÓÇÈ ÊæÇÑíÎ ÇáÔåÑ ÇáãÎÕÕ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return (DateTime.MinValue, DateTime.MaxValue);
             }
         }
@@ -199,7 +199,7 @@ namespace HR_Application.Views
 
             try
             {
-                MessageBoxResult result = MessageBox.Show("Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ø³Ø¬Ù„ØŸ", "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù",
+                MessageBoxResult result = LocalizationManager.ShowMessage("åá ÊÑíÏ ÍĞİ åĞÇ ÇáÓÌá¿", "ÊÃßíÏ ÇáÍĞİ",
                     MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
@@ -210,20 +210,20 @@ namespace HR_Application.Views
                         _context.Salaries.Remove(salaryOperation);
                         await _context.SaveChangesAsync();
 
-                        MessageBox.Show("ØªÙ… Ø­Ø°Ù Ø§Ù„Ø³Ø¬Ù„ Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("Êã ÍĞİ ÇáÓÌá ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                         await GetDataAsync();
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø­Ø°Ù: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÍĞİ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void save_btn_Click(object sender, RoutedEventArgs e)
         {
-            // ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØ© ÙˆØ¸ÙŠÙØ© Ø§Ù„Ø­ÙØ¸ Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ù…Ø·Ù„ÙˆØ¨Ø©
+            // íãßä ÅÖÇİÉ æÙíİÉ ÇáÍİÙ ÅĞÇ ßÇäÊ ãØáæÈÉ
         }
 
         private async Task GetDataAsync()
@@ -232,23 +232,23 @@ namespace HR_Application.Views
             {
                 if (string.IsNullOrWhiteSpace(code_box.Text) || branch_box.SelectedValue == null)
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ùˆ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙØ±Ø¹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ßæÏ ÇáãæÙİ æ ÇÎÊíÇÑ ÇáİÑÚ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (!int.TryParse(code_box.Text, out int employeeCode))
                 {
-                    MessageBox.Show("ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø±Ù‚Ù…Ø§Ù‹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ßæÏ ÇáãæÙİ íÌÈ Ãä íßæä ÑŞãÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù
+                // ÊÍãíá ÈíÇäÇÊ ÇáãæÙİ
                 var employee = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == employeeCode && u.BranchId.ToString() == branch_box.SelectedValue.ToString());
 
                 if (employee == null)
                 {
-                    MessageBox.Show("Ø§Ù„Ù…ÙˆØ¸Ù ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ Ø£Ùˆ Ù„ÙŠØ³ Ù„Ø¯ÙŠÙƒ ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„ÙˆØµÙˆÙ„", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáãæÙİ ÛíÑ ãæÌæÏ Ãæ áíÓ áÏíß ÕáÇÍíÉ ÇáæÕæá", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     user_box.SelectedIndex = -1;
                     _deductions.Clear();
                     list.ItemsSource = _deductions;
@@ -257,7 +257,7 @@ namespace HR_Application.Views
 
                 user_box.SelectedValue = employee.Code;
 
-                // ØªØ­Ø¯ÙŠØ¯ Ø§Ù„ØªÙˆØ§Ø±ÙŠØ®
+                // ÊÍÏíÏ ÇáÊæÇÑíÎ
                 int monthNumber = DateTime.ParseExact(month_box.Text, "MMMM", CultureInfo.CurrentCulture).Month;
                 int year = Convert.ToInt16(year_box.Text);
 
@@ -273,7 +273,7 @@ namespace HR_Application.Views
                     (startDate, endDate) = GetCustomMonthDates(monthNumber, year);
                 }
 
-                // ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª ÙˆØ§Ù„Ø§Ø³ØªØ­Ù‚Ø§Ù‚Ø§Øª
+                // ÊÍãíá ÈíÇäÇÊ ÇáÇÓÊŞØÇÚÇÊ æÇáÇÓÊÍŞÇŞÇÊ
                 var salaryOperations = await _context.Salaries
                     .Where(so => so.UserId == employeeCode &&
                                 so.DayDate >= startDate &&
@@ -303,7 +303,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -318,11 +318,11 @@ namespace HR_Application.Views
             {
                 if (_deductions.Count == 0)
                 {
-                    MessageBox.Show("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„ØªØµØ¯ÙŠØ±Ù‡Ø§", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("áÇ ÊæÌÏ ÈíÇäÇÊ áÊÕÏíÑåÇ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Ø§Ø®ØªÙŠØ§Ø± Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ù„Ù
+                // ÇÎÊíÇÑ ãÓÇÑ Çáãáİ
                 Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog
                 {
                     Filter = "Excel Files|*.xlsx",
@@ -335,23 +335,23 @@ namespace HR_Application.Views
                 if (saveFileDialog.ShowDialog() != true) return;
                 string filePath = saveFileDialog.FileName;
 
-                // Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø³ØªÙ†Ø¯ Excel Ø¬Ø¯ÙŠØ¯
+                // ÅäÔÇÁ ãÓÊäÏ Excel ÌÏíÏ
                 Application excelApp = new Application();
                 excelApp.Visible = false;
                 excelApp.DisplayAlerts = false;
                 Workbook workbook = excelApp.Workbooks.Add();
                 Worksheet worksheet = (Worksheet)workbook.Sheets[1];
-                worksheet.Name = "Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª ÙˆØ§Ù„Ø§Ø³ØªØ­Ù‚Ø§Ù‚Ø§Øª";
+                worksheet.Name = "ÇáÇÓÊŞØÇÚÇÊ æÇáÇÓÊÍŞÇŞÇÊ";
 
-                // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ† Ø¥Ù„Ù‰ Ù…Ø³ØªÙ†Ø¯ Excel
-                worksheet.Cells[1, 1] = "Ø±Ù‚Ù… Ø§Ù„Ø³Ø¬Ù„";
-                worksheet.Cells[1, 2] = "Ø§Ù„Ù‚ÙŠÙ…Ø©";
-                worksheet.Cells[1, 3] = "Ø§Ù„Ù†Øµ";
-                worksheet.Cells[1, 4] = "Ø§Ù„Ø¹Ù…Ù„ÙŠØ©";
-                worksheet.Cells[1, 5] = "Ø§Ù„Ù†ÙˆØ¹";
-                worksheet.Cells[1, 6] = "Ø§Ù„ØªØ§Ø±ÙŠØ®";
+                // ÅÖÇİÉ ÇáÚäÇæíä Åáì ãÓÊäÏ Excel
+                worksheet.Cells[1, 1] = "ÑŞã ÇáÓÌá";
+                worksheet.Cells[1, 2] = "ÇáŞíãÉ";
+                worksheet.Cells[1, 3] = "ÇáäÕ";
+                worksheet.Cells[1, 4] = "ÇáÚãáíÉ";
+                worksheet.Cells[1, 5] = "ÇáäæÚ";
+                worksheet.Cells[1, 6] = "ÇáÊÇÑíÎ";
 
-                // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¥Ù„Ù‰ Ù…Ø³ØªÙ†Ø¯ Excel
+                // ÅÖÇİÉ ÇáÈíÇäÇÊ Åáì ãÓÊäÏ Excel
                 for (int i = 0; i < _deductions.Count; i++)
                 {
                     var deduction = _deductions[i];
@@ -363,31 +363,31 @@ namespace HR_Application.Views
                     worksheet.Cells[i + 2, 6] = deduction.Date;
                 }
 
-                // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ø¬Ø¯ÙˆÙ„
+                // ÊäÓíŞ ÇáÌÏæá
                 Range range = worksheet.Range[worksheet.Cells[1, 1], worksheet.Cells[_deductions.Count + 1, 6]];
                 range.Borders.LineStyle = XlLineStyle.xlContinuous;
                 range.Borders.Weight = XlBorderWeight.xlThin;
 
-                // ØªÙ†Ø³ÙŠÙ‚ Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ†
+                // ÊäÓíŞ ÇáÚäÇæíä
                 Range headerRange = worksheet.Range[worksheet.Cells[1, 1], worksheet.Cells[1, 6]];
                 headerRange.Font.Bold = true;
                 headerRange.Interior.Color = System.Drawing.Color.LightGray.ToArgb();
 
-                // Ø­ÙØ¸ Ù…Ø³ØªÙ†Ø¯ Excel
+                // ÍİÙ ãÓÊäÏ Excel
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelApp.Quit();
 
-                // ØªØ­Ø±ÙŠØ± Ø§Ù„Ù…ÙˆØ§Ø±Ø¯
+                // ÊÍÑíÑ ÇáãæÇÑÏ
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(worksheet);
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook);
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
 
-                MessageBox.Show($"ØªÙ… ØªØµØ¯ÙŠØ± Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­ Ø¥Ù„Ù‰: {filePath}", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage($"Êã ÊÕÏíÑ ÇáÈíÇäÇÊ ÈäÌÇÍ Åáì: {filePath}", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØµØ¯ÙŠØ±: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÊÕÏíÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -395,13 +395,13 @@ namespace HR_Application.Views
         {
             if (string.IsNullOrWhiteSpace(code_box.Text))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ø£ÙˆÙ„Ø§Ù‹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ßæÏ ÇáãæÙİ ÃæáÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (!int.TryParse(code_box.Text, out int employeeCode))
             {
-                MessageBox.Show("ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø±Ù‚Ù…Ø§Ù‹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ßæÏ ÇáãæÙİ íÌÈ Ãä íßæä ÑŞãÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

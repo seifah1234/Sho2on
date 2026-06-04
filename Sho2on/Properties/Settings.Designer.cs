@@ -89,6 +89,21 @@ namespace HR_Application.Properties
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OfficalsForAll
+        {
+            get
+            {
+                return ((bool)(this["OfficalsForAll"]));
+            }
+            set
+            {
+                this["OfficalsForAll"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("7001")]
         public int ApiPort
         {
@@ -284,6 +299,21 @@ namespace HR_Application.Properties
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ar")]
+        public string Language
+        {
+            get
+            {
+                return ((string)(this["Language"]));
+            }
+            set
+            {
+                this["Language"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Logo
         {
@@ -294,6 +324,112 @@ namespace HR_Application.Properties
             set
             {
                 this["Logo"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
+
+        public global::System.Windows.Media.Color PrimaryColor
+        {
+            get
+            {
+                return ((global::System.Windows.Media.Color)(this["PrimaryColor"]));
+            }
+            set
+            {
+                this["PrimaryColor"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
+        public global::System.Windows.Media.Color SecondaryColor
+        {
+            get
+            {
+                return ((global::System.Windows.Media.Color)(this["SecondaryColor"]));
+            }
+            set
+            {
+                this["SecondaryColor"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#660503")]
+        public global::System.Windows.Media.Color ThirdColor
+        {
+            get
+            {
+                return ((global::System.Windows.Media.Color)(this["ThirdColor"]));
+            }
+            set
+            {
+                this["ThirdColor"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#ececec")]
+        public global::System.Windows.Media.Color PrimaryColorBackground
+        {
+            get
+            {
+                return ((global::System.Windows.Media.Color)(this["PrimaryColorBackground"]));
+            }
+            set
+            {
+                this["PrimaryColorBackground"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
+        public global::System.Windows.Media.Color MainMenuColor
+        {
+            get
+            {
+                return ((global::System.Windows.Media.Color)(this["MainMenuColor"]));
+            }
+            set
+            {
+                this["MainMenuColor"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
+        public global::System.Windows.Media.Color PrimaryTextBrush
+        {
+            get
+            {
+                return ((global::System.Windows.Media.Color)(this["PrimaryTextBrush"]));
+            }
+            set
+            {
+                this["PrimaryTextBrush"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#F0FFF0")]
+        public global::System.Windows.Media.Color SecondaryTextBrush
+        {
+            get
+            {
+                return ((global::System.Windows.Media.Color)(this["SecondaryTextBrush"]));
+            }
+            set
+            {
+                this["SecondaryTextBrush"] = value;
             }
         }
     }

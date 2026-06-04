@@ -1,12 +1,12 @@
-ï»¿using Sho2on.Database;
+using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -46,7 +46,7 @@ namespace HR_Application
             }
             catch (Exception e)
             {
-                System.Windows.MessageBox.Show(e.Message);
+                LocalizationManager.ShowMessage(e.Message);
             }
 
         }
@@ -90,7 +90,7 @@ namespace HR_Application
                     var existingHolidayType = db.HolidayTypes.FirstOrDefault(ht => ht.Name == name);
                     if (existingHolidayType != null)
                     {
-                        System.Windows.MessageBox.Show("Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø© Ù…ÙˆØ¬ÙˆØ¯ Ù…Ø³Ø¨Ù‚Ø§Ù‹", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage("äæÚ ÇáÇÌÇÒÉ ãæÌæÏ ãÓÈŞÇğ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     var holidayType = new HolidayType
@@ -101,13 +101,13 @@ namespace HR_Application
                     db.SaveChanges();
 
                 }
-                System.Windows.MessageBox.Show("ØªÙ… Ø§Ø¶Ø§ÙØ© Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÇÖÇİÉ äæÚ ÇáÇÌÇÒÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
 
             }
             catch
             {
-                System.Windows.MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
 
             }
         }
@@ -121,7 +121,7 @@ namespace HR_Application
         {
             if (list.SelectedItem is not HolidayType selectedHolidayType)
             {
-                System.Windows.MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ äæÚ ÇáÇÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
@@ -134,12 +134,12 @@ namespace HR_Application
                             db.SaveChanges();
                         
                     }
-                    System.Windows.MessageBox.Show("ØªÙ… Ø­Ø°Ù Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÍĞİ äæÚ ÇáÇÌÇÒÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 catch
                 {
-                    System.Windows.MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -160,18 +160,18 @@ namespace HR_Application
                         db.SaveChanges();
                     }
 
-                    System.Windows.MessageBox.Show("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ù†ÙˆØ¹ Ø§Ù„Ø§Ø¬Ø§Ø²Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÊÚÏíá äæÚ ÇáÇÌÇÒÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show("Ù„Ù… ØªØ®ØªØ§Ø± Ø§ÙŠ Ù†ÙˆØ¹ Ø§Ø¬Ø§Ø²Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Çí äæÚ ÇÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
             }
             catch
             {
-                System.Windows.MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -216,3 +216,4 @@ namespace HR_Application
         }
     }
 }
+

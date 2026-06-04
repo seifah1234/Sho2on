@@ -1,7 +1,7 @@
-﻿using System;
+﻿using System; using HR_Application.Helpers;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;

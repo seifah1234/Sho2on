@@ -1,8 +1,8 @@
-ï»¿using Sho2on.Database.Models;
-using System;
+using Sho2on.Database.Models;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Markup;
@@ -115,13 +115,13 @@ namespace HR_Application.Views
                             document.Title);
                     }
 
-                    MessageBox.Show($"ØªÙ… Ø·Ø¨Ø§Ø¹Ø© {_documents.Count} Ù…Ø³ØªÙ†Ø¯ Ø¨Ù†Ø¬Ø§Ø­",
-                        "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage($"Êã ØÈÇÚÉ {_documents.Count} ãÓÊäÏ ÈäÌÇÍ",
+                        "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáØÈÇÚÉ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

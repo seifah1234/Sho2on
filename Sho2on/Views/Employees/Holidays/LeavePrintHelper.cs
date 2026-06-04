@@ -1,10 +1,10 @@
-ï»¿using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Win32;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.IO;
 using System.Printing;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -51,7 +51,7 @@ namespace HR_Application.Views.Employees.Holidays
 
         public FlowDocument CreatePrintDocument()
         {
-            // Ø¥Ù†Ø´Ø§Ø¡ FlowDocument Ø¬Ø¯ÙŠØ¯
+            // ÅäÔÇÁ FlowDocument ÌÏíÏ
             FlowDocument document = new FlowDocument
             {
                 PageHeight = 842,  // A4 height in points
@@ -65,22 +65,22 @@ namespace HR_Application.Views.Employees.Holidays
                 TextAlignment = System.Windows.TextAlignment.Right
             };
 
-            // Ø¥Ø¶Ø§ÙØ© Ø±Ø£Ø³ Ø§Ù„ØµÙØ­Ø©
+            // ÅÖÇİÉ ÑÃÓ ÇáÕİÍÉ
             AddHeader(document);
 
-            // Ø¥Ø¶Ø§ÙØ© Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù
+            // ÅÖÇİÉ ãÚáæãÇÊ ÇáãæÙİ
             AddEmployeeInfo(document);
 
-            // Ø¥Ø¶Ø§ÙØ© Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+            // ÅÖÇİÉ ãÚáæãÇÊ ÇáÅÌÇÒÉ
             AddLeaveInfo(document);
 
-            // Ø¥Ø¶Ø§ÙØ© Ø­Ø§Ù„Ø© Ø§Ù„Ø·Ù„Ø¨
+            // ÅÖÇİÉ ÍÇáÉ ÇáØáÈ
             AddStatusInfo(document);
 
-            // Ø¥Ø¶Ø§ÙØ© Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø±ØµÙŠØ¯
+            // ÅÖÇİÉ ãÚáæãÇÊ ÇáÑÕíÏ
             AddBalanceInfo(document);
 
-            // Ø¥Ø¶Ø§ÙØ© ØªØ°ÙŠÙŠÙ„ Ø§Ù„ØµÙØ­Ø©
+            // ÅÖÇİÉ ÊĞííá ÇáÕİÍÉ
             AddFooter(document);
 
             return document;
@@ -88,14 +88,14 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void AddHeader(FlowDocument document)
         {
-            // Ø§Ù„Ù‚Ø³Ù… Ø§Ù„Ø¹Ù„ÙˆÙŠ Ù…Ø¹ Ø§Ù„Ø´Ø¹Ø§Ø± ÙˆØ§Ù„Ø¹Ù†ÙˆØ§Ù†
+            // ÇáŞÓã ÇáÚáæí ãÚ ÇáÔÚÇÑ æÇáÚäæÇä
             Table headerTable = new Table
             {
                 CellSpacing = 0,
                 Margin = new Thickness(0, 0, 0, 20)
             };
 
-            // Ø«Ù„Ø§Ø«Ø© Ø£Ø¹Ù…Ø¯Ø©: Ø´Ø¹Ø§Ø± - Ø¹Ù†ÙˆØ§Ù† - ØªØ§Ø±ÙŠØ®
+            // ËáÇËÉ ÃÚãÏÉ: ÔÚÇÑ - ÚäæÇä - ÊÇÑíÎ
             headerTable.Columns.Add(new TableColumn { Width = new GridLength(100) });
             headerTable.Columns.Add(new TableColumn { Width = new GridLength(300) });
             headerTable.Columns.Add(new TableColumn { Width = new GridLength(95) });
@@ -103,24 +103,24 @@ namespace HR_Application.Views.Employees.Holidays
             TableRowGroup headerGroup = new TableRowGroup();
             headerTable.RowGroups.Add(headerGroup);
 
-            // Ø§Ù„ØµÙ Ø§Ù„Ø£ÙˆÙ„: Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ
+            // ÇáÕİ ÇáÃæá: ÇáÚäæÇä ÇáÑÆíÓí
             TableRow titleRow = new TableRow();
             headerGroup.Rows.Add(titleRow);
 /*
-            // Ø§Ù„Ø®Ù„ÙŠØ© Ø§Ù„Ø£ÙˆÙ„Ù‰: Ø§Ù„Ø´Ø¹Ø§Ø± (ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ø¶Ø§ÙØ© ØµÙˆØ±Ø© Ù‡Ù†Ø§)
+            // ÇáÎáíÉ ÇáÃæáì: ÇáÔÚÇÑ (íãßäß ÅÖÇİÉ ÕæÑÉ åäÇ)
             TableCell logoCell = new TableCell
             {
                 ColumnSpan = 1,
                 BorderThickness = new Thickness(0)
             };
-            logoCell.Blocks.Add(new Paragraph(new Run("Ø´Ø¹Ø§Ø± Ø§Ù„Ø´Ø±ÙƒØ©"))
+            logoCell.Blocks.Add(new Paragraph(new Run("ÔÚÇÑ ÇáÔÑßÉ"))
             {
                 FontSize = 10,
                 Foreground = Brushes.Gray
             });
             titleRow.Cells.Add(logoCell);*/
 
-            // Ø§Ù„Ø®Ù„ÙŠØ© Ø§Ù„Ø«Ø§Ù†ÙŠØ©: Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
+            // ÇáÎáíÉ ÇáËÇäíÉ: ÇáÚäæÇä
             TableCell titleCell = new TableCell
             {
                 ColumnSpan = 1,
@@ -129,7 +129,7 @@ namespace HR_Application.Views.Employees.Holidays
             };
 
             Paragraph titleParagraph = new Paragraph();
-            titleParagraph.Inlines.Add(new Run("Ø·Ù„Ø¨ Ø¥Ø¬Ø§Ø²Ø©")
+            titleParagraph.Inlines.Add(new Run("ØáÈ ÅÌÇÒÉ")
             {
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
@@ -139,7 +139,7 @@ namespace HR_Application.Views.Employees.Holidays
             titleCell.Blocks.Add(titleParagraph);
             titleRow.Cells.Add(titleCell);
 
-            // Ø§Ù„Ø®Ù„ÙŠØ© Ø§Ù„Ø«Ø§Ù„Ø«Ø©: Ø§Ù„ØªØ§Ø±ÙŠØ®
+            // ÇáÎáíÉ ÇáËÇáËÉ: ÇáÊÇÑíÎ
             TableCell dateCell = new TableCell
             {
                 ColumnSpan = 1,
@@ -148,13 +148,13 @@ namespace HR_Application.Views.Employees.Holidays
             };
 
             Paragraph dateParagraph = new Paragraph();
-            dateParagraph.Inlines.Add(new Run($"ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {DateTime.Now:yyyy/MM/dd HH:mm}")
+            dateParagraph.Inlines.Add(new Run($"ÊÇÑíÎ ÇáØÈÇÚÉ: {DateTime.Now:yyyy/MM/dd HH:mm}")
             {
                 FontSize = 9,
                 Foreground = Brushes.Gray
             });
             dateParagraph.Inlines.Add(new LineBreak());
-            dateParagraph.Inlines.Add(new Run($"Ø±Ù‚Ù… Ø§Ù„Ø·Ù„Ø¨: {_leave.Id}")
+            dateParagraph.Inlines.Add(new Run($"ÑŞã ÇáØáÈ: {_leave.Id}")
             {
                 FontSize = 9,
                 Foreground = Brushes.Gray
@@ -165,8 +165,8 @@ namespace HR_Application.Views.Employees.Holidays
 
             document.Blocks.Add(headerTable);
 
-            // Ø®Ø· ÙØ§ØµÙ„
-            document.Blocks.Add(new Paragraph(new Run(new string('â”€', 100)))
+            // ÎØ İÇÕá
+            document.Blocks.Add(new Paragraph(new Run(new string('?', 100)))
             {
                 TextAlignment = System.Windows.TextAlignment.Center,
                 Foreground = Brushes.LightGray,
@@ -176,8 +176,8 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void AddEmployeeInfo(FlowDocument document)
         {
-            // Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù‚Ø³Ù…
-            Paragraph sectionTitle = new Paragraph(new Run("1. Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù"))
+            // ÚäæÇä ÇáŞÓã
+            Paragraph sectionTitle = new Paragraph(new Run("1. ãÚáæãÇÊ ÇáãæÙİ"))
             {
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
@@ -187,14 +187,14 @@ namespace HR_Application.Views.Employees.Holidays
             };
             document.Blocks.Add(sectionTitle);
 
-            // Ø¬Ø¯ÙˆÙ„ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù
+            // ÌÏæá ãÚáæãÇÊ ÇáãæÙİ
             Table employeeTable = new Table
             {
                 CellSpacing = 0,
                 Margin = new Thickness(0, 0, 0, 20)
             };
 
-            // ØªØ¹Ø±ÙŠÙ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+            // ÊÚÑíİ ÇáÃÚãÏÉ
             for (int i = 0; i < 4; i++)
             {
                 employeeTable.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
@@ -203,12 +203,12 @@ namespace HR_Application.Views.Employees.Holidays
             TableRowGroup employeeGroup = new TableRowGroup();
             employeeTable.RowGroups.Add(employeeGroup);
 
-            // Ø¥Ø¶Ø§ÙØ© Ø§Ù„ØµÙÙˆÙ
+            // ÅÖÇİÉ ÇáÕİæİ
             string[,] employeeData = {
-                { "ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù", _user?.Id.ToString() ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±", "Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ¸Ù", _user?.FullName ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±" },
-                { "Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©", _user?.Department?.Name ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±", "Ø§Ù„ÙØ±Ø¹", _user?.Branch?.Name ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±" },
-                { "ØªØ§Ø±ÙŠØ® Ø§Ù„ØªØ¹ÙŠÙŠÙ†", _user?.HireDate.ToString("yyyy/MM/dd") ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±", "Ø§Ù„ÙˆØ¸ÙŠÙØ©", _user?.JobTitle?.Name ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±" },
-                { "Ù†Ø¸Ø§Ù… Ø§Ù„Ø¹Ù…Ù„", _user?.JobType?.Name ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±", "Ø§Ù„ÙˆØ±Ø¯ÙŠØ©", _user?.Shift?.Name ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±" }
+                { "ßæÏ ÇáãæÙİ", _user?.Id.ToString() ?? "ÛíÑ ãÊæİÑ", "ÇÓã ÇáãæÙİ", _user?.FullName ?? "ÛíÑ ãÊæİÑ" },
+                { "ÇáÅÏÇÑÉ", _user?.Department?.Name ?? "ÛíÑ ãÊæİÑ", "ÇáİÑÚ", _user?.Branch?.Name ?? "ÛíÑ ãÊæİÑ" },
+                { "ÊÇÑíÎ ÇáÊÚííä", _user?.HireDate.ToString("yyyy/MM/dd") ?? "ÛíÑ ãÊæİÑ", "ÇáæÙíİÉ", _user?.JobTitle?.Name ?? "ÛíÑ ãÊæİÑ" },
+                { "äÙÇã ÇáÚãá", _user?.JobType?.Name ?? "ÛíÑ ãÊæİÑ", "ÇáæÑÏíÉ", _user?.Shift?.Name ?? "ÛíÑ ãÊæİÑ" }
             };
 
             for (int i = 0; i < employeeData.GetLength(0); i++)
@@ -228,7 +228,7 @@ namespace HR_Application.Views.Employees.Holidays
 
                     Paragraph cellParagraph = new Paragraph();
 
-                    if (j % 2 == 0) // ØªØ³Ù…ÙŠØ§Øª
+                    if (j % 2 == 0) // ÊÓãíÇÊ
                     {
                         cellParagraph.Inlines.Add(new Run(employeeData[i, j])
                         {
@@ -236,7 +236,7 @@ namespace HR_Application.Views.Employees.Holidays
                             Foreground = Brushes.DimGray
                         });
                     }
-                    else // Ù‚ÙŠÙ…
+                    else // Şíã
                     {
                         cellParagraph.Inlines.Add(new Run(employeeData[i, j])
                         {
@@ -255,8 +255,8 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void AddLeaveInfo(FlowDocument document)
         {
-            // Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù‚Ø³Ù…
-            Paragraph sectionTitle = new Paragraph(new Run("2. Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©"))
+            // ÚäæÇä ÇáŞÓã
+            Paragraph sectionTitle = new Paragraph(new Run("2. ãÚáæãÇÊ ÇáÅÌÇÒÉ"))
             {
                 FontSize = 14,
                 TextAlignment = TextAlignment.Left,
@@ -266,14 +266,14 @@ namespace HR_Application.Views.Employees.Holidays
             };
             document.Blocks.Add(sectionTitle);
 
-            // Ø¬Ø¯ÙˆÙ„ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+            // ÌÏæá ãÚáæãÇÊ ÇáÅÌÇÒÉ
             Table leaveTable = new Table
             {
                 CellSpacing = 0,
                 Margin = new Thickness(0, 0, 0, 20)
             };
 
-            // ØªØ¹Ø±ÙŠÙ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+            // ÊÚÑíİ ÇáÃÚãÏÉ
             for (int i = 0; i < 4; i++)
             {
                 leaveTable.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
@@ -282,13 +282,13 @@ namespace HR_Application.Views.Employees.Holidays
             TableRowGroup leaveGroup = new TableRowGroup();
             leaveTable.RowGroups.Add(leaveGroup);
 
-            // Ø¥Ø¶Ø§ÙØ© Ø§Ù„ØµÙÙˆÙ
+            // ÅÖÇİÉ ÇáÕİæİ
             string[,] leaveData = {
-                { "Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", _leaveType?.Name ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±", "Ø±Ù‚Ù… Ø§Ù„Ù†ÙˆØ¹", _leaveType?.Code ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±" },
-                { "Ù…Ù† ØªØ§Ø±ÙŠØ®", _leave.StartDate.ToString("yyyy/MM/dd"), "Ø¥Ù„Ù‰ ØªØ§Ø±ÙŠØ®", _leave.EndDate.ToString("yyyy/MM/dd") },
-                { "Ø§Ù„Ù…Ø¯Ø©", $"{_leave.Duration} ÙŠÙˆÙ…", "ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ù„Ø¨", _leave.RequestDate.ToString("yyyy/MM/dd HH:mm") },
-                { "ÙŠØªØ·Ù„Ø¨ Ù…ÙˆØ§ÙÙ‚Ø©", _leaveType?.RequiresApproval == true ? "Ù†Ø¹Ù…" : "Ù„Ø§",
-                  "ÙŠØ®ØµÙ… Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯", _leaveType?.DeductFromBalance == true ? "Ù†Ø¹Ù…" : "Ù„Ø§" }
+                { "äæÚ ÇáÅÌÇÒÉ", _leaveType?.Name ?? "ÛíÑ ãÊæİÑ", "ÑŞã ÇáäæÚ", _leaveType?.Code ?? "ÛíÑ ãÊæİÑ" },
+                { "ãä ÊÇÑíÎ", _leave.StartDate.ToString("yyyy/MM/dd"), "Åáì ÊÇÑíÎ", _leave.EndDate.ToString("yyyy/MM/dd") },
+                { "ÇáãÏÉ", $"{_leave.Duration} íæã", "ÊÇÑíÎ ÇáØáÈ", _leave.RequestDate.ToString("yyyy/MM/dd HH:mm") },
+                { "íÊØáÈ ãæÇİŞÉ", _leaveType?.RequiresApproval == true ? "äÚã" : "áÇ",
+                  "íÎÕã ãä ÇáÑÕíÏ", _leaveType?.DeductFromBalance == true ? "äÚã" : "áÇ" }
             };
 
             for (int i = 0; i < leaveData.GetLength(0); i++)
@@ -308,7 +308,7 @@ namespace HR_Application.Views.Employees.Holidays
 
                     Paragraph cellParagraph = new Paragraph();
 
-                    if (j % 2 == 0) // ØªØ³Ù…ÙŠØ§Øª
+                    if (j % 2 == 0) // ÊÓãíÇÊ
                     {
                         cellParagraph.Inlines.Add(new Run(leaveData[i, j])
                         {
@@ -316,7 +316,7 @@ namespace HR_Application.Views.Employees.Holidays
                             Foreground = Brushes.DimGray
                         });
                     }
-                    else // Ù‚ÙŠÙ…
+                    else // Şíã
                     {
                         Color valueColor = j == 1 ? Color.FromRgb(76, 175, 80) :
                                           j == 3 ? Color.FromRgb(33, 150, 243) : Colors.Black;
@@ -335,8 +335,8 @@ namespace HR_Application.Views.Employees.Holidays
 
             document.Blocks.Add(leaveTable);
 
-            // Ù‚Ø³Ù… Ø§Ù„Ø³Ø¨Ø¨
-            Paragraph reasonTitle = new Paragraph(new Run("Ø³Ø¨Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©:"))
+            // ŞÓã ÇáÓÈÈ
+            Paragraph reasonTitle = new Paragraph(new Run("ÓÈÈ ÇáÅÌÇÒÉ:"))
             {
                 TextAlignment = TextAlignment.Left,
                 FontSize = 12,
@@ -355,7 +355,7 @@ namespace HR_Application.Views.Employees.Holidays
                 Background = new SolidColorBrush(Color.FromArgb(10, 76, 175, 80))
             };
 
-            Paragraph reasonParagraph = new Paragraph(new Run(_leave.Reason ?? "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø³Ø¨Ø¨"))
+            Paragraph reasonParagraph = new Paragraph(new Run(_leave.Reason ?? "áÇ íæÌÏ ÓÈÈ"))
             {
                 FontSize = 11,
                 TextAlignment = System.Windows.TextAlignment.Left,
@@ -369,8 +369,8 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void AddStatusInfo(FlowDocument document)
         {
-            // Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù‚Ø³Ù…
-            Paragraph sectionTitle = new Paragraph(new Run("3. Ø­Ø§Ù„Ø© Ø§Ù„Ø·Ù„Ø¨"))
+            // ÚäæÇä ÇáŞÓã
+            Paragraph sectionTitle = new Paragraph(new Run("3. ÍÇáÉ ÇáØáÈ"))
             {
                 FontSize = 14,
                 TextAlignment = TextAlignment.Left,
@@ -380,14 +380,14 @@ namespace HR_Application.Views.Employees.Holidays
             };
             document.Blocks.Add(sectionTitle);
 
-            // Ø­Ø§Ù„Ø© Ø§Ù„Ø·Ù„Ø¨
+            // ÍÇáÉ ÇáØáÈ
             Table statusTable = new Table
             {
                 CellSpacing = 0,
                 Margin = new Thickness(0, 0, 0, 20)
             };
 
-            // ØªØ¹Ø±ÙŠÙ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+            // ÊÚÑíİ ÇáÃÚãÏÉ
             statusTable.Columns.Add(new TableColumn { Width = new GridLength(150) });
             statusTable.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
 
@@ -397,7 +397,7 @@ namespace HR_Application.Views.Employees.Holidays
             string statusText = GetStatusText(_leave.Status);
             Brush statusColor = GetStatusColor(_leave.Status);
 
-            // ØµÙ Ø§Ù„Ø­Ø§Ù„Ø©
+            // Õİ ÇáÍÇáÉ
             TableRow statusRow = new TableRow();
             statusGroup.Rows.Add(statusRow);
 
@@ -408,7 +408,7 @@ namespace HR_Application.Views.Employees.Holidays
                 Padding = new Thickness(8, 5, 8, 5),
                 Background = new SolidColorBrush(Color.FromArgb(20, 255, 152, 0))
             };
-            statusLabelCell.Blocks.Add(new Paragraph(new Run("Ø§Ù„Ø­Ø§Ù„Ø©:"))
+            statusLabelCell.Blocks.Add(new Paragraph(new Run("ÇáÍÇáÉ:"))
             {
                 TextAlignment = TextAlignment.Left,
                 FontWeight = FontWeights.SemiBold
@@ -430,31 +430,31 @@ namespace HR_Application.Views.Employees.Holidays
             });
             statusRow.Cells.Add(statusValueCell);
 
-            // Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ© Ø­Ø³Ø¨ Ø§Ù„Ø­Ø§Ù„Ø©
-            if (_leave.Status == 2 || _leave.Status == 3) // Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡ Ø£Ùˆ Ù…Ø±ÙÙˆØ¶
+            // ãÚáæãÇÊ ÅÖÇİíÉ ÍÓÈ ÇáÍÇáÉ
+            if (_leave.Status == 2 || _leave.Status == 3) // ãæÇİŞ Úáíå Ãæ ãÑİæÖ
             {
-                AddStatusDetailRow(statusGroup, "ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©/Ø§Ù„Ø±ÙØ¶",
-                    _leave.ApprovalDate?.ToString("yyyy/MM/dd HH:mm") ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±");
+                AddStatusDetailRow(statusGroup, "ÊÇÑíÎ ÇáãæÇİŞÉ/ÇáÑİÖ",
+                    _leave.ApprovalDate?.ToString("yyyy/MM/dd HH:mm") ?? "ÛíÑ ãÊæİÑ");
 
-                AddStatusDetailRow(statusGroup, "ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¨ÙˆØ§Ø³Ø·Ø©",
-                    _leave.Approver?.FullName ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±");
+                AddStatusDetailRow(statusGroup, "ÊãÊ ÇáãæÇİŞÉ ÈæÇÓØÉ",
+                    _leave.Approver?.FullName ?? "ÛíÑ ãÊæİÑ");
 
                 if (_leave.Status == 3 && !string.IsNullOrEmpty(_leave.RejectionReason))
                 {
-                    AddStatusDetailRow(statusGroup, "Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶", _leave.RejectionReason);
+                    AddStatusDetailRow(statusGroup, "ÓÈÈ ÇáÑİÖ", _leave.RejectionReason);
                 }
             }
-            else if (_leave.Status == 4) // Ù…Ù„ØºÙ‰
+            else if (_leave.Status == 4) // ãáÛì
             {
-                AddStatusDetailRow(statusGroup, "ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¥Ù„ØºØ§Ø¡",
-                    _leave.CancelledDate?.ToString("yyyy/MM/dd HH:mm") ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±");
+                AddStatusDetailRow(statusGroup, "ÊÇÑíÎ ÇáÅáÛÇÁ",
+                    _leave.CancelledDate?.ToString("yyyy/MM/dd HH:mm") ?? "ÛíÑ ãÊæİÑ");
 
-                AddStatusDetailRow(statusGroup, "ØªÙ… Ø§Ù„Ø¥Ù„ØºØ§Ø¡ Ø¨ÙˆØ§Ø³Ø·Ø©",
-                    _leave.Canceller?.FullName ?? "ØºÙŠØ± Ù…ØªÙˆÙØ±");
+                AddStatusDetailRow(statusGroup, "Êã ÇáÅáÛÇÁ ÈæÇÓØÉ",
+                    _leave.Canceller?.FullName ?? "ÛíÑ ãÊæİÑ");
 
                 if (!string.IsNullOrEmpty(_leave.CancellationReason))
                 {
-                    AddStatusDetailRow(statusGroup, "Ø³Ø¨Ø¨ Ø§Ù„Ø¥Ù„ØºØ§Ø¡", _leave.CancellationReason);
+                    AddStatusDetailRow(statusGroup, "ÓÈÈ ÇáÅáÛÇÁ", _leave.CancellationReason);
                 }
             }
 
@@ -491,8 +491,8 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void AddBalanceInfo(FlowDocument document)
         {
-            // Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù‚Ø³Ù…
-            Paragraph sectionTitle = new Paragraph(new Run("4. Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø±ØµÙŠØ¯"))
+            // ÚäæÇä ÇáŞÓã
+            Paragraph sectionTitle = new Paragraph(new Run("4. ãÚáæãÇÊ ÇáÑÕíÏ"))
             {
                 FontSize = 14,
                 TextAlignment = TextAlignment.Left,
@@ -502,33 +502,33 @@ namespace HR_Application.Views.Employees.Holidays
             };
             document.Blocks.Add(sectionTitle);
 
-            // ØµÙ†Ø§Ø¯ÙŠÙ‚ Ø§Ù„Ø±ØµÙŠØ¯
+            // ÕäÇÏíŞ ÇáÑÕíÏ
             Grid balanceGrid = new Grid
             {
                 Margin = new Thickness(0, 0, 0, 20)
             };
 
-            // Ø«Ù„Ø§Ø«Ø© Ø£Ø¹Ù…Ø¯Ø©
+            // ËáÇËÉ ÃÚãÏÉ
             balanceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             balanceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             balanceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Ø¥Ø¶Ø§ÙØ© Ø§Ù„ØµÙ†Ø§Ø¯ÙŠÙ‚
-            AddBalanceBox(balanceGrid, 0, "Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„ÙƒÙ„ÙŠ", _totalBalance.ToString(),
+            // ÅÖÇİÉ ÇáÕäÇÏíŞ
+            AddBalanceBox(balanceGrid, 0, "ÇáÑÕíÏ Çáßáí", _totalBalance.ToString(),
                 Color.FromRgb(46, 125, 50), "E8F5E8");
 
-            AddBalanceBox(balanceGrid, 1, "Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…", _usedBalance.ToString(),
+            AddBalanceBox(balanceGrid, 1, "ÇáãÓÊÎÏã", _usedBalance.ToString(),
                 Color.FromRgb(198, 40, 40), "FFEBEE");
 
-            AddBalanceBox(balanceGrid, 2, "Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ", _remainingBalance.ToString(),
+            AddBalanceBox(balanceGrid, 2, "ÇáãÊÈŞí", _remainingBalance.ToString(),
                 Color.FromRgb(21, 101, 192), "E3F2FD");
 
             document.Blocks.Add(new BlockUIContainer(balanceGrid));
 
-            // Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ø±ØµÙŠØ¯
+            // ãáÇÍÙÇÊ ÇáÑÕíÏ
             if (_leaveType?.DeductFromBalance == true && _leave.Status == 2)
             {
-                Paragraph balanceNote = new Paragraph(new Run($"Ù…Ù„Ø§Ø­Ø¸Ø©: ØªÙ… Ø®ØµÙ… {_leave.Duration} ÙŠÙˆÙ… Ù…Ù† Ø±ØµÙŠØ¯ {_leaveType.Name}"))
+                Paragraph balanceNote = new Paragraph(new Run($"ãáÇÍÙÉ: Êã ÎÕã {_leave.Duration} íæã ãä ÑÕíÏ {_leaveType.Name}"))
                 {
                     FontSize = 10,
                     FontStyle = FontStyles.Italic,
@@ -557,7 +557,7 @@ namespace HR_Application.Views.Employees.Holidays
                 HorizontalAlignment = HorizontalAlignment.Center
             };
 
-            // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
+            // ÇáÚäæÇä
             TextBlock titleText = new TextBlock
             {
                 Text = title,
@@ -568,10 +568,10 @@ namespace HR_Application.Views.Employees.Holidays
                 Margin = new Thickness(0, 0, 0, 5)
             };
 
-            // Ø§Ù„Ù‚ÙŠÙ…Ø©
+            // ÇáŞíãÉ
             TextBlock valueText = new TextBlock
             {
-                Text = $"{value} ÙŠÙˆÙ…",
+                Text = $"{value} íæã",
                 Foreground = new SolidColorBrush(titleColor),
                 FontWeight = FontWeights.Bold,
                 FontSize = 20,
@@ -588,21 +588,21 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void AddFooter(FlowDocument document)
         {
-            // Ø®Ø· ÙØ§ØµÙ„
-            document.Blocks.Add(new Paragraph(new Run(new string('â”€', 100)))
+            // ÎØ İÇÕá
+            document.Blocks.Add(new Paragraph(new Run(new string('?', 100)))
             {
                 TextAlignment = System.Windows.TextAlignment.Center,
                 Foreground = Brushes.LightGray,
                 Margin = new Thickness(0, 20, 0, 20)
             });
 
-            // ØªØ°ÙŠÙŠÙ„ Ø§Ù„ØµÙØ­Ø©
+            // ÊĞííá ÇáÕİÍÉ
             Table footerTable = new Table
             {
                 CellSpacing = 0
             };
 
-            // Ø«Ù„Ø§Ø«Ø© Ø£Ø¹Ù…Ø¯Ø©
+            // ËáÇËÉ ÃÚãÏÉ
             footerTable.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
             footerTable.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
             footerTable.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
@@ -613,11 +613,11 @@ namespace HR_Application.Views.Employees.Holidays
             TableRow row = new TableRow();
             footerGroup.Rows.Add(row);
 
-            // Ø§Ù„ØªÙˆÙ‚ÙŠØ¹Ø§Øª
+            // ÇáÊæŞíÚÇÊ
             string[] signatures = {
-                "ØªÙˆÙ‚ÙŠØ¹ Ø§Ù„Ù…ÙˆØ¸Ù\n\n________________\nØ§Ù„ØªØ§Ø±ÙŠØ®: ____/____/____",
-                "ØªÙˆÙ‚ÙŠØ¹ Ø±Ø¦ÙŠØ³ Ø§Ù„Ù‚Ø³Ù…\n\n________________\nØ§Ù„ØªØ§Ø±ÙŠØ®: ____/____/____",
-                "ØªÙˆÙ‚ÙŠØ¹ Ù…Ø¯ÙŠØ± Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©\n\n________________\nØ§Ù„ØªØ§Ø±ÙŠØ®: ____/____/____"
+                "ÊæŞíÚ ÇáãæÙİ\n\n________________\nÇáÊÇÑíÎ: ____/____/____",
+                "ÊæŞíÚ ÑÆíÓ ÇáŞÓã\n\n________________\nÇáÊÇÑíÎ: ____/____/____",
+                "ÊæŞíÚ ãÏíÑ ÇáãæÇÑÏ ÇáÈÔÑíÉ\n\n________________\nÇáÊÇÑíÎ: ____/____/____"
             };
 
             for (int i = 0; i < 3; i++)
@@ -641,8 +641,8 @@ namespace HR_Application.Views.Employees.Holidays
 
             document.Blocks.Add(footerTable);
 
-            // Ø±Ù‚Ù… Ø§Ù„ØµÙØ­Ø©
-            Paragraph pageNumber = new Paragraph(new Run($"ØµÙØ­Ø© 1 Ù…Ù† 1"))
+            // ÑŞã ÇáÕİÍÉ
+            Paragraph pageNumber = new Paragraph(new Run($"ÕİÍÉ 1 ãä 1"))
             {
                 FontSize = 9,
                 Foreground = Brushes.Gray,
@@ -651,8 +651,8 @@ namespace HR_Application.Views.Employees.Holidays
             };
             document.Blocks.Add(pageNumber);
 
-            // Ø­Ù‚ÙˆÙ‚ Ø§Ù„Ù†Ø´Ø±
-            Paragraph copyright = new Paragraph(new Run("Â© Ù†Ø¸Ø§Ù… Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ© - Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ‚ Ù…Ø­ÙÙˆØ¸Ø©"))
+            // ÍŞæŞ ÇáäÔÑ
+            Paragraph copyright = new Paragraph(new Run("© äÙÇã ÅÏÇÑÉ ÇáãæÇÑÏ ÇáÈÔÑíÉ - ÌãíÚ ÇáÍŞæŞ ãÍİæÙÉ"))
             {
                 FontSize = 8,
                 Foreground = Brushes.LightGray,
@@ -666,12 +666,12 @@ namespace HR_Application.Views.Employees.Holidays
         {
             return status switch
             {
-                0 => "Ù…Ø³ÙˆØ¯Ø©",
-                1 => "Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±",
-                2 => "Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡",
-                3 => "Ù…Ø±ÙÙˆØ¶",
-                4 => "Ù…Ù„ØºÙ‰",
-                _ => "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"
+                0 => "ãÓæÏÉ",
+                1 => "ŞíÏ ÇáÇäÊÙÇÑ",
+                2 => "ãæÇİŞ Úáíå",
+                3 => "ãÑİæÖ",
+                4 => "ãáÛì",
+                _ => "ÛíÑ ãÚÑæİ"
             };
         }
 
@@ -679,12 +679,12 @@ namespace HR_Application.Views.Employees.Holidays
         {
             return status switch
             {
-                0 => new SolidColorBrush(Colors.Gray),      // Ù…Ø³ÙˆØ¯Ø©
-                1 => new SolidColorBrush(Colors.Orange),    // Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
-                2 => new SolidColorBrush(Colors.Green),     // Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡
-                3 => new SolidColorBrush(Colors.Red),       // Ù…Ø±ÙÙˆØ¶
-                4 => new SolidColorBrush(Colors.Purple),    // Ù…Ù„ØºÙ‰
-                _ => new SolidColorBrush(Colors.Gray)       // ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ
+                0 => new SolidColorBrush(Colors.Gray),      // ãÓæÏÉ
+                1 => new SolidColorBrush(Colors.Orange),    // ŞíÏ ÇáÇäÊÙÇÑ
+                2 => new SolidColorBrush(Colors.Green),     // ãæÇİŞ Úáíå
+                3 => new SolidColorBrush(Colors.Red),       // ãÑİæÖ
+                4 => new SolidColorBrush(Colors.Purple),    // ãáÛì
+                _ => new SolidColorBrush(Colors.Gray)       // ÛíÑ ãÚÑæİ
             };
         }
 
@@ -696,23 +696,23 @@ namespace HR_Application.Views.Employees.Holidays
 
                 PrintDialog printDialog = new PrintDialog();
 
-                // Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø·Ø§Ø¨Ø¹Ø© Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
+                // ÅÚÏÇÏÇÊ ÇáØÇÈÚÉ ÇáÇİÊÑÇÖíÉ
                 printDialog.PrintTicket.PageOrientation = PageOrientation.Portrait;
                 printDialog.PrintTicket.PageMediaSize = new PageMediaSize(PageMediaSizeName.ISOA4);
 
                 if (printDialog.ShowDialog() == true)
                 {
-                    // Ø¥Ù†Ø´Ø§Ø¡ IDocumentPaginatorSource Ù…Ù† FlowDocument
+                    // ÅäÔÇÁ IDocumentPaginatorSource ãä FlowDocument
                     IDocumentPaginatorSource paginatorSource = document;
 
-                    // Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©
+                    // ÇáØÈÇÚÉ
                     printDialog.PrintDocument(paginatorSource.DocumentPaginator,
-                        $"Ø·Ù„Ø¨ Ø¥Ø¬Ø§Ø²Ø© - {_leave.Id} - {_user?.FullName}");
+                        $"ØáÈ ÅÌÇÒÉ - {_leave.Id} - {_user?.FullName}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáØÈÇÚÉ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -729,12 +729,12 @@ namespace HR_Application.Views.Employees.Holidays
                     writer.Write(((IDocumentPaginatorSource)document).DocumentPaginator);
                 }
 
-                MessageBox.Show($"ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ù„Ù ÙÙŠ: {filePath}", "Ø­ÙØ¸ ÙƒÙ€ XPS",
+                LocalizationManager.ShowMessage($"Êã ÍİÙ Çáãáİ İí: {filePath}", "ÍİÙ ßÜ XPS",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ù…Ù„Ù XPS: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ ãáİ XPS: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

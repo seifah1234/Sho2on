@@ -1,6 +1,6 @@
-﻿using System;
+﻿using System; using HR_Application.Helpers;
 using System.Globalization;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Data;
 
 namespace HR_Application.Converters

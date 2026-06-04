@@ -685,6 +685,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                        <Label Content="مؤمن عليه" Style="{DynamicResource FieldLabel}"/>
                                         <ComboBox x:Name="insuredComboBox"       Tag="مؤمن عليه"               DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,20,0,0"/>
                                         <TextBox  x:Name="ssn_box"               Tag="الرقم التأميني"          Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <TextBox  x:Name="health_insurance_box"  Tag="رقم التأمين الصحي"       Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>

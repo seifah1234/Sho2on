@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿using System.Windows; using HR_Application.Helpers;
 using System.Windows.Documents;
 
 namespace HR_Application.Views

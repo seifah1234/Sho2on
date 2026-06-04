@@ -1,5 +1,5 @@
-ï»¿using ClosedXML.Excel;
-using System;
+using ClosedXML.Excel;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -57,7 +57,7 @@ namespace HR_Application.Helpers
 
                        
 
-                        // ÙƒØªØ§Ø¨Ø© Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ†
+                        // ßÊÇÈÉ ÇáÚäÇæíä
                         for (int i = 0; i < TemplateHeaders.Count; i++)
                         {
                             var cell = worksheet.Cell(1, i + 1);
@@ -69,7 +69,7 @@ namespace HR_Application.Helpers
 
 
 
-                        // Ø¶Ø¨Ø· Ø¹Ø±Ø¶ Ø§Ù„Ø£Ø¹Ù…Ø¯Ø©
+                        // ÖÈØ ÚÑÖ ÇáÃÚãÏÉ
                         worksheet.Columns().AdjustToContents();
 
                         workbook.SaveAs(saveFileDialog.FileName);
@@ -85,7 +85,7 @@ namespace HR_Application.Helpers
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù‚Ø§Ù„Ø¨: {ex.Message}");
+                    LocalizationManager.ShowMessage($"ÎØÃ Ýí ÅäÔÇÁ ÇáÞÇáÈ: {ex.Message}");
                     return null;
                 }
             }
@@ -94,3 +94,4 @@ namespace HR_Application.Helpers
         }
     }
 }
+

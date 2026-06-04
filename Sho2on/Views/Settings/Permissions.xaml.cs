@@ -1,10 +1,10 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 
@@ -50,13 +50,13 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£Ø¯ÙˆØ§Ø±: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÃÏæÇÑ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task LoadGIFAsync()
         {
-            // ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØ© ØªØ­Ù…ÙŠÙ„ GIF Ø¥Ø°Ø§ Ù„Ø²Ù… Ø§Ù„Ø£Ù…Ø±
+            // íãßä ÅÖÇİÉ ÊÍãíá GIF ÅĞÇ áÒã ÇáÃãÑ
             await Task.CompletedTask;
         }
 
@@ -66,7 +66,7 @@ namespace HR_Application
             {
                 if (roleComboBox.SelectedItem == null)
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø¯ÙˆØ± Ø£ÙˆÙ„Ø§Ù‹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÏæÑ ÃæáÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -77,17 +77,17 @@ namespace HR_Application
 
                 if (role == null)
                 {
-                    MessageBox.Show("Ø§Ù„Ø¯ÙˆØ± Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáÏæÑ ÇáãÍÏÏ ÛíÑ ãæÌæÏ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„Ø£Ø°ÙˆÙ†Ø§Øª Ø§Ù„Ø­Ø§Ù„ÙŠØ© Ù„Ù„Ø¯ÙˆØ±
+                // ÇáÍÕæá Úáì ÇáÃĞæäÇÊ ÇáÍÇáíÉ ááÏæÑ
                 var currentPermissions = await _context.RolePermissions
                     .Where(rp => rp.RoleID == role.RoleID)
                     .Include(rp => rp.Permission)
                     .ToListAsync();
 
-                // Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„Ø£Ø°ÙˆÙ†Ø§Øª Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©
+                // ãÚÇáÌÉ ÇáÃĞæäÇÊ ÇáãÍÏÏÉ
                 foreach (var (permissionName, isActive) in selectedItems)
                 {
                     var permission = await _context.Permissions
@@ -95,7 +95,7 @@ namespace HR_Application
 
                     if (permission == null)
                     {
-                        // Ø¥Ù†Ø´Ø§Ø¡ Ø¥Ø°Ù† Ø¬Ø¯ÙŠØ¯ Ø¥Ø°Ø§ Ù„Ù… ÙŠÙƒÙ† Ù…ÙˆØ¬ÙˆØ¯Ø§Ù‹
+                        // ÅäÔÇÁ ÅĞä ÌÏíÏ ÅĞÇ áã íßä ãæÌæÏÇğ
                         permission = new Permission { PermissionName = permissionName };
                         await _context.Permissions.AddAsync(permission);
                         await _context.SaveChangesAsync();
@@ -106,7 +106,7 @@ namespace HR_Application
 
                     if (isActive && existingPermission == null)
                     {
-                        // Ø¥Ø¶Ø§ÙØ© Ø¥Ø°Ù† Ø¬Ø¯ÙŠØ¯
+                        // ÅÖÇİÉ ÅĞä ÌÏíÏ
                         var rolePermission = new RolePermission
                         {
                             RoleID = role.RoleID,
@@ -116,17 +116,17 @@ namespace HR_Application
                     }
                     else if (!isActive && existingPermission != null)
                     {
-                        // Ø¥Ø²Ø§Ù„Ø© Ø¥Ø°Ù† Ù…ÙˆØ¬ÙˆØ¯
+                        // ÅÒÇáÉ ÅĞä ãæÌæÏ
                         _context.RolePermissions.Remove(existingPermission);
                     }
                 }
 
                 await _context.SaveChangesAsync();
-                MessageBox.Show("ØªÙ… ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø£Ø°ÙˆÙ†Ø§Øª Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÊÍÏíË ÇáÃĞæäÇÊ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø­ÙØ¸ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÍİÙ ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿// PermissionViewModel.cs
-using System;
+using System; using HR_Application.Helpers;
 
 namespace HR_Application.ViewModels
 {

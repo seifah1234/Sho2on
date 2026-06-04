@@ -1,11 +1,11 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MessageBox = System.Windows.MessageBox;
@@ -44,7 +44,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -68,7 +68,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáİÑæÚ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -104,7 +104,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÃÌåÒÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -153,24 +153,24 @@ namespace HR_Application
                     string.IsNullOrWhiteSpace(machine_num.Text) ||
                     string.IsNullOrWhiteSpace(server_num.Text))
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ãáÁ ÌãíÚ ÇáÍŞæá", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var selectedBranch = _branches.FirstOrDefault(b => b.Name == branch_box.Text);
                 if (selectedBranch == null)
                 {
-                    MessageBox.Show("Ø§Ù„ÙØ±Ø¹ Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáİÑÚ ÇáãÍÏÏ ÛíÑ ãæÌæÏ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ØªÙƒØ±Ø§Ø± Ø¹Ù†ÙˆØ§Ù† IP Ù„Ù„Ø¬Ù‡Ø§Ø²
+                // ÇáÊÍŞŞ ãä ÚÏã ÊßÑÇÑ ÚäæÇä IP ááÌåÇÒ
                 bool machineExists = await _context.Machines
                     .AnyAsync(m => m.MIP == machine_num.Text && m.BranchId == selectedBranch.Id);
 
                 if (machineExists)
                 {
-                    MessageBox.Show("Ù‡Ø°Ø§ Ø§Ù„Ø¬Ù‡Ø§Ø² Ù…Ø¶Ø§Ù Ù…Ø³Ø¨Ù‚Ø§Ù‹ Ù„Ù‡Ø°Ø§ Ø§Ù„ÙØ±Ø¹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("åĞÇ ÇáÌåÇÒ ãÖÇİ ãÓÈŞÇğ áåĞÇ ÇáİÑÚ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -184,12 +184,12 @@ namespace HR_Application
                 await _context.Machines.AddAsync(machine);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¬Ù‡Ø§Ø² Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÅÖÇİÉ ÇáÌåÇÒ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadDataAsync();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -213,15 +213,15 @@ namespace HR_Application
         {
             if (_selectedMachine == null)
             {
-                MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø¬Ù‡Ø§Ø²", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÌåÇÒ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                var result = MessageBox.Show(
-                    $"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø§Ù„Ø¬Ù‡Ø§Ø² '{_selectedMachine.MIP}'ØŸ",
-                    "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù",
+                var result = LocalizationManager.ShowMessage(
+                    $"åá ÃäÊ ãÊÃßÏ ãä ÍĞİ ÇáÌåÇÒ '{_selectedMachine.MIP}'¿",
+                    "ÊÃßíÏ ÇáÍĞİ",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
 
@@ -233,14 +233,14 @@ namespace HR_Application
                         _context.Machines.Remove(machine);
                         await _context.SaveChangesAsync();
 
-                        MessageBox.Show("ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¬Ù‡Ø§Ø² Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("Êã ÍĞİ ÇáÌåÇÒ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                         await LoadDataAsync();
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­Ø°Ù: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍĞİ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -248,7 +248,7 @@ namespace HR_Application
         {
             if (_selectedMachine == null)
             {
-                MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø¬Ù‡Ø§Ø²", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÌåÇÒ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -258,21 +258,21 @@ namespace HR_Application
                     string.IsNullOrWhiteSpace(machine_num.Text) ||
                     string.IsNullOrWhiteSpace(server_num.Text))
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ãáÁ ÌãíÚ ÇáÍŞæá", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var selectedBranch = _branches.FirstOrDefault(b => b.Name == branch_box.Text);
                 if (selectedBranch == null)
                 {
-                    MessageBox.Show("Ø§Ù„ÙØ±Ø¹ Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáİÑÚ ÇáãÍÏÏ ÛíÑ ãæÌæÏ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 var machine = await _context.Machines.FindAsync(_selectedMachine.Id);
                 if (machine != null)
                 {
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ØªÙƒØ±Ø§Ø± Ø¹Ù†ÙˆØ§Ù† IP Ù„Ù„Ø¬Ù‡Ø§Ø² (Ø¨Ø§Ø³ØªØ«Ù†Ø§Ø¡ Ø§Ù„Ø¬Ù‡Ø§Ø² Ø§Ù„Ø­Ø§Ù„ÙŠ)
+                    // ÇáÊÍŞŞ ãä ÚÏã ÊßÑÇÑ ÚäæÇä IP ááÌåÇÒ (ÈÇÓÊËäÇÁ ÇáÌåÇÒ ÇáÍÇáí)
                     bool machineExists = await _context.Machines
                         .AnyAsync(m => m.MIP == machine_num.Text &&
                                      m.BranchId == selectedBranch.Id &&
@@ -280,7 +280,7 @@ namespace HR_Application
 
                     if (machineExists)
                     {
-                        MessageBox.Show("Ù‡Ø°Ø§ Ø§Ù„Ø¬Ù‡Ø§Ø² Ù…Ø¶Ø§Ù Ù…Ø³Ø¨Ù‚Ø§Ù‹ Ù„Ù‡Ø°Ø§ Ø§Ù„ÙØ±Ø¹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        LocalizationManager.ShowMessage("åĞÇ ÇáÌåÇÒ ãÖÇİ ãÓÈŞÇğ áåĞÇ ÇáİÑÚ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
@@ -291,13 +291,13 @@ namespace HR_Application
                     _context.Machines.Update(machine);
                     await _context.SaveChangesAsync();
 
-                    MessageBox.Show("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¬Ù‡Ø§Ø² Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáÌåÇÒ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadDataAsync();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÊÚÏíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

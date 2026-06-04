@@ -1,18 +1,19 @@
-ï»¿using DocumentFormat.OpenXml.Vml;
+using DocumentFormat.OpenXml.Vml;
 using HR_Application.Services;
 using HR_Application.UserControls;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.ObjectModel;
+using HR_Application.Helpers;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -62,7 +63,7 @@ namespace HR_Application.Views.Conversations
         public ChatWindow()
         {
             InitializeComponent();
-            _context = new AppDbContext();
+            _context = new AppDbContext(App.ConnectionString);
             ChatList = new ObservableCollection<ChatItemData>();
             SearchResults = new ObservableCollection<UserSearchResult>();
             DataContext = this;
@@ -83,6 +84,7 @@ namespace HR_Application.Views.Conversations
                 SetupGroupSignalRListener();
                 // FIX BUG #2: Reset unread counts when window opens
                 await RefreshUnreadCounts();
+
             };
         }
 
@@ -95,13 +97,12 @@ namespace HR_Application.Views.Conversations
                     if (group.GroupId > 0)
                     {
                         await SignalRManager.Instance.JoinGroupAsync(group.GroupId);
-                        Console.WriteLine($"Joined group {group.GroupId} - {group.GroupName}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"JoinAllGroups error: {ex.Message}");
+                LocalizationManager.ShowMessage($"JoinAllGroups error: {ex.Message}");
             }
         }
 
@@ -120,7 +121,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"RefreshUnreadCounts error: {ex.Message}");
+                LocalizationManager.ShowMessage($"RefreshUnreadCounts error: {ex.Message}");
             }
         }
 
@@ -135,7 +136,7 @@ namespace HR_Application.Views.Conversations
                     chat.LastMessage = e.LastMessage;
                     chat.LastMessageTime = e.LastMessageTime;
 
-                    // âœ… FIX: Force complete UI refresh
+                    // ? FIX: Force complete UI refresh
                     var index = ChatList.IndexOf(chat);
                     if (index >= 0)
                     {
@@ -234,8 +235,8 @@ namespace HR_Application.Views.Conversations
                         UserCode = other.Code,
                         UserId = other.Id,
                         LastMessage = string.IsNullOrEmpty(lastMsg?.Message)
-                                          ? "ðŸ“Ž Ù…Ø±ÙÙ‚"
-                                          : lastMsg?.Message ?? "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„",
+                                          ? "?? ãÑÝÞ"
+                                          : lastMsg?.Message ?? "áÇ ÊæÌÏ ÑÓÇÆá",
                         LastMessageTime = lastMsg?.SentAt ?? DateTime.Now,
                         ProfileImageData = other.ProfileImageData
                     });
@@ -243,7 +244,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"LoadArchived error: {ex.Message}");
+                LocalizationManager.ShowMessage($"LoadArchived error: {ex.Message}");
             }
         }
 
@@ -327,12 +328,13 @@ namespace HR_Application.Views.Conversations
             _ = MarkMessagesAsReadAsync(item.UserId);
         }
 
-        // â”€â”€ Groups â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?? Groups ????????????????????????????????????????????????????????????????
 
         private async Task LoadGroupsAsync()
         {
             try
             {
+
                 var memberships = await _context.ChatGroupMembers
                     .Include(m => m.Group)
                         .ThenInclude(g => g.Messages)
@@ -340,6 +342,7 @@ namespace HR_Application.Views.Conversations
                     .ToListAsync();
 
                 GroupList.Clear();
+
                 foreach (var ms in memberships)
                 {
                     var lastMsg = ms.Group.Messages?
@@ -353,17 +356,18 @@ namespace HR_Application.Views.Conversations
                         GroupName = ms.Group.Name,
                         GroupImageData = ms.Group.GroupImageData,
                         LastMessage = string.IsNullOrEmpty(lastMsg?.Message)
-                                         ? "ðŸ“Ž Ù…Ø±ÙÙ‚"
-                                         : lastMsg?.Message ?? "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„",
+                                         ? "?? ãÑÝÞ"
+                                         : lastMsg?.Message ?? "áÇ ÊæÌÏ ÑÓÇÆá",
                         LastMessageTime = lastMsg?.SentAt ?? ms.Group.CreatedAt,
                         UnreadCount = ms.UnreadCount,
                         IsAdmin = ms.IsAdmin
                     });
                 }
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"LoadGroups error: {ex.Message}");
+                LocalizationManager.ShowMessage($"LoadGroups error: {ex.Message}");
             }
         }
 
@@ -375,7 +379,7 @@ namespace HR_Application.Views.Conversations
             {
                 await LoadGroupsAsync();
 
-                // âœ… Ø§Ù†Ø¶Ù… Ù„Ù„Ø¬Ø±ÙˆØ¨ Ø§Ù„Ø¬Ø¯ÙŠØ¯ Ø¹Ø´Ø§Ù† ØªØ³ØªÙ‚Ø¨Ù„ Ø±Ø³Ø§ÙŠÙ„Ù‡
+                // ? ÇäÖã ááÌÑæÈ ÇáÌÏíÏ ÚÔÇä ÊÓÊÞÈá ÑÓÇíáå
                 var newGroup = GroupList.OrderByDescending(g => g.GroupId).FirstOrDefault();
                 if (newGroup != null)
                 {
@@ -413,7 +417,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ResetGroupUnread error: {ex.Message}");
+                LocalizationManager.ShowMessage($"ResetGroupUnread error: {ex.Message}");
             }
         }
 
@@ -428,7 +432,7 @@ namespace HR_Application.Views.Conversations
         {
             if (senderId == _currentUser.Id) return;
 
-            // âœ… FIX: Check if the group is currently open by checking SelectedGroupId
+            // ? FIX: Check if the group is currently open by checking SelectedGroupId
             // and whether the Groups tab is active (GroupsScrollViewer is visible)
             bool groupIsOpen = GroupChatBoxControl.SelectedGroupId == groupId
                                && GroupsScrollViewer.Visibility == Visibility.Visible;
@@ -437,7 +441,7 @@ namespace HR_Application.Views.Conversations
             var groupItem = GroupList.FirstOrDefault(g => g.GroupId == groupId);
             if (groupItem != null)
             {
-                groupItem.LastMessage = string.IsNullOrEmpty(message) ? "ðŸ“Ž Ù…Ø±ÙÙ‚" : message;
+                groupItem.LastMessage = string.IsNullOrEmpty(message) ? "?? ãÑÝÞ" : message;
                 groupItem.LastMessageTime = timestamp;
                 if (!groupIsOpen)
                     groupItem.UnreadCount++;
@@ -458,13 +462,13 @@ namespace HR_Application.Views.Conversations
 
                 var displayName = !string.IsNullOrEmpty(senderName)
                     ? senderName
-                    : (await ctx.Users.FindAsync(senderId))?.FullName ?? "Ù…Ø³ØªØ®Ø¯Ù…";
+                    : (await ctx.Users.FindAsync(senderId))?.FullName ?? "ãÓÊÎÏã";
 
-                var shortMsg = string.IsNullOrEmpty(message) ? "ðŸ“Ž Ù…Ø±ÙÙ‚"
+                var shortMsg = string.IsNullOrEmpty(message) ? "?? ãÑÝÞ"
                     : (message.Length > 50 ? message[..50] + "..." : message);
 
                 Helpers.NotificationsHelper.ShowPopupNotification(
-                    $"{group?.Name ?? "Ø¬Ø±ÙˆØ¨"}: {displayName}",
+                    $"{group?.Name ?? "ÌÑæÈ"}: {displayName}",
                     shortMsg, this,
                     () =>
                     {
@@ -486,7 +490,7 @@ namespace HR_Application.Views.Conversations
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
                 Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
-                Title = "Ø§Ø®ØªØ± Ø®Ù„ÙÙŠØ© Ù„Ù„Ø´Ø§Øª"
+                Title = "ÇÎÊÑ ÎáÝíÉ ááÔÇÊ"
             };
 
             if (dialog.ShowDialog() != true) return;
@@ -501,13 +505,13 @@ namespace HR_Application.Views.Conversations
                 bitmap.Freeze();
 
 
-                // Ø­ÙØ¸ Ø§Ù„Ù…Ø³Ø§Ø± ÙÙŠ Settings Ø¹Ø´Ø§Ù† ÙŠØªØ°ÙƒØ±Ù‡
+                // ÍÝÙ ÇáãÓÇÑ Ýí Settings ÚÔÇä íÊÐßÑå
                 HR_Application.Properties.Settings.Default.ChatBackgroundPath = dialog.FileName;
                 HR_Application.Properties.Settings.Default.Save();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ChangeBackground error: {ex.Message}");
+                LocalizationManager.ShowMessage($"ChangeBackground error: {ex.Message}");
             }
         }
 
@@ -551,7 +555,7 @@ namespace HR_Application.Views.Conversations
                 var chat = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
                 if (chat != null)
                 {
-                    chat.LastMessage = string.IsNullOrEmpty(e.Message) ? "ðŸ“Ž Ù…Ø±ÙÙ‚" : e.Message;
+                    chat.LastMessage = string.IsNullOrEmpty(e.Message) ? "?? ãÑÝÞ" : e.Message;
                     chat.LastMessageTime = e.Timestamp;
                     chat.UnreadCount = chatIsOpen ? 0 : _unreadMessagesCount[e.FromUserId];
                     MoveChatToTop(chat);
@@ -567,13 +571,13 @@ namespace HR_Application.Views.Conversations
                 if (!chatIsOpen)
                 {
                     var chatItem = ChatList.FirstOrDefault(c => c.UserId == e.FromUserId);
-                    var userName = chatItem?.UserName ?? "Ù…Ø³ØªØ®Ø¯Ù…";
+                    var userName = chatItem?.UserName ?? "ãÓÊÎÏã";
                     var shortMessage = string.IsNullOrEmpty(e.Message)
-                        ? "ðŸ“Ž Ù…Ø±ÙÙ‚"
+                        ? "?? ãÑÝÞ"
                         : (e.Message.Length > 50 ? e.Message[..50] + "..." : e.Message);
 
                     Helpers.NotificationsHelper.ShowPopupNotification(
-                        $"Ø±Ø³Ø§Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù…Ù† {userName}",
+                        $"ÑÓÇáÉ ÌÏíÏÉ ãä {userName}",
                         shortMessage,
                         this,
                         () => OpenSpecificChat(e.FromUserId)
@@ -616,7 +620,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"IncrementUnreadCount error: {ex.Message}");
+                LocalizationManager.ShowMessage($"IncrementUnreadCount error: {ex.Message}");
             }
         }
 
@@ -680,7 +684,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error adding new chat: {ex.Message}");
+                LocalizationManager.ShowMessage($"Error adding new chat: {ex.Message}");
             }
         }
 
@@ -745,9 +749,9 @@ namespace HR_Application.Views.Conversations
 
                     string lastMessageText;
                     if (lastMessage == null)
-                        lastMessageText = "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„ Ø¨Ø¹Ø¯";
+                        lastMessageText = "áÇ ÊæÌÏ ÑÓÇÆá ÈÚÏ";
                     else if (string.IsNullOrEmpty(lastMessage.Message))
-                        lastMessageText = "ðŸ“Ž Ù…Ø±ÙÙ‚";
+                        lastMessageText = "?? ãÑÝÞ";
                     else
                         lastMessageText = lastMessage.Message;
 
@@ -772,9 +776,9 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø§Øª: {ex.InnerException?.Message ?? ex.Message}",
-                    "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage(
+                    $"ÎØÃ Ýí ÊÍãíá ÇáãÍÇÏËÇÊ: {ex.InnerException?.Message ?? ex.Message}",
+                    "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -828,7 +832,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ResetUnreadCount error: {ex.Message}");
+                LocalizationManager.ShowMessage($"ResetUnreadCount error: {ex.Message}");
             }
         }
 
@@ -858,7 +862,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error marking messages as read: {ex.Message}");
+                LocalizationManager.ShowMessage($"Error marking messages as read: {ex.Message}");
             }
         }
 
@@ -900,7 +904,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨Ø­Ø«: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ Ýí ÇáÈÍË: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -910,7 +914,7 @@ namespace HR_Application.Views.Conversations
             var selectedUser = SearchResults.FirstOrDefault();
             if (selectedUser == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ø³ØªØ®Ø¯Ù… Ø£ÙˆÙ„Ø§Ù‹", "ØªÙ†Ø¨ÙŠÙ‡",
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãÓÊÎÏã ÃæáÇð", "ÊäÈíå",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -924,7 +928,7 @@ namespace HR_Application.Views.Conversations
 
                 if (existingChat != null)
                 {
-                    MessageBox.Show("Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ù…ÙˆØ¬ÙˆØ¯Ø© Ø¨Ø§Ù„ÙØ¹Ù„", "Ù…Ø¹Ù„ÙˆÙ…Ø§Øª",
+                    LocalizationManager.ShowMessage("ÇáãÍÇÏËÉ ãæÌæÏÉ ÈÇáÝÚá", "ãÚáæãÇÊ",
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
                     var chatItem = new ChatItemData
@@ -932,7 +936,7 @@ namespace HR_Application.Views.Conversations
                         UserName = selectedUser.UserName,
                         UserCode = selectedUser.UserCode,
                         UserId = selectedUser.UserId,
-                        LastMessage = "Ø§Ø¨Ø¯Ø£ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ø§Ù„Ø¢Ù†",
+                        LastMessage = "ÇÈÏÃ ÇáãÍÇÏËÉ ÇáÂä",
                         ProfileImageData = selectedUser.ProfileImageData
                     };
 
@@ -957,11 +961,11 @@ namespace HR_Application.Views.Conversations
                         UserName = selectedUser.UserName,
                         UserCode = selectedUser.UserCode,
                         UserId = selectedUser.UserId,
-                        LastMessage = "Ù…Ø­Ø§Ø¯Ø«Ø© Ø¬Ø¯ÙŠØ¯Ø©",
+                        LastMessage = "ãÍÇÏËÉ ÌÏíÏÉ",
                         ProfileImageData = selectedUser.ProfileImageData
                     });
 
-                    MessageBox.Show("ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© Ø¨Ù†Ø¬Ø§Ø­", "ØªÙ…",
+                    LocalizationManager.ShowMessage("Êã ÅäÔÇÁ ÇáãÍÇÏËÉ ÈäÌÇÍ", "Êã",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
@@ -972,7 +976,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø©: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ Ýí ÅäÔÇÁ ÇáãÍÇÏËÉ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -1014,6 +1018,82 @@ namespace HR_Application.Views.Conversations
             GroupChatBoxControl.ClearGroup();
             _selectedUserId = -1;
         }
+
+        private async void SelectUserFromSearch(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var border = (sender as Border);
+            if (border == null)
+                return;
+
+            var selectedUser = border.DataContext as UserSearchResult;
+            if (selectedUser == null)
+            {
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãÓÊÎÏã ÃæáÇð", "ÊäÈíå",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var existingChat = await _context.Chats
+                    .FirstOrDefaultAsync(c =>
+                        (c.FirstUserId == _currentUser.Id && c.SecondUserId == selectedUser.UserId) ||
+                        (c.FirstUserId == selectedUser.UserId && c.SecondUserId == _currentUser.Id));
+
+                if (existingChat != null)
+                {
+                    LocalizationManager.ShowMessage("ÇáãÍÇÏËÉ ãæÌæÏÉ ÈÇáÝÚá", "ãÚáæãÇÊ",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    var chatItem = new ChatItemData
+                    {
+                        UserName = selectedUser.UserName,
+                        UserCode = selectedUser.UserCode,
+                        UserId = selectedUser.UserId,
+                        LastMessage = "ÇÈÏÃ ÇáãÍÇÏËÉ ÇáÂä",
+                        ProfileImageData = selectedUser.ProfileImageData
+                    };
+
+                    if (!ChatList.Any(c => c.UserId == selectedUser.UserId))
+                        ChatList.Add(chatItem);
+                }
+                else
+                {
+                    var newChat = new Chat
+                    {
+                        FirstUserId = _currentUser.Id,
+                        SecondUserId = selectedUser.UserId,
+                        CreatedAt = DateTime.Now,
+                        IsActive = true
+                    };
+
+                    _context.Chats.Add(newChat);
+                    await _context.SaveChangesAsync();
+
+                    ChatList.Add(new ChatItemData
+                    {
+                        UserName = selectedUser.UserName,
+                        UserCode = selectedUser.UserCode,
+                        UserId = selectedUser.UserId,
+                        LastMessage = "ãÍÇÏËÉ ÌÏíÏÉ",
+                        ProfileImageData = selectedUser.ProfileImageData
+                    });
+
+                    LocalizationManager.ShowMessage("Êã ÅäÔÇÁ ÇáãÍÇÏËÉ ÈäÌÇÍ", "Êã",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                addChatGrid.Visibility = Visibility.Collapsed;
+                newChatCodeBox.Text = "";
+                newChatUserBox.Text = "";
+                SearchResults.Clear();
+            }
+            catch (Exception ex)
+            {
+                LocalizationManager.ShowMessage($"ÎØÃ Ýí ÅäÔÇÁ ÇáãÍÇÏËÉ: {ex.Message}", "ÎØÃ",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     public class ChatItemData : INotifyPropertyChanged
@@ -1023,7 +1103,7 @@ namespace HR_Application.Views.Conversations
         private int _userId;
         private string _lastMessage;
         private DateTime _lastMessageTime;
-        private byte[] _profileImageData;  // ØªØºÙŠÙŠØ± Ù…Ù† BitmapImage Ø¥Ù„Ù‰ byte[]
+        private byte[] _profileImageData;  // ÊÛííÑ ãä BitmapImage Åáì byte[]
         private int _unreadCount;
 
         public int UnreadCount
@@ -1086,9 +1166,9 @@ namespace HR_Application.Views.Conversations
                         bitmap.BeginInit();
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         bitmap.StreamSource = stream;
-                        bitmap.DecodePixelWidth = 200; // ØªØ­Ø¬ÙŠÙ… Ø§Ù„ØµÙˆØ±Ø© Ù„ØªØ­Ø³ÙŠÙ† Ø§Ù„Ø£Ø¯Ø§Ø¡
+                        bitmap.DecodePixelWidth = 200; // ÊÍÌíã ÇáÕæÑÉ áÊÍÓíä ÇáÃÏÇÁ
                         bitmap.EndInit();
-                        bitmap.Freeze(); // Ù…Ù‡Ù… Ù„Ù„Ø¹Ù…Ù„ÙŠØ§Øª Ù…ØªØ¹Ø¯Ø¯Ø© Ø§Ù„Ø®ÙŠÙˆØ·
+                        bitmap.Freeze(); // ãåã ááÚãáíÇÊ ãÊÚÏÏÉ ÇáÎíæØ
 
                         return bitmap;
                     }
@@ -1096,7 +1176,9 @@ namespace HR_Application.Views.Conversations
                 }
                 else
                 {
-                    return new BitmapImage(new Uri("/assets/images/avatar.jpg", UriKind.Relative));
+                    string AvatarPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "images", "avatar.jpg");
+
+                    return new BitmapImage(new Uri(AvatarPath, UriKind.Relative));
 
                 }
             }
@@ -1119,7 +1201,7 @@ namespace HR_Application.Views.Conversations
         private string _userName;
         private string _userCode;
         private int _userId;
-        private byte[] _profileImageData;  // ØªØºÙŠÙŠØ± Ù…Ù† BitmapImage Ø¥Ù„Ù‰ byte[]
+        private byte[] _profileImageData;  // ÊÛííÑ ãä BitmapImage Åáì byte[]
 
         public string UserName
         {
@@ -1203,7 +1285,9 @@ namespace HR_Application.Views.Conversations
                         return bitmap;
                     }
                 }
-                return new BitmapImage(new Uri("/assets/images/group_avatar.jpg", UriKind.Relative));
+                string AvatarPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "images", "group_avatar.jpg");
+
+                return new BitmapImage(new Uri(AvatarPath, UriKind.Relative));
             }
         }
 

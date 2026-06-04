@@ -1,10 +1,10 @@
-ï»¿using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Spreadsheet;
 using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -153,7 +153,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                LocalizationManager.ShowMessage(ex.Message);
             }
         }
 
@@ -184,7 +184,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                LocalizationManager.ShowMessage(ex.Message);
             }
         }
 
@@ -193,7 +193,7 @@ namespace HR_Application
             var employeeSelectionWindow = new EmployeeSelectionWindow(
                 _context.Users.ToList(),
                 false,
-                "Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ¸Ù Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø°Ù†",
+                "ÇÎÊÑ ÇáãæÙİ áØáÈ ÇáÅĞä",
                 searchText);
             employeeSelectionWindow.Owner = this;
 
@@ -223,7 +223,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ†: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãÏíÑíä: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -331,17 +331,17 @@ namespace HR_Application
 
                         _context.SaveChanges();
 
-                        MessageBox.Show("ØªÙ… Ø§Ø¶Ø§ÙØ© Ø§Ù„Ø§Ø¬Ø±Ø§Ø¡");
+                        LocalizationManager.ShowMessage("Êã ÇÖÇİÉ ÇáÇÌÑÇÁ");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error: {ex.Message}");
+                        LocalizationManager.ShowMessage($"Error: {ex.Message}");
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    LocalizationManager.ShowMessage(ex.Message);
                 }
             
         }
@@ -377,17 +377,17 @@ namespace HR_Application
 
                             _context.SaveChanges();
 
-                            MessageBox.Show("ØªÙ… ØªÙ‚Ø¯ÙŠÙ… Ø§Ù„Ø·Ù„Ø¨");
+                            LocalizationManager.ShowMessage("Êã ÊŞÏíã ÇáØáÈ");
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error: {ex.Message}");
+                            LocalizationManager.ShowMessage($"Error: {ex.Message}");
                         }
                     
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    LocalizationManager.ShowMessage(ex.Message);
                 }
             }
         }
@@ -426,11 +426,11 @@ namespace HR_Application
         {
             if (_managers.Count == 0)
             {
-                MessageBox.Show("Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø¯ÙŠØ±ÙŠÙ† Ù…ØªØ§Ø­ÙŠÙ† Ù„Ù„Ø§Ø®ØªÙŠØ§Ø±", "Ù…Ø¹Ù„ÙˆÙ…Ø©", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("áÇ íæÌÏ ãÏíÑíä ãÊÇÍíä ááÇÎÊíÇÑ", "ãÚáæãÉ", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            var managerSelectionWindow = new EmployeeSelectionWindow(_managers, true, "Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ©");
+            var managerSelectionWindow = new EmployeeSelectionWindow(_managers, true, "ÇÎÊÑ ÇáãæÇİŞ Úáì ÇáãÃãæÑíÉ");
             managerSelectionWindow.Owner = this;
 
             if (managerSelectionWindow.ShowDialog() == true && managerSelectionWindow.SelectedUser != null)

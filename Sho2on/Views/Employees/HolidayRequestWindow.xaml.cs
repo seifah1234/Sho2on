@@ -1,12 +1,12 @@
-ï»¿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -139,13 +139,13 @@ namespace HR_Application.Views
                         .OrderBy(lt => lt.Name)
                         .ToListAsync();
 
-                    // ØªØ­Ø¯ÙŠØ« RadioButtons Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª
+                    // ÊÍÏíË RadioButtons ÈäÇÁğ Úáì ÃäæÇÚ ÇáÅÌÇÒÇÊ
                     UpdateLeaveTypeRadioButtons();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -175,21 +175,21 @@ namespace HR_Application.Views
                         .OrderBy(u => u.FullName)
                         .ToListAsync();
 
-                    // Ø§Ù„Ø¢Ù† Ø¨Ø¯Ù„Ø§Ù‹ Ù…Ù† ComboBoxØŒ Ø³Ù†Ø³ØªØ®Ø¯Ù… Ø²Ø± Ù„ÙØªØ­ Ù†Ø§ÙØ°Ø© Ø§Ù„Ø§Ø®ØªÙŠØ§Ø±
+                    // ÇáÂä ÈÏáÇğ ãä ComboBox¡ ÓäÓÊÎÏã ÒÑ áİÊÍ äÇİĞÉ ÇáÇÎÊíÇÑ
                     if (_managers.Count == 0 && _selectedManager == null)
                     {
-                        btnSelectManager.Content = "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø¯ÙŠØ±ÙŠÙ† Ù…ØªØ§Ø­ÙŠÙ†";
+                        btnSelectManager.Content = "áÇ íæÌÏ ãÏíÑíä ãÊÇÍíä";
 
                     }
                     btnSelectManager.IsEnabled = _managers.Count > 0;
 
-                    // ØªØ­Ø¯ÙŠØ« Ù‚Ø³Ù… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©
+                    // ÊÍÏíË ŞÓã ÇáãæÇİŞÉ
                     UpdateApprovalSectionVisibility();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ†: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãÏíÑíä: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
@@ -198,45 +198,45 @@ namespace HR_Application.Views
         {
             if (_managers.Count == 0)
             {
-                MessageBox.Show("Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø¯ÙŠØ±ÙŠÙ† Ù…ØªØ§Ø­ÙŠÙ† Ù„Ù„Ø§Ø®ØªÙŠØ§Ø±", "Ù…Ø¹Ù„ÙˆÙ…Ø©", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("áÇ íæÌÏ ãÏíÑíä ãÊÇÍíä ááÇÎÊíÇÑ", "ãÚáæãÉ", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            // ÙØªØ­ Ù†Ø§ÙØ°Ø© Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø¯ÙŠØ±
-            var managerSelectionWindow = new EmployeeSelectionWindow(_managers, true, "Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©");
+            // İÊÍ äÇİĞÉ ÇÎÊíÇÑ ÇáãÏíÑ
+            var managerSelectionWindow = new EmployeeSelectionWindow(_managers, true, "ÇÎÊÑ ÇáãæÇİŞ Úáì ÇáÅÌÇÒÉ");
 
             if (managerSelectionWindow.ShowDialog() == true && managerSelectionWindow.SelectedUser != null)
             {
                 var selectedManager = managerSelectionWindow.SelectedUser;
 
-                // Ø­ÙØ¸ Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ù…Ø®ØªØ§Ø±
+                // ÍİÙ ÇáãÏíÑ ÇáãÎÊÇÑ
                 _selectedManager = selectedManager;
 
-                // ØªØ­Ø¯ÙŠØ« Ø§Ù„ÙˆØ§Ø¬Ù‡Ø©
+                // ÊÍÏíË ÇáæÇÌåÉ
                 UpdateSelectedManagerDisplay(selectedManager);
             }
         }
 
         private void UpdateSelectedManagerDisplay(User manager)
         {
-            // Ø¥Ø¸Ù‡Ø§Ø± Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ù…Ø®ØªØ§Ø±
+            // ÅÙåÇÑ ÈíÇäÇÊ ÇáãÏíÑ ÇáãÎÊÇÑ
             txtSelectedManagerName.Text = manager.FullName;
-            txtSelectedManagerJobTitle.Text = manager.JobTitle?.Name ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
-            txtSelectedManagerDepartment.Text = manager.Department?.Name ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+            txtSelectedManagerJobTitle.Text = manager.JobTitle?.Name ?? "ÛíÑ ãÍÏÏ";
+            txtSelectedManagerDepartment.Text = manager.Department?.Name ?? "ÛíÑ ãÍÏÏ";
 
             panelSelectedManager.Visibility = Visibility.Visible;
-            btnSelectManager.Content = "ØªØºÙŠÙŠØ± Ø§Ù„Ù…Ø¯ÙŠØ±";
+            btnSelectManager.Content = "ÊÛííÑ ÇáãÏíÑ";
         }
 
         private void UpdateLeaveTypeRadioButtons()
         {
-            // Ù…Ø³Ø­ RadioButtons Ø§Ù„Ù…ÙˆØ¬ÙˆØ¯Ø©
+            // ãÓÍ RadioButtons ÇáãæÌæÏÉ
             var radioButtonPanel = this.FindName("leaveTypePanel") as StackPanel;
             if (radioButtonPanel == null) return;
 
             radioButtonPanel.Children.Clear();
 
-            // Ø¥Ø¶Ø§ÙØ© RadioButton Ù„ÙƒÙ„ Ù†ÙˆØ¹ Ø¥Ø¬Ø§Ø²Ø©
+            // ÅÖÇİÉ RadioButton áßá äæÚ ÅÌÇÒÉ
             foreach (var leaveType in _leaveTypes)
             {
                 var radioButton = new RadioButton
@@ -252,7 +252,7 @@ namespace HR_Application.Views
                 radioButtonPanel.Children.Add(radioButton);
             }
 
-            // ØªØ­Ø¯ÙŠØ¯ Ø£ÙˆÙ„ RadioButton
+            // ÊÍÏíÏ Ãæá RadioButton
             if (radioButtonPanel.Children.Count > 0)
             {
                 var firstRadio = radioButtonPanel.Children[0] as RadioButton;
@@ -286,15 +286,15 @@ namespace HR_Application.Views
             var leaveType = _leaveTypes.FirstOrDefault(lt => lt.Id == leaveTypeId);
             if (leaveType == null) return;
 
-            // ØªØ­Ø¯ÙŠØ« Ø¹Ø±Ø¶ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+            // ÊÍÏíË ÚÑÖ ãÚáæãÇÊ äæÚ ÇáÅÌÇÒÉ
             txtLeaveTypeInfo.Text = leaveType.Name;
-            txtMaxConsecutiveDays.Text = leaveType.MaxConsecutiveDays?.ToString() ?? "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø­Ø¯";
-            txtRequiresApproval.Text = leaveType.RequiresApproval ? "Ù†Ø¹Ù…" : "Ù„Ø§";
+            txtMaxConsecutiveDays.Text = leaveType.MaxConsecutiveDays?.ToString() ?? "áÇ íæÌÏ ÍÏ";
+            txtRequiresApproval.Text = leaveType.RequiresApproval ? "äÚã" : "áÇ";
 
-            // Ø¹Ø±Ø¶/Ø¥Ø®ÙØ§Ø¡ Ù‚Ø³Ù… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©
+            // ÚÑÖ/ÅÎİÇÁ ŞÓã ÇáãæÇİŞÉ
             UpdateApprovalSectionVisibility();
 
-            // Ø¥Ø°Ø§ ÙƒØ§Ù† Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© ÙŠØªØ·Ù„Ø¨ Ù…ÙˆØ§ÙÙ‚Ø©ØŒ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ†
+            // ÅĞÇ ßÇä äæÚ ÇáÅÌÇÒÉ íÊØáÈ ãæÇİŞÉ¡ ÊÍãíá ÇáãÏíÑíä
             if (leaveType.RequiresApproval)
             {
                 await LoadManagers();
@@ -305,7 +305,7 @@ namespace HR_Application.Views
         {
             var leaveType = _leaveTypes.FirstOrDefault(lt => lt.Id == _selectedLeaveTypeId);
 
-            // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† GroupBox Ø§Ù„Ø®Ø§Øµ Ø¨Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙÙŠ XAML
+            // ÇáÈÍË Úä GroupBox ÇáÎÇÕ ÈÇáãæÇİŞÉ İí XAML
             var approvalGroupBox = this.FindName("approvalGroupBox") as System.Windows.Controls.GroupBox;
             if (approvalGroupBox != null)
             {
@@ -327,7 +327,7 @@ namespace HR_Application.Views
 
                 await LoadManagers(jobTitleId);
 
-                // Ù…Ø³Ø­ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø³Ø§Ø¨Ù‚ Ø¹Ù†Ø¯ ØªØºÙŠÙŠØ± Ø§Ù„ÙÙ„ØªØ±
+                // ãÓÍ ÇÎÊíÇÑ ÇáãÏíÑ ÇáÓÇÈŞ ÚäÏ ÊÛííÑ ÇáİáÊÑ
                 ClearManagerSelection();
             }
         }
@@ -336,7 +336,7 @@ namespace HR_Application.Views
         {
             _selectedManager = null;
             panelSelectedManager.Visibility = Visibility.Collapsed;
-            btnSelectManager.Content = "Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©";
+            btnSelectManager.Content = "ÇÎÊÑ ÇáãæÇİŞ Úáì ÇáÅÌÇÒÉ";
         }
 
         private async void UpdateLeaveDuration(object sender, SelectionChangedEventArgs e)
@@ -352,13 +352,13 @@ namespace HR_Application.Views
                     int totalDays = (int)duration.TotalDays + 1;
                     duration_box.Text = totalDays.ToString();
 
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ
+                    // ÇáÊÍŞŞ ãä ÇáÑÕíÏ ÇáãÊÈŞí
                     await CheckLeaveBalance();
                 }
                 else
                 {
                     duration_box.Text = "0";
-                    MessageBox.Show("ØªØ§Ø±ÙŠØ® Ø§Ù„Ù†Ù‡Ø§ÙŠØ© ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø¨Ø¹Ø¯ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©");
+                    LocalizationManager.ShowMessage("ÊÇÑíÎ ÇáäåÇíÉ íÌÈ Ãä íßæä ÈÚÏ ÊÇÑíÎ ÇáÈÏÇíÉ");
                 }
             }
         }
@@ -380,7 +380,7 @@ namespace HR_Application.Views
 
             DisplayEmployeeInfo(selectedEmployee);
 
-            // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ†
+            // ÊÍãíá ÇáãÏíÑíä
             await LoadManagers();
 
             await UpdateLeaveBalanceDisplay(_employeeId, _selectedLeaveTypeId);
@@ -392,12 +392,12 @@ namespace HR_Application.Views
         {
             try
             {
-                // ØªØ­Ù…ÙŠÙ„ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
+                // ÊÍãíá ÌãíÚ ÇáãæÙİíä
                 var allUsers = _users.Where(u => u.FullName.StartsWith(employeeName_box.Text) || u.Code == employeeCode_box.Text)
                     .ToList();
 
-                // ÙØªØ­ Ù†Ø§ÙØ°Ø© Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…ÙˆØ¸Ù
-                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ¸Ù Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", employeeCode_box.Text);
+                // İÊÍ äÇİĞÉ ÇÎÊíÇÑ ÇáãæÙİ
+                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "ÇÎÊÑ ÇáãæÙİ áØáÈ ÇáÅÌÇÒÉ", employeeCode_box.Text);
 
                 if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
                 {
@@ -407,25 +407,25 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨Ø­Ø«: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÈÍË: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void DisplayEmployeeInfo(User employee)
         {
-            // ÙŠÙ…ÙƒÙ†Ùƒ Ù‡Ù†Ø§ Ø¹Ø±Ø¶ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ© Ø¹Ù† Ø§Ù„Ù…ÙˆØ¸Ù Ø¥Ø°Ø§ Ø±ØºØ¨Øª
-            txtEmployeeDepartment.Text = employee.Department?.Name ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
-            txtEmployeeBranch.Text = employee.Branch?.Name ?? "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+            // íãßäß åäÇ ÚÑÖ ãÚáæãÇÊ ÅÖÇİíÉ Úä ÇáãæÙİ ÅĞÇ ÑÛÈÊ
+            txtEmployeeDepartment.Text = employee.Department?.Name ?? "ÛíÑ ãÍÏÏ";
+            txtEmployeeBranch.Text = employee.Branch?.Name ?? "ÛíÑ ãÍÏÏ";
             txtEmployeeHireDate.Text = employee.HireDate.ToString("yyyy/MM/dd");
 
-            // Ø¹Ø±Ø¶ Ø£ÙŠØ§Ù… Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©
+            // ÚÑÖ ÃíÇã ÇáÅÌÇÒÉ ÇáÃÓÈæÚíÉ
             if (employee.WeekHoliday != null)
             {
                 txtEmployeeWeekend.Text = GetWeekendDaysSummary(employee.WeekHoliday);
             }
             else
             {
-                txtEmployeeWeekend.Text = "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+                txtEmployeeWeekend.Text = "ÛíÑ ãÍÏÏ";
             }
         }
 
@@ -437,13 +437,13 @@ namespace HR_Application.Views
             txtEmployeeDepartment.Text = string.Empty;
             txtEmployeeBranch.Text = string.Empty;
             txtEmployeeHireDate.Text = string.Empty;
-            txtEmployeeWeekend.Text = string.Empty; // Ø¥Ø¶Ø§ÙØ© Ù‡Ø°Ø§ Ø§Ù„Ø³Ø·Ø±
+            txtEmployeeWeekend.Text = string.Empty; // ÅÖÇİÉ åĞÇ ÇáÓØÑ
             leaveBalanceSection.Visibility = Visibility.Collapsed;
 
-            // Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª
-            annualBalance_text.Text = "0 ÙŠÙˆÙ…";
-            remainingBalance_text.Text = "0 ÙŠÙˆÙ…";
-            usedBalance_text.Text = "0 ÙŠÙˆÙ…";
+            // ÅÚÇÏÉ ÊÚííä ÑÕíÏ ÇáÅÌÇÒÇÊ
+            annualBalance_text.Text = "0 íæã";
+            remainingBalance_text.Text = "0 íæã";
+            usedBalance_text.Text = "0 íæã";
 
             ClearManagerSelection();
         }
@@ -455,27 +455,27 @@ namespace HR_Application.Views
                
                     var balanceInfo = await CalculateLeaveBalance(userId, leaveTypeId);
 
-                    // ØªØ­Ø¯ÙŠØ« Ø¹Ø±Ø¶ Ø§Ù„Ø±ØµÙŠØ¯
-                    annualBalance_text.Text = $"{balanceInfo.Total} ÙŠÙˆÙ…";
-                    remainingBalance_text.Text = $"{balanceInfo.Remaining} ÙŠÙˆÙ…";
-                    usedBalance_text.Text = $"{balanceInfo.Used} ÙŠÙˆÙ…";
+                    // ÊÍÏíË ÚÑÖ ÇáÑÕíÏ
+                    annualBalance_text.Text = $"{balanceInfo.Total} íæã";
+                    remainingBalance_text.Text = $"{balanceInfo.Remaining} íæã";
+                    usedBalance_text.Text = $"{balanceInfo.Used} íæã";
 
-                    // ØªØ­Ø¯ÙŠØ« Ù„ÙˆÙ† Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ
+                    // ÊÍÏíË áæä ÇáÑÕíÏ ÇáãÊÈŞí
                     UpdateRemainingBalanceColor(balanceInfo.Remaining, balanceInfo.Total);
 
-                    // Ø¹Ø±Ø¶ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+                    // ÚÑÖ ãÚáæãÇÊ äæÚ ÇáÅÌÇÒÉ
                     var leaveType = _leaveTypes.FirstOrDefault(lt => lt.Id == leaveTypeId);
                     if (leaveType != null)
                     {
                         txtLeaveTypeInfo.Text = leaveType.Name;
-                        txtMaxConsecutiveDays.Text = leaveType.MaxConsecutiveDays?.ToString() ?? "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø­Ø¯";
-                        txtRequiresApproval.Text = leaveType.RequiresApproval ? "Ù†Ø¹Ù…" : "Ù„Ø§";
+                        txtMaxConsecutiveDays.Text = leaveType.MaxConsecutiveDays?.ToString() ?? "áÇ íæÌÏ ÍÏ";
+                        txtRequiresApproval.Text = leaveType.RequiresApproval ? "äÚã" : "áÇ";
                     }
                 
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø³Ø§Ø¨ Ø§Ù„Ø±ØµÙŠØ¯: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÍÓÇÈ ÇáÑÕíÏ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -497,7 +497,7 @@ namespace HR_Application.Views
         {
             using (var dbContext = new AppDbContext(App.ConnectionString))
             {
-                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                // ÇáÍÕæá Úáì ÑÕíÏ ÇáÅÌÇÒÉ ãä ŞÇÚÏÉ ÇáÈíÇäÇÊ
                 var leaveBalance = await dbContext.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.UserId == userId && lb.LeaveTypeId == leaveTypeId);
 
@@ -505,11 +505,11 @@ namespace HR_Application.Views
 
                 int totalBalance = leaveBalance?.TotalBalance ?? leaveType?.DefaultBalance ?? 0;
 
-                // Ø­Ø³Ø§Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…Ø© (Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡Ø§ ÙÙ‚Ø·)
+                // ÍÓÇÈ ÇáÅÌÇÒÇÊ ÇáãÓÊÎÏãÉ (ÇáãæÇİŞ ÚáíåÇ İŞØ)
                 var usedLeaves = await dbContext.Leaves
                     .Where(l => l.UserId == userId &&
                                l.LeaveTypeId == leaveTypeId &&
-                               l.Status == 2 && // Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡Ø§
+                               l.Status == 2 && // ÇáãæÇİŞ ÚáíåÇ
                                !l.IsCancelled)
                     .SumAsync(l => (int?)l.Duration) ?? 0;
 
@@ -534,23 +534,23 @@ namespace HR_Application.Views
             var balanceInfo = await CalculateLeaveBalance(_employeeId, _selectedLeaveTypeId);
             var leaveType = _leaveTypes.FirstOrDefault(lt => lt.Id == _selectedLeaveTypeId);
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ø¥Ø°Ø§ ÙƒØ§Ù† Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© ÙŠØ®ØµÙ… Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯
+            // ÇáÊÍŞŞ ÅĞÇ ßÇä äæÚ ÇáÅÌÇÒÉ íÎÕã ãä ÇáÑÕíÏ
             if (leaveType?.DeductFromBalance == true && requestedDays > balanceInfo.Remaining)
             {
-                MessageBox.Show($"Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ ØºÙŠØ± ÙƒØ§ÙÙŠ. Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ: {balanceInfo.Remaining} ÙŠÙˆÙ…ØŒ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨: {requestedDays} ÙŠÙˆÙ…",
-                    "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage($"ÇáÑÕíÏ ÇáãÊÈŞí ÛíÑ ßÇİí. ÇáãÊÈŞí: {balanceInfo.Remaining} íæã¡ ÇáãØáæÈ: {requestedDays} íæã",
+                    "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…ØªØªØ§Ù„ÙŠØ©
+            // ÇáÊÍŞŞ ãä ÇáÍÏ ÇáÃŞÕì ááÃíÇã ÇáãÊÊÇáíÉ
             if (leaveType?.MaxConsecutiveDays.HasValue == true && requestedDays > leaveType.MaxConsecutiveDays.Value)
             {
-                MessageBox.Show($"Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø¥Ø¬Ø§Ø²Ø© Ù…Ù† Ù‡Ø°Ø§ Ø§Ù„Ù†ÙˆØ¹ Ù‡Ùˆ {leaveType.MaxConsecutiveDays.Value} ÙŠÙˆÙ… Ù…ØªØªØ§Ù„ÙŠØ©",
-                    "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage($"ÇáÍÏ ÇáÃŞÕì ááÅÌÇÒÉ ãä åĞÇ ÇáäæÚ åæ {leaveType.MaxConsecutiveDays.Value} íæã ãÊÊÇáíÉ",
+                    "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ØªØ¹Ø§Ø±Ø¶ Ø§Ù„ØªÙˆØ§Ø±ÙŠØ®
+            // ÇáÊÍŞŞ ãä ÊÚÇÑÖ ÇáÊæÇÑíÎ
             await CheckDateConflicts(requestedDays);
         }
 
@@ -562,23 +562,23 @@ namespace HR_Application.Views
             DateTime startDate = startDate_picker.SelectedDate.Value;
             DateTime endDate = endDate_picker.SelectedDate.Value;
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙˆØ¬ÙˆØ¯ Ø¥Ø¬Ø§Ø²Ø§Øª Ù…ØªØ¹Ø§Ø±Ø¶Ø©
+            // ÇáÊÍŞŞ ãä æÌæÏ ÅÌÇÒÇÊ ãÊÚÇÑÖÉ
             var conflictingLeaves = await _context.Leaves
                 .Where(l => l.UserId == _employeeId &&
-                           l.Status == 2 && // Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡Ø§ ÙÙ‚Ø·
+                           l.Status == 2 && // ÇáãæÇİŞ ÚáíåÇ İŞØ
                            !l.IsCancelled &&
                            ((l.StartDate <= endDate && l.EndDate >= startDate)))
                 .ToListAsync();
 
             if (conflictingLeaves.Any())
             {
-                var conflictMessage = "Ù‡Ù†Ø§Ùƒ Ø¥Ø¬Ø§Ø²Ø§Øª Ù…ØªØ¹Ø§Ø±Ø¶Ø© ÙÙŠ Ø§Ù„ÙØªØ±Ø© Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©:\n";
+                var conflictMessage = "åäÇß ÅÌÇÒÇÊ ãÊÚÇÑÖÉ İí ÇáİÊÑÉ ÇáãÍÏÏÉ:\n";
                 foreach (var leave in conflictingLeaves)
                 {
-                    conflictMessage += $"- Ù…Ù† {leave.StartDate:yyyy/MM/dd} Ø¥Ù„Ù‰ {leave.EndDate:yyyy/MM/dd}\n";
+                    conflictMessage += $"- ãä {leave.StartDate:yyyy/MM/dd} Åáì {leave.EndDate:yyyy/MM/dd}\n";
                 }
 
-                MessageBox.Show(conflictMessage, "ØªØ¹Ø§Ø±Ø¶ ÙÙŠ Ø§Ù„ØªÙˆØ§Ø±ÙŠØ®", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage(conflictMessage, "ÊÚÇÑÖ İí ÇáÊæÇÑíÎ", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -588,7 +588,7 @@ namespace HR_Application.Views
             {
                 try
                 {
-                    // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+                    // ÇáÍÕæá Úáì äæÚ ÇáÅÌÇÒÉ
                     var leaveType = await _context.LeaveTypes.FindAsync(_selectedLeaveTypeId);
                     bool requiresApproval = leaveType?.RequiresApproval ?? true;
 
@@ -598,7 +598,7 @@ namespace HR_Application.Views
                         approvingManagerId = _selectedManager.Id;
                     }
 
-                    // 1. Ø¥Ù†Ø´Ø§Ø¡ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+                    // 1. ÅäÔÇÁ ØáÈ ÇáÅÌÇÒÉ
                     var leaveRequest = new Leave
                     {
                         UserId = _employeeId,
@@ -616,29 +616,29 @@ namespace HR_Application.Views
                     _context.Leaves.Add(leaveRequest);
                     await _context.SaveChangesAsync();
 
-                    // 2. Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ù„Ø§ ØªØªØ·Ù„Ø¨ Ù…ÙˆØ§ÙÙ‚Ø© Ø£Ùˆ ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹
+                    // 2. ÅĞÇ ßÇäÊ ÇáÅÌÇÒÉ áÇ ÊÊØáÈ ãæÇİŞÉ Ãæ ÊãÊ ÇáãæÇİŞÉ ÊáŞÇÆíÇğ
                     if (leaveRequest.Status == 2)
                     {
-                        // Ø®ØµÙ… Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯ Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù†ÙˆØ¹ ÙŠØ®ØµÙ…
+                        // ÎÕã ãä ÇáÑÕíÏ ÅĞÇ ßÇä ÇáäæÚ íÎÕã
                         if (leaveType?.DeductFromBalance == true)
                         {
                             await DeductLeaveBalance(_employeeId, _selectedLeaveTypeId, leaveRequest.Duration);
                         }
 
-                        // ØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ø­Ø¶ÙˆØ±
+                        // ÊÍÏíË ÓÌáÇÊ ÇáÍÖæÑ
                         await UpdateAttendanceForLeave(leaveRequest);
                     }
 
                     string message = leaveRequest.Status == 2
-                        ? "ØªÙ… ØªÙ‚Ø¯ÙŠÙ… Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø¨Ù†Ø¬Ø§Ø­ ÙˆØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ø­Ø¶ÙˆØ±"
-                        : "ØªÙ… ØªÙ‚Ø¯ÙŠÙ… Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø¨Ù†Ø¬Ø§Ø­ ÙˆÙ‡Ùˆ Ù‚ÙŠØ¯ Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©";
+                        ? "Êã ÊŞÏíã ØáÈ ÇáÅÌÇÒÉ ÈäÌÇÍ æÊÍÏíË ÓÌáÇÊ ÇáÍÖæÑ"
+                        : "Êã ÊŞÏíã ØáÈ ÇáÅÌÇÒÉ ÈäÌÇÍ æåæ ŞíÏ ÇäÊÙÇÑ ÇáãæÇİŞÉ";
 
-                    MessageBox.Show(message, "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage(message, "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                     this.Close();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªÙ‚Ø¯ÙŠÙ… Ø§Ù„Ø·Ù„Ø¨: {ex.InnerException?.Message ?? ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÊŞÏíã ÇáØáÈ: {ex.InnerException?.Message ?? ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -678,7 +678,7 @@ namespace HR_Application.Views
 
             while (currentDate <= leaveRequest.EndDate)
             {
-                // ØªØ®Ø·ÙŠ Ø£ÙŠØ§Ù… Ø§Ù„Ø¹Ø·Ù„Ø§Øª Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©
+                // ÊÎØí ÃíÇã ÇáÚØáÇÊ ÇáÃÓÈæÚíÉ
                 if (_user.WeekHoliday != null && IsWeekend(currentDate, _user.WeekHoliday))
                 {
                     currentDate = currentDate.AddDays(1);
@@ -725,8 +725,8 @@ namespace HR_Application.Views
         {
             DayOfWeek dayOfWeek = date.DayOfWeek;
 
-            // ØªØ­ÙˆÙŠÙ„ DayOfWeek Ø¥Ù„Ù‰ Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù…Ù†Ø§Ø³Ø¨ Ù„Ù‡ÙŠÙƒÙ„ WeekHoliday
-            // Day1 = Ø§Ù„Ø³Ø¨Øª, Day2 = Ø§Ù„Ø£Ø­Ø¯, Day3 = Ø§Ù„Ø¥Ø«Ù†ÙŠÙ†, Day4 = Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡, Day5 = Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡, Day6 = Ø§Ù„Ø®Ù…ÙŠØ³, Day7 = Ø§Ù„Ø¬Ù…Ø¹Ø©
+            // ÊÍæíá DayOfWeek Åáì ÇáÑŞã ÇáãäÇÓÈ áåíßá WeekHoliday
+            // Day1 = ÇáÓÈÊ, Day2 = ÇáÃÍÏ, Day3 = ÇáÅËäíä, Day4 = ÇáËáÇËÇÁ, Day5 = ÇáÃÑÈÚÇÁ, Day6 = ÇáÎãíÓ, Day7 = ÇáÌãÚÉ
             switch (dayOfWeek)
             {
                 case DayOfWeek.Saturday:
@@ -750,19 +750,19 @@ namespace HR_Application.Views
 
         private string GetWeekendDaysSummary(WeekHoliday weekHoliday)
         {
-            if (weekHoliday == null) return "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+            if (weekHoliday == null) return "ÛíÑ ãÍÏÏ";
 
             var days = new List<string>();
 
-            if (weekHoliday.Day1) days.Add("Ø§Ù„Ø³Ø¨Øª");
-            if (weekHoliday.Day2) days.Add("Ø§Ù„Ø£Ø­Ø¯");
-            if (weekHoliday.Day3) days.Add("Ø§Ù„Ø¥Ø«Ù†ÙŠÙ†");
-            if (weekHoliday.Day4) days.Add("Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡");
-            if (weekHoliday.Day5) days.Add("Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡");
-            if (weekHoliday.Day6) days.Add("Ø§Ù„Ø®Ù…ÙŠØ³");
-            if (weekHoliday.Day7) days.Add("Ø§Ù„Ø¬Ù…Ø¹Ø©");
+            if (weekHoliday.Day1) days.Add("ÇáÓÈÊ");
+            if (weekHoliday.Day2) days.Add("ÇáÃÍÏ");
+            if (weekHoliday.Day3) days.Add("ÇáÅËäíä");
+            if (weekHoliday.Day4) days.Add("ÇáËáÇËÇÁ");
+            if (weekHoliday.Day5) days.Add("ÇáÃÑÈÚÇÁ");
+            if (weekHoliday.Day6) days.Add("ÇáÎãíÓ");
+            if (weekHoliday.Day7) days.Add("ÇáÌãÚÉ");
 
-            return days.Count > 0 ? string.Join("ØŒ ", days) : "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£ÙŠØ§Ù… Ø¥Ø¬Ø§Ø²Ø©";
+            return days.Count > 0 ? string.Join("¡ ", days) : "áÇ ÊæÌÏ ÃíÇã ÅÌÇÒÉ";
         }
 
 
@@ -787,18 +787,18 @@ namespace HR_Application.Views
                     _context.Leaves.Add(leaveRequest);
                     await _context.SaveChangesAsync();
 
-                    MessageBox.Show("ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø·Ù„Ø¨ ÙƒÙ…Ø³ÙˆØ¯Ø©", "Ø­ÙØ¸ Ù…Ø³ÙˆØ¯Ø©", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÍİÙ ÇáØáÈ ßãÓæÏÉ", "ÍİÙ ãÓæÏÉ", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„Ù…Ø³ÙˆØ¯Ø©: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ ÇáãÓæÏÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
         private void cancel_btn_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Ù‡Ù„ ØªØ±ÙŠØ¯ Ø¥Ù„ØºØ§Ø¡ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ", "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø¥Ù„ØºØ§Ø¡",
+            var result = LocalizationManager.ShowMessage("åá ÊÑíÏ ÅáÛÇÁ ØáÈ ÇáÅÌÇÒÉ¿", "ÊÃßíÏ ÇáÅáÛÇÁ",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
@@ -814,61 +814,61 @@ namespace HR_Application.Views
 
         private bool ValidateForm()
         {
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù
+            // ÇáÊÍŞŞ ãä ßæÏ ÇáãæÙİ
             if (string.IsNullOrEmpty(employeeCode_box.Text))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ßæÏ ÇáãæÙİ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 employeeCode_box.Focus();
                 return false;
             }
 
             if (_employeeId == 0)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ù…ÙˆØ¸Ù Ø£ÙˆÙ„Ø§Ù‹", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("íÑÌì ÇáÈÍË Úä ÇáãæÙİ ÃæáÇğ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
+            // ÇáÊÍŞŞ ãä äæÚ ÇáÅÌÇÒÉ
             if (_selectedLeaveTypeId == 0)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ äæÚ ÇáÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
             var leaveType = _leaveTypes.FirstOrDefault(lt => lt.Id == _selectedLeaveTypeId);
             if (leaveType?.RequiresApproval == true && _selectedManager == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáãæÇİŞ Úáì ÇáÅÌÇÒÉ", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 btnSelectManager.Focus();
                 return false;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„ØªÙˆØ§Ø±ÙŠØ®
+            // ÇáÊÍŞŞ ãä ÇáÊæÇÑíÎ
             if (startDate_picker.SelectedDate == null || endDate_picker.SelectedDate == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ ØªØ§Ø±ÙŠØ®ÙŠ Ø¨Ø¯Ø§ÙŠØ© ÙˆÙ†Ù‡Ø§ÙŠØ© Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("íÑÌì ÊÍÏíÏ ÊÇÑíÎí ÈÏÇíÉ æäåÇíÉ ÇáÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
             if (startDate_picker.SelectedDate.Value < DateTime.Today)
             {
-                MessageBox.Show("Ù„Ø§ ÙŠÙ…ÙƒÙ† ØªÙ‚Ø¯ÙŠÙ… Ø¥Ø¬Ø§Ø²Ø© Ø¨ØªØ§Ø±ÙŠØ® Ù‚Ø¯ÙŠÙ…", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("áÇ íãßä ÊŞÏíã ÅÌÇÒÉ ÈÊÇÑíÎ ŞÏíã", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 startDate_picker.Focus();
                 return false;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ù…Ø¯Ø©
+            // ÇáÊÍŞŞ ãä ÇáãÏÉ
             if (string.IsNullOrEmpty(duration_box.Text) || int.Parse(duration_box.Text) <= 0)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ù…Ø¯Ø© Ø¥Ø¬Ø§Ø²Ø© ØµØ­ÙŠØ­Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ãÏÉ ÅÌÇÒÉ ÕÍíÍÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø³Ø¨Ø¨
+            // ÇáÊÍŞŞ ãä ÇáÓÈÈ
             if (string.IsNullOrEmpty(reason_box.Text))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ ÙƒØªØ§Ø¨Ø© Ø³Ø¨Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("íÑÌì ßÊÇÈÉ ÓÈÈ ÇáÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 reason_box.Focus();
                 return false;
             }
@@ -876,7 +876,7 @@ namespace HR_Application.Views
             return true;
         }
 
-        // Ø¥Ø¶Ø§ÙØ© Ø²Ø± Ù„Ø¥Ø¯Ø§Ø±Ø© Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª ÙÙŠ Ù†ÙØ³ Ø§Ù„Ù†Ø§ÙØ°Ø©
+        // ÅÖÇİÉ ÒÑ áÅÏÇÑÉ ÑÕíÏ ÇáÅÌÇÒÇÊ İí äİÓ ÇáäÇİĞÉ
         private void btnManageBalance_Click(object sender, RoutedEventArgs e)
         {
             if (_employeeId > 0)
@@ -884,13 +884,13 @@ namespace HR_Application.Views
                 var manageBalanceWindow = new ManageLeaveBalanceWindow();
                 manageBalanceWindow.Owner = this;
 
-                // ØªÙ…Ø±ÙŠØ± ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ù„Ù„Ø¨Ø­Ø« Ø¹Ù†Ù‡ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹
+                // ÊãÑíÑ ßæÏ ÇáãæÙİ ááÈÍË Úäå ÊáŞÇÆíÇğ
                 manageBalanceWindow.txtSearchEmployeeId.Text = _employeeId.ToString();
                 manageBalanceWindow.btnSearch_Click(sender, e);
 
                 manageBalanceWindow.ShowDialog();
 
-                // ØªØ­Ø¯ÙŠØ« Ø¹Ø±Ø¶ Ø§Ù„Ø±ØµÙŠØ¯ Ø¨Ø¹Ø¯ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„
+                // ÊÍÏíË ÚÑÖ ÇáÑÕíÏ ÈÚÏ ÇáÊÚÏíá
                 if (_employeeId > 0 && _selectedLeaveTypeId > 0)
                 {
                     UpdateLeaveBalanceDisplay(_employeeId, _selectedLeaveTypeId);
@@ -898,7 +898,7 @@ namespace HR_Application.Views
             }
             else
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ù…ÙˆØ¸Ù Ø£ÙˆÙ„Ø§Ù‹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇáÈÍË Úä ãæÙİ ÃæáÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -925,16 +925,16 @@ namespace HR_Application.Views
                         if (_user.Manager != null)
                         {
 
-                            // Ø­ÙØ¸ Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ù…Ø®ØªØ§Ø±
+                            // ÍİÙ ÇáãÏíÑ ÇáãÎÊÇÑ
                             _selectedManager = _user.Manager;
 
-                            // ØªØ­Ø¯ÙŠØ« Ø§Ù„ÙˆØ§Ø¬Ù‡Ø©
+                            // ÊÍÏíË ÇáæÇÌåÉ
                             UpdateSelectedManagerDisplay(_selectedManager);
                         }
 
                         DisplayEmployeeInfo(selectedEmployee);
 
-                        // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ†
+                        // ÊÍãíá ÇáãÏíÑíä
                         await LoadManagers();
 
                         await UpdateLeaveBalanceDisplay(_employeeId, _selectedLeaveTypeId);
@@ -943,7 +943,7 @@ namespace HR_Application.Views
                     }
                     else
                     {
-                        MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹ Ø§Ù„Ù…ÙˆØ¸Ù", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Ú ÇáãæÙİ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -954,12 +954,12 @@ namespace HR_Application.Views
 
             try
             {
-                // ØªØ­Ù…ÙŠÙ„ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
+                // ÊÍãíá ÌãíÚ ÇáãæÙİíä
                 var allUsers = _users.Where(u => u.Code == ReplaceEmployeeCode_box.Text)
                     .ToList();
 
-                // ÙØªØ­ Ù†Ø§ÙØ°Ø© Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…ÙˆØ¸Ù
-                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ¸Ù Ø§Ù„Ù‚Ø§Ø¦Ù… Ø¹Ù† Ø§Ù„Ø¹Ù…Ù„", ReplaceEmployeeCode_box.Text);
+                // İÊÍ äÇİĞÉ ÇÎÊíÇÑ ÇáãæÙİ
+                var employeeSelectionWindow = new EmployeeSelectionWindow(allUsers, false, "ÇÎÊÑ ÇáãæÙİ ÇáŞÇÆã Úä ÇáÚãá", ReplaceEmployeeCode_box.Text);
                 employeeSelectionWindow.Owner = this;
 
                 if (employeeSelectionWindow.ShowDialog() == true && employeeSelectionWindow.SelectedUser != null)
@@ -972,7 +972,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨Ø­Ø«: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÈÍË: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
@@ -999,7 +999,7 @@ namespace HR_Application.Views
         public int Remaining { get; set; }
     }
 
-    // Ø¥Ø¶Ø§ÙØ© Converter Ø¬Ø¯ÙŠØ¯
+    // ÅÖÇİÉ Converter ÌÏíÏ
     public class StringToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

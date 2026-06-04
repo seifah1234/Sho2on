@@ -1,10 +1,10 @@
-ï»¿// Services/ExcelReaderService.cs
+// Services/ExcelReaderService.cs
 using OfficeOpenXml;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application.Services
@@ -21,23 +21,23 @@ namespace HR_Application.Services
 
                 using (var package = new ExcelPackage(new FileInfo(filePath)))
                 {
-                    var worksheet = package.Workbook.Worksheets[0]; // Ø£ÙˆÙ„ Ø´ÙŠØª
+                    var worksheet = package.Workbook.Worksheets[0]; // Ãæá ÔíÊ
 
                     int rowCount = worksheet.Dimension.Rows;
 
-                    for (int row = 2; row <= rowCount; row++) // ØªØ®Ø·ÙŠ Ø§Ù„ØµÙ Ø§Ù„Ø£ÙˆÙ„ (Ø§Ù„Ø¹Ù†Ø§ÙˆÙŠÙ†)
+                    for (int row = 2; row <= rowCount; row++) // ÊÎØí ÇáÕÝ ÇáÃæá (ÇáÚäÇæíä)
                     {
-                        // Ù‚Ø±Ø§Ø¡Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ø§Ù„Ø£Ø¹Ù…Ø¯Ø© Ø§Ù„Ø£Ø±Ø¨Ø¹Ø©
+                        // ÞÑÇÁÉ ÇáÈíÇäÇÊ ãä ÇáÃÚãÏÉ ÇáÃÑÈÚÉ
                         var employeeCode = worksheet.Cells[row, 1].Value?.ToString();
                         var commissionRate = worksheet.Cells[row, 2].Value?.ToString();
                         var commissionValue = worksheet.Cells[row, 3].Value?.ToString();
                         var commissionType = int.Parse(worksheet.Cells[row, 4].Value?.ToString());
 
-                        // Ø§Ù„ØªØ£ÙƒØ¯ Ù…Ù† ÙˆØ¬ÙˆØ¯ Ø¨ÙŠØ§Ù†Ø§Øª Ø£Ø³Ø§Ø³ÙŠØ©
+                        // ÇáÊÃßÏ ãä æÌæÏ ÈíÇäÇÊ ÃÓÇÓíÉ
                         if (string.IsNullOrEmpty(employeeCode) ||
                             (string.IsNullOrEmpty(commissionRate) && string.IsNullOrEmpty(commissionValue)))
                         {
-                            continue; // ØªØ®Ø·ÙŠ Ø§Ù„ØµÙÙˆÙ ØºÙŠØ± Ø§Ù„Ù…ÙƒØªÙ…Ù„Ø©
+                            continue; // ÊÎØí ÇáÕÝæÝ ÛíÑ ÇáãßÊãáÉ
                         }
 
                         var commissionData = new CommissionData
@@ -54,7 +54,7 @@ namespace HR_Application.Services
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ù‚Ø±Ø§Ø¡Ø© Ù…Ù„Ù Excel: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ Ýí ÞÑÇÁÉ ãáÝ Excel: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
@@ -65,8 +65,8 @@ namespace HR_Application.Services
     public class CommissionData
     {
         public string EmployeeCode { get; set; }
-        public string CommissionRate { get; set; } // Ù†Ø³Ø¨Ø© Ø§Ù„Ø¹Ù…ÙˆÙ„Ø©
-        public string CommissionValue { get; set; } // Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¹Ù…ÙˆÙ„Ø©
-        public int CommissionType { get; set; } // Ù†ÙˆØ¹ Ø§Ù„Ø¹Ù…ÙˆÙ„Ø©
+        public string CommissionRate { get; set; } // äÓÈÉ ÇáÚãæáÉ
+        public string CommissionValue { get; set; } // ÞíãÉ ÇáÚãæáÉ
+        public int CommissionType { get; set; } // äæÚ ÇáÚãæáÉ
     }
 }

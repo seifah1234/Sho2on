@@ -13,7 +13,7 @@ namespace Sho2on.Database.Models
         [Required]
         public string Name { get; set; }
 
-        public byte[] GroupImageData { get; set; }
+        public byte[]? GroupImageData { get; set; }
 
         public int CreatedByUserId { get; set; }
 

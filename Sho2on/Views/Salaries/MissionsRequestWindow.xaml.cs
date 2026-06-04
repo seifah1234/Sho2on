@@ -1,16 +1,16 @@
-ï»¿using DocumentFormat.OpenXml.Math;
+using DocumentFormat.OpenXml.Math;
 using DocumentFormat.OpenXml.Spreadsheet;
 using HR_Application.ViewModels;
 using HR_Application.Views.Employees.Holidays;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -59,7 +59,7 @@ namespace HR_Application.Views.Salaries
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -78,7 +78,7 @@ namespace HR_Application.Views.Salaries
                                (p.Status == ProcedureStatus.UnderReview && App.CurrentUser.Department.IsHR == true))
                     .ToListAsync();
 
-                // ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙÙ„Ø§ØªØ±
+                // ÊØÈíŞ ÇáİáÇÊÑ
                 if (int.TryParse(txtEmployeeId.Text, out int employeeId) && employeeId > 0)
                 {
                     query = query.Where(p => p.UserId == employeeId).ToList();
@@ -106,16 +106,16 @@ namespace HR_Application.Views.Salaries
                 {
                     Id = p.Id,
                     EmployeeId = p.UserId,
-                    EmployeeName = p.User?.FullName ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
+                    EmployeeName = p.User?.FullName ?? "ÛíÑ ãÚÑæİ",
                     StartDateTime = p.StartDate,
                     EndDateTime = p.EndDate,
                     Duration = Math.Round((p.EndDate - p.StartDate).Value.TotalHours, 2),
                     Status = GetStatusText(p.Status),
                     StatusEn = p.Status,
                     CreatedAt = p.CreatedAt,
-                    EmployeeDepartment = p.User?.Department?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    ApprovedByName = p.ApprovedBy?.FullName ?? "Ù„Ù… ØªØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¨Ø¹Ø¯",
+                    EmployeeDepartment = p.User?.Department?.Name ?? "ÛíÑ ãÚÑæİ",
+                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ÛíÑ ãÚÑæİ",
+                    ApprovedByName = p.ApprovedBy?.FullName ?? "áã ÊÊã ÇáãæÇİŞÉ ÈÚÏ",
                     ApprovedDate = p.ApprovedDate
                 }).ToList();
 
@@ -153,16 +153,16 @@ namespace HR_Application.Views.Salaries
                 {
                     Id = p.Id,
                     EmployeeId = p.UserId,
-                    EmployeeName = p.User?.FullName ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
+                    EmployeeName = p.User?.FullName ?? "ÛíÑ ãÚÑæİ",
                     StartDateTime = p.StartDate,
                     EndDateTime = p.EndDate,
                     Duration = Math.Round((p.EndDate - p.StartDate).Value.TotalHours, 2),
                     Status = GetStatusText(p.Status),
                     StatusEn = p.Status,
                     CreatedAt = p.CreatedAt,
-                    EmployeeDepartment = p.User?.Department?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ",
-                    ApprovedByName = p.ApprovedBy?.FullName ?? "Ù„Ù… ØªØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¨Ø¹Ø¯",
+                    EmployeeDepartment = p.User?.Department?.Name ?? "ÛíÑ ãÚÑæİ",
+                    EmployeeJobTitle = p.User?.JobTitle?.Name ?? "ÛíÑ ãÚÑæİ",
+                    ApprovedByName = p.ApprovedBy?.FullName ?? "áã ÊÊã ÇáãæÇİŞÉ ÈÚÏ",
                     ApprovedDate = p.ApprovedDate
                 }).ToList();
 
@@ -170,7 +170,7 @@ namespace HR_Application.Views.Salaries
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ØáÈÇÊ ÇáãÃãæÑíÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -249,11 +249,11 @@ namespace HR_Application.Views.Salaries
         {
             return status switch
             {
-                "UnderReview" => "ØªØ­Øª Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©",
-                "Pending" => "Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±",
-                "Approved" => "Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡",
-                "Rejected" => "Ù…Ø±ÙÙˆØ¶",
-                "Draft" => "Ù…Ø³ÙˆØ¯Ø©",
+                "UnderReview" => "ÊÍÊ ÇáãÑÇÌÚÉ",
+                "Pending" => "ŞíÏ ÇáÇäÊÙÇÑ",
+                "Approved" => "ãæÇİŞ Úáíå",
+                "Rejected" => "ãÑİæÖ",
+                "Draft" => "ãÓæÏÉ",
                 _ => status
             };
         }
@@ -298,7 +298,7 @@ namespace HR_Application.Views.Salaries
 
                 if (mission == null)
                 {
-                    MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì ØáÈ ÇáãÃãæÑíÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -315,10 +315,10 @@ namespace HR_Application.Views.Salaries
                     mission.ApprovedDate = DateTime.Now;
                     mission.ApprovedByUserId = App.CurrentUser?.Id;
 
-                    // ØªØ­Ø¯ÙŠØ« Ø³Ø¬Ù„ Ø§Ù„Ø­Ø¶ÙˆØ±
+                    // ÊÍÏíË ÓÌá ÇáÍÖæÑ
                     await UpdateAttendanceForMission(mission);
 
-                    MessageBox.Show("ØªÙ… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ©", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÇáãæÇİŞÉ Úáì ØáÈ ÇáãÃãæÑíÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -326,7 +326,7 @@ namespace HR_Application.Views.Salaries
                         mission.ApprovedDate = DateTime.Now;
                         mission.ApprovedByUserId = App.CurrentUser?.Id;
 
-                        MessageBox.Show("ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ©", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("Êã ÑİÖ ØáÈ ÇáãÃãæÑíÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                    
                 }
 
@@ -335,7 +335,7 @@ namespace HR_Application.Views.Salaries
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„Ø·Ù„Ø¨: {ex.InnerException}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ãÚÇáÌÉ ÇáØáÈ: {ex.InnerException}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -429,13 +429,13 @@ namespace HR_Application.Views.Salaries
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error: {ex.Message}");
+                    LocalizationManager.ShowMessage($"Error: {ex.Message}");
                 }
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                LocalizationManager.ShowMessage(ex.Message);
             }
 
         }
@@ -465,21 +465,21 @@ namespace HR_Application.Views.Salaries
 
                 if (mission != null)
                 {
-                    // ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø§ÙØ°Ø© Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„ Ù‡Ù†Ø§
-                    var detailsMessage = $"ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¥Ø°Ù†:\n\n" +
-                                         $"Ø§Ù„Ù…ÙˆØ¸Ù: {mission.User?.FullName}\n" +
-                                         $"Ù…Ù†: {mission.StartDate:yyyy/MM/dd HH:mm}\n" +
-                                         $"Ø¥Ù„Ù‰: {mission.EndDate:yyyy/MM/dd HH:mm}\n" +
-                                         $"Ø§Ù„Ù…Ø¯Ø©: {Math.Round((mission.EndDate - mission.StartDate).Value.TotalHours, 2)} Ø³Ø§Ø¹Ø©\n" +
-                                         $"Ø§Ù„Ø­Ø§Ù„Ø©: {GetStatusText(mission.Status)}\n" +
-                                         $"ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ù„Ø¨: {mission.CreatedAt:yyyy/MM/dd}";
+                    // íãßäß ÅäÔÇÁ äÇİĞÉ ÚÑÖ ÇáÊİÇÕíá åäÇ
+                    var detailsMessage = $"ÊİÇÕíá ÇáÅĞä:\n\n" +
+                                         $"ÇáãæÙİ: {mission.User?.FullName}\n" +
+                                         $"ãä: {mission.StartDate:yyyy/MM/dd HH:mm}\n" +
+                                         $"Åáì: {mission.EndDate:yyyy/MM/dd HH:mm}\n" +
+                                         $"ÇáãÏÉ: {Math.Round((mission.EndDate - mission.StartDate).Value.TotalHours, 2)} ÓÇÚÉ\n" +
+                                         $"ÇáÍÇáÉ: {GetStatusText(mission.Status)}\n" +
+                                         $"ÊÇÑíÎ ÇáØáÈ: {mission.CreatedAt:yyyy/MM/dd}";
 
-                    MessageBox.Show(detailsMessage, "ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù…Ø£Ù…ÙˆØ±ÙŠØ©", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage(detailsMessage, "ÊİÇÕíá ÇáãÃãæÑíÉ", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÚÑÖ ÇáÊİÇÕíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -492,7 +492,7 @@ namespace HR_Application.Views.Salaries
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-            // Ø§Ù„Ø³Ù…Ø§Ø­ ÙÙ‚Ø· Ø¨Ø§Ù„Ø£Ø±Ù‚Ø§Ù…
+            // ÇáÓãÇÍ İŞØ ÈÇáÃÑŞÇã
             e.Handled = !char.IsDigit(e.Text, 0);
         }
 
@@ -525,11 +525,11 @@ namespace HR_Application.Views.Salaries
             {
                 return status switch
                 {
-                    "Draft" => new SolidColorBrush(Colors.Gray), // Ù…Ø³ÙˆØ¯Ø©
-                    "Under Review" => new SolidColorBrush(Colors.Blue), // Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
-                    "Pending" => new SolidColorBrush(Colors.Orange), // Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
-                    "Approved" => new SolidColorBrush(Colors.Green), // Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡
-                    "Rejected" => new SolidColorBrush(Colors.Red), // Ù…Ø±ÙÙˆØ¶
+                    "Draft" => new SolidColorBrush(Colors.Gray), // ãÓæÏÉ
+                    "Under Review" => new SolidColorBrush(Colors.Blue), // ŞíÏ ÇáÇäÊÙÇÑ
+                    "Pending" => new SolidColorBrush(Colors.Orange), // ŞíÏ ÇáÇäÊÙÇÑ
+                    "Approved" => new SolidColorBrush(Colors.Green), // ãæÇİŞ Úáíå
+                    "Rejected" => new SolidColorBrush(Colors.Red), // ãÑİæÖ
                     _ => new SolidColorBrush(Colors.Gray)
                 };
             }
@@ -548,7 +548,7 @@ namespace HR_Application.Views.Salaries
         {
             if (value is DateTime dateTime)
             {
-                // Ø§Ø³ØªØ®Ø¯Ø§Ù… Ù…ÙƒØªØ¨Ø© PersianDateTime Ø£Ùˆ ÙƒØªØ§Ø¨Ø© Ù…Ù†Ø·Ù‚ Ø§Ù„ØªØ­ÙˆÙŠÙ„
+                // ÇÓÊÎÏÇã ãßÊÈÉ PersianDateTime Ãæ ßÊÇÈÉ ãäØŞ ÇáÊÍæíá
                 return dateTime.ToString("yyyy/MM/dd");
             }
             return string.Empty;
@@ -560,7 +560,7 @@ namespace HR_Application.Views.Salaries
         }
     }
 
-    // Ø£Ø¶Ù Ù‡Ø°Ø§ Ø§Ù„Ù€ Converter ÙÙŠ Ù†Ù‡Ø§ÙŠØ© Ø§Ù„Ù…Ù„Ù
+    // ÃÖİ åĞÇ ÇáÜ Converter İí äåÇíÉ Çáãáİ
     public class TupleConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -584,15 +584,15 @@ namespace HR_Application.Views.Salaries
         {
             if (value is string status)
             {
-                // ØªØ­Ù‚Ù‚ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                // ÊÍŞŞ ãä ÕáÇÍíÇÊ ÇáãÓÊÎÏã
                 bool isManager = App.CurrentUser?.JobTitle?.IsManager ?? false;
                 bool isHR = App.CurrentUser?.Department?.IsHR ?? false;
 
-                // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø²Ø± Ù„Ù„Ù…Ø¯ÙŠØ± Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø­Ø§Ù„Ø© Pending
+                // ÅÙåÇÑ ÇáÒÑ ááãÏíÑ ÅĞÇ ßÇäÊ ÇáÍÇáÉ Pending
                 if (status == "Pending" && isManager)
                     return Visibility.Visible;
 
-                // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø²Ø± Ù„Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø­Ø§Ù„Ø© Under Review
+                // ÅÙåÇÑ ÇáÒÑ ááãæÇÑÏ ÇáÈÔÑíÉ ÅĞÇ ßÇäÊ ÇáÍÇáÉ Under Review
                 if (status == "Under Review" && isHR)
                     return Visibility.Visible;
             }
@@ -605,3 +605,4 @@ namespace HR_Application.Views.Salaries
         }
     }
 }
+

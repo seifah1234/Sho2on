@@ -1,4 +1,4 @@
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using MahApps.Metro.IconPacks;
 using UserControl = System.Windows.Controls.UserControl;

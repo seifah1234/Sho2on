@@ -1,13 +1,13 @@
-ï»¿using Sho2on.Database;
+using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -64,7 +64,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                LocalizationManager.ShowMessage(ex.Message);
             }
         }
 
@@ -81,7 +81,7 @@ namespace HR_Application
             {
                 if (FromTimePicker.SelectedDateTime == null || ToTimePicker.SelectedDateTime == null)
                 {
-                    MessageBox.Show("Ø§Ø®ØªØ§Ø± ÙˆÙ‚Øª Ø§Ù„Ø±Ø§Ø­Ø©!", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÇÎÊÇÑ æŞÊ ÇáÑÇÍÉ!", "", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -102,13 +102,13 @@ namespace HR_Application
                     db.SaveChanges();
                 }
 
-                MessageBox.Show("ØªÙ… Ø¥Ø¶Ø§ÙØ© ÙØªØ±Ø© Ø§Ù„Ø±Ø§Ø­Ø©");
+                LocalizationManager.ShowMessage("Êã ÅÖÇİÉ İÊÑÉ ÇáÑÇÍÉ");
 
                 LoadData();
             }
             catch
             {
-                MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£");
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ");
             }
         }
 
@@ -121,7 +121,7 @@ namespace HR_Application
         {
             if (list.SelectedItem == null)
             {
-                MessageBox.Show("Ø§Ø®ØªØ§Ø± ÙØªØ±Ø© Ø§Ù„Ø±Ø§Ø­Ø©");
+                LocalizationManager.ShowMessage("ÇÎÊÇÑ İÊÑÉ ÇáÑÇÍÉ");
                 return;
             }
 
@@ -139,12 +139,12 @@ namespace HR_Application
                     }
                 }
 
-                MessageBox.Show("ØªÙ… Ø§Ù„Ø­Ø°Ù");
+                LocalizationManager.ShowMessage("Êã ÇáÍĞİ");
                 LoadData();
             }
             catch
             {
-                MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£");
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ");
             }
         }
 
@@ -152,7 +152,7 @@ namespace HR_Application
         {
             if (list.SelectedItem == null)
             {
-                MessageBox.Show("Ø§Ø®ØªØ§Ø± ÙØªØ±Ø© Ø§Ù„Ø±Ø§Ø­Ø©!");
+                LocalizationManager.ShowMessage("ÇÎÊÇÑ İÊÑÉ ÇáÑÇÍÉ!");
                 return;
             }
 
@@ -177,12 +177,12 @@ namespace HR_Application
                     }
                 }
 
-                MessageBox.Show("ØªÙ… Ø§Ù„ØªØ¹Ø¯ÙŠÙ„");
+                LocalizationManager.ShowMessage("Êã ÇáÊÚÏíá");
                 LoadData();
             }
             catch
             {
-                MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£");
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ");
             }
         }
 
@@ -211,3 +211,4 @@ namespace HR_Application
         }
     }
 }
+

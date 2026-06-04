@@ -5,7 +5,7 @@
         xmlns:uc="clr-namespace:HR_Application.UserControls"
         xmlns:themes="clr-namespace:HR_Application.UserControls"
         Height="800" Width="800" MinHeight="400" MinWidth="800"
-        Title="OR HR" WindowStyle="ThreeDBorderWindow"
+        Title="{DynamicResource AppTitle}" WindowStyle="ThreeDBorderWindow"
         xmlns:local="clr-namespace:HR_Application"
         Loaded="Window_Loaded"
         FlowDirection="RightToLeft"
@@ -232,7 +232,25 @@
                                 </Border>
                             </StackPanel>
                         </Button>
-                            
+                            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <Border CornerRadius="20" Padding="14,5"
+            Background="{DynamicResource SurfaceLightColor}" BorderThickness="1">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#00BCD4" Offset="0"/>
+                                            <GradientStop Color="#0D47A1" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Icon:PackIconMaterial Kind="Calendar" Width="14" Height="14"
+                                   Foreground="{DynamicResource AccentColor}"
+                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding CurrentDateTime}"
+                       FontSize="13" Foreground="{DynamicResource ThirdColor}"
+                       VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
 
 
@@ -273,7 +291,7 @@
                     </Border.BorderBrush>
                     <Border.BorderThickness>0,0,1,0</Border.BorderThickness>
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0" FlowDirection="RightToLeft">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0">
                         <DockPanel Margin="0">
 
                             <!-- Hidden menu button — unchanged -->
@@ -325,7 +343,7 @@
                                             <GradientStop Color="#0D47A1" Offset="1"/>
                                         </LinearGradientBrush>
                                     </Border.BorderBrush>
-                                    <TextBlock Text="نظام الموارد البشرية"
+                                    <TextBlock Text="{DynamicResource HumanResourcesSystem}"
                                                Foreground="{DynamicResource ThirdColor}"
                                                FontSize="11" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"/>
@@ -346,7 +364,7 @@
                             <!-- ════ Nav items ════ -->
                             <StackPanel Margin="8,0,8,0" DockPanel.Dock="Top" Orientation="Vertical">
 
-                                <TextBlock Text="القائمة الرئيسية"
+                                <TextBlock Text="{DynamicResource MainMenu}"
                                            Foreground="{DynamicResource MutedColor}"
                                            FontSize="10" FontWeight="Bold"
                                            Margin="16,0,16,8"
@@ -364,7 +382,7 @@
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="التقارير" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource Reports}" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
@@ -372,10 +390,10 @@
                                             Margin="12,4,12,8" Orientation="Vertical">
                                     <Button Margin="3" Click="EmployeeDataOpen"
                                             Visibility="{Binding EmploDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploDataP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="بيانات الموظفين" Foreground="{DynamicResource SecondaryColor}"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource EmployeeData}" Foreground="{DynamicResource SecondaryColor}"/>
                                     <Button Margin="3" Click="EmployeeMonthOpen"
                                             Visibility="{Binding EmploMonthP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploMonthP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="شهري الموظفين"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource MonthlyEmployees}"/>
                                 </StackPanel>
 
                                 <!-- Employee Affairs -->
@@ -389,7 +407,7 @@
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="شئون العاملين" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource PersonnelAffairs}" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
@@ -397,19 +415,19 @@
                                             Margin="12,4,12,8" Orientation="Vertical">
                                     <Button Margin="3" Tag="ErrandsPanel" Click="Errands_MouseLeftButtonDown"
                                             Visibility="{Binding ErrandP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=ErrandP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="الاجراءات"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Requests}"/>
                                     <Button Margin="3" Tag="HolidayManagementPanel" Click="HolidayManagement_MouseLeftButtonDown"
                                             Visibility="{Binding HolidaysManagementP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=HolidaysManagementP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="ادارة الاجازات"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource LeaveManagement}"/>
                                     <Button Margin="3" Click="AddEmploOpen"
                                             Visibility="{Binding AddEmploP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddEmploP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="ادارة موظف"/>
-                                    <Button Margin="3" Width="140" Content="تقييم موظف"
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource EmployeeManagement}"/>
+                                    <Button Margin="3" Width="140" FontSize = "12" Content="{DynamicResource EmployeeEvaluation}"
                                             Click="OpenEvaluation_Click" FlowDirection="RightToLeft"
                                             Visibility="{Binding EmpEvalP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmpEvalP}"/>
                                     <Button Margin="3" x:Name="uploadEmployeesBtn" Click="uploadEmployeesBtn_Click"
                                             Visibility="{Binding uploadEmployeesP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=uploadEmployeesP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="رفع ملف الموظفين"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource ImportEmployees}"/>
                                 </StackPanel>
 
                                 <!-- Attendance -->
@@ -423,7 +441,7 @@
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="الحضور و الانصراف" Margin="12,0,0,0" FontSize="13" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource Attendance}" Margin="12,0,0,0" FontSize="13" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
@@ -431,13 +449,13 @@
                                             Margin="12,4,12,8" Orientation="Vertical">
                                     <Button Margin="3" Click="DataEditOpen"
                                             Visibility="{Binding DataEditP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=DataEditP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="مراجعة الحركات"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource ReviewRecords}"/>
                                     <Button Margin="3" Click="AddAttendOpen"
                                             Visibility="{Binding ManualP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=ManualP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="Manual"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Manual}"/>
                                     <Button Margin="3" Click="MonthlyDataOpen"
                                             Visibility="{Binding MonthlyP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=MonthlyP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="الحركات الشهرية"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource MonthlyRecords}"/>
                                 </StackPanel>
 
                                 <!-- Salary -->
@@ -451,7 +469,7 @@
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="الاجور والمرتبات" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource Payroll}" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
@@ -459,37 +477,37 @@
                                             Margin="12,4,12,8" Orientation="Vertical">
                                     <Button Margin="3" Click="AddMainSalary"
                                             Visibility="{Binding AddMainSalaryP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddMainSalaryP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="ادارة ماليات موظف"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource EmployeeFinancials}"/>
                                     <Button Margin="3" Click="SalaryReport"
                                             Visibility="{Binding SalaryReportP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=SalaryReportP}"
-                                            Width="140" FlowDirection="RightToLeft">
-                                        <TextBlock Text="تقرير المرتبات" FontSize="14"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft">
+                                        <TextBlock Text="{DynamicResource SalaryReport}" FontSize="14"/>
                                     </Button>
                                     <Button Margin="3" Click="EmployeeSalaryDataOpen"
                                             Visibility="{Binding EmploSalaryDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=EmploSalaryDataP}"
-                                            Width="140" FlowDirection="RightToLeft" FontSize="12">
-                                        <TextBlock Text="بيانات و مرتبات الموظفين" FontSize="13" FontWeight="Normal"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" >
+                                        <TextBlock Text="{DynamicResource EmployeeSalaries}" FontSize="13" FontWeight="Normal"/>
                                     </Button>
                                     <Button Margin="3" Click="AddDeductions"
                                             Visibility="{Binding AddDeductionsP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddDeductionsP}"
-                                            Width="140" FlowDirection="RightToLeft" FontSize="12">
-                                        <TextBlock Text="استحقاقات و استقطاعت" FontSize="13" FontWeight="Normal"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft">
+                                        <TextBlock Text="{DynamicResource BenefitsDeductions}" FontSize="13" FontWeight="Normal"/>
                                     </Button>
                                     <Button Margin="3" x:Name="btnImportCommissions"
                                             Visibility="{Binding UploadCommessionsP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=UploadCommessionsP}"
                                             Click="btnImportCommissions_Click"
-                                            Width="140" FlowDirection="RightToLeft" FontSize="12">
-                                        <TextBlock Text="رفع العمولات" FontSize="13" FontWeight="Normal"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft">
+                                        <TextBlock Text="{DynamicResource ImportCommissions}" FontSize="13" FontWeight="Normal"/>
                                     </Button>
                                     <Button Margin="3" Click="MonthlySalaryDataOpen"
                                             Visibility="{Binding MonthlyP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=MonthlyP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="البيانات الشهرية"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource MonthlyData}"/>
                                     <Button Margin="3" Click="BulkSalaryPaymentOpen"
                                             Visibility="{Binding BulkSalaryPaymentP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=BulkSalaryPaymentP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="صرف المرتبات الجماعي"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource BulkSalaryPayment}"/>
                                     <Button Margin="3" Click="LoanManagementOpen" Tag="LoanManagementPanel"
                                             Visibility="{Binding LoanManagementP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=LoanManagementP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="ادارة السلف"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource LoanManagement}"/>
                                 </StackPanel>
 
                                 <!-- FingerPrints -->
@@ -503,7 +521,7 @@
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="FingerPrints" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource FingerPrints}" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
@@ -511,20 +529,20 @@
                                             Margin="12,4,12,8" Orientation="Vertical">
                                     <Button Margin="3" Click="AddMachineOpen"
                                             Visibility="{Binding AddMachineP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AddMachineP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="Add"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Add}"/>
                                     <Button Margin="3" Click="GetDataClicked"
                                             Visibility="{Binding GetDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=GetDataP}"
-                                            Width="140" FlowDirection="RightToLeft">
-                                        <TextBlock Text="Upload Fingerprint" FontSize="13"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft">
+                                        <TextBlock Text="{DynamicResource UploadFingerprint}" FontSize="13"/>
                                     </Button>
                                     <Button Margin="3" Click="download_data_btn_ButtonClicked"
                                             Visibility="{Binding DownloadDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=DownloadDataP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="Download Data"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource DownloadData}"/>
                                     <Button Margin="3" Click="upload_data_btn_ButtonClicked"
                                             Visibility="{Binding UploadDataP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=UploadDataP}"
-                                            Width="140" FlowDirection="RightToLeft" Content="Upload Data"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource UploadData}"/>
                                     <Button Margin="3" Click="BtnGenerateTemplate_Click"
-                                            Width="140" FlowDirection="RightToLeft" Content="Download Template"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource DownloadTemplate}"/>
                                 </StackPanel>
 
                                 <!-- Settings -->
@@ -538,7 +556,7 @@
                                                                    Foreground="{DynamicResource AccentColor}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="Settings" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource Settings}" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Foreground="{DynamicResource TextMenuColor}"/>
                                     </StackPanel>
                                 </Button>
@@ -547,19 +565,19 @@
                                     <Button Margin="3"
                                             Visibility="{Binding AllDatasP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AllDatasP}"
                                             Click="Datas_MouseLeftButtonDown" Tag="DatasPanel"
-                                            Width="140" FlowDirection="RightToLeft" Content="اضافة البيانات"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource AddData}"/>
                                     <Button Margin="3"
                                             Visibility="{Binding AllPermissionP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AllPermissionP}"
                                             Click="Permission_MouseLeftButtonDown" Tag="PermissionsPanel"
-                                            Width="140" FlowDirection="RightToLeft" Content="الصلاحيات"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Permissions}"/>
                                     <Button Margin="3"
                                             Visibility="{Binding Backup, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Backup}"
                                             Click="Backup_Button_Click"
-                                            Width="140" FlowDirection="RightToLeft" Content="Backup"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Backup}"/>
                                     <Button Margin="3"
                                             Visibility="{Binding AllSettingsP, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=AllSettingsP}"
                                             Tag="MainSettingsPanel" Click="MainSettings_MouseLeftButtonDown"
-                                            Width="140" FlowDirection="RightToLeft" Content="الاعدادات العامة"/>
+                                            Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource GeneralSettings}"/>
                                 </StackPanel>
 
                             </StackPanel>
@@ -596,7 +614,7 @@
                                                                    Foreground="#EF5350"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="Logout" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{DynamicResource Logout}" Margin="12,0,0,0" FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Foreground="#EF9A9A"/>
                                     </StackPanel>
                                 </Button>
@@ -620,18 +638,19 @@
                         </Grid.RenderTransform>
                         <Border Style="{DynamicResource DrawerPanelBorder}">
                             <StackPanel Margin="10,16,10,10" Orientation="Vertical">
-                                <TextBlock Text="البيانات" Foreground="{DynamicResource AccentColor}"
+                                <TextBlock Text="{DynamicResource Data}" Foreground="{DynamicResource AccentColor}"
                                            FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                                <Button Margin="3" Click="AddDepartOpen"  IsEnabled="{Binding DepartP}"  Width="140" FlowDirection="RightToLeft" Content="الادارات"/>
-                                <Button Margin="3" Click="AddQualificationOpen"  IsEnabled="{Binding QualificationP}"  Width="140" FlowDirection="RightToLeft" Content="المؤهلات"/>
-                                <Button Margin="3" Click="AddJobOpen"     IsEnabled="{Binding JobP}"     Width="140" FlowDirection="RightToLeft" Content="الوظائف"/>
-                                <Button Margin="3" Click="AddJobDegreeOpen" IsEnabled="{Binding DegreeP}" Width="140" FlowDirection="RightToLeft" Content="القطاعات"/>
-                                <Button Margin="3" Click="AddAreaOpen" IsEnabled="{Binding AreaP}" Width="140" FlowDirection="RightToLeft" Content="المناطق"/>
-                                <Button Margin="3" Click="AddShiftOpen"   IsEnabled="{Binding ShiftP}"   Width="140" FlowDirection="RightToLeft" Content="الورديات"/>
-                                <Button Margin="3" Visibility="Collapsed" Click="AddBreakOpen" IsEnabled="{Binding BreakP}" Width="140" FlowDirection="RightToLeft" Content="الراحات"/>
-                                <Button Margin="3" FontSize="12" Click="AddLateOpen" IsEnabled="{Binding LateP}" Width="140" FlowDirection="RightToLeft" Content="التأخير و الاضافي"/>
-                                <Button Margin="3" Click="AddHoliOpen"    IsEnabled="{Binding WHP}"      Width="140" FlowDirection="RightToLeft" Content="الاجازات الاسبوعية"/>
-                                <Button Margin="3" Click="AddHoliTypeOpen" IsEnabled="{Binding HTypeP}"  Width="140" FlowDirection="RightToLeft" Content="أنواع الاجازات"/>
+                                <Button Margin="3" Click="AddDepartOpen"  IsEnabled="{Binding DepartP}"  Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Departments}"/>
+                                <Button Margin="3" Click="AddQualificationOpen"  IsEnabled="{Binding QualificationP}"  Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Qualifications}"/>
+                                <Button Margin="3" Click="AddJobOpen"     IsEnabled="{Binding JobP}"     Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Jobs}"/>
+                                <Button Margin="3" Click="AddJobDegreeOpen" IsEnabled="{Binding DegreeP}" Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Sectors}"/>
+                                <Button Margin="3" Click="AddAreaOpen" IsEnabled="{Binding AreaP}" Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Areas}"/>
+                                <Button Margin="3" Click="AddShiftOpen"   IsEnabled="{Binding ShiftP}"   Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Shifts}"/>
+                                <Button Margin="3" Visibility="Collapsed" Click="AddBreakOpen" IsEnabled="{Binding BreakP}" Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Breaks}"/>
+                                <Button Margin="3" FontSize="12" Click="AddLateOpen" IsEnabled="{Binding LateP}" Width="140" FlowDirection="RightToLeft" Content="{DynamicResource LateOvertime}"/>
+                                <Button Margin="3" Click="AddHoliOpen"    IsEnabled="{Binding WHP}"      Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource WeeklyHolidays}"/>
+                                <Button Margin="3" Click="AddHoliTypeOpen" IsEnabled="{Binding HTypeP}"  Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource LeaveTypes}"/>
+                                <Button Margin="3" Click="AddOfficalsOpen" IsEnabled="{Binding OfficalsP}"  Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Officials}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -644,12 +663,12 @@
                         </Grid.RenderTransform>
                         <Border Style="{DynamicResource DrawerPanelBorder}">
                             <StackPanel Margin="10,16,10,10" Orientation="Vertical">
-                                <TextBlock Text="الصلاحيات" Foreground="{DynamicResource AccentColor}"
+                                <TextBlock Text="{DynamicResource Permissions}" Foreground="{DynamicResource AccentColor}"
                                            FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                                <Button Margin="3" Click="PermissionsOpen"     IsEnabled="{Binding PermissionP}"   Width="140" FlowDirection="RightToLeft" Content="صلاحيات البرنامج"/>
-                                <Button Margin="3" Click="UserPermissionsOpen"  IsEnabled="{Binding UserPermissionP}" Width="140" FlowDirection="RightToLeft" Content="صلاحيات المستخدم"/>
-                                <Button Margin="3" Click="BranchPermissionsOpen" IsEnabled="{Binding BranchPermissionP}" Width="140" FlowDirection="RightToLeft" Content="صلاحيات الفروع"/>
-                                <Button Margin="3" Click="AddRoleOpen"         IsEnabled="{Binding RoleP}"         Width="140" FlowDirection="RightToLeft" Content="الجروبات"/>
+                                <Button Margin="3" Click="PermissionsOpen"     IsEnabled="{Binding PermissionP}"   Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource ProgramPermissions}"/>
+                                <Button Margin="3" Click="UserPermissionsOpen"  IsEnabled="{Binding UserPermissionP}" Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource UserPermissions}"/>
+                                <Button Margin="3" Click="BranchPermissionsOpen" IsEnabled="{Binding BranchPermissionP}" Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource BranchPermissions}"/>
+                                <Button Margin="3" Click="AddRoleOpen"         IsEnabled="{Binding RoleP}"         Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Groups}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -662,12 +681,12 @@
                         </Grid.RenderTransform>
                         <Border Style="{DynamicResource DrawerPanelBorder}">
                             <StackPanel Margin="10,16,10,10" Orientation="Vertical">
-                                <TextBlock Text="الإعدادات" Foreground="{DynamicResource AccentColor}"
+                                <TextBlock Text="{DynamicResource Settings}" Foreground="{DynamicResource AccentColor}"
                                            FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                                <Button Margin="3" Click="SettingsOpen"   IsEnabled="{Binding MonthSettingP}" Width="140" FlowDirection="RightToLeft" Content="اعدادات عامة"/>
-                                <Button Margin="3" Click="ArchiveOpen"    IsEnabled="{Binding ArchiveP}"      Width="140" FlowDirection="RightToLeft" Content="الارشيف"/>
-                                <Button Margin="3" Click="StorageOpen"    IsEnabled="{Binding StorageP}"      Width="140" FlowDirection="RightToLeft" Content="تخزين الملفات"/>
-                                <Button Margin="3" Click="AddBranchOpen"  IsEnabled="{Binding BranchP}"       Width="140" FlowDirection="RightToLeft" Content="اضافة الفروع"/>
+                                <Button Margin="3" Click="SettingsOpen"   IsEnabled="{Binding MonthSettingP}" Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource GeneralSettings}"/>
+                                <Button Margin="3" Click="ArchiveOpen"    IsEnabled="{Binding ArchiveP}"      Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Archive}"/>
+                                <Button Margin="3" Click="StorageOpen"    IsEnabled="{Binding StorageP}"      Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource FileStorage}"/>
+                                <Button Margin="3" Click="AddBranchOpen"  IsEnabled="{Binding BranchP}"       Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource AddBranches}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -680,41 +699,41 @@
                         </Grid.RenderTransform>
                         <Border Style="{DynamicResource DrawerPanelBorder}">
                             <StackPanel Margin="10,16,10,10" Orientation="Vertical">
-                                <TextBlock Text="ادارة الاجازات" Foreground="{DynamicResource AccentColor}"
+                                <TextBlock Text="{DynamicResource LeaveManagement}" Foreground="{DynamicResource AccentColor}"
                                            FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
                                 <Button Margin="3" x:Name="btnManageBalance" IsEnabled="{Binding ManageBalanceP}"
-                                        Width="140" Click="btnManageBalance_Click">
+                                        Width="140" FontSize = "12" Click="btnManageBalance_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="إدارة الرصيد"/>
+                                        <TextBlock Text="{DynamicResource ManageBalance}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Margin="3" x:Name="btnHoliRequests" IsEnabled="{Binding HoliRequestsP}"
-                                        Width="140" Click="HolidaysManagementOpen">
+                                        Width="140" FontSize = "12" Click="HolidaysManagementOpen">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="طلبات الاجازة"/>
+                                        <TextBlock Text="{DynamicResource LeaveRequests}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Margin="3" x:Name="btnNewRequest" IsEnabled="{Binding NewRequestP}"
-                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnNewRequest_Click">
+                                        Width="140" FontSize = "12" FontWeight="Bold" Click="btnNewRequest_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="Plus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="طلب إجازة"/>
+                                        <TextBlock Text="{DynamicResource LeaveRequest}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Margin="3" x:Name="btnManageLeaveTypes" IsEnabled="{Binding ManageLeaveTypesP}"
-                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnManageLeaveTypes_Click">
+                                        Width="140" FontSize = "12" FontWeight="Bold" Click="btnManageLeaveTypes_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="FormatListBulleted" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="أنواع الإجازات"/>
+                                        <TextBlock Text="{DynamicResource LeaveTypes}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Margin="3" x:Name="btnBalanceReport" IsEnabled="{Binding BalanceReportP}"
-                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnBalanceReport_Click">
+                                        Width="140" FontSize = "12" FontWeight="Bold" Click="btnBalanceReport_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="ChartBar" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="تقرير الرصيد"/>
+                                        <TextBlock Text="{DynamicResource BalanceReport}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -729,32 +748,32 @@
                         </Grid.RenderTransform>
                         <Border Style="{DynamicResource DrawerPanelBorder}">
                             <StackPanel Margin="10,16,10,10" Orientation="Vertical">
-                                <TextBlock Text="الاجراءات" Foreground="{DynamicResource AccentColor}"
+                                <TextBlock Text="{DynamicResource Requests}" Foreground="{DynamicResource AccentColor}"
                                            FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                                <Button Margin="3" Width="140" IsEnabled="{Binding NewMissionP}" Click="ErrandsOpen">
+                                <Button Margin="3" Width="140" FontSize = "12" IsEnabled="{Binding NewMissionP}" Click="ErrandsOpen">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="Plus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="طلب مأمورية"/>
+                                        <TextBlock Text="{DynamicResource MissionRequest}"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Margin="3" Width="140" IsEnabled="{Binding ManageMissionP}" Click="ErrandsRequestsOpen">
+                                <Button Margin="3" Width="140" FontSize = "12" IsEnabled="{Binding ManageMissionP}" Click="ErrandsRequestsOpen">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="طلبات المأموريات"/>
+                                        <TextBlock Text="{DynamicResource MissionRequests}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Margin="3" x:Name="btnPermissionRequests" IsEnabled="{Binding PermissionRequestsP}"
-                                        Width="140" Click="btnPermissionRequests_Click">
+                                        Width="140" FontSize = "12" Click="btnPermissionRequests_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="AccountCash" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="طلبات الاذن"/>
+                                        <TextBlock Text="{DynamicResource PermissionRequests}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Margin="3" x:Name="btnPermissionNewRequest" IsEnabled="{Binding NewPermissionRequestP}"
-                                        Width="140" FontSize="14" FontWeight="Bold" Click="btnPermissionNewRequest_Click">
+                                        Width="140" FontSize = "12" FontWeight="Bold" Click="btnPermissionNewRequest_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="Plus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="طلب اذن"/>
+                                        <TextBlock Text="{DynamicResource PermissionRequest}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -769,27 +788,27 @@
                         </Grid.RenderTransform>
                         <Border Style="{DynamicResource DrawerPanelBorder}">
                             <StackPanel Margin="10,16,10,10" Orientation="Vertical">
-                                <TextBlock Text="ادارة السلف" Foreground="{DynamicResource AccentColor}"
+                                <TextBlock Text="{DynamicResource LoanManagement}" Foreground="{DynamicResource AccentColor}"
                                            FontSize="12" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
                                 <Button Margin="3" x:Name="btnLoanRequest" IsEnabled="{Binding LoanRequestP}"
-                                        Width="140" Click="btnLoanRequest_Click">
+                                        Width="140" FontSize = "12" Click="btnLoanRequest_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="CashMinus" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="طلب سلفة"/>
+                                        <TextBlock Text="{DynamicResource LoanRequest}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button x:Name="btnLoanApprove" IsEnabled="{Binding LoanApproveP}"
-                                        Width="140" Click="btnLoanApprove_Click">
+                                        Width="140" FontSize = "12" Click="btnLoanApprove_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="CashCheck" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="الموافقة على السلفات" FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource LoanApproval}" FontSize="11" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Margin="3" x:Name="btnFriendBoxReport" IsEnabled="{Binding FriendBoxReportP}"
-                                        Width="140" Click="btnFriendBoxReport_Click">
+                                        Width="140" FontSize = "12" Click="btnFriendBoxReport_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Icon:PackIconMaterial Kind="CashCheck" Width="16" Height="16" Margin="0,0,6,0" Foreground="{DynamicResource AccentColor}"/>
-                                        <TextBlock Text="كشف حساب ص الزمالة" FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource FriendshipFundStatement}" FontSize="11" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>

@@ -1,4 +1,4 @@
-ï»¿using ClosedXML.Excel;
+using ClosedXML.Excel;
 
 using System.ComponentModel;
 using System.Data.SqlClient;
@@ -135,7 +135,7 @@ namespace HR_Application
                     edit_btn.IsDefault = true;
                 }else
                 {
-                    MessageBox.Show("Ø§Ø®ØªØ§Ø± ÙØªØ±Ø©");
+                    LocalizationManager.ShowMessage("ÇÎÊÇÑ İÊÑÉ");
                 }
                 
                 
@@ -268,7 +268,7 @@ namespace HR_Application
         {
             foreach(AttendData attend in dataList)
             {
-                attend.status = (attend.status == "Ø§Ù†ØµØ±Ø§Ù") ? "Ø­Ø¶ÙˆØ±" : "Ø§Ù†ØµØ±Ø§Ù";
+                attend.status = (attend.status == "ÇäÕÑÇİ") ? "ÍÖæÑ" : "ÇäÕÑÇİ";
             }
             list.ItemsSource = dataList;
             list.Items.Refresh();
@@ -298,12 +298,12 @@ namespace HR_Application
                     }
 
                     transaction.Commit();
-                    MessageBox.Show("Database updated successfully!");
+                    LocalizationManager.ShowMessage("Database updated successfully!");
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    MessageBox.Show($"Error updating database: {ex.Message}");
+                    LocalizationManager.ShowMessage($"Error updating database: {ex.Message}");
                 }
             }
 
@@ -318,13 +318,13 @@ namespace HR_Application
                 var worksheet = workbook.Worksheets.Add("Attendance Data");
 
                 // Add header row
-                worksheet.Cell(1, 1).Value = "Ù…";
-                worksheet.Cell(1, 2).Value = "Ø§Ù„ØªØ§Ø±ÙŠØ®";
-                worksheet.Cell(1, 3).Value = "Ø§Ù„Ø­Ø§Ù„Ø©";
-                worksheet.Cell(1, 4).Value = "Ø§Ù„ÙØ±Ø¹";
-                worksheet.Cell(1, 5).Value = "Ø§Ù„Ø§Ø¬Ø±Ø§Ø¡Ø§Øª";
-                worksheet.Cell(1, 6).Value = "Ø§Ù„ÙŠÙˆÙ…";
-                worksheet.Cell(1, 7).Value = "Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…";
+                worksheet.Cell(1, 1).Value = "ã";
+                worksheet.Cell(1, 2).Value = "ÇáÊÇÑíÎ";
+                worksheet.Cell(1, 3).Value = "ÇáÍÇáÉ";
+                worksheet.Cell(1, 4).Value = "ÇáİÑÚ";
+                worksheet.Cell(1, 5).Value = "ÇáÇÌÑÇÁÇÊ";
+                worksheet.Cell(1, 6).Value = "Çáíæã";
+                worksheet.Cell(1, 7).Value = "ÇáãÓÊÎÏã";
 
                 // Add data rows
                 for (int i = 0; i < dataList.Count; i++)
@@ -353,3 +353,4 @@ namespace HR_Application
         }
     }
 }
+

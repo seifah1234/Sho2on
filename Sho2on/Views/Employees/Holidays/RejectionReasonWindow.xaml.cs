@@ -1,4 +1,4 @@
-ï»¿using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application.Views.Employees.Holidays
@@ -16,7 +16,7 @@ namespace HR_Application.Views.Employees.Holidays
         {
             if (string.IsNullOrWhiteSpace(txtReason.Text))
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÓÈÈ ÇáÑİÖ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

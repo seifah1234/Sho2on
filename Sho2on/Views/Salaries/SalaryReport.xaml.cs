@@ -1,11 +1,11 @@
-๏ปฟusing ClosedXML.Excel;
+using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -110,7 +110,7 @@ namespace HR_Application.Views
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                LocalizationManager.ShowMessage(e.Message);
             }
         }
 
@@ -322,7 +322,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ุฎุทุฃ ูู ุชุญู…ูู ุงูุจูุงูุงุช: {ex.Message}", "ุฎุทุฃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแศํวไวส: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -342,7 +342,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ุฎุทุฃ ูู ุญุณุงุจ ุชูุงุฑูุฎ ุงูุดูุฑ ุงูู…ุฎุตุต: {ex.Message}", "ุฎุทุฃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ฮุร Ýํ อำวศ สๆวัํฮ วแิๅั วแใฮีี: {ex.Message}", "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
                 return (DateTime.MinValue, DateTime.MaxValue);
             }
         }
@@ -449,7 +449,7 @@ namespace HR_Application.Views
         {
             try
             {
-                // ู…ุณุญ ุงููุงุฆู…ุฉ ุงููุฏูู…ุฉ ุฃููุงู
+                // ใำอ วแÞวฦใษ วแÞฯํใษ รๆแว๐
                 await Dispatcher.InvokeAsync(() =>
                 {
                     employeeSalaryCollection.Clear();
@@ -459,7 +459,7 @@ namespace HR_Application.Views
 
                 var filters = new Dictionary<string, string>();
 
-                // ุจูุงุก ุงูููุงุชุฑ ูู…ุง ูู ููุฏู
+                // ศไวม วแÝแวสั ฿ใว Ýํ ฿ๆฯ฿
                 string name = name_box.Text?.Trim();
                 string code = code_box.Text?.Trim();
                 string job = (jobComboBox.SelectedItem != null) ?
@@ -480,18 +480,18 @@ namespace HR_Application.Views
                 if (!string.IsNullOrEmpty(depart))
                     filters.Add("depart", depart);
 
-                // ุงูุญุตูู ุนูู ุชูุงุฑูุฎ ุงูุดูุฑ
+                // วแอีๆแ ฺแ์ สๆวัํฮ วแิๅั
                 int monthNumber = DateTime.ParseExact(monthComboBox.Text, "MMMM", CultureInfo.CurrentCulture).Month;
                 int year = Convert.ToInt16(yearComboBox.Text);
                 (DateTime startMonth, DateTime endMonth) = GetCustomMonthDates(monthNumber, year);
 
-                // ุฌูุจ ุงูุจูุงูุงุช
+                // ฬแศ วแศํวไวส
                 var salaryData = await BuildQueryAsync(filters, startMonth, endMonth);
 
-                // ู…ุนุงูุฌุฉ ูู ู…ูุธู ุจุดูู ู…ููุตู
+                // ใฺวแฬษ ฿แ ใๆูÝ ศิ฿แ ใไÝีแ
                 foreach (var data in salaryData)
                 {
-                    // ุฅุนุงุฏุฉ ุชุนููู ุงูู…ุชุบูุฑุงุช ููู ู…ูุธู
+                    // ลฺวฯษ สฺํํไ วแใสÛํัวส แ฿แ ใๆูÝ
                     ResetVariables();
                     weekHoli.Clear();
                     weekHoli.Add(data.Day1 ? 1 : 0);
@@ -581,8 +581,8 @@ namespace HR_Application.Views
             {
                 await Dispatcher.InvokeAsync(() =>
                 {
-                    MessageBox.Show($"ุฎุทุฃ ูู ุชุญู…ูู ุงูุจูุงูุงุช: {ex.Message}",
-                        "ุฎุทุฃ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแศํวไวส: {ex.Message}",
+                        "ฮุร", MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
         }
@@ -609,24 +609,24 @@ namespace HR_Application.Views
         {
             try
             {
-                // ุฅุธูุงุฑ ู…ุคุดุฑ ุชุญู…ูู
+                // ลูๅวั ใฤิั สอใํแ
                 data_load_btn.IsEnabled = false;
-                data_load_btn.Content = "ุฌุงุฑู ุงูุชุญู…ูู...";
+                data_load_btn.Content = "ฬวัํ วแสอใํแ...";
 
-                // ุชูููุฐ ุงูุนู…ููุฉ ุจุดูู ู…ุชุฒุงู…ู
+                // สไÝํะ วแฺใแํษ ศิ฿แ ใสาวใไ
                 await GetDataSalary();
 
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ุฎุทุฃ ูู ุชุญู…ูู ุงูุจูุงูุงุช: {ex.Message}", "ุฎุทุฃ",
+                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแศํวไวส: {ex.Message}", "ฮุร",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 data_load_btn.IsEnabled = true;
-                data_load_btn.Content = "ุชุญู…ูู ุงูุจูุงูุงุช";
+                data_load_btn.Content = "สอใํแ วแศํวไวส";
             }
         }
 
@@ -650,10 +650,10 @@ namespace HR_Application.Views
 
                         var headers = new[]
                         {
-                            "ุงูููุฏ", "ุงูุงุณู…", "ุงููุฑุน", "ุงููุธููุฉ", "ุงูุฑุงุชุจ", "ุจุฏู ุณูู", "ุจุฏู ุงูุชูุงู",
-                            "ุจุฏู ุงุฏุงุฑุฉ", "ุจุฏู ุทุจูุนุฉ ุนู…ู", "ุงุถุงูู", "ู…ูุงูุขุช", "ุนู…ููุงุช ุชุญููู", "ุนู…ููุงุช ุฎุงุฑุฌูุฉ", "ุงุฌู…ุงูู ุงูุงุณุชุญูุงูุงุช",
-                            "ุงูุบูุงุจ", "ุงูุชุฃุฎูุฑ", "ุณูู", "ุฌุฒุงุก", "ุถุฑูุจุฉ", "ุชุฃู…ูู", "ุตูุฏูู ุงูุฒู…ุงูุฉ",
-                            "ู…ุดุงุฑูุฉ ุงุฌุชู…ุงุนู", "ุงุฌู…ุงูู ุงูุงุณุชูุทุงุนุงุช", "ุงูุงุฌู…ุงูู"
+                            "วแ฿ๆฯ", "วแวำใ", "วแÝัฺ", "วแๆูํÝษ", "วแัวสศ", "ศฯแ ำ฿ไ", "ศฯแ วไสÞวแ",
+                            "ศฯแ วฯวัษ", "ศฯแ ุศํฺษ ฺใแ", "วึวÝํ", "ใ฿วÝยส", "ฺใๆแวส สอÞํÞ", "ฺใๆแวส ฮวัฬํษ", "วฬใวแํ วแวำสอÞวÞวส",
+                            "วแÛํวศ", "วแสรฮํั", "ำแÝ", "ฬาวม", "ึัํศษ", "สรใํไ", "ีไฯๆÞ วแาใวแษ",
+                            "ใิวั฿ษ วฬสใวฺํ", "วฬใวแํ วแวำสÞุวฺวส", "วแวฬใวแํ"
                         };
 
                         for (int i = 0; i < headers.Length; i++)
@@ -701,12 +701,12 @@ namespace HR_Application.Views
                         }
 
                         workbook.SaveAs(filePath);
-                        MessageBox.Show("ุชู… ุงุณุชุฎุฑุงุฌ ุงูุงูุณูู!");
+                        LocalizationManager.ShowMessage("สใ วำสฮัวฬ วแว฿ำํแ!");
                     }
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message, "ุฎุทุฃ");
+                    LocalizationManager.ShowMessage(e.Message, "ฮุร");
                 }
             }
         }
@@ -732,7 +732,7 @@ namespace HR_Application.Views
             var headerRowGroup1 = new TableRowGroup();
             System.Windows.Documents.TableRow headerRow1 = new System.Windows.Documents.TableRow();
 
-            var cell6 = CreateCell($"ุตุงูู ู…ุฑุชุจุงุช ุดูุฑ : {month} - {year}", false, true);
+            var cell6 = CreateCell($"ีวÝํ ใัสศวส ิๅั : {month} - {year}", false, true);
             cell6.FontSize = 14;
             cell6.FontWeight = FontWeights.Bold;
             cell6.BorderThickness = new Thickness(0);
@@ -758,7 +758,7 @@ namespace HR_Application.Views
             headerTable.RowGroups.Add(headerRowGroup1);
             document.Blocks.Add(headerTable);
 
-            var titleParagraph = new System.Windows.Documents.Paragraph(new System.Windows.Documents.Run($"ุชูุฑูุฑ ู…ุฑุชุจุงุช ุชูุตููู"))
+            var titleParagraph = new System.Windows.Documents.Paragraph(new System.Windows.Documents.Run($"สÞัํั ใัสศวส สÝีํแํ"))
             {
                 FontWeight = FontWeights.Bold,
                 FontSize = 15,
@@ -792,13 +792,13 @@ namespace HR_Application.Views
             headerRow.FontSize = 13;
             headerRow.FontWeight = FontWeights.Bold;
 
-            headerRow.Cells.Add(CreateCell("ุงูุงุณู…", true, false));
-            headerRow.Cells.Add(CreateCell("ุงููุฑุน", true, false));
-            headerRow.Cells.Add(CreateCell("ุงููุธููุฉ", true, false));
-            headerRow.Cells.Add(CreateCell("ุงูุฑุงุชุจ", true, false));
-            headerRow.Cells.Add(CreateCell("ุงุฌู…ุงูู ุงูุงุณุชุญูุงูุงุช", true, false));
-            headerRow.Cells.Add(CreateCell("ุงุฌู…ุงูู ุงูุงุณุชูุทุงุนุงุช", true, false));
-            headerRow.Cells.Add(CreateCell("ุตุงูู ุงูุฑุงุชุจ", true, false));
+            headerRow.Cells.Add(CreateCell("วแวำใ", true, false));
+            headerRow.Cells.Add(CreateCell("วแÝัฺ", true, false));
+            headerRow.Cells.Add(CreateCell("วแๆูํÝษ", true, false));
+            headerRow.Cells.Add(CreateCell("วแัวสศ", true, false));
+            headerRow.Cells.Add(CreateCell("วฬใวแํ วแวำสอÞวÞวส", true, false));
+            headerRow.Cells.Add(CreateCell("วฬใวแํ วแวำสÞุวฺวส", true, false));
+            headerRow.Cells.Add(CreateCell("ีวÝํ วแัวสศ", true, false));
 
             headerRowGroup.Rows.Add(headerRow);
             table.RowGroups.Add(headerRowGroup);
@@ -873,19 +873,19 @@ namespace HR_Application.Views
             // Employee Name and Code
             table.RowGroups.Add(new TableRowGroup());
             var headerRow = new TableRow();
-            headerRow.Cells.Add(CreateCell("ุงูุงุณู…:", true, 1));
+            headerRow.Cells.Add(CreateCell("วแวำใ:", true, 1));
             headerRow.Cells.Add(CreateCell(employee.Name, false, 3));
             table.RowGroups[0].Rows.Add(headerRow);
 
             headerRow = new TableRow();
-            headerRow.Cells.Add(CreateCell("ุงูููุฏ:", true, 1));
+            headerRow.Cells.Add(CreateCell("วแ฿ๆฯ:", true, 1));
             headerRow.Cells.Add(CreateCell(employee.Code, false, 3));
             table.RowGroups[0].Rows.Add(headerRow);
 
             // Section Headers
             var sectionHeaderRow = new TableRow();
-            sectionHeaderRow.Cells.Add(CreateCell("ุงูุงุณุชุญูุงูุงุช", true, 2));
-            sectionHeaderRow.Cells.Add(CreateCell("ุงูุงุณุชูุทุงุนุงุช", true, 2));
+            sectionHeaderRow.Cells.Add(CreateCell("วแวำสอÞวÞวส", true, 2));
+            sectionHeaderRow.Cells.Add(CreateCell("วแวำสÞุวฺวส", true, 2));
             table.RowGroups[0].Rows.Add(sectionHeaderRow);
 
             int hours = employee.LateH;
@@ -921,24 +921,24 @@ namespace HR_Application.Views
             string AllOT = ForamttedTime(hours, min);
 
             // Salary Details
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุงูู…ุฑุชุจ:", employee.Salary, "ุถ ูุณุจ ุนู…ู:", employee.Tax));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุจุฏู ุณูู:", employee.Houseing, "ุชุฃู…ููุงุช ุงูู…ูุธู:", employee.Insurance));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุจุฏู ุงุฏุงุฑุฉ:", employee.Depart, "ู…ุดุงุฑูุฉ ุงุฌุชู…ุงุนูุฉ:", employee.Social));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุจุฏู ุทุจูุนุฉ ุนู…ู:", employee.Nature, "ุต ุงูุฒู…ุงูุฉ:", employee.Box));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุจุฏู ุงูุชูุงู:", employee.Transmission, "ุฌุฒุงุก:", employee.Penalty));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุงุถุงูู:", AllOT, "ุณูู:", employee.Ancestor));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ููู…ุฉ ุงุถุงูู:", employee.Added, "ุนุฌุฒ:", employee.Deficit));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ู…ูุงูุขุช:", employee.Reward, "ุงูุบูุงุจ:", Abcense.ToString()));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุนู…ููุงุช ุชุญููู", employee.TargetCommission, "ููู…ุฉ ุงูุบูุงุจ:", employee.Abcence));
-            table.RowGroups[0].Rows.Add(CreateDataRow("ุนู…ููุงุช ุฎุงุฑุฌูุฉ", employee.ExternalCommission, "ุงูุชุฃุฎูุฑ:", AllLate));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "ููู…ุฉ ุงูุชุฃุฎูุฑ:", employee.Late));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "ุชุฃู…ูู ุงูุดุฑูุฉ:", employee.CompanyInsurance));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "ุงุฐููุงุช:", employee.Permission));
-            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "ูุงุชูุฑุฉ ุชููููู:", employee.Phone));
+            table.RowGroups[0].Rows.Add(CreateDataRow("วแใัสศ:", employee.Salary, "ึ ฿ำศ ฺใแ:", employee.Tax));
+            table.RowGroups[0].Rows.Add(CreateDataRow("ศฯแ ำ฿ไ:", employee.Houseing, "สรใํไวส วแใๆูÝ:", employee.Insurance));
+            table.RowGroups[0].Rows.Add(CreateDataRow("ศฯแ วฯวัษ:", employee.Depart, "ใิวั฿ษ วฬสใวฺํษ:", employee.Social));
+            table.RowGroups[0].Rows.Add(CreateDataRow("ศฯแ ุศํฺษ ฺใแ:", employee.Nature, "ี วแาใวแษ:", employee.Box));
+            table.RowGroups[0].Rows.Add(CreateDataRow("ศฯแ วไสÞวแ:", employee.Transmission, "ฬาวม:", employee.Penalty));
+            table.RowGroups[0].Rows.Add(CreateDataRow("วึวÝํ:", AllOT, "ำแÝ:", employee.Ancestor));
+            table.RowGroups[0].Rows.Add(CreateDataRow("Þํใษ วึวÝํ:", employee.Added, "ฺฬา:", employee.Deficit));
+            table.RowGroups[0].Rows.Add(CreateDataRow("ใ฿วÝยส:", employee.Reward, "วแÛํวศ:", Abcense.ToString()));
+            table.RowGroups[0].Rows.Add(CreateDataRow("ฺใๆแวส สอÞํÞ", employee.TargetCommission, "Þํใษ วแÛํวศ:", employee.Abcence));
+            table.RowGroups[0].Rows.Add(CreateDataRow("ฺใๆแวส ฮวัฬํษ", employee.ExternalCommission, "วแสรฮํั:", AllLate));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "Þํใษ วแสรฮํั:", employee.Late));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "สรใํไ วแิั฿ษ:", employee.CompanyInsurance));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "วะๆไวส:", employee.Permission));
+            table.RowGroups[0].Rows.Add(CreateDataRow("", "", "Ýวสๆัษ สแํÞๆไ:", employee.Phone));
 
             // Final Salary Row
             var totalRow = new TableRow();
-            totalRow.Cells.Add(CreateCell("ุตุงูู ุงูุฑุงุชุจ:", true, 2));
+            totalRow.Cells.Add(CreateCell("ีวÝํ วแัวสศ:", true, 2));
             totalRow.Cells.Add(CreateCell(employee.Total, false, 2));
             table.RowGroups[0].Rows.Add(totalRow);
 
@@ -976,7 +976,7 @@ namespace HR_Application.Views
         {
             if (string.IsNullOrWhiteSpace(input)) return input;
 
-            string arabicNumerals = "ู ูกูขูฃูคูฅูฆูงูจูฉ";
+            string arabicNumerals = "0123456789";
             string westernNumerals = "0123456789";
 
             return new string(input.Select(c =>

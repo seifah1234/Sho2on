@@ -1,5 +1,5 @@
 ﻿// Converters/PercentageConverter.cs
-using System;
+using System; using HR_Application.Helpers;
 using System.Windows.Data;
 
 namespace HR_Application.Converters

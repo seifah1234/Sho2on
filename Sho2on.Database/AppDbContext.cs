@@ -20,7 +20,6 @@ namespace Sho2on.Database
     public class AppDbContext : DbContext
     {
         private static string _connectionString;
-        //private string _connectionString = $"Server=192.168.100.3,1433;Database=Original;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;";
 
         public static string CentralStoragePath
         {
@@ -238,21 +237,6 @@ namespace Sho2on.Database
             }
         }
 
-        public AppDbContext() : base(
-                new DbContextOptionsBuilder<AppDbContext>()
-                    .UseSqlServer($"Server=192.168.100.3,1433;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;", sqlServerOptions =>
-                    //.UseSqlServer($"Server=192.168.100.3,1433;Database=Original;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;", sqlServerOptions =>
-                    {
-                        sqlServerOptions.EnableRetryOnFailure(
-                            maxRetryCount: 5,
-                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
-                    })
-                    .Options)
-        {
-            //_connectionString = $"Server=192.168.100.3,1433;Database=Original;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;";
-            _connectionString = $"Server=192.168.100.3,1433;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;";
-        }
 
         public AppDbContext(string connectionString) : base(
                 new DbContextOptionsBuilder<AppDbContext>()
@@ -326,6 +310,7 @@ namespace Sho2on.Database
         public DbSet<ChatGroupMessage> ChatGroupMessages { get; set; }
         public DbSet<ChatGroupAttachment> ChatGroupAttachments { get; set; }
         public DbSet<ChatGroupMessageRead> ChatGroupMessageReads { get; set; }
+        public DbSet<Offical> Officals { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -497,11 +482,9 @@ namespace Sho2on.Database
                 .WithMany(a => a.Branches)
                 .HasForeignKey(b => b.AreaId);
 
-
-
-        // =======================
-        // Branch
-        modelBuilder.Entity<Branch>(entity =>
+            // =======================
+            // Branch
+            modelBuilder.Entity<Branch>(entity =>
             {
 
                 entity.HasKey(e => e.Id);
@@ -630,10 +613,10 @@ namespace Sho2on.Database
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETDATE()");
 
                 // Relations
-                entity.HasOne(u => u.Branch).WithMany().HasForeignKey(u => u.BranchId);
-                entity.HasOne(u => u.Department).WithMany().HasForeignKey(u => u.DepartmentId);
-                entity.HasOne(u => u.JobTitle).WithMany().HasForeignKey(u => u.JobTitleId);
-                entity.HasOne(u => u.Degree).WithMany().HasForeignKey(u => u.DegreeId);
+                entity.HasOne(u => u.Branch).WithMany(b => b.Users).HasForeignKey(u => u.BranchId);
+                entity.HasOne(u => u.Department).WithMany(d => d.Users).HasForeignKey(u => u.DepartmentId);
+                entity.HasOne(u => u.JobTitle).WithMany(j => j.Users).HasForeignKey(u => u.JobTitleId);
+                entity.HasOne(u => u.Degree).WithMany(j => j.Users).HasForeignKey(u => u.DegreeId);
                 entity.HasOne(u => u.Shift).WithMany().HasForeignKey(u => u.ShiftId);
                 entity.HasOne(u => u.Break).WithMany().HasForeignKey(u => u.BreakId);
                 entity.HasOne(u => u.WeekHoliday).WithMany().HasForeignKey(u => u.WeekHolidayId);

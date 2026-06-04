@@ -1,7 +1,7 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SqlClient;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -65,18 +65,18 @@ namespace HR_Application
         {
             if (branch_box.SelectedValue == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙØ±Ø¹ Ø£ÙˆÙ„Ø§Ù‹");
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ÇáİÑÚ ÃæáÇğ");
                 return;
             }
             if (string.IsNullOrEmpty(code_box.Text))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ø£ÙˆÙ„Ø§Ù‹");
+                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ßæÏ ÇáãæÙİ ÃæáÇğ");
                 return;
             }
             _selectedUser = _context.Users.Include(u => u.Shift).FirstOrDefault(u => u.Code.ToString() == code_box.Text && branch_box.SelectedValue.ToString() == u.BranchId.ToString());
             if (_selectedUser == null)
             {
-                MessageBox.Show("Ø§Ù„Ù…ÙˆØ¸Ù ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„ÙØ±Ø¹");
+                LocalizationManager.ShowMessage("ÇáãæÙİ ÛíÑ ãæÌæÏ İí åĞÇ ÇáİÑÚ");
                 return;
             }
         }
@@ -221,12 +221,12 @@ namespace HR_Application
                 await _context.SaveChangesAsync();
 
 
-                System.Windows.MessageBox.Show("ØªÙ… Ø§Ø¶Ø§ÙØ© Ø§Ù„Ø­Ø±ÙƒØ©");
+                LocalizationManager.ShowMessage("Êã ÇÖÇİÉ ÇáÍÑßÉ");
 
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                LocalizationManager.ShowMessage(ex.Message);
             }
         }
 
@@ -235,3 +235,4 @@ namespace HR_Application
     }
     
 }
+

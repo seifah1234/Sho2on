@@ -3,12 +3,13 @@ using LiveCharts;
 using LiveCharts.Wpf;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
+using HR_Application.Helpers;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -126,7 +127,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل بيانات الإدارات: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"خطأ في تحميل بيانات الإدارات: {ex.Message}", "خطأ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -470,3 +471,4 @@ namespace HR_Application.Dashboard
             _ = LoadDataAsync();
     }
 }
+

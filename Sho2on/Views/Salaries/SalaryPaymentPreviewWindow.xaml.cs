@@ -1,6 +1,6 @@
-ï»¿using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using Button = System.Windows.Controls.Button;
@@ -30,7 +30,7 @@ namespace HR_Application.Views
 
         private void InitializeComponent()
         {
-            Title = "Ù…Ø¹Ø§ÙŠÙ†Ø© ØµØ±Ù Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª";
+            Title = "ãÚÇíäÉ ÕÑİ ÇáãÑÊÈÇÊ";
             Width = 900;
             Height = 600;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -40,7 +40,7 @@ namespace HR_Application.Views
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
+            // ÇáÚäæÇä
             var titleBorder = new Border
             {
                 Background = System.Windows.Media.Brushes.LightBlue,
@@ -50,7 +50,7 @@ namespace HR_Application.Views
 
             var titleText = new TextBlock
             {
-                Text = $"Ù…Ø¹Ø§ÙŠÙ†Ø© ØµØ±Ù Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª - Ø´Ù‡Ø± {_month} Ø³Ù†Ø© {_year}",
+                Text = $"ãÚÇíäÉ ÕÑİ ÇáãÑÊÈÇÊ - ÔåÑ {_month} ÓäÉ {_year}",
                 FontSize = 16,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center
@@ -72,15 +72,15 @@ namespace HR_Application.Views
 
             var columns = new[]
             {
-                new DataGridTextColumn { Header = "Ø§Ù„ÙƒÙˆØ¯", Binding = new System.Windows.Data.Binding("Code"), Width = 80 },
-                new DataGridTextColumn { Header = "Ø§Ù„Ø§Ø³Ù…", Binding = new System.Windows.Data.Binding("Name"), Width = 150 },
-                new DataGridTextColumn { Header = "Ø§Ù„ÙØ±Ø¹", Binding = new System.Windows.Data.Binding("Branch"), Width = 100 },
-                new DataGridTextColumn { Header = "Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ", Binding = new System.Windows.Data.Binding("BasicSalary") { StringFormat = "N2" }, Width = 100 },
-                new DataGridTextColumn { Header = "Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª", Binding = new System.Windows.Data.Binding("Additions") { StringFormat = "N2" }, Width = 100 },
-                new DataGridTextColumn { Header = "Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª", Binding = new System.Windows.Data.Binding("Deductions") { StringFormat = "N2" }, Width = 100 },
-                new DataGridTextColumn { Header = "ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©", Binding = new System.Windows.Data.Binding("FriendshipBoxAmount") { StringFormat = "N2" }, Width = 100 },
-                new DataGridTextColumn { Header = "Ø§Ù„Ø³Ù„Ù", Binding = new System.Windows.Data.Binding("LoanDeduction") { StringFormat = "N2" }, Width = 80 },
-                new DataGridTextColumn { Header = "Ø§Ù„ØµØ§ÙÙŠ", Binding = new System.Windows.Data.Binding("NetSalary") { StringFormat = "N2" }, Width = 100 }
+                new DataGridTextColumn { Header = "ÇáßæÏ", Binding = new System.Windows.Data.Binding("Code"), Width = 80 },
+                new DataGridTextColumn { Header = "ÇáÇÓã", Binding = new System.Windows.Data.Binding("Name"), Width = 150 },
+                new DataGridTextColumn { Header = "ÇáİÑÚ", Binding = new System.Windows.Data.Binding("Branch"), Width = 100 },
+                new DataGridTextColumn { Header = "ÇáÑÇÊÈ ÇáÃÓÇÓí", Binding = new System.Windows.Data.Binding("BasicSalary") { StringFormat = "N2" }, Width = 100 },
+                new DataGridTextColumn { Header = "ÇáÅÖÇİÇÊ", Binding = new System.Windows.Data.Binding("Additions") { StringFormat = "N2" }, Width = 100 },
+                new DataGridTextColumn { Header = "ÇáÇÓÊŞØÇÚÇÊ", Binding = new System.Windows.Data.Binding("Deductions") { StringFormat = "N2" }, Width = 100 },
+                new DataGridTextColumn { Header = "ÕäÏæŞ ÇáÒãÇáÉ", Binding = new System.Windows.Data.Binding("FriendshipBoxAmount") { StringFormat = "N2" }, Width = 100 },
+                new DataGridTextColumn { Header = "ÇáÓáİ", Binding = new System.Windows.Data.Binding("LoanDeduction") { StringFormat = "N2" }, Width = 80 },
+                new DataGridTextColumn { Header = "ÇáÕÇİí", Binding = new System.Windows.Data.Binding("NetSalary") { StringFormat = "N2" }, Width = 100 }
             };
 
             foreach (var column in columns)
@@ -91,7 +91,7 @@ namespace HR_Application.Views
             Grid.SetRow(dataGrid, 1);
             grid.Children.Add(dataGrid);
 
-            // Ø§Ù„Ù…Ù„Ø®Øµ ÙˆØ§Ù„Ø£Ø²Ø±Ø§Ø±
+            // ÇáãáÎÕ æÇáÃÒÑÇÑ
             var summaryPanel = new Grid();
             summaryPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             summaryPanel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -132,7 +132,7 @@ namespace HR_Application.Views
 
             var btnPrint = new Button
             {
-                Content = "Ø·Ø¨Ø§Ø¹Ø©",
+                Content = "ØÈÇÚÉ",
                 Width = 100,
                 Height = 35,
                 Margin = new Thickness(5),
@@ -144,7 +144,7 @@ namespace HR_Application.Views
 
             var btnClose = new Button
             {
-                Content = "Ø¥ØºÙ„Ø§Ù‚",
+                Content = "ÅÛáÇŞ",
                 Width = 100,
                 Height = 35,
                 Margin = new Thickness(5),
@@ -174,7 +174,7 @@ namespace HR_Application.Views
 
             Content = grid;
 
-            // ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø±Ø¬Ø¹ Ù„Ù„Ù€ DataGrid
+            // ÊÎÒíä ÇáãÑÌÚ ááÜ DataGrid
             dataGrid.Name = "dgPreview";
         }
 
@@ -201,12 +201,12 @@ namespace HR_Application.Views
 
             if (FindName("txtTotalSummary") is TextBlock totalText)
             {
-                totalText.Text = $"Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØµØ§ÙÙŠ: {totalNet:N2} | Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª: {totalAdditions:N2} | Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª: {totalDeductions:N2} | ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©: {totalFriendshipBox:N2} | Ø§Ù„Ø³Ù„Ù: {totalLoanDeduction:N2}";
+                totalText.Text = $"ÅÌãÇáí ÇáÕÇİí: {totalNet:N2} | ÇáÅÖÇİÇÊ: {totalAdditions:N2} | ÇáÇÓÊŞØÇÚÇÊ: {totalDeductions:N2} | ÕäÏæŞ ÇáÒãÇáÉ: {totalFriendshipBox:N2} | ÇáÓáİ: {totalLoanDeduction:N2}";
             }
 
             if (FindName("txtEmployeeCount") is TextBlock countText)
             {
-                countText.Text = $"Ø¹Ø¯Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†: {count} | Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø±ÙˆØ§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©: {totalBasic:N2}";
+                countText.Text = $"ÚÏÏ ÇáãæÙİíä: {count} | ÅÌãÇáí ÇáÑæÇÊÈ ÇáÃÓÇÓíÉ: {totalBasic:N2}";
             }
         }
 
@@ -217,14 +217,14 @@ namespace HR_Application.Views
                 var printDialog = new PrintDialog();
                 if (printDialog.ShowDialog() == true)
                 {
-                    // Ø¥Ù†Ø´Ø§Ø¡ FlowDocument Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©
+                    // ÅäÔÇÁ FlowDocument ááØÈÇÚÉ
                     var document = CreatePrintDocument();
-                    printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "Ù…Ø¹Ø§ÙŠÙ†Ø© ØµØ±Ù Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª");
+                    printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "ãÚÇíäÉ ÕÑİ ÇáãÑÊÈÇÊ");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáØÈÇÚÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -240,8 +240,8 @@ namespace HR_Application.Views
                 FontSize = 12
             };
 
-            // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
-            var title = new Paragraph(new Run($"Ù…Ø¹Ø§ÙŠÙ†Ø© ØµØ±Ù Ø§Ù„Ù…Ø±ØªØ¨Ø§Øª - Ø´Ù‡Ø± {_month} Ø³Ù†Ø© {_year}"))
+            // ÇáÚäæÇä
+            var title = new Paragraph(new Run($"ãÚÇíäÉ ÕÑİ ÇáãÑÊÈÇÊ - ÔåÑ {_month} ÓäÉ {_year}"))
             {
                 FontSize = 16,
                 FontWeight = FontWeights.Bold,
@@ -250,8 +250,8 @@ namespace HR_Application.Views
             };
             doc.Blocks.Add(title);
 
-            // ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©
-            var printDate = new Paragraph(new Run($"ØªØ§Ø±ÙŠØ® Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {DateTime.Now:yyyy-MM-dd HH:mm}"))
+            // ÊÇÑíÎ ÇáØÈÇÚÉ
+            var printDate = new Paragraph(new Run($"ÊÇÑíÎ ÇáØÈÇÚÉ: {DateTime.Now:yyyy-MM-dd HH:mm}"))
             {
                 FontSize = 10,
                 TextAlignment = TextAlignment.Left,
@@ -259,21 +259,21 @@ namespace HR_Application.Views
             };
             doc.Blocks.Add(printDate);
 
-            // Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø¬Ø¯ÙˆÙ„
+            // ÅäÔÇÁ ÇáÌÏæá
             var table = new Table();
-            table.Columns.Add(new TableColumn { Width = new GridLength(60) }); // Ø§Ù„ÙƒÙˆØ¯
-            table.Columns.Add(new TableColumn { Width = new GridLength(120) }); // Ø§Ù„Ø§Ø³Ù…
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„ÙØ±Ø¹
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©
-            table.Columns.Add(new TableColumn { Width = new GridLength(70) }); // Ø§Ù„Ø³Ù„Ù
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // Ø§Ù„ØµØ§ÙÙŠ
+            table.Columns.Add(new TableColumn { Width = new GridLength(60) }); // ÇáßæÏ
+            table.Columns.Add(new TableColumn { Width = new GridLength(120) }); // ÇáÇÓã
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáİÑÚ
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáÃÓÇÓí
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáÅÖÇİÇÊ
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáÇÓÊŞØÇÚÇÊ
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÕäÏæŞ ÇáÒãÇáÉ
+            table.Columns.Add(new TableColumn { Width = new GridLength(70) }); // ÇáÓáİ
+            table.Columns.Add(new TableColumn { Width = new GridLength(80) }); // ÇáÕÇİí
 
-            // Ø±Ø£Ø³ Ø§Ù„Ø¬Ø¯ÙˆÙ„
+            // ÑÃÓ ÇáÌÏæá
             var headerRow = new TableRow { Background = System.Windows.Media.Brushes.LightGray };
-            string[] headers = { "Ø§Ù„ÙƒÙˆØ¯", "Ø§Ù„Ø§Ø³Ù…", "Ø§Ù„ÙØ±Ø¹", "Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ", "Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª", "Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª", "ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©", "Ø§Ù„Ø³Ù„Ù", "Ø§Ù„ØµØ§ÙÙŠ" };
+            string[] headers = { "ÇáßæÏ", "ÇáÇÓã", "ÇáİÑÚ", "ÇáÑÇÊÈ ÇáÃÓÇÓí", "ÇáÅÖÇİÇÊ", "ÇáÇÓÊŞØÇÚÇÊ", "ÕäÏæŞ ÇáÒãÇáÉ", "ÇáÓáİ", "ÇáÕÇİí" };
 
             foreach (var header in headers)
             {
@@ -290,7 +290,7 @@ namespace HR_Application.Views
             table.RowGroups.Add(new TableRowGroup());
             table.RowGroups[0].Rows.Add(headerRow);
 
-            // Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ø¯ÙˆÙ„
+            // ÈíÇäÇÊ ÇáÌÏæá
             foreach (var emp in _employees)
             {
                 var row = new TableRow();
@@ -323,10 +323,10 @@ namespace HR_Application.Views
 
             doc.Blocks.Add(table);
 
-            // Ø§Ù„Ù…Ù„Ø®Øµ
+            // ÇáãáÎÕ
             var summary = new Paragraph();
             summary.Inlines.Add(new Run("\n\n"));
-            summary.Inlines.Add(new Run("Ù…Ù„Ø®Øµ Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ§Øª:")
+            summary.Inlines.Add(new Run("ãáÎÕ ÇáÅÌãÇáíÇÊ:")
             {
                 FontWeight = FontWeights.Bold,
                 FontSize = 14
@@ -340,13 +340,13 @@ namespace HR_Application.Views
             decimal totalLoanDeduction = _employees.Sum(e => e.LoanDeduction);
             decimal totalNet = _employees.Sum(e => e.NetSalary);
 
-            summary.Inlines.Add(new Run($"Ø¹Ø¯Ø¯ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†: {_employees.Count}\n"));
-            summary.Inlines.Add(new Run($"Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø±ÙˆØ§ØªØ¨ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©: {totalBasic:N2}\n"));
-            summary.Inlines.Add(new Run($"Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥Ø¶Ø§ÙØ§Øª: {totalAdditions:N2}\n"));
-            summary.Inlines.Add(new Run($"Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø§Ø³ØªÙ‚Ø·Ø§Ø¹Ø§Øª: {totalDeductions:N2}\n"));
-            summary.Inlines.Add(new Run($"Ø¥Ø¬Ù…Ø§Ù„ÙŠ ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©: {totalFriendshipBox:N2}\n"));
-            summary.Inlines.Add(new Run($"Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø³Ù„Ù: {totalLoanDeduction:N2}\n"));
-            summary.Inlines.Add(new Run($"Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØµØ§ÙÙŠ: {totalNet:N2}\n"));
+            summary.Inlines.Add(new Run($"ÚÏÏ ÇáãæÙİíä: {_employees.Count}\n"));
+            summary.Inlines.Add(new Run($"ÅÌãÇáí ÇáÑæÇÊÈ ÇáÃÓÇÓíÉ: {totalBasic:N2}\n"));
+            summary.Inlines.Add(new Run($"ÅÌãÇáí ÇáÅÖÇİÇÊ: {totalAdditions:N2}\n"));
+            summary.Inlines.Add(new Run($"ÅÌãÇáí ÇáÇÓÊŞØÇÚÇÊ: {totalDeductions:N2}\n"));
+            summary.Inlines.Add(new Run($"ÅÌãÇáí ÕäÏæŞ ÇáÒãÇáÉ: {totalFriendshipBox:N2}\n"));
+            summary.Inlines.Add(new Run($"ÅÌãÇáí ÇáÓáİ: {totalLoanDeduction:N2}\n"));
+            summary.Inlines.Add(new Run($"ÅÌãÇáí ÇáÕÇİí: {totalNet:N2}\n"));
 
             doc.Blocks.Add(summary);
 

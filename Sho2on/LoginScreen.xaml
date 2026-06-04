@@ -170,11 +170,25 @@
                                                Foreground="{DynamicResource AccentColor}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
-                        <TextBlock Text="Welcome to Sho2on"
+                        <TextBlock Text="{DynamicResource LoginWelcome}"
                                    FontSize="20" FontWeight="SemiBold"
                                    Foreground="{DynamicResource SecondaryColor}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
+
+                    <Button x:Name="LanguageToggleButton"
+                            Content="{DynamicResource LanguageToggleText}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="12,0"
+                            Padding="14,6"
+                            MinWidth="78"
+                            Cursor="Hand"
+                            Click="LanguageToggleButton_Click"
+                            Background="{DynamicResource SurfaceLightColor}"
+                            Foreground="{DynamicResource SecondaryColor}"
+                            BorderBrush="{DynamicResource AccentColor}"
+                            BorderThickness="1"/>
                 </Grid>
             </Border>
 
@@ -217,7 +231,7 @@
 
                             <!-- ── Username ── -->
                             <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,0,0,16">
-                                <TextBlock HorizontalAlignment="Right" Text="Username"
+                                <TextBlock HorizontalAlignment="Right" Text="{DynamicResource Username}"
                                            Foreground="{DynamicResource MutedColor}"
                                            FontSize="11" FontWeight="SemiBold"
                                            Margin="0,0,4,6"/>
@@ -243,7 +257,7 @@
 
                             <!-- ── Password ── -->
                             <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,0,0,16">
-                                <TextBlock HorizontalAlignment="Right" Text="Password"
+                                <TextBlock HorizontalAlignment="Right" Text="{DynamicResource Password}"
                                            Foreground="{DynamicResource MutedColor}"
                                            FontSize="11" FontWeight="SemiBold"
                                            Margin="0,0,4,6"/>
@@ -269,7 +283,7 @@
 
                             <!-- ── Database Host ── -->
                             <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,0,0,28">
-                                <TextBlock HorizontalAlignment="Right" Text="Database Host"
+                                <TextBlock HorizontalAlignment="Right" Text="{DynamicResource DatabaseHost}"
                                            Foreground="{DynamicResource MutedColor}"
                                            FontSize="11" FontWeight="SemiBold"
                                            Margin="0,0,4,6"/>
@@ -302,7 +316,7 @@
                                 </Border.Effect>
                                 <Button Name="login_btn"
                                         Click="login_Clicked"
-                                        Content="تسجيل الدخول"
+                                        Content="{DynamicResource Login}"
                                         IsDefault="True"
                                         Style="{DynamicResource LoginButtonStyle}"/>
                             </Border>
@@ -339,7 +353,7 @@
                                         <GradientStop Color="#0D47A1" Offset="1"/>
                                     </LinearGradientBrush>
                                 </Border.BorderBrush>
-                                <TextBlock Text="نظام الموارد البشرية"
+                                <TextBlock Text="{DynamicResource HumanResourcesSystem}"
                                            Foreground="{DynamicResource ThirdColor}"
                                            FontSize="13" FontWeight="SemiBold"
                                            HorizontalAlignment="Center"/>

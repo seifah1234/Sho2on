@@ -1,11 +1,12 @@
-๏ปฟusing DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
+using HR_Application.Helpers;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
@@ -41,23 +42,23 @@ namespace HR_Application.Views
 
                 documentsListBox.ItemsSource = companyDocuments;
 
-                // ุฅุธูุงุฑ ุฃู ุฅุฎูุงุก ุงูุญุงูุฉ ุงููุงุฑุบุฉ
+                // ลูๅวั รๆ ลฮÝวม วแอวแษ วแÝวัÛษ
                 if (companyDocuments.Count == 0)
                 {
                     emptyState.Visibility = Visibility.Visible;
-                    statusText.Text = "ูุง ุชูุฌุฏ ูุซุงุฆู ู…ุชุงุญุฉ ููุชูููุน - ุฌู…ูุน ุงููุซุงุฆู ู…ููุนุฉ";
+                    statusText.Text = "แว สๆฬฯ ๆหวฦÞ ใสวอษ แแสๆÞํฺ - ฬใํฺ วแๆหวฦÞ ใๆÞฺษ";
                 }
                 else
                 {
                     emptyState.Visibility = Visibility.Collapsed;
-                    statusText.Text = $"ููุฌุฏ {companyDocuments.Count} ูุซููุฉ ู…ุชุงุญุฉ ููุชูููุน";
+                    statusText.Text = $"ํๆฬฯ {companyDocuments.Count} ๆหํÞษ ใสวอษ แแสๆÞํฺ";
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ุฎุทุฃ ูู ุชุญู…ูู ุงููุซุงุฆู: {ex.Message}", "ุฎุทุฃ",
+                LocalizationManager.ShowMessage($"ฮุร Ýํ สอใํแ วแๆหวฦÞ: {ex.Message}", "ฮุร",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                statusText.Text = "ุญุฏุซ ุฎุทุฃ ูู ุชุญู…ูู ุงููุซุงุฆู";
+                statusText.Text = "อฯห ฮุร Ýํ สอใํแ วแๆหวฦÞ";
             }
         }
 
@@ -68,7 +69,7 @@ namespace HR_Application.Views
 
             if (selectedDocument == null)
             {
-                MessageBox.Show("ูุฑุฌู ุงุฎุชูุงุฑ ูุซููุฉ ููู…ุนุงููุฉ", "ุชุญุฐูุฑ",
+                LocalizationManager.ShowMessage("ํัฬ์ วฮสํวั ๆหํÞษ แแใฺวํไษ", "สอะํั",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -86,7 +87,7 @@ namespace HR_Application.Views
 
             if (selectedDocument == null)
             {
-                MessageBox.Show("ูุฑุฌู ุงุฎุชูุงุฑ ูุซููุฉ ููุชูููุน", "ุชุญุฐูุฑ",
+                LocalizationManager.ShowMessage("ํัฬ์ วฮสํวั ๆหํÞษ แแสๆÞํฺ", "สอะํั",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -94,13 +95,13 @@ namespace HR_Application.Views
             var signatureWindow = new DocumentSignatureWindow(_employeeId, selectedDocument.Id);
             signatureWindow.Closed += (s, args) =>
             {
-                // ุฅุนุงุฏุฉ ุชุญู…ูู ุงููุงุฆู…ุฉ ุจุนุฏ ุงูุชูููุน
+                // ลฺวฯษ สอใํแ วแÞวฦใษ ศฺฯ วแสๆÞํฺ
                 LoadAvailableDocuments();
 
-                // ุฅุฐุง ูุงูุช ุงููุงูุฐุฉ ุงูุฑุฆูุณูุฉ ุชุญุชุงุฌ ููุชุญุฏูุซ
+                // ละว ฿วไส วแไวÝะษ วแัฦํำํษ สอสวฬ แแสอฯํห
                 if (this.Owner is EmployeeArchiveWindow mainWindow)
                 {
-                    // ูู…ูู ุฅุถุงูุฉ ู…ูุทู ูุชุญุฏูุซ ุงูุฃุฑุดูู ุฅุฐุง ูุฒู… ุงูุฃู…ุฑ
+                    // ํใ฿ไ ลึวÝษ ใไุÞ แสอฯํห วแรัิํÝ ละว แาใ วแรใั
                 }
             };
             signatureWindow.Owner = this;
@@ -114,10 +115,10 @@ namespace HR_Application.Views
             this.Close();
         }
 
-        // ู…ุนุงูุฌุฉ ุงุฎุชูุงุฑ ุนูุตุฑ ู…ู ุงููุงุฆู…ุฉ
+        // ใฺวแฬษ วฮสํวั ฺไีั ใไ วแÞวฦใษ
         private void documentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // ูู…ูู ุฅุถุงูุฉ ู…ูุทู ุฅุถุงูู ููุง ุฅุฐุง ุงุญุชุฌูุง
+            // ํใ฿ไ ลึวÝษ ใไุÞ ลึวÝํ ๅไว ละว วอสฬไว
         }
 
         protected override void OnClosed(EventArgs e)

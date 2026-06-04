@@ -1,8 +1,8 @@
-ï»¿using System;
+using System; using HR_Application.Helpers;
 using System.IO;
 using System.IO.Packaging;
 using System.Printing;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -18,7 +18,7 @@ namespace HR_Application.Views.Employees.Holidays
         private readonly FlowDocument _flowDocument;
         private readonly string _title;
 
-        public PrintPreviewWindow(FlowDocument document, string title = "Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©")
+        public PrintPreviewWindow(FlowDocument document, string title = "ãÚÇíäÉ ÇáØÈÇÚÉ")
         {
             InitializeComponent();
             _flowDocument = document;
@@ -31,7 +31,7 @@ namespace HR_Application.Views.Employees.Holidays
         {
             try
             {
-                // Ø¹Ø±Ø¶ Ù…Ø¤Ø´Ø± Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±
+                // ÚÑÖ ãÄÔÑ ÇáÇäÊÙÇÑ
                 Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
                 await System.Windows.Threading.Dispatcher.CurrentDispatcher.InvokeAsync(() =>
@@ -41,7 +41,7 @@ namespace HR_Application.Views.Employees.Holidays
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø©: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãÚÇíäÉ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 this.Close();
             }
@@ -54,16 +54,16 @@ namespace HR_Application.Views.Employees.Holidays
         {
             try
             {
-                // Ø¥Ù†Ø´Ø§Ø¡ Ù…Ø³ØªÙ†Ø¯ XPS Ù…Ø¤Ù‚Øª ÙÙŠ Ø§Ù„Ø°Ø§ÙƒØ±Ø©
+                // ÅäÔÇÁ ãÓÊäÏ XPS ãÄŞÊ İí ÇáĞÇßÑÉ
                 string tempFilePath = Path.GetTempFileName();
                 tempFilePath = Path.ChangeExtension(tempFilePath, ".xps");
 
-                // Ø¥Ù†Ø´Ø§Ø¡ Ù…Ù„Ù XPS Ù…Ø¤Ù‚Øª
+                // ÅäÔÇÁ ãáİ XPS ãÄŞÊ
                 using (var xpsDoc = new XpsDocument(tempFilePath, FileAccess.ReadWrite))
                 {
                     var writer = XpsDocument.CreateXpsDocumentWriter(xpsDoc);
 
-                    // Ø§Ø³ØªØ®Ø¯Ø§Ù… DocumentPaginator Ù…Ù† FlowDocument
+                    // ÇÓÊÎÏÇã DocumentPaginator ãä FlowDocument
                     var paginator = ((IDocumentPaginatorSource)_flowDocument).DocumentPaginator;
                     paginator.PageSize = new System.Windows.Size(
                         _flowDocument.PageWidth,
@@ -71,11 +71,11 @@ namespace HR_Application.Views.Employees.Holidays
 
                     writer.Write(paginator);
 
-                    // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø³ØªÙ†Ø¯ ÙÙŠ DocumentViewer
+                    // ÊÍãíá ÇáãÓÊäÏ İí DocumentViewer
                     DocumentViewer.Document = xpsDoc.GetFixedDocumentSequence();
                 }
 
-                // ØªÙ†Ø¸ÙŠÙ Ø§Ù„Ù…Ù„Ù Ø§Ù„Ù…Ø¤Ù‚Øª Ø¹Ù†Ø¯ Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù†Ø§ÙØ°Ø©
+                // ÊäÙíİ Çáãáİ ÇáãÄŞÊ ÚäÏ ÅÛáÇŞ ÇáäÇİĞÉ
                 this.Closed += (s, e) =>
                 {
                     try
@@ -83,12 +83,12 @@ namespace HR_Application.Views.Employees.Holidays
                         if (File.Exists(tempFilePath))
                             File.Delete(tempFilePath);
                     }
-                    catch { /* ØªØ¬Ø§Ù‡Ù„ Ø£Ø®Ø·Ø§Ø¡ Ø§Ù„Ø­Ø°Ù */ }
+                    catch { /* ÊÌÇåá ÃÎØÇÁ ÇáÍĞİ */ }
                 };
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø©: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãÚÇíäÉ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 this.Close();
             }
@@ -102,14 +102,14 @@ namespace HR_Application.Views.Employees.Holidays
                 printDialog.PageRangeSelection = PageRangeSelection.AllPages;
                 printDialog.UserPageRangeEnabled = true;
 
-                // Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„ØµÙØ­Ø© Ù„ØªØªÙ†Ø§Ø³Ø¨ Ù…Ø¹ FlowDocument
+                // ÅÚÏÇÏÇÊ ÇáÕİÍÉ áÊÊäÇÓÈ ãÚ FlowDocument
                 printDialog.PrintTicket.PageOrientation = PageOrientation.Portrait;
                 printDialog.PrintTicket.PageMediaSize = new PageMediaSize(
                     PageMediaSizeName.ISOA4);
 
                 if (printDialog.ShowDialog() == true)
                 {
-                    // Ø§Ø³ØªØ®Ø¯Ø§Ù… DocumentPaginator Ù…Ù† FlowDocument Ø§Ù„Ø£ØµÙ„ÙŠ
+                    // ÇÓÊÎÏÇã DocumentPaginator ãä FlowDocument ÇáÃÕáí
                     var paginator = ((IDocumentPaginatorSource)_flowDocument).DocumentPaginator;
                     paginator.PageSize = new System.Windows.Size(
                         _flowDocument.PageWidth,
@@ -117,14 +117,14 @@ namespace HR_Application.Views.Employees.Holidays
 
                     printDialog.PrintDocument(paginator, _title);
 
-                    MessageBox.Show("ØªÙ…Øª Ø§Ù„Ø·Ø¨Ø§Ø¹Ø© Ø¨Ù†Ø¬Ø§Ø­", "Ø·Ø¨Ø§Ø¹Ø©",
+                    LocalizationManager.ShowMessage("ÊãÊ ÇáØÈÇÚÉ ÈäÌÇÍ", "ØÈÇÚÉ",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                     this.Close();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáØÈÇÚÉ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

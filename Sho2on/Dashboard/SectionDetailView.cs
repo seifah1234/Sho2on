@@ -1,13 +1,14 @@
-﻿// BranchDetailView.xaml.cs
+// BranchDetailView.xaml.cs
 using LiveCharts;
 using LiveCharts.Wpf;
+using HR_Application.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Brush = System.Windows.Media.Brush;
@@ -17,9 +18,9 @@ using UserControl = System.Windows.Controls.UserControl;
 
 namespace HR_Application.Dashboard
 {
-    // ─────────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????????
     // Attendance row ViewModel (for today's grid)
-    // ─────────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????????
     public class AttendanceRowViewModel
     {
         private readonly Attendance _att;
@@ -30,9 +31,9 @@ namespace HR_Application.Dashboard
         public DateTime? CheckInTime => _att.CheckInTime;
 
         public string StatusText =>
-            _att.IsAbsence ? "غائب" :
-            _att.Late.HasValue ? "متأخر" :
-                                     "حاضر";
+            _att.IsAbsence ? "����" :
+            _att.Late.HasValue ? "�����" :
+                                     "����";
 
         public Brush StatusColor =>
             _att.IsAbsence ? new SolidColorBrush(Color.FromRgb(0xB7, 0x1C, 0x1C)) :
@@ -40,9 +41,9 @@ namespace HR_Application.Dashboard
                                  new SolidColorBrush(Color.FromRgb(0x2E, 0x7D, 0x32));
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????????
     // BranchDetailView
-    // ─────────────────────────────────────────────────────────────
+    // ?????????????????????????????????????????????????????????????
     public partial class SectionDetailView : UserControl
     {
         private readonly AppDbContext _context;
@@ -59,7 +60,7 @@ namespace HR_Application.Dashboard
             _context = new AppDbContext(App.ConnectionString);
         }
 
-        // ── Public API ────────────────────────────────────────────
+        // ?? Public API ????????????????????????????????????????????
 
         /// <summary>Called by AdminDashboard to set which section to show.</summary>
         public void LoadSection(int sectionId, string sectionName)
@@ -68,12 +69,12 @@ namespace HR_Application.Dashboard
             _sectionName = sectionName;
 
             SectionTitleText.Text = sectionName;
-            SectionSubtitleText.Text = $"تفاصيل القطاع — {DateTime.Today:yyyy/MM/dd}";
+            SectionSubtitleText.Text = $"������ ������ � {DateTime.Today:yyyy/MM/dd}";
 
             _ = LoadDataAsync();
         }
 
-        // ── Data loading ──────────────────────────────────────────
+        // ?? Data loading ??????????????????????????????????????????
 
         private async Task LoadDataAsync()
         {
@@ -87,7 +88,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل بيانات القطاع: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"��� �� ����� ������ ������: {ex.Message}", "���",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -145,7 +146,7 @@ namespace HR_Application.Dashboard
         {
             var today = DateTime.Today;
 
-            // ── Pie: حضور الفرع اليوم ──
+            // ?? Pie: ���� ����� ����� ??
             var present = await _context.Attendances
                 .Where(a => a.AttendanceDate.Date == today &&
                             a.CheckInTime.HasValue && !a.IsAbsence &&
@@ -163,26 +164,26 @@ namespace HR_Application.Dashboard
             {
                 new PieSeries
                 {
-                    Title = "حاضر", Values = new ChartValues<int> { present },
+                    Title = "����", Values = new ChartValues<int> { present },
                     DataLabels = true,
                     LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
                 },
                 new PieSeries
                 {
-                    Title = "غائب", Values = new ChartValues<int> { absent },
+                    Title = "����", Values = new ChartValues<int> { absent },
                     DataLabels = true,
                     LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
                 },
                 new PieSeries
                 {
-                    Title = "متأخر", Values = new ChartValues<int> { late },
+                    Title = "�����", Values = new ChartValues<int> { late },
                     DataLabels = true,
                     LabelPoint = p => $"{p.Y} ({p.Participation:P0})"
                 }
             };
             SectionAttendancePie.Series = pieSeries;
 
-            // ── Bar: توزيع الموظفين بالإدارات ──
+            // ?? Bar: ����� �������� ��������� ??
             var depts = await _context.Departments
                 .OrderBy(d => d.Name)
                 .ToListAsync();
@@ -197,7 +198,7 @@ namespace HR_Application.Dashboard
             {
                 new ColumnSeries
                 {
-                    Title = "الموظفين", Values = deptCounts, DataLabels = true
+                    Title = "��������", Values = deptCounts, DataLabels = true
                 }
             };
         }
@@ -241,7 +242,7 @@ namespace HR_Application.Dashboard
             LeavesGrid.ItemsSource = leaves;
         }
 
-        // ── Buttons ───────────────────────────────────────────────
+        // ?? Buttons ???????????????????????????????????????????????
 
         private void BackBtn_Click(object sender, RoutedEventArgs e) =>
             BackRequested?.Invoke(this, EventArgs.Empty);
@@ -250,3 +251,4 @@ namespace HR_Application.Dashboard
             _ = LoadDataAsync();
     }
 }
+

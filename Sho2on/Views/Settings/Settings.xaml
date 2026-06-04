@@ -3,8 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:uc="clr-namespace:HR_Application.UserControls"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Height="500" Width="650" MinHeight="500" MinWidth="650"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        Height="800" Width="1050" MinWidth="850"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="Transparent">
 
     <Window.Resources>
@@ -157,7 +159,15 @@
                         </Border>
                     </TabItem.Header>
                     <Grid>
-                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  Grid.Column="0" Grid.Row="0">
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <!-- تفاصيل الشهر -->
                                 <Label HorizontalAlignment="Center" Content="" Name="logo_path_txt" Foreground="#FFFFFF" FontSize="18" FontWeight="Bold" Margin="20"/>
@@ -171,6 +181,84 @@
                                 </Button>
                             </StackPanel>
                         </Border>
+
+        
+                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}" Grid.Column="0" Grid.Row="1">
+                            <GroupBox Header="المهام">
+                                <CheckBox Content="اظهار المسؤولون للكل" x:Name="officalsForAllBox" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="officalsForAllBox_Checked" Unchecked="officalsForAllBox_Unchecked"/>
+                            </GroupBox>
+
+                        </Border>
+
+                        
+                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  Grid.Column="1" Grid.Row="0">
+                            <ScrollViewer>
+                                 <StackPanel Orientation="Vertical">
+                                <TextBlock Text="الالوان" Foreground="{DynamicResource TextPrimaryColor}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <UniformGrid Columns="2">
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <Label Content="اللون الرئيسي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="mainColorPicker" Width="200" SelectedColor="{Binding PrimaryColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <Label Content="اللون الفرعي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="secondaryColorPicker" Width="200" SelectedColor="{Binding SecondaryColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <Label Content="اللون الثالث" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="hoverColorPicker" Width="200" SelectedColor="{Binding ThirdColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <Label Content="لون الخلفية" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="backgroundColorPicker" Width="200" SelectedColor="{Binding PrimaryColorBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <Label Content="لون القائمة" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="menuColorPicker" Width="200" SelectedColor="{Binding MainMenuColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <Label Content="لون الكلام الرئيسي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="primaryTextColorPicker" Width="200" SelectedColor="{Binding PrimaryTextBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <Label Content="لون الكلام الفرعي" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <xctk:ColorPicker Name="secondaryTextColorPicker" Width="200" SelectedColor="{Binding SecondaryTextBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                                
+                            </ScrollViewer>
+                        </Border>
+
+                    </Grid>
+                </TabItem>
+
+                
+                <TabItem Background="Transparent">
+                    <TabItem.Header>
+                        <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
+                            <Label Content="بيانات الشركة"/>
+                        </Border>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  >
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <!-- تفاصيل الشهر -->
+                                <TextBox Tag="اسم الشركة" x:Name="company_name_txt" Margin="10"/>
+                                <!-- زر الحفظ -->
+                                <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_company_Btn" Click="save_company_Btn_Click" Margin="20">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                        <TextBlock Text="حفظ" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
                     </Grid>
                 </TabItem>
 

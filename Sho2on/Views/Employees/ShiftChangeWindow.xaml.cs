@@ -1,10 +1,10 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Input;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
@@ -49,7 +49,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙˆØ±Ø¯ÙŠØ§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáæÑÏíÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -68,7 +68,7 @@ namespace HR_Application
 
                         if (!shiftExists)
                         {
-                            MessageBox.Show("Ù‡Ø°Ù‡ Ø§Ù„ÙˆØ±Ø¯ÙŠØ© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø© ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            LocalizationManager.ShowMessage("åĞå ÇáæÑÏíÉ ÛíÑ ãæÌæÏÉ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
 
@@ -82,7 +82,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -112,17 +112,17 @@ namespace HR_Application
                         // attendance.ShiftTo = shift.EndTime;
 
                         await _context.SaveChangesAsync();
-                        MessageBox.Show("ØªÙ… ØªØºÙŠÙŠØ± Ø§Ù„ÙˆØ±Ø¯ÙŠØ© Ø¨Ù†Ø¬Ø§Ø­", "ØªÙ…", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LocalizationManager.ShowMessage("Êã ÊÛííÑ ÇáæÑÏíÉ ÈäÌÇÍ", "Êã", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø³Ø¬Ù„ Ø§Ù„Ø­Ø¶ÙˆØ±", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì ÓÌá ÇáÍÖæÑ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø§Ù„ÙˆØ±Ø¯ÙŠØ©: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍÏíË ÇáæÑÏíÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -139,7 +139,7 @@ namespace HR_Application
 
                     if (!shiftExists)
                     {
-                        MessageBox.Show("Ù‡Ø°Ù‡ Ø§Ù„ÙˆØ±Ø¯ÙŠØ© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø© ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        LocalizationManager.ShowMessage("åĞå ÇáæÑÏíÉ ÛíÑ ãæÌæÏÉ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
@@ -152,7 +152,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

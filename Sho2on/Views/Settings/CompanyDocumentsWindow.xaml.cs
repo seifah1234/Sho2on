@@ -1,14 +1,14 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -19,9 +19,9 @@ using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace HR_Application.Views
 {
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ViewModel: Ù…Ù„Ù ÙˆØ§Ø­Ø¯ Ø¯Ø§Ø®Ù„ Ø§Ù„Ù€ Folder
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ?????????????????????????????????????????????
+    // ViewModel: ãáİ æÇÍÏ ÏÇÎá ÇáÜ Folder
+    // ?????????????????????????????????????????????
     public class DocumentViewModel : INotifyPropertyChanged
     {
         private CompanyDocument _doc;
@@ -31,7 +31,7 @@ namespace HR_Application.Views
             _doc = doc;
         }
 
-        // ØªÙÙˆÙŠØ¶ Ø¬Ù…ÙŠØ¹ Ø®ØµØ§Ø¦Øµ Ø§Ù„Ù€ CompanyDocument Ø§Ù„Ø£ØµÙ„ÙŠØ©
+        // ÊİæíÖ ÌãíÚ ÎÕÇÆÕ ÇáÜ CompanyDocument ÇáÃÕáíÉ
         public int Id => _doc.Id;
         public string Title => _doc.Title;
         public string FileName => _doc.FileName;
@@ -45,32 +45,32 @@ namespace HR_Application.Views
         public JobTitle JobTitle => _doc.JobTitle;
         public bool HasJobTitle => _doc.JobTitle != null;
 
-        // Ø£ÙŠÙ‚ÙˆÙ†Ø© Ø§Ù„Ù…Ù„Ù Ø­Ø³Ø¨ Ø§Ù„Ø§Ù…ØªØ¯Ø§Ø¯
+        // ÃíŞæäÉ Çáãáİ ÍÓÈ ÇáÇãÊÏÇÏ
         public string FileIcon => _doc.FileType?.ToLower() switch
         {
-            ".pdf" => "ğŸ“„",
-            ".docx" => "ğŸ“",
-            ".doc" => "ğŸ“",
-            ".xlsx" => "ğŸ“Š",
-            ".xls" => "ğŸ“Š",
-            ".pptx" => "ğŸ“‹",
-            ".txt" => "ğŸ“ƒ",
-            ".png" or ".jpg" or ".jpeg" => "ğŸ–¼",
-            _ => "ğŸ“"
+            ".pdf" => "??",
+            ".docx" => "??",
+            ".doc" => "??",
+            ".xlsx" => "??",
+            ".xls" => "??",
+            ".pptx" => "??",
+            ".txt" => "??",
+            ".png" or ".jpg" or ".jpeg" => "??",
+            _ => "??"
         };
 
-        public string ActiveText => _doc.IsActive ? "Ù†Ø´Ø·" : "Ù…Ø¹Ø·Ù‘Ù„";
+        public string ActiveText => _doc.IsActive ? "äÔØ" : "ãÚØøá";
         public string ActiveColor => _doc.IsActive ? "#27ae60" : "#95a5a6";
 
-        // Ø§Ù„ÙƒØ§Ø¦Ù† Ø§Ù„Ø£ØµÙ„ÙŠ Ù„Ù„Ø¹Ù…Ù„ÙŠØ§Øª (Ø­Ø°ÙØŒ ØªØ­Ù…ÙŠÙ„â€¦)
+        // ÇáßÇÆä ÇáÃÕáí ááÚãáíÇÊ (ÍĞİ¡ ÊÍãíá…)
         public CompanyDocument Original => _doc;
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // ViewModel: Folder = ØªØµÙ†ÙŠÙ + Ù‚Ø§Ø¦Ù…Ø© Ù…Ù„ÙØ§ØªÙ‡
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ?????????????????????????????????????????????
+    // ViewModel: Folder = ÊÕäíİ + ŞÇÆãÉ ãáİÇÊå
+    // ?????????????????????????????????????????????
     public class FolderViewModel : INotifyPropertyChanged
     {
         private bool _isExpanded = true;
@@ -89,8 +89,8 @@ namespace HR_Application.Views
             }
         }
 
-        public string CountText => $"{Documents.Count} Ù…Ù„Ù";
-        public string ArrowText => _isExpanded ? "â–²" : "â–¼";
+        public string CountText => $"{Documents.Count} ãáİ";
+        public string ArrowText => _isExpanded ? "?" : "?";
 
         public void Toggle() => IsExpanded = !IsExpanded;
 
@@ -99,16 +99,16 @@ namespace HR_Application.Views
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ?????????????????????????????????????????????
     // Code-Behind
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ?????????????????????????????????????????????
     public partial class CompanyDocumentsWindow : Window
     {
         private AppDbContext _context = new AppDbContext(App.ConnectionString);
         private string _selectedFilePath;
         private CompanyDocument _selectedDocument;
 
-        // Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù€ Folders Ø§Ù„Ù…Ø¹Ø±ÙˆØ¶Ø© Ø­Ø§Ù„ÙŠØ§Ù‹
+        // ŞÇÆãÉ ÇáÜ Folders ÇáãÚÑæÖÉ ÍÇáíÇğ
         private List<FolderViewModel> _folders = new();
 
         public CompanyDocumentsWindow()
@@ -119,9 +119,9 @@ namespace HR_Application.Views
             CheckStorageAccessibility();
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ??????????????????????????????????????????
+        // ÊÍãíá ÇáÈíÇäÇÊ
+        // ??????????????????????????????????????????
 
         private async Task LoadDocuments()
         {
@@ -132,21 +132,21 @@ namespace HR_Application.Views
                     .Include(d => d.JobTitle)
                     .AsQueryable();
 
-                // ÙÙ„ØªØ± Ø§Ù„ØªØµÙ†ÙŠÙ
+                // İáÊÑ ÇáÊÕäíİ
                 if (categoryFilter.SelectedValue != null)
                 {
                     var selectedCategory = (int)categoryFilter.SelectedValue;
                     query = query.Where(d => d.Category == (DocumentCategory)selectedCategory);
                 }
 
-                // ÙÙ„ØªØ± Ø§Ù„ÙˆØ¸ÙŠÙØ©
+                // İáÊÑ ÇáæÙíİÉ
                 if (jobTitleFilterComboBox.SelectedValue != null)
                 {
                     var selectedJobTitleId = (int)jobTitleFilterComboBox.SelectedValue;
                     query = query.Where(d => d.JobTitleId == selectedJobTitleId);
                 }
 
-                // ÙÙ„ØªØ± Ø§Ù„Ù†Ø´Ø·
+                // İáÊÑ ÇáäÔØ
                 if (activeOnlyCheck.IsChecked == true)
                     query = query.Where(d => d.IsActive);
 
@@ -154,13 +154,13 @@ namespace HR_Application.Views
                     .OrderByDescending(d => d.UploadDate)
                     .ToListAsync();
 
-                // â”€â”€â”€â”€ ØªØ¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª Ø¯Ø§Ø®Ù„ Folders â”€â”€â”€â”€
+                // ???? ÊÌãíÚ ÇáãáİÇÊ ÏÇÎá Folders ????
                 _folders = documents
                     .GroupBy(d => d.Category)
                     .OrderBy(g => g.Key)
                     .Select(g =>
                     {
-                        // Ù‡Ù„ ÙƒØ§Ù† Ø§Ù„Ù€ Folder Ù…ÙØªÙˆØ­Ø§Ù‹ Ù‚Ø¨Ù„ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„ØªØ­Ù…ÙŠÙ„ØŸ
+                        // åá ßÇä ÇáÜ Folder ãİÊæÍÇğ ŞÈá ÅÚÇÏÉ ÇáÊÍãíá¿
                         var prev = _folders.FirstOrDefault(f => f.CategoryName == GetCategoryName(g.Key));
                         return new FolderViewModel
                         {
@@ -172,20 +172,20 @@ namespace HR_Application.Views
                     .ToList();
 
                 foldersPanel.ItemsSource = _folders;
-                statusText.Text = $"ØªÙ… ØªØ­Ù…ÙŠÙ„ {documents.Count} Ù…Ù„Ù ÙÙŠ {_folders.Count} ØªØµÙ†ÙŠÙ";
+                statusText.Text = $"Êã ÊÍãíá {documents.Count} ãáİ İí {_folders.Count} ÊÕäíİ";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„ÙØ§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãáİÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        // Ø£Ø­Ø¯Ø§Ø« Ø§Ù„Ù€ Folders
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ??????????????????????????????????????????
+        // ÃÍÏÇË ÇáÜ Folders
+        // ??????????????????????????????????????????
 
-        /// <summary>Ø§Ù„Ù†Ù‚Ø± Ø¹Ù„Ù‰ Ø±Ø£Ø³ Ø§Ù„Ù€ Folder â†’ ÙØªØ­/Ø¥ØºÙ„Ø§Ù‚</summary>
+        /// <summary>ÇáäŞÑ Úáì ÑÃÓ ÇáÜ Folder ? İÊÍ/ÅÛáÇŞ</summary>
         private void FolderHeader_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border &&
@@ -195,30 +195,30 @@ namespace HR_Application.Views
             }
         }
 
-        /// <summary>Ø§Ù„Ù†Ù‚Ø± Ø¹Ù„Ù‰ ØµÙ Ù…Ù„Ù â†’ Ø§Ø®ØªÙŠØ§Ø±Ù‡ ÙƒÙ€ SelectedDocument</summary>
+        /// <summary>ÇáäŞÑ Úáì Õİ ãáİ ? ÇÎÊíÇÑå ßÜ SelectedDocument</summary>
         private void FileRow_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border &&
                 border.DataContext is DocumentViewModel vm)
             {
                 _selectedDocument = vm.Original;
-                statusText.Text = $"ØªÙ… Ø§Ø®ØªÙŠØ§Ø±: {_selectedDocument.Title}";
+                statusText.Text = $"Êã ÇÎÊíÇÑ: {_selectedDocument.Title}";
 
-                // Ø¥Ø²Ø§Ù„Ø© Ø§Ù„Ù€ highlight Ù…Ù† ÙƒÙ„ Ø§Ù„ØµÙÙˆÙ
+                // ÅÒÇáÉ ÇáÜ highlight ãä ßá ÇáÕİæİ
                 foreach (var folder in _folders)
                     foreach (var doc in folder.Documents)
                         border.Background = System.Windows.Media.Brushes.Transparent;
 
-                // ØªÙ„ÙˆÙŠÙ† Ø§Ù„ØµÙ Ø§Ù„Ù…Ø­Ø¯Ø¯
+                // Êáæíä ÇáÕİ ÇáãÍÏÏ
                 border.Background = new System.Windows.Media.SolidColorBrush(
                     (System.Windows.Media.Color)System.Windows.Media.ColorConverter
                         .ConvertFromString("#2000ADEF"));
             }
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        // Ø¨Ø§Ù‚ÙŠ Ø§Ù„ÙƒÙˆØ¯ (Ø¨Ø¯ÙˆÙ† ØªØºÙŠÙŠØ± Ø¬ÙˆÙ‡Ø±ÙŠ)
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ??????????????????????????????????????????
+        // ÈÇŞí ÇáßæÏ (ÈÏæä ÊÛííÑ ÌæåÑí)
+        // ??????????????????????????????????????????
 
         private void CheckStorageAccessibility()
         {
@@ -235,23 +235,23 @@ namespace HR_Application.Views
 
                     if (canAccess)
                     {
-                        statusText.Text = $"Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø±ÙƒØ²ÙŠ: {storagePath} (Ø²Ù…Ù† Ø§Ù„ÙˆØµÙˆÙ„: {stopwatch.ElapsedMilliseconds}ms)";
+                        statusText.Text = $"ÇáãÓÇÑ ÇáãÑßÒí: {storagePath} (Òãä ÇáæÕæá: {stopwatch.ElapsedMilliseconds}ms)";
                         if (stopwatch.ElapsedMilliseconds > 1000)
-                            statusText.Text += " - Ø§ØªØµØ§Ù„ Ø¨Ø·ÙŠØ¡";
+                            statusText.Text += " - ÇÊÕÇá ÈØíÁ";
                     }
                     else
                     {
-                        statusText.Text = "ØºÙŠØ± Ù…ØªØµÙ„ Ø¨Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø±ÙƒØ²ÙŠ - Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø­Ù„ÙŠ";
+                        statusText.Text = "ÛíÑ ãÊÕá ÈÇáãÓÇÑ ÇáãÑßÒí - ÇÓÊÎÏÇã ÇáãÓÇÑ ÇáãÍáí";
                     }
                 }
                 else
                 {
-                    statusText.Text = $"Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø­Ù„ÙŠ: {storagePath}";
+                    statusText.Text = $"ÇáãÓÇÑ ÇáãÍáí: {storagePath}";
                 }
             }
             catch (Exception ex)
             {
-                statusText.Text = $"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ÙˆØµÙˆÙ„ Ù„Ù„Ù…Ø³Ø§Ø±: {ex.Message}";
+                statusText.Text = $"ÎØÃ İí ÇáæÕæá ááãÓÇÑ: {ex.Message}";
             }
         }
 
@@ -290,28 +290,28 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙˆØ¸Ø§Ø¦Ù: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáæÙÇÆİ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private string GetCategoryName(DocumentCategory category) => category switch
         {
-            DocumentCategory.JobDescription => "ÙˆØµÙ Ø§Ù„ÙˆØ¸ÙŠÙØ©",
-            DocumentCategory.CompanyPolicy => "Ø³ÙŠØ§Ø³Ø§Øª Ø§Ù„Ø´Ø±ÙƒØ©",
-            DocumentCategory.HRManual => "Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©",
-            DocumentCategory.CodeOfConduct => "Ù‚ÙˆØ§Ø¹Ø¯ Ø§Ù„Ø³Ù„ÙˆÙƒ",
-            DocumentCategory.SafetyProcedure => "Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø§Ù„Ø³Ù„Ø§Ù…Ø©",
-            DocumentCategory.Contract => "Ø§Ù„Ø¹Ù‚ÙˆØ¯",
-            DocumentCategory.Other => "Ø£Ø®Ø±Ù‰",
-            _ => "Ø£Ø®Ø±Ù‰"
+            DocumentCategory.JobDescription => "æÕİ ÇáæÙíİÉ",
+            DocumentCategory.CompanyPolicy => "ÓíÇÓÇÊ ÇáÔÑßÉ",
+            DocumentCategory.HRManual => "Ïáíá ÇáãæÇÑÏ ÇáÈÔÑíÉ",
+            DocumentCategory.CodeOfConduct => "ŞæÇÚÏ ÇáÓáæß",
+            DocumentCategory.SafetyProcedure => "ÅÌÑÇÁÇÊ ÇáÓáÇãÉ",
+            DocumentCategory.Contract => "ÇáÚŞæÏ",
+            DocumentCategory.Other => "ÃÎÑì",
+            _ => "ÃÎÑì"
         };
 
         private void browseBtn_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª (*.*)|*.*|PDF files (*.pdf)|*.pdf|Word documents (*.docx)|*.docx|Text files (*.txt)|*.txt",
+                Filter = "ÌãíÚ ÇáãáİÇÊ (*.*)|*.*|PDF files (*.pdf)|*.pdf|Word documents (*.docx)|*.docx|Text files (*.txt)|*.txt",
                 FilterIndex = 2,
                 Multiselect = false
             };
@@ -338,7 +338,7 @@ namespace HR_Application.Views
             if (string.IsNullOrEmpty(titleBox.Text) || categoryBox.SelectedValue == null ||
                 string.IsNullOrEmpty(_selectedFilePath))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ ÙˆØ§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù", "ØªØ­Ø°ÙŠØ±",
+                LocalizationManager.ShowMessage("íÑÌì ãáÁ ÌãíÚ ÇáÍŞæá æÇÎÊíÇÑ ãáİ", "ÊÍĞíÑ",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -383,7 +383,7 @@ namespace HR_Application.Views
                 _context.CompanyDocuments.Add(document);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show($"ØªÙ… Ø±ÙØ¹ Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­ Ø¥Ù„Ù‰:\n{destinationPath}", "Ù†Ø¬Ø§Ø­",
+                LocalizationManager.ShowMessage($"Êã ÑİÚ Çáãáİ ÈäÌÇÍ Åáì:\n{destinationPath}", "äÌÇÍ",
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
                 ClearForm();
@@ -391,7 +391,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø±ÙØ¹ Ø§Ù„Ù…Ù„Ù: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÑİÚ Çáãáİ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -412,7 +412,7 @@ namespace HR_Application.Views
         {
             if (_selectedDocument == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Ø£ÙˆÙ„Ø§Ù‹", "ØªØ­Ø°ÙŠØ±",
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãáİ ÃæáÇğ", "ÊÍĞíÑ",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -430,7 +430,7 @@ namespace HR_Application.Views
 
                 if (!File.Exists(sourcePath))
                 {
-                    MessageBox.Show("Ø§Ù„Ù…Ù„Ù ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ Ø¹Ù„Ù‰ Ø§Ù„Ø³ÙŠØ±ÙØ±", "Ø®Ø·Ø£",
+                    LocalizationManager.ShowMessage("Çáãáİ ÛíÑ ãæÌæÏ Úáì ÇáÓíÑİÑ", "ÎØÃ",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -444,13 +444,13 @@ namespace HR_Application.Views
                 if (saveDialog.ShowDialog() == true)
                 {
                     File.Copy(sourcePath, saveDialog.FileName, true);
-                    MessageBox.Show("ØªÙ… ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­",
+                    LocalizationManager.ShowMessage("Êã ÊÍãíá Çáãáİ ÈäÌÇÍ", "äÌÇÍ",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù„Ù: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá Çáãáİ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -464,14 +464,14 @@ namespace HR_Application.Views
                 _selectedDocument.IsActive = !_selectedDocument.IsActive;
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show($"ØªÙ… {(_selectedDocument.IsActive ? "ØªÙØ¹ÙŠÙ„" : "ØªØ¹Ø·ÙŠÙ„")} Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­",
-                    "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage($"Êã {(_selectedDocument.IsActive ? "ÊİÚíá" : "ÊÚØíá")} Çáãáİ ÈäÌÇÍ",
+                    "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 await LoadDocuments();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù„Ù: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍÏíË ÍÇáÉ Çáãáİ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -480,8 +480,8 @@ namespace HR_Application.Views
         {
             if (_selectedDocument == null) return;
 
-            var result = MessageBox.Show($"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø§Ù„Ù…Ù„Ù '{_selectedDocument.Title}'ØŸ",
-                "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = LocalizationManager.ShowMessage($"åá ÃäÊ ãÊÃßÏ ãä ÍĞİ Çáãáİ '{_selectedDocument.Title}'¿",
+                "ÊÃßíÏ ÇáÍĞİ", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -500,7 +500,7 @@ namespace HR_Application.Views
                     _context.CompanyDocuments.Remove(_selectedDocument);
                     await _context.SaveChangesAsync();
 
-                    MessageBox.Show("ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…Ù„Ù Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­",
+                    LocalizationManager.ShowMessage("Êã ÍĞİ Çáãáİ ÈäÌÇÍ", "äÌÇÍ",
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
                     _selectedDocument = null;
@@ -508,7 +508,7 @@ namespace HR_Application.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­Ø°Ù Ø§Ù„Ù…Ù„Ù: {ex.Message}", "Ø®Ø·Ø£",
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÍĞİ Çáãáİ: {ex.Message}", "ÎØÃ",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
@@ -518,22 +518,22 @@ namespace HR_Application.Views
         {
             if (_selectedDocument == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Ø£ÙˆÙ„Ø§Ù‹", "ØªØ­Ø°ÙŠØ±",
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãáİ ÃæáÇğ", "ÊÍĞíÑ",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            // Ø£Ø¶Ù ÙƒÙˆØ¯ Ø¹Ø±Ø¶ Ø§Ù„ØªÙˆÙ‚ÙŠØ¹Ø§Øª Ù‡Ù†Ø§
+            // ÃÖİ ßæÏ ÚÑÖ ÇáÊæŞíÚÇÊ åäÇ
         }
 
         private void previewBtn_Click(object sender, RoutedEventArgs e)
         {
-            // Ø¯Ø¹Ù… Ø²Ø± Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø© Ù…Ù† Ø¯Ø§Ø®Ù„ Ø§Ù„Ù€ DataGrid Row
+            // ÏÚã ÒÑ ÇáãÚÇíäÉ ãä ÏÇÎá ÇáÜ DataGrid Row
             if (sender is Button btn && btn.DataContext is DocumentViewModel vm)
                 _selectedDocument = vm.Original;
 
             if (_selectedDocument == null)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Ø£ÙˆÙ„Ø§Ù‹", "ØªØ­Ø°ÙŠØ±",
+                LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãáİ ÃæáÇğ", "ÊÍĞíÑ",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -546,12 +546,12 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ÙØªØ­ Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø©: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí İÊÍ ÇáãÚÇíäÉ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // Ø§Ù„ÙÙ„Ø§ØªØ±
+        // ÇáİáÇÊÑ
         private async void categoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
             await LoadDocuments();
 
@@ -593,3 +593,4 @@ namespace HR_Application.Views
         
     }
 }
+

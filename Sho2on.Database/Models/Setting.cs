@@ -11,6 +11,7 @@ namespace Sho2on.Database.Models
     {
         [Key]
         public int Id { get; set; }
+        public string CompanyName { get; set; } = string.Empty;
         public int MaxMobileUsers { get; set; } = 0;
 
         public string? CentralDocumentStoragePath { get; set; } = string.Empty;

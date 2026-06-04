@@ -1,6 +1,6 @@
-﻿using System;
+﻿using System; using HR_Application.Helpers;
 using System.ComponentModel;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 
 namespace HR_Application.Views
 {

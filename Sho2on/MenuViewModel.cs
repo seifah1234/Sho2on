@@ -1,13 +1,14 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
+using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application
@@ -33,21 +34,21 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù‚Ø§Ø¦Ù…Ø©: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÈíÇäÇÊ ÇáŞÇÆãÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task LoadMenuStructureAsync()
         {
             var menus = _context.Menus
-                .Include(m => m.Children) // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£Ø·ÙØ§Ù„ Ø¨Ø´ÙƒÙ„ ØµØ±ÙŠØ­
+                .Include(m => m.Children) // ÊÍãíá ÇáÃØİÇá ÈÔßá ÕÑíÍ
                 .OrderBy(m => m.ParentId)
                 .ThenBy(m => m.Name)
                 .ToList();
 
-            // Ø¥Ù†Ø´Ø§Ø¡ Ù‡ÙŠÙƒÙ„ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù‡Ø±Ù…ÙŠ
+            // ÅäÔÇÁ åíßá ÇáŞÇÆãÉ ÇáåÑãí
             var menuLookup = menus.ToLookup(m => m.ParentId);
-            var rootMenus = menuLookup[null].ToList(); // Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© (ParentId = null)
+            var rootMenus = menuLookup[null].ToList(); // ÇáŞæÇÆã ÇáÑÆíÓíÉ (ParentId = null)
 
             Items.Clear();
 
@@ -67,7 +68,7 @@ namespace HR_Application
                 IsActive = false
             };
 
-            // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„ÙØ±Ø¹ÙŠØ© Ø¨Ø´ÙƒÙ„ Ù…ØªÙƒØ±Ø±
+            // ÅÖÇİÉ ÇáŞæÇÆã ÇáİÑÚíÉ ÈÔßá ãÊßÑÑ
             var childMenus = menuLookup[menu.Id].ToList();
             foreach (var childMenu in childMenus)
             {
@@ -98,7 +99,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÕáÇÍíÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             IsAuto = true;
@@ -222,7 +223,7 @@ namespace HR_Application
 
                         if (IsAuto)
                         {
-                            // ØªÙØ¹ÙŠÙ„/Ø¥Ù„ØºØ§Ø¡ ØªÙØ¹ÙŠÙ„ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¹Ù†Ø§ØµØ± Ø§Ù„ÙØ±Ø¹ÙŠØ©
+                            // ÊİÚíá/ÅáÛÇÁ ÊİÚíá ÌãíÚ ÇáÚäÇÕÑ ÇáİÑÚíÉ
                             foreach (var child in Children)
                             {
                                 child.IsActive = value;

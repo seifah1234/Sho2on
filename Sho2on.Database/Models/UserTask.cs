@@ -14,6 +14,7 @@ namespace Sho2on.Database.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Description { get; set; }
+        public int Type { get; set; } = (int)UserTaskType.Task;
         public int Status { get; set; } = (int)UserTaskStatus.Sent;
 
         [ForeignKey("AssignedToUser")]
@@ -47,6 +48,22 @@ namespace Sho2on.Database.Models
                 }
             }
         }
+
+        public string TypeText
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case (int)UserTaskType.Task:
+                        return "مهمة";
+                    case (int)UserTaskType.Order:
+                        return "طلب";
+                    default:
+                        return "غير معروف";
+                }
+            }
+        }
     }
 
     public enum UserTaskStatus
@@ -56,6 +73,12 @@ namespace Sho2on.Database.Models
         OnHold = 1,
         InProgress = 2,
         Completed = 3
+    }
+
+    public enum UserTaskType
+    {
+        Task = 1,
+        Order = 2
     }
 
 }

@@ -2,10 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 
 namespace HR_Application.Services
 {

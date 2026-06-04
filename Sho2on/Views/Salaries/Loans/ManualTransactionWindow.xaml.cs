@@ -1,11 +1,11 @@
-ï»¿// ManualTransactionWindow.xaml.cs
+// ManualTransactionWindow.xaml.cs
 using HR_Application.Services;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using Button = System.Windows.Controls.Button;
 using Label = System.Windows.Controls.Label;
@@ -31,7 +31,7 @@ namespace HR_Application.Views
             _friendshipBoxService = new FriendshipBoxService(_context);
             _transactionType = transactionType;
 
-            Title = transactionType == "Deposit" ? "Ø¥Ø¶Ø§ÙØ© Ø¥ÙŠØ¯Ø§Ø¹ ÙŠØ¯ÙˆÙŠ" : "Ø¥Ø¶Ø§ÙØ© Ø³Ø­Ø¨ ÙŠØ¯ÙˆÙŠ";
+            Title = transactionType == "Deposit" ? "ÅÖÇİÉ ÅíÏÇÚ íÏæí" : "ÅÖÇİÉ ÓÍÈ íÏæí";
             InitializeComponent();
         }
 
@@ -47,10 +47,10 @@ namespace HR_Application.Views
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            // Ø§Ù„Ø¹Ù†ÙˆØ§Ù†
+            // ÇáÚäæÇä
             var titleText = new TextBlock
             {
-                Text = _transactionType == "Deposit" ? "Ø¥Ø¶Ø§ÙØ© Ø¥ÙŠØ¯Ø§Ø¹ ÙŠØ¯ÙˆÙŠ Ù„ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©" : "Ø¥Ø¶Ø§ÙØ© Ø³Ø­Ø¨ ÙŠØ¯ÙˆÙŠ Ù…Ù† ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø²Ù…Ø§Ù„Ø©",
+                Text = _transactionType == "Deposit" ? "ÅÖÇİÉ ÅíÏÇÚ íÏæí áÕäÏæŞ ÇáÒãÇáÉ" : "ÅÖÇİÉ ÓÍÈ íÏæí ãä ÕäÏæŞ ÇáÒãÇáÉ",
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -61,7 +61,7 @@ namespace HR_Application.Views
             Grid.SetRow(titleText, 0);
             grid.Children.Add(titleText);
 
-            // Ù…Ø­ØªÙˆÙ‰ Ø§Ù„Ù†Ù…ÙˆØ°Ø¬
+            // ãÍÊæì ÇáäãæĞÌ
             var stackPanel = new StackPanel
             {
                 Margin = new Thickness(20),
@@ -76,7 +76,7 @@ namespace HR_Application.Views
 
             var lblAmount = new Label
             {
-                Content = "Ø§Ù„Ù…Ø¨Ù„Øº:",
+                Content = "ÇáãÈáÛ:",
                 Width = 80,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -100,7 +100,7 @@ namespace HR_Application.Views
 
             var lblDescription = new Label
             {
-                Content = "Ø§Ù„ÙˆØµÙ:",
+                Content = "ÇáæÕİ:",
                 Width = 80,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -123,7 +123,7 @@ namespace HR_Application.Views
 
             var lblNotes = new Label
             {
-                Content = "Ù…Ù„Ø§Ø­Ø¸Ø§Øª:"
+                Content = "ãáÇÍÙÇÊ:"
             };
 
             var txtNotes = new TextBox
@@ -145,7 +145,7 @@ namespace HR_Application.Views
             Grid.SetRow(stackPanel, 1);
             grid.Children.Add(stackPanel);
 
-            // Ø§Ù„Ø£Ø²Ø±Ø§Ø±
+            // ÇáÃÒÑÇÑ
             var buttonPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -155,7 +155,7 @@ namespace HR_Application.Views
 
             var btnSave = new Button
             {
-                Content = "Ø­ÙØ¸",
+                Content = "ÍİÙ",
                 Width = 100,
                 Height = 35,
                 Margin = new Thickness(5),
@@ -167,7 +167,7 @@ namespace HR_Application.Views
 
             var btnCancel = new Button
             {
-                Content = "Ø¥Ù„ØºØ§Ø¡",
+                Content = "ÅáÛÇÁ",
                 Width = 100,
                 Height = 35,
                 Margin = new Thickness(5),
@@ -197,28 +197,28 @@ namespace HR_Application.Views
 
                 if (!decimal.TryParse(txtAmount.Text, out decimal amount) || amount <= 0)
                 {
-                    MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ù…Ø¨Ù„Øº ØµØ­ÙŠØ­", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ãÈáÛ ÕÍíÍ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(txtDescription.Text))
                 {
-                    MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ ÙˆØµÙ Ù„Ù„Ø¹Ù…Ù„ÙŠØ©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá æÕİ ááÚãáíÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (_transactionType == "Withdrawal")
                 {
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø±ØµÙŠØ¯ Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚ Ù„Ù„Ø³Ø­Ø¨
+                    // ÇáÊÍŞŞ ãä ÑÕíÏ ÇáÕäÏæŞ ááÓÍÈ
                     var balance = await _friendshipBoxService.GetCurrentBalanceAsync();
                     if (amount > balance)
                     {
-                        MessageBox.Show($"Ø±ØµÙŠØ¯ Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚ ØºÙŠØ± ÙƒØ§ÙÙŠ. Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø­: {balance:N2}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                        LocalizationManager.ShowMessage($"ÑÕíÏ ÇáÕäÏæŞ ÛíÑ ßÇİí. ÇáÑÕíÏ ÇáãÊÇÍ: {balance:N2}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
 
-                // ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø­Ø±ÙƒØ©
+                // ÊÓÌíá ÇáÍÑßÉ
                 if (_transactionType == "Deposit")
                 {
                     await _friendshipBoxService.RecordDepositAsync(0, amount, 0, txtDescription.Text);
@@ -228,13 +228,13 @@ namespace HR_Application.Views
                     await _friendshipBoxService.RecordWithdrawalAsync(0, amount, 0, txtDescription.Text);
                 }
 
-                MessageBox.Show("ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø­Ø±ÙƒØ© Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÍİÙ ÇáÍÑßÉ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 TransactionCompleted?.Invoke(this, EventArgs.Empty);
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

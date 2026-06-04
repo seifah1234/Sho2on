@@ -1,13 +1,13 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 using System.Threading.Tasks;
@@ -28,7 +28,7 @@ namespace HR_Application.Views.Settings
         {
             try
             {
-                // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø­Ø§Ù„ÙŠØ© Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                // ÊÍãíá ÇáÅÚÏÇÏÇÊ ÇáÍÇáíÉ ãä ŞÇÚÏÉ ÇáÈíÇäÇÊ
                 var setting = await _context.Settings
                     .FirstOrDefaultAsync();
 
@@ -38,16 +38,16 @@ namespace HR_Application.Views.Settings
                 }
                 else
                 {
-                    // Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ
+                    // ÇÓÊÎÏÇã ÇáãÓÇÑ ÇáÇİÊÑÇÖí
                     networkPathTextBox.Text = AppDbContext.CentralStoragePath;
                 }
 
-                // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª
+                // ÊÍÏíË ÇáÅÍÕÇÆíÇÊ
                 await UpdateStatistics();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÅÚÏÇÏÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -58,7 +58,7 @@ namespace HR_Application.Views.Settings
 
             if (string.IsNullOrEmpty(path))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ù…Ø³Ø§Ø± ØµØ­ÙŠØ­", "ØªØ­Ø°ÙŠØ±",
+                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ãÓÇÑ ÕÍíÍ", "ÊÍĞíÑ",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -66,39 +66,39 @@ namespace HR_Application.Views.Settings
             try
             {
                 testNetworkBtn.IsEnabled = false;
-                networkStatusText.Text = "Ø¬Ø§Ø±ÙŠ Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„Ø§ØªØµØ§Ù„...";
+                networkStatusText.Text = "ÌÇÑí ÇÎÊÈÇÑ ÇáÇÊÕÇá...";
 
                 bool isAccessible = await Task.Run(() => TestNetworkPath(path));
 
                 if (isAccessible)
                 {
-                    networkStatusText.Text = "âœ“ Ø§Ù„Ø§ØªØµØ§Ù„ Ù†Ø§Ø¬Ø­ - Ø§Ù„Ù…Ø³Ø§Ø± Ù…ØªØ§Ø­";
+                    networkStatusText.Text = "? ÇáÇÊÕÇá äÇÌÍ - ÇáãÓÇÑ ãÊÇÍ";
                     networkStatusText.Foreground = System.Windows.Media.Brushes.Green;
 
-                    // Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„ÙƒØªØ§Ø¨Ø©
+                    // ÇÎÊÈÇÑ ÇáßÊÇÈÉ
                     bool canWrite = await TestWriteAccess(path);
                     if (canWrite)
                     {
-                        networkStatusText.Text += " - ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„ÙƒØªØ§Ø¨Ø© Ù…ØªØ§Ø­Ø©";
+                        networkStatusText.Text += " - ÕáÇÍíÇÊ ÇáßÊÇÈÉ ãÊÇÍÉ";
                     }
                     else
                     {
-                        networkStatusText.Text += " - ØªØ­Ø°ÙŠØ±: Ù„Ø§ ØªÙˆØ¬Ø¯ ØµÙ„Ø§Ø­ÙŠØ§Øª ÙƒØªØ§Ø¨Ø©";
+                        networkStatusText.Text += " - ÊÍĞíÑ: áÇ ÊæÌÏ ÕáÇÍíÇÊ ßÊÇÈÉ";
                         networkStatusText.Foreground = System.Windows.Media.Brushes.Orange;
                     }
                 }
                 else
                 {
-                    networkStatusText.Text = "âœ— Ø§Ù„Ø§ØªØµØ§Ù„ ÙØ§Ø´Ù„ - Ø§Ù„Ù…Ø³Ø§Ø± ØºÙŠØ± Ù…ØªØ§Ø­";
+                    networkStatusText.Text = "? ÇáÇÊÕÇá İÇÔá - ÇáãÓÇÑ ÛíÑ ãÊÇÍ";
                     networkStatusText.Foreground = System.Windows.Media.Brushes.Red;
 
-                    // Ø§Ù‚ØªØ±Ø§Ø­Ø§Øª
+                    // ÇŞÊÑÇÍÇÊ
                     ShowConnectionSuggestions(path);
                 }
             }
             catch (Exception ex)
             {
-                networkStatusText.Text = $"âœ— Ø®Ø·Ø£: {ex.Message}";
+                networkStatusText.Text = $"? ÎØÃ: {ex.Message}";
                 networkStatusText.Foreground = System.Windows.Media.Brushes.Red;
             }
             finally
@@ -113,19 +113,19 @@ namespace HR_Application.Views.Settings
             {
                 if (path.StartsWith(@"\\"))
                 {
-                    // Ø§Ø³ØªØ®Ø±Ø§Ø¬ Ø§Ø³Ù… Ø§Ù„Ø³ÙŠØ±ÙØ±
+                    // ÇÓÊÎÑÇÌ ÇÓã ÇáÓíÑİÑ
                     string serverName = path.Substring(2).Split('\\')[0];
 
-                    // Ø§Ø®ØªØ¨Ø§Ø± Ping
+                    // ÇÎÊÈÇÑ Ping
                     if (!PingServer(serverName))
                     {
                         return false;
                     }
 
-                    // Ø§Ø®ØªØ¨Ø§Ø± ÙˆØ¬ÙˆØ¯ Ø§Ù„Ù…Ø¬Ù„Ø¯
+                    // ÇÎÊÈÇÑ æÌæÏ ÇáãÌáÏ
                     if (!Directory.Exists(path))
                     {
-                        // Ù…Ø­Ø§ÙˆÙ„Ø© Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø¬Ù„Ø¯
+                        // ãÍÇæáÉ ÅäÔÇÁ ÇáãÌáÏ
                         try
                         {
                             Directory.CreateDirectory(path);
@@ -133,7 +133,7 @@ namespace HR_Application.Views.Settings
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            // Ù„Ø§ ØªÙˆØ¬Ø¯ ØµÙ„Ø§Ø­ÙŠØ§Øª Ù„Ù„Ø¥Ù†Ø´Ø§Ø¡ØŒ ÙˆÙ„ÙƒÙ† Ø§Ù„Ù…Ø¬Ù„Ø¯ Ù‚Ø¯ ÙŠÙƒÙˆÙ† Ù…ÙˆØ¬ÙˆØ¯Ø§Ù‹
+                            // áÇ ÊæÌÏ ÕáÇÍíÇÊ ááÅäÔÇÁ¡ æáßä ÇáãÌáÏ ŞÏ íßæä ãæÌæÏÇğ
                             return Directory.Exists(Path.GetDirectoryName(path));
                         }
                     }
@@ -142,7 +142,7 @@ namespace HR_Application.Views.Settings
                 }
                 else
                 {
-                    // Ù…Ø³Ø§Ø± Ù…Ø­Ù„ÙŠ
+                    // ãÓÇÑ ãÍáí
                     if (!Directory.Exists(path))
                         Directory.CreateDirectory(path);
                     return true;
@@ -190,18 +190,18 @@ namespace HR_Application.Views.Settings
         {
             testResultsBorder.Visibility = Visibility.Visible;
 
-            string suggestions = "Ø§Ù‚ØªØ±Ø§Ø­Ø§Øª Ù„Ø­Ù„ Ø§Ù„Ù…Ø´ÙƒÙ„Ø©:\n\n";
+            string suggestions = "ÇŞÊÑÇÍÇÊ áÍá ÇáãÔßáÉ:\n\n";
 
             if (failedPath.StartsWith(@"\\"))
             {
                 string server = failedPath.Substring(2).Split('\\')[0];
 
-                suggestions += $"1. ØªØ£ÙƒØ¯ Ù…Ù† ØªØ´ØºÙŠÙ„ Ø¬Ù‡Ø§Ø² Ø§Ù„Ø³ÙŠØ±ÙØ± ({server})\n";
-                suggestions += $"2. ØªØ­Ù‚Ù‚ Ù…Ù† Ø§ØªØµØ§Ù„ Ø§Ù„Ø´Ø¨ÙƒØ© Ø¨ÙŠÙ† Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©\n";
-                suggestions += $"3. ØªØ£ÙƒØ¯ Ù…Ù† ØªÙØ¹ÙŠÙ„ Ù…Ø´Ø§Ø±ÙƒØ© Ø§Ù„Ù…Ù„ÙØ§Øª Ø¹Ù„Ù‰ Ø§Ù„Ø³ÙŠØ±ÙØ±\n";
-                suggestions += $"4. ØªØ­Ù‚Ù‚ Ù…Ù† Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¬Ø¯Ø§Ø± Ø§Ù„Ø­Ù…Ø§ÙŠØ© Ø¹Ù„Ù‰ Ø§Ù„Ø³ÙŠØ±ÙØ±\n";
-                suggestions += $"5. Ø¬Ø±Ø¨ Ø§Ø³ØªØ®Ø¯Ø§Ù… IP Ø¢Ø®Ø± Ø£Ùˆ Ø§Ø³Ù… Ø§Ù„Ø³ÙŠØ±ÙØ±\n\n";
-                suggestions += $"IPs Ø§Ù„Ù…ØªØ§Ø­Ø© ÙÙŠ Ø§Ù„Ø´Ø¨ÙƒØ©:\n";
+                suggestions += $"1. ÊÃßÏ ãä ÊÔÛíá ÌåÇÒ ÇáÓíÑİÑ ({server})\n";
+                suggestions += $"2. ÊÍŞŞ ãä ÇÊÕÇá ÇáÔÈßÉ Èíä ÇáÃÌåÒÉ\n";
+                suggestions += $"3. ÊÃßÏ ãä ÊİÚíá ãÔÇÑßÉ ÇáãáİÇÊ Úáì ÇáÓíÑİÑ\n";
+                suggestions += $"4. ÊÍŞŞ ãä ÅÚÏÇÏÇÊ ÌÏÇÑ ÇáÍãÇíÉ Úáì ÇáÓíÑİÑ\n";
+                suggestions += $"5. ÌÑÈ ÇÓÊÎÏÇã IP ÂÎÑ Ãæ ÇÓã ÇáÓíÑİÑ\n\n";
+                suggestions += $"IPs ÇáãÊÇÍÉ İí ÇáÔÈßÉ:\n";
 
                 try
                 {
@@ -213,11 +213,11 @@ namespace HR_Application.Views.Settings
                 }
                 catch
                 {
-                    suggestions += "   ØºÙŠØ± Ù‚Ø§Ø¯Ø± Ø¹Ù„Ù‰ Ø§ÙƒØªØ´Ø§Ù IPs Ø§Ù„Ø´Ø¨ÙƒØ©\n";
+                    suggestions += "   ÛíÑ ŞÇÏÑ Úáì ÇßÊÔÇİ IPs ÇáÔÈßÉ\n";
                 }
             }
 
-            suggestions += "\n6. ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø­Ù„ÙŠ Ù…Ø¤Ù‚ØªØ§Ù‹";
+            suggestions += "\n6. íãßäß ÇÓÊÎÏÇã ÇáãÓÇÑ ÇáãÍáí ãÄŞÊÇğ";
 
             testResultsText.Text = suggestions;
         }
@@ -240,7 +240,7 @@ namespace HR_Application.Views.Settings
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ IP Ø§Ù„Ù…Ø­Ù„ÙŠ: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÍÕæá Úáì IP ÇáãÍáí: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -255,7 +255,7 @@ namespace HR_Application.Views.Settings
                     return ip.ToString();
                 }
             }
-            throw new Exception("Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø¹Ù†ÙˆØ§Ù† IP Ù…Ø­Ù„ÙŠ");
+            throw new Exception("áÇ íæÌÏ ÚäæÇä IP ãÍáí");
         }
 
         private void btnServerName_Click(object sender, RoutedEventArgs e)
@@ -284,16 +284,16 @@ namespace HR_Application.Views.Settings
 
                 if (success)
                 {
-                    ShowTestResult($"âœ“ Ø§Ù„Ø³ÙŠØ±ÙØ± {server} ÙŠØ³ØªØ¬ÙŠØ¨ Ù„Ù€ Ping", true);
+                    ShowTestResult($"? ÇáÓíÑİÑ {server} íÓÊÌíÈ áÜ Ping", true);
                 }
                 else
                 {
-                    ShowTestResult($"âœ— Ø§Ù„Ø³ÙŠØ±ÙØ± {server} Ù„Ø§ ÙŠØ³ØªØ¬ÙŠØ¨ Ù„Ù€ Ping", false);
+                    ShowTestResult($"? ÇáÓíÑİÑ {server} áÇ íÓÊÌíÈ áÜ Ping", false);
                 }
             }
             catch (Exception ex)
             {
-                ShowTestResult($"âœ— Ø®Ø·Ø£ ÙÙŠ Ø§Ø®ØªØ¨Ø§Ø± Ping: {ex.Message}", false);
+                ShowTestResult($"? ÎØÃ İí ÇÎÊÈÇÑ Ping: {ex.Message}", false);
             }
             finally
             {
@@ -312,16 +312,16 @@ namespace HR_Application.Views.Settings
 
                 if (success)
                 {
-                    ShowTestResult($"âœ“ Ø§Ù„Ù…Ø¬Ù„Ø¯ {path} Ù…ØªØ§Ø­ Ù„Ù„ÙˆØµÙˆÙ„", true);
+                    ShowTestResult($"? ÇáãÌáÏ {path} ãÊÇÍ ááæÕæá", true);
                 }
                 else
                 {
-                    ShowTestResult($"âœ— Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ÙˆØµÙˆÙ„ Ø¥Ù„Ù‰ Ø§Ù„Ù…Ø¬Ù„Ø¯ {path}", false);
+                    ShowTestResult($"? áÇ íãßä ÇáæÕæá Åáì ÇáãÌáÏ {path}", false);
                 }
             }
             catch (Exception ex)
             {
-                ShowTestResult($"âœ— Ø®Ø·Ø£ ÙÙŠ Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„Ù…Ø¬Ù„Ø¯: {ex.Message}", false);
+                ShowTestResult($"? ÎØÃ İí ÇÎÊÈÇÑ ÇáãÌáÏ: {ex.Message}", false);
             }
             finally
             {
@@ -340,16 +340,16 @@ namespace HR_Application.Views.Settings
 
                 if (canWrite)
                 {
-                    ShowTestResult("âœ“ ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„ÙƒØªØ§Ø¨Ø© Ù…ØªØ§Ø­Ø©", true);
+                    ShowTestResult("? ÕáÇÍíÇÊ ÇáßÊÇÈÉ ãÊÇÍÉ", true);
                 }
                 else
                 {
-                    ShowTestResult("âœ— Ù„Ø§ ØªÙˆØ¬Ø¯ ØµÙ„Ø§Ø­ÙŠØ§Øª ÙƒØªØ§Ø¨Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø¬Ù„Ø¯", false);
+                    ShowTestResult("? áÇ ÊæÌÏ ÕáÇÍíÇÊ ßÊÇÈÉ Úáì ÇáãÌáÏ", false);
                 }
             }
             catch (Exception ex)
             {
-                ShowTestResult($"âœ— Ø®Ø·Ø£ ÙÙŠ Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª: {ex.Message}", false);
+                ShowTestResult($"? ÎØÃ İí ÇÎÊÈÇÑ ÇáÕáÇÍíÇÊ: {ex.Message}", false);
             }
             finally
             {
@@ -373,32 +373,32 @@ namespace HR_Application.Views.Settings
                 string currentPath = AppDbContext.CentralStoragePath;
                 currentPathText.Text = currentPath;
 
-                // Ø­Ø§Ù„Ø© Ø§Ù„Ø§ØªØµØ§Ù„
+                // ÍÇáÉ ÇáÇÊÕÇá
                 bool isConnected = TestNetworkPath(currentPath);
-                connectionStatusText.Text = isConnected ? "Ù…ØªØµÙ„ âœ“" : "ØºÙŠØ± Ù…ØªØµÙ„ âœ—";
+                connectionStatusText.Text = isConnected ? "ãÊÕá ?" : "ÛíÑ ãÊÕá ?";
                 connectionStatusText.Foreground = isConnected ?
                     System.Windows.Media.Brushes.Green :
                     System.Windows.Media.Brushes.Red;
 
-                // Ø§Ù„Ù…Ø³Ø§Ø­Ø© Ø§Ù„Ù…ØªØ§Ø­Ø©
+                // ÇáãÓÇÍÉ ÇáãÊÇÍÉ
                 if (Directory.Exists(currentPath))
                 {
                     var driveInfo = new DriveInfo(Path.GetPathRoot(currentPath));
                     long freeSpaceGB = driveInfo.AvailableFreeSpace / (1024 * 1024 * 1024);
                     long totalSpaceGB = driveInfo.TotalSize / (1024 * 1024 * 1024);
 
-                    freeSpaceText.Text = $"{freeSpaceGB} GB Ù…Ù† Ø£ØµÙ„ {totalSpaceGB} GB";
+                    freeSpaceText.Text = $"{freeSpaceGB} GB ãä ÃÕá {totalSpaceGB} GB";
                 }
                 else
                 {
-                    freeSpaceText.Text = "ØºÙŠØ± Ù…ØªØ§Ø­";
+                    freeSpaceText.Text = "ÛíÑ ãÊÇÍ";
                 }
             }
             catch
             {
-                currentPathText.Text = "ØºÙŠØ± Ù‚Ø§Ø¯Ø± Ø¹Ù„Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ù…Ø³Ø§Ø±";
-                connectionStatusText.Text = "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„";
-                freeSpaceText.Text = "ØºÙŠØ± Ù…ØªØ§Ø­";
+                currentPathText.Text = "ÛíÑ ŞÇÏÑ Úáì ÊÍÏíÏ ÇáãÓÇÑ";
+                connectionStatusText.Text = "ÎØÃ İí ÇáÇÊÕÇá";
+                freeSpaceText.Text = "ÛíÑ ãÊÇÍ";
             }
         }
 
@@ -431,20 +431,20 @@ namespace HR_Application.Views.Settings
                     }
                 }
 
-                MessageBox.Show("ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø¬Ù„Ø¯Ø§Øª Ø§Ù„Ù‡ÙŠÙƒÙ„ÙŠØ© Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­",
+                LocalizationManager.ShowMessage("Êã ÅäÔÇÁ ÇáãÌáÏÇÊ ÇáåíßáíÉ ÈäÌÇÍ", "äÌÇÍ",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø¬Ù„Ø¯Ø§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÅäÔÇÁ ÇáãÌáÏÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async void migrateFilesBtn_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Ù‡Ù„ ØªØ±ÙŠØ¯ Ù†Ù‚Ù„ Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ø­Ø§Ù„ÙŠØ© Ø¥Ù„Ù‰ Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ø¬Ø¯ÙŠØ¯ØŸ",
-                "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù†Ù‚Ù„", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = LocalizationManager.ShowMessage("åá ÊÑíÏ äŞá ÇáãáİÇÊ ÇáÍÇáíÉ Åáì ÇáãÓÇÑ ÇáÌÏíÏ¿",
+                "ÊÃßíÏ ÇáäŞá", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result != MessageBoxResult.Yes) return;
 
@@ -452,21 +452,21 @@ namespace HR_Application.Views.Settings
             {
                 migrateFilesBtn.IsEnabled = false;
 
-                // Ù†Ù‚Ù„ Ù…Ù„ÙØ§Øª Ø§Ù„Ø´Ø±ÙƒØ©
+                // äŞá ãáİÇÊ ÇáÔÑßÉ
                 await MigrateFolder("CompanyDocuments", DocumentType.Company);
 
-                // Ù†Ù‚Ù„ Ù…Ù„ÙØ§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
+                // äŞá ãáİÇÊ ÇáãæÙİíä
                 await MigrateFolder("EmployeeDocuments", DocumentType.Employee);
 
-                // Ù†Ù‚Ù„ Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ù…ÙˆÙ‚Ø¹Ø©
+                // äŞá ÇáãáİÇÊ ÇáãæŞÚÉ
                 await MigrateFolder("SignedDocuments", DocumentType.Signed);
 
-                MessageBox.Show("ØªÙ… Ù†Ù‚Ù„ Ø§Ù„Ù…Ù„ÙØ§Øª Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­",
+                LocalizationManager.ShowMessage("Êã äŞá ÇáãáİÇÊ ÈäÌÇÍ", "äÌÇÍ",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ù†Ù‚Ù„ Ø§Ù„Ù…Ù„ÙØ§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí äŞá ÇáãáİÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -482,11 +482,11 @@ namespace HR_Application.Views.Settings
 
             if (!Directory.Exists(localPath)) return;
 
-            // Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø¬Ù„Ø¯ Ø§Ù„Ø¬Ø¯ÙŠØ¯
+            // ÅäÔÇÁ ÇáãÌáÏ ÇáÌÏíÏ
             if (!Directory.Exists(newPath))
                 Directory.CreateDirectory(newPath);
 
-            // Ù†Ù‚Ù„ Ø§Ù„Ù…Ù„ÙØ§Øª
+            // äŞá ÇáãáİÇÊ
             var files = Directory.GetFiles(localPath);
             foreach (var file in files)
             {
@@ -495,7 +495,7 @@ namespace HR_Application.Views.Settings
 
                 File.Copy(file, destFile, true);
 
-                // ØªØ­Ø¯ÙŠØ« Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                // ÊÍÏíË ŞÇÚÏÉ ÇáÈíÇäÇÊ
                 await UpdateDocumentPath(fileName, docType, destFile);
             }
         }
@@ -531,7 +531,7 @@ namespace HR_Application.Views.Settings
             }
             catch
             {
-                // ØªØ¬Ø§Ù‡Ù„ Ø§Ù„Ø£Ø®Ø·Ø§Ø¡ ÙÙŠ Ø§Ù„ØªØ­Ø¯ÙŠØ«
+                // ÊÌÇåá ÇáÃÎØÇÁ İí ÇáÊÍÏíË
             }
         }
 
@@ -543,20 +543,20 @@ namespace HR_Application.Views.Settings
 
                 if (string.IsNullOrEmpty(newPath))
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ù…Ø³Ø§Ø± ØµØ­ÙŠØ­", "ØªØ­Ø°ÙŠØ±",
+                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ãÓÇÑ ÕÍíÍ", "ÊÍĞíÑ",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„Ù…Ø³Ø§Ø±
+                // ÇÎÊÈÇÑ ÇáãÓÇÑ
                 if (!TestNetworkPath(newPath))
                 {
-                    MessageBox.Show("Ø§Ù„Ù…Ø³Ø§Ø± ØºÙŠØ± Ù…ØªØ§Ø­. ÙŠØ±Ø¬Ù‰ Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø§ØªØµØ§Ù„.", "Ø®Ø·Ø£",
+                    LocalizationManager.ShowMessage("ÇáãÓÇÑ ÛíÑ ãÊÇÍ. íÑÌì ÇáÊÍŞŞ ãä ÇáÇÊÕÇá.", "ÎØÃ",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Ø­ÙØ¸ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                // ÍİÙ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ
                 var setting = await _context.Settings
                     .FirstOrDefaultAsync();
 
@@ -577,14 +577,14 @@ namespace HR_Application.Views.Settings
 
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show("ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­",
+                LocalizationManager.ShowMessage("Êã ÍİÙ ÇáÅÚÏÇÏÇÊ ÈäÌÇÍ", "äÌÇÍ",
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ ÇáÅÚÏÇÏÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

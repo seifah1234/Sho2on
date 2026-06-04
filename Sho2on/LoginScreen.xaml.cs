@@ -1,6 +1,7 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Polly;
 using Polly.Retry;
+using HR_Application.Helpers;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using Syncfusion.Windows.Shared;
@@ -10,7 +11,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfAnimatedGif;
@@ -29,7 +30,7 @@ namespace HR_Application
         {
             InitializeComponent();
 
-            // Ø¥Ù†Ø´Ø§Ø¡ Ø³ÙŠØ§Ø³Ø© Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©
+            // ÅäÔÇÁ ÓíÇÓÉ ÅÚÇÏÉ ÇáãÍÇæáÉ
             _retryPolicy = Policy
                 .Handle<SqlException>(ex => IsTransientError(ex))
                 .Or<SocketException>()
@@ -39,19 +40,20 @@ namespace HR_Application
                     sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     onRetry: (exception, timeSpan, retryCount, context) =>
                     {
-                        // ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø§Øª (ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ø³ØªØ¨Ø¯Ø§Ù„Ù‡Ø§ Ø¨Ù€ Log)
+                        // ÊÓÌíá ÇáãÍÇæáÇÊ (íãßäß ÇÓÊÈÏÇáåÇ ÈÜ Log)
                         Console.WriteLine($"Retry {retryCount} after {timeSpan.Seconds} seconds due to: {exception.Message}");
                     });
 
             LoadGIFAsync();
+            IPDB_box.Text = Properties.Settings.Default.LastIPDB;
             IPDB_box.FlowDirection = System.Windows.FlowDirection.LeftToRight;
             username_box.FlowDirection = System.Windows.FlowDirection.LeftToRight;
-            IPDB_box.Text = Properties.Settings.Default.LastIPDB;
+            pass_box.FlowDirection = System.Windows.FlowDirection.LeftToRight;
         }
 
         private bool IsTransientError(SqlException ex)
         {
-            // Ø£Ø±Ù‚Ø§Ù… Ø§Ù„Ø£Ø®Ø·Ø§Ø¡ Ø§Ù„Ø¹Ø§Ø¨Ø±Ø© ÙÙŠ SQL Server
+            // ÃÑŞÇã ÇáÃÎØÇÁ ÇáÚÇÈÑÉ İí SQL Server
             int[] transientErrorNumbers = {
                 4060, 10928, 10929, 40197, 40501,
                 40613, 49918, 49919, 49920, 11001
@@ -71,7 +73,7 @@ namespace HR_Application
                 string.IsNullOrWhiteSpace(username_box.Text) ||
                 string.IsNullOrWhiteSpace(pass_box.Password))
             {
-                MessageBox.Show("Please fill in all required fields.");
+                LocalizationManager.ShowMessage(LocalizationManager.Translate("Please fill in all required fields."));
                 return;
             }
 
@@ -79,116 +81,49 @@ namespace HR_Application
             string password = pass_box.Password;
             string ip = IPDB_box.Text;
 
-            // ØªØ­Ø³ÙŠÙ† Connection String
+            // ÊÍÓíä Connection String
             string connectionString = BuildConnectionString(ip);
 
             try
             {
-                // Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø£ÙˆÙ„Ø§Ù‹ Ù‚Ø¨Ù„ Ø¥Ù†Ø´Ø§Ø¡ Context
+                // ÇÎÊÈÇÑ ÇáÇÊÕÇá ÃæáÇğ ŞÈá ÅäÔÇÁ Context
                 bool canConnect = await TestConnectionAsync(connectionString);
 
                 if (!canConnect)
                 {
-                    MessageBox.Show("Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª. ØªØ£ÙƒØ¯ Ù…Ù† Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù….");
+                    LocalizationManager.ShowMessage(LocalizationManager.Translate("áÇ íãßä ÇáÇÊÕÇá ÈŞÇÚÏÉ ÇáÈíÇäÇÊ. ÊÃßÏ ãä ÅÚÏÇÏÇÊ ÇáÎÇÏã."));
                     return;
                 }
 
-                // Ø§Ø³ØªØ®Ø¯Ø§Ù… Retry Policy
+                // ÇÓÊÎÏÇã Retry Policy
                 await _retryPolicy.ExecuteAsync(async () =>
                 {
                     App.ConnectionString = connectionString;
                     Sho2on.Database.App.ServerIP = ip;
                     _context = new AppDbContext(App.ConnectionString);
 
-                    // Ø§Ø®ØªØ¨Ø§Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ù€ Context
+                    // ÇÎÊÈÇÑ ÇáÇÊÕÇá ÈÇáÜ Context
                     await _context.Database.CanConnectAsync();
                 });
 
-                // Ø§Ø³ØªÙ…Ø±Ø§Ø± Ø¹Ù…Ù„ÙŠØ© ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„
+                // ÇÓÊãÑÇÑ ÚãáíÉ ÊÓÌíá ÇáÏÎæá
                 await ProcessLoginAsync(username, password);
             }
             catch (SqlException sqlEx)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {sqlEx.Message}\nØ±Ù‚Ù… Ø§Ù„Ø®Ø·Ø£: {sqlEx.Number}");
+                LocalizationManager.ShowMessage($"ÎØÃ İí ŞÇÚÏÉ ÇáÈíÇäÇÊ: {sqlEx.Message}\nÑŞã ÇáÎØÃ: {sqlEx.Number}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£: {ex.Message}");
+                LocalizationManager.ShowMessage($"ÎØÃ: {ex.Message}");
             }
         }
 
         private string BuildConnectionString(string ip)
         {
             return $"Server={ip},1433;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;" + "Pooling=true;" + "Max Pool Size=100;" + "Min Pool Size=5;" + "Connection Lifetime=300;" + "Connection Timeout=30;" + "TrustServerCertificate=True;";
-            //return $"Server={ip},1433;Initial Catalog=Original;User Id=OR;Password=OriginalIBS2025;TrustServerCertificate=True;Connection Timeout=60;";
         }
 
-        private async Task<string> TestMultipleConnections(string ip)
-        {
-            // Ø¥Ø¶Ø§ÙØ© Ø®ÙŠØ§Ø±Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ© Ù„Ù€ Windows Server 2016
-            var connections = new[]
-            {
-        // Ø¨Ø¯ÙˆÙ† Port
-        $"Server={ip};Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;TrustServerCertificate=True;Connection Timeout=60;",
-        
-        // Ù…Ø¹ Port 1433
-        $"Server={ip},1433;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;TrustServerCertificate=True;Connection Timeout=60;",
-        
-        // Ù…Ø¹ Instance Name (Ø¬Ø±Ø¨ Ø£Ø³Ù…Ø§Ø¡ Ø§Ù„Ù€ Instance Ø§Ù„Ù…Ø®ØªÙ„ÙØ©)
-        $"Server={ip}\\MSSQLSERVER;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;TrustServerCertificate=True;Connection Timeout=60;",
-        $"Server={ip}\\SQLEXPRESS;Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;TrustServerCertificate=True;Connection Timeout=60;",
-        
-        // Ù…Ø¹ Network Library
-        $"Data Source={ip};Network Library=DBMSSOCN;Initial Catalog=Sho2onDB;User ID=OR;Password=OriginalIBS2025;TrustServerCertificate=True;Connection Timeout=60;",
-        
-        // Ø®ÙŠØ§Ø±Ø§Øª Ù…ØªÙ‚Ø¯Ù…Ø©
-        $"Server={ip};Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;TrustServerCertificate=True;Persist Security Info=True;Connection Timeout=60;",
-        
-        // Ù„Ù„Ø®ÙˆØ§Ø¯Ù… Ø§Ù„Ø¨Ø¹ÙŠØ¯Ø© (Ù…Ù…ÙƒÙ† ØªØ­ØªØ§Ø¬ MultiSubnetFailover)
-        $"Server={ip};Database=Sho2onDB;User Id=OR;Password=OriginalIBS2025;TrustServerCertificate=True;MultiSubnetFailover=True;Connection Timeout=60;"
-    };
-
-            var successfulConnections = new List<string>();
-
-            foreach (var connString in connections)
-            {
-                try
-                {
-                    using (var connection = new SqlConnection(connString))
-                    {
-                        await connection.OpenAsync();
-
-                        // Ø§Ø®ØªØ¨Ø§Ø± Ø§Ø³ØªØ¹Ù„Ø§Ù… Ø¨Ø³ÙŠØ· Ù„Ù„ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ø¹Ù…Ù„ÙŠØ©
-                        using (var cmd = new SqlCommand("SELECT @@VERSION", connection))
-                        {
-                            var result = await cmd.ExecuteScalarAsync();
-                            Console.WriteLine($"SQL Server Version: {result}");
-                        }
-
-                        await connection.CloseAsync();
-                        Console.WriteLine($"âœ“ Ù†Ø¬Ø§Ø­ Ù…Ø¹: {connString}");
-                        successfulConnections.Add(connString);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"âœ— ÙØ´Ù„ Ù…Ø¹: {connString}");
-                    Console.WriteLine($"  Ø§Ù„Ø³Ø¨Ø¨: {ex.Message}");
-                }
-            }
-
-            // Ø§Ø®ØªÙŠØ§Ø± Ø£ÙØ¶Ù„ Connection String
-            if (successfulConnections.Any())
-            {
-                // ØªÙØ¶ÙŠÙ„ Ø§Ù„Ø§ØªØµØ§Ù„Ø§Øª Ø¨Ø¯ÙˆÙ† Port (Ø£ÙƒØ«Ø± Ø§Ø³ØªÙ‚Ø±Ø§Ø±Ø§Ù‹ Ø¹Ø§Ø¯Ø©)
-                var preferred = successfulConnections.FirstOrDefault(c =>
-                    !c.Contains(",1433") && !c.Contains("\\MSSQLSERVER") && !c.Contains("\\SQLEXPRESS"));
-
-                return preferred ?? successfulConnections.First();
-            }
-
-            return null;
-        }
         private async Task<bool> TestConnectionAsync(string connectionString)
         {
             try
@@ -202,7 +137,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                LocalizationManager.ShowMessage(ex.Message);
                 return false;
             }
         }
@@ -221,7 +156,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                throw new Exception($"Ø®Ø·Ø£ ÙÙŠ Ø¹Ù…Ù„ÙŠØ© ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„: {ex.Message}", ex);
+                throw new Exception($"ÎØÃ İí ÚãáíÉ ÊÓÌíá ÇáÏÎæá: {ex.Message}", ex);
             }
         }
 
@@ -269,14 +204,14 @@ namespace HR_Application
 
             if (user == null)
             {
-                MessageBox.Show("Invalid username or password.");
+                LocalizationManager.ShowMessage(LocalizationManager.Translate("Invalid username or password."));
                 return;
             }
 
             App.CurrentUser = user;
 
             await App.InitializeSignalRAfterLogin();
-            // Load Roles & Permissions Ø¨Ø§Ø³ØªØ®Ø¯Ø§Ù… Retry Policy
+            // Load Roles & Permissions ÈÇÓÊÎÏÇã Retry Policy
             await LoadUserPermissionsAndBranchesAsync(user.Id);
 
             // Save settings
@@ -308,7 +243,7 @@ namespace HR_Application
                         .Select(ub => ub.BranchId)
                         .ToListAsync();
 
-                    // Load Permissions Ù„ÙƒÙ„ Role
+                    // Load Permissions áßá Role
                     foreach (var role in roles)
                     {
                         Properties.Settings.Default.UserRole = role.RoleName;
@@ -324,7 +259,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                throw new Exception($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…: {ex.Message}", ex);
+                throw new Exception($"ÎØÃ İí ÊÍãíá ÕáÇÍíÇÊ ÇáãÓÊÎÏã: {ex.Message}", ex);
             }
         }
 
@@ -353,6 +288,14 @@ namespace HR_Application
 
         private async void login_Clicked(object sender, RoutedEventArgs e) => await LogInAsync();
 
+        private void LanguageToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            LocalizationManager.ToggleLanguage();
+            IPDB_box.FlowDirection = System.Windows.FlowDirection.LeftToRight;
+            username_box.FlowDirection = System.Windows.FlowDirection.LeftToRight;
+            pass_box.FlowDirection = System.Windows.FlowDirection.LeftToRight;
+        }
+
         private void btn_mouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             login_btn.FontSize = 16;
@@ -372,3 +315,4 @@ namespace HR_Application
         }
     }
 }
+

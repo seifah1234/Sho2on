@@ -1,9 +1,9 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MessageBox = System.Windows.MessageBox;
@@ -39,7 +39,7 @@ namespace HR_Application.Views.Employees.Holidays
         {
             if (!_isEditMode)
             {
-                windowTitle.Text = "Ù†ÙˆØ¹ Ø¥Ø¬Ø§Ø²Ø© Ø¬Ø¯ÙŠØ¯";
+                windowTitle.Text = "äæÚ ÅÌÇÒÉ ÌÏíÏ";
             }
         }
 
@@ -51,9 +51,9 @@ namespace HR_Application.Views.Employees.Holidays
 
                 if (_leaveType != null)
                 {
-                    windowTitle.Text = $"ØªØ¹Ø¯ÙŠÙ„ Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©: {_leaveType.Name}";
+                    windowTitle.Text = $"ÊÚÏíá äæÚ ÇáÅÌÇÒÉ: {_leaveType.Name}";
 
-                    // ØªØ¹Ø¨Ø¦Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª
+                    // ÊÚÈÆÉ ÇáÈíÇäÇÊ
                     txtName.Text = _leaveType.Name;
                     txtCode.Text = _leaveType.Code;
                     txtDefaultBalance.Text = _leaveType.DefaultBalance.ToString();
@@ -66,13 +66,13 @@ namespace HR_Application.Views.Employees.Holidays
                 }
                 else
                 {
-                    MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áã íÊã ÇáÚËæÑ Úáì äæÚ ÇáÅÌÇÒÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     this.Close();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 this.Close();
             }
         }
@@ -86,7 +86,7 @@ namespace HR_Application.Views.Employees.Holidays
 
                 if (_isEditMode)
                 {
-                    // ØªØ­Ø¯ÙŠØ« Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø§Ù„Ù…ÙˆØ¬ÙˆØ¯
+                    // ÊÍÏíË äæÚ ÇáÅÌÇÒÉ ÇáãæÌæÏ
                     _leaveType.Name = txtName.Text.Trim();
                     _leaveType.Code = txtCode.Text.Trim().ToUpper();
                     _leaveType.DefaultBalance = int.Parse(txtDefaultBalance.Text);
@@ -105,11 +105,11 @@ namespace HR_Application.Views.Employees.Holidays
                     _context.LeaveTypes.Update(_leaveType);
                     await _context.SaveChangesAsync();
 
-                    MessageBox.Show("ØªÙ… ØªØ­Ø¯ÙŠØ« Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÊÍÏíË äæÚ ÇáÅÌÇÒÉ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    // Ø¥Ù†Ø´Ø§Ø¡ Ù†ÙˆØ¹ Ø¥Ø¬Ø§Ø²Ø© Ø¬Ø¯ÙŠØ¯
+                    // ÅäÔÇÁ äæÚ ÅÌÇÒÉ ÌÏíÏ
                     var newLeaveType = new LeaveType
                     {
                         Name = txtName.Text.Trim(),
@@ -123,14 +123,14 @@ namespace HR_Application.Views.Employees.Holidays
                         UpdatedAt = DateTime.Now
                     };
 
-                    // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…ØªØªØ§Ù„ÙŠØ©
+                    // ÇáÊÍŞŞ ãä ÇáÍÏ ÇáÃŞÕì ááÃíÇã ÇáãÊÊÇáíÉ
                     if (int.TryParse(txtMaxConsecutiveDays.Text, out int maxDays) && maxDays > 0)
                         newLeaveType.MaxConsecutiveDays = maxDays;
 
                     _context.LeaveTypes.Add(newLeaveType);
                     await _context.SaveChangesAsync();
 
-                    MessageBox.Show("ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÅäÔÇÁ äæÚ ÇáÅÌÇÒÉ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 DialogResult = true;
@@ -138,48 +138,48 @@ namespace HR_Application.Views.Employees.Holidays
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø­ÙØ¸ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÍİÙ ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private bool ValidateInput()
         {
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø§Ø³Ù…
+            // ÇáÊÍŞŞ ãä ÇáÇÓã
             if (string.IsNullOrWhiteSpace(txtName.Text))
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÇÓã äæÚ ÇáÅÌÇÒÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtName.Focus();
                 return false;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„ÙƒÙˆØ¯
+            // ÇáÊÍŞŞ ãä ÇáßæÏ
             if (string.IsNullOrWhiteSpace(txtCode.Text))
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙˆØ¯ Ø§Ù„Ù†ÙˆØ¹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ßæÏ ÇáäæÚ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtCode.Focus();
                 return false;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ
+            // ÇáÊÍŞŞ ãä ÇáÑÕíÏ ÇáÇİÊÑÇÖí
             if (!int.TryParse(txtDefaultBalance.Text, out int defaultBalance) || defaultBalance < 0)
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ù‚ÙŠÙ…Ø© ØµØ­ÙŠØ­Ø© Ù„Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ŞíãÉ ÕÍíÍÉ ááÑÕíÏ ÇáÇİÊÑÇÖí", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtDefaultBalance.Focus();
                 return false;
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…ØªØªØ§Ù„ÙŠØ©
+            // ÇáÊÍŞŞ ãä ÇáÍÏ ÇáÃŞÕì ááÃíÇã ÇáãÊÊÇáíÉ
             if (!string.IsNullOrWhiteSpace(txtMaxConsecutiveDays.Text))
             {
                 if (!int.TryParse(txtMaxConsecutiveDays.Text, out int maxDays) || maxDays < 0)
                 {
-                    MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ù‚ÙŠÙ…Ø© ØµØ­ÙŠØ­Ø© Ù„Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø£ÙŠØ§Ù…", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ŞíãÉ ÕÍíÍÉ ááÍÏ ÇáÃŞÕì ááÃíÇã", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     txtMaxConsecutiveDays.Focus();
                     return false;
                 }
             }
 
-            // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ØªÙƒØ±Ø§Ø± Ø§Ù„ÙƒÙˆØ¯ (ÙÙŠ Ø­Ø§Ù„Ø© Ø§Ù„Ø¥Ø¶Ø§ÙØ© ÙÙ‚Ø·)
+            // ÇáÊÍŞŞ ãä ÚÏã ÊßÑÇÑ ÇáßæÏ (İí ÍÇáÉ ÇáÅÖÇİÉ İŞØ)
             if (!_isEditMode)
             {
                 var existingCode = _context.LeaveTypes
@@ -187,20 +187,20 @@ namespace HR_Application.Views.Employees.Holidays
 
                 if (existingCode)
                 {
-                    MessageBox.Show("Ù‡Ø°Ø§ Ø§Ù„ÙƒÙˆØ¯ Ù…Ø³ØªØ®Ø¯Ù… Ù…Ø³Ø¨Ù‚Ø§Ù‹ØŒ Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± ÙƒÙˆØ¯ Ø¢Ø®Ø±", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("åĞÇ ÇáßæÏ ãÓÊÎÏã ãÓÈŞÇğ¡ ÇáÑÌÇÁ ÇÎÊíÇÑ ßæÏ ÂÎÑ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     txtCode.Focus();
                     return false;
                 }
             }
             else
             {
-                // ÙÙŠ Ø­Ø§Ù„Ø© Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ØŒ Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø¹Ø¯Ù… ØªÙƒØ±Ø§Ø± Ø§Ù„ÙƒÙˆØ¯ Ù…Ø¹ Ø§Ø³ØªØ«Ù†Ø§Ø¡ Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„Ø­Ø§Ù„ÙŠ
+                // İí ÍÇáÉ ÇáÊÚÏíá¡ ÇáÊÍŞŞ ãä ÚÏã ÊßÑÇÑ ÇáßæÏ ãÚ ÇÓÊËäÇÁ ÇáÓÌá ÇáÍÇáí
                 var existingCode = _context.LeaveTypes
                     .Any(lt => lt.Code.ToUpper() == txtCode.Text.Trim().ToUpper() && lt.Id != _leaveTypeId);
 
                 if (existingCode)
                 {
-                    MessageBox.Show("Ù‡Ø°Ø§ Ø§Ù„ÙƒÙˆØ¯ Ù…Ø³ØªØ®Ø¯Ù… Ù…Ø³Ø¨Ù‚Ø§Ù‹ØŒ Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± ÙƒÙˆØ¯ Ø¢Ø®Ø±", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("åĞÇ ÇáßæÏ ãÓÊÎÏã ãÓÈŞÇğ¡ ÇáÑÌÇÁ ÇÎÊíÇÑ ßæÏ ÂÎÑ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     txtCode.Focus();
                     return false;
                 }
@@ -217,7 +217,7 @@ namespace HR_Application.Views.Employees.Holidays
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-            // Ø§Ù„Ø³Ù…Ø§Ø­ ÙÙ‚Ø· Ø¨Ø§Ù„Ø£Ø±Ù‚Ø§Ù…
+            // ÇáÓãÇÍ İŞØ ÈÇáÃÑŞÇã
             e.Handled = !char.IsDigit(e.Text, 0);
         }
 

@@ -22,5 +22,7 @@ namespace Sho2on.Database.Models
 
         public virtual ICollection<UserBranch> UserBranches { get; set; } = new List<UserBranch>();
 
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
+
     }
 }

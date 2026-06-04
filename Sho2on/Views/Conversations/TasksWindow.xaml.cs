@@ -1,17 +1,18 @@
-ï»¿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HR_Application.Services;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using HR_Application.Helpers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -79,7 +80,7 @@ namespace HR_Application.Views.Conversations
             };
         }
 
-        // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù‡Ø§Ù… Ù…Ø¹ Refresh
+        // ÊÍãíá ÇáãåÇã ãÚ Refresh
         public async Task LoadTasksAsync()
         {
             try
@@ -96,7 +97,7 @@ namespace HR_Application.Views.Conversations
                 var userTasks = allUsersTasks.Where(t => t.AssignedToUserId == currentUserId);
                 var assignedTasks = allUsersTasks.Where(t => t.AssignedByUserId == currentUserId);
 
-                // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ø§Ù… Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„Ø©
+                // ÊÍÏíË ÍÇáÉ ÇáãåÇã ÇáãÓÊÞÈáÉ
                 foreach (var task in userTasks.Where(t => t.Status == (int)UserTaskStatus.Sent))
                 {
                     task.Status = (int)UserTaskStatus.Received;
@@ -106,23 +107,23 @@ namespace HR_Application.Views.Conversations
                 MyTasks = new ObservableCollection<UserTask>(userTasks);
                 AssignedTasks = new ObservableCollection<UserTask>(assignedTasks);
 
-                // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ù…Ù†Ø³Ø¯Ù„Ø©
+                // ÊÍÏíË ÇáÞæÇÆã ÇáãäÓÏáÉ
                 users = await _context.Users.ToListAsync();
                 assignToBox.ItemsSource = users;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error refreshing tasks: {ex.Message}");
+                LocalizationManager.ShowMessage($"Error refreshing tasks: {ex.Message}");
             }
         }
 
-        // Refresh Tasks (Ù„Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ø¯Ø§Ø®Ù„ÙŠ)
+        // Refresh Tasks (ááÇÓÊÎÏÇã ÇáÏÇÎáí)
         public async void RefreshTasks()
         {
             await LoadTasksAsync();
         }
 
-        // Ø¥Ø¶Ø§ÙØ© Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
+        // ÅÖÇÝÉ ãåãÉ ÌÏíÏÉ ãÚ ÅÔÚÇÑ SignalR
         public async Task AddTaskAsync(User user)
         {
             try
@@ -132,6 +133,7 @@ namespace HR_Application.Views.Conversations
                     Description = taskDescriptionBox.Text,
                     AssignedByUserId = App.CurrentUser.Id,
                     AssignedToUserId = user.Id,
+                    Type = (requestTypeBox.SelectedIndex == 0) ? (int)UserTaskType.Task : (int)UserTaskType.Order,
                     DueDate = dueDatePicker.SelectedDate,
                     CreatedAt = DateTime.Now,
                     Status = (int)UserTaskStatus.Sent
@@ -140,38 +142,49 @@ namespace HR_Application.Views.Conversations
                 _context.UserTasks.Add(newTask);
                 await _context.SaveChangesAsync();
 
-                // ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† Ù„Ù„Ø±Ø³Ø§Ù„Ø©
-                var assignedByUser = await _context.Users.FindAsync(newTask.AssignedByUserId);
+                // ÊÍãíá ÈíÇäÇÊ ÇáãÓÊÎÏãíä ááÑÓÇáÉ
                 newTask.AssignedToUser = user;
-                newTask.AssignedByUser = assignedByUser;
+                newTask.AssignedByUser = App.CurrentUser;
 
-                // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± SignalR
+                // ÅÑÓÇá ÅÔÚÇÑ SignalR
                 await SendTaskNotification(newTask, "NewTask");
 
-                await LoadTasksAsync();
 
-                // Ø¥ØºÙ„Ø§Ù‚ Ù†Ø§ÙØ°Ø© Ø§Ù„Ø¥Ø¶Ø§ÙØ©
+                // ÅÛáÇÞ äÇÝÐÉ ÇáÅÖÇÝÉ
                 manageTaskGrid.Visibility = Visibility.Collapsed;
 
-                // Ø¥Ø¸Ù‡Ø§Ø± Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø­Ø§Ù„ÙŠ
+
+                // ÅÙåÇÑ ÅÔÚÇÑ ááãÓÊÎÏã ÇáÍÇáí
                 if (newTask.AssignedToUserId == App.CurrentUser.Id)
                 {
-                    Helpers.NotificationsHelper.ShowPopupNotification(
-                        "Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©",
-                        $"ØªÙ… ØªÙƒÙ„ÙŠÙÙƒ Ø¨Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©: {newTask.Description}",
-                        this,
-                        null
-                    );
-                    Helpers.NotificationsHelper.PlayNotificationSound();
+                    if (newTask.Type == (int)UserTaskType.Task)
+                    {
+                        Helpers.NotificationsHelper.ShowPopupNotification(
+                            "ãåãÉ ÌÏíÏÉ",
+                            $"Êã ÊßáíÝß ÈãåãÉ ÌÏíÏÉ: {newTask.Description}",
+                            this,
+                            null
+                        );
+
+                    }else
+                    {
+                        Helpers.NotificationsHelper.ShowPopupNotification(
+                            "ØáÈ ÌÏíÏ",
+                            $"Êã ÇÑÓÇá ØáÈ ÌÏíÏ: {newTask.Description}",
+                            this,
+                            null
+                        );
+                    }
+                        Helpers.NotificationsHelper.PlayNotificationSound();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error adding task: {ex.InnerException?.Message ?? ex.Message}");
+                LocalizationManager.ShowMessage($"Error adding task: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
 
-        // ØªØ¹Ø¯ÙŠÙ„ Ù…Ù‡Ù…Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
+        // ÊÚÏíá ãåãÉ ãÚ ÅÔÚÇÑ SignalR
         public async Task EditTaskAsync()
         {
             try
@@ -184,14 +197,15 @@ namespace HR_Application.Views.Conversations
 
                     task.Description = taskDescriptionBox.Text;
                     task.DueDate = dueDatePicker.SelectedDate;
-                    task.AssignedToUserId = (int)assignToBox.SelectedValue;
+                    if (assignToBox.SelectedItem is User user)
+                        task.AssignedToUserId = user.Id;
 
                     await _context.SaveChangesAsync();
 
-                    // ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ø¯Ø«Ø©
+                    // ÊÍãíá ÇáÈíÇäÇÊ ÇáãÍÏËÉ
                     await LoadTasksAsync();
 
-                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± SignalR Ø¥Ø°Ø§ ØªØºÙŠØ± Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                    // ÅÑÓÇá ÅÔÚÇÑ SignalR ÅÐÇ ÊÛíÑ ÇáãÓÊÎÏã
                     if (oldAssignedTo != task.AssignedToUserId)
                     {
                         var updatedTask = await _context.UserTasks
@@ -207,37 +221,35 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error editing task: {ex.Message}");
+                LocalizationManager.ShowMessage($"Error editing task: {ex.Message}");
             }
         }
 
-        // Ø­Ø°Ù Ù…Ù‡Ù…Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
+        // ÍÐÝ ãåãÉ ãÚ ÅÔÚÇÑ SignalR
         public async Task DeleteTaskAsync(int taskId)
         {
             try
             {
                 var task = await _context.UserTasks
-                    .Include(t => t.AssignedToUser)
-                    .Include(t => t.AssignedByUser)
                     .FirstOrDefaultAsync(t => t.Id == taskId);
 
                 if (task != null)
                 {
-                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ø¨Ø§Ù„Ø­Ø°Ù Ù‚Ø¨Ù„ Ø§Ù„Ø­Ø°Ù
-                    await SendTaskNotification(task, "TaskDeleted");
+                    // ÅÑÓÇá ÅÔÚÇÑ ÈÇáÍÐÝ ÞÈá ÇáÍÐÝ
 
                     _context.UserTasks.Remove(task);
                     await _context.SaveChangesAsync();
-                    await LoadTasksAsync();
+
+                    await SendTaskNotification(task, "TaskDeleted");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error deleting task: {ex.Message}");
+                LocalizationManager.ShowMessage($"Error deleting task: {ex.Message}");
             }
         }
 
-        // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ø© Ù…Ø¹ Ø¥Ø´Ø¹Ø§Ø± SignalR
+        // ÊÍÏíË ÍÇáÉ ÇáãåãÉ ãÚ ÅÔÚÇÑ SignalR
         public async Task UpdateTaskStatusAsync(int taskId, int newStatus)
         {
             try
@@ -253,18 +265,18 @@ namespace HR_Application.Views.Conversations
                     task.Status = newStatus;
                     await _context.SaveChangesAsync();
 
-                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ø¨ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©
+                    // ÅÑÓÇá ÅÔÚÇÑ ÈÊÍÏíË ÇáÍÇáÉ
                     await SendTaskNotification(task, "TaskStatusChanged");
 
                     await LoadTasksAsync();
 
-                    // Ø¥Ø¸Ù‡Ø§Ø± Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø°ÙŠ Ù‚Ø§Ù… Ø¨Ø§Ù„ØªØ­Ø¯ÙŠØ«
+                    // ÅÙåÇÑ ÅÔÚÇÑ ááãÓÊÎÏã ÇáÐí ÞÇã ÈÇáÊÍÏíË
                     if (task.AssignedByUserId == App.CurrentUser.Id)
                     {
                         var statusText = GetStatusText(newStatus);
                         Helpers.NotificationsHelper.ShowPopupNotification(
-                            "ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ø©",
-                            $"Ù‚Ø§Ù… {task.AssignedToUser?.FullName} Ø¨ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ø© Ø¥Ù„Ù‰ {statusText}",
+                            "ÊÍÏíË ÍÇáÉ ÇáãåãÉ",
+                            $"ÞÇã {task.AssignedToUser?.FullName} ÈÊÍÏíË ÍÇáÉ ÇáãåãÉ Åáì {statusText}",
                             this,
                             null
                         );
@@ -274,7 +286,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error updating task status: {ex.Message}");
+                LocalizationManager.ShowMessage($"Error updating task status: {ex.Message}");
             }
         }
 
@@ -282,16 +294,16 @@ namespace HR_Application.Views.Conversations
         {
             return status switch
             {
-                (int)UserTaskStatus.Sent => "Ù…Ø±Ø³Ù„Ø©",
-                (int)UserTaskStatus.Received => "Ù…Ø³ØªÙ„Ù…Ø©",
-                (int)UserTaskStatus.OnHold => "Ù…Ø¹Ù„Ù‚Ø©",
-                (int)UserTaskStatus.InProgress => "Ù‚ÙŠØ¯ Ø§Ù„ØªÙ†ÙÙŠØ°",
-                (int)UserTaskStatus.Completed => "Ù…ÙƒØªÙ…Ù„Ø©",
-                _ => "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"
+                (int)UserTaskStatus.Sent => "ãÑÓáÉ",
+                (int)UserTaskStatus.Received => "ãÓÊáãÉ",
+                (int)UserTaskStatus.OnHold => "ãÚáÞÉ",
+                (int)UserTaskStatus.InProgress => "ÞíÏ ÇáÊäÝíÐ",
+                (int)UserTaskStatus.Completed => "ãßÊãáÉ",
+                _ => "ÛíÑ ãÚÑæÝ"
             };
         }
 
-        // Ø¥Ø¹Ø¯Ø§Ø¯ SignalR Listener Ù„Ù„Ù…Ù‡Ø§Ù…
+        // ÅÚÏÇÏ SignalR Listener ááãåÇã
         private async Task SetupSignalRListener()
         {
             if (_signalRInitialized) return;
@@ -315,22 +327,22 @@ namespace HR_Application.Views.Conversations
                 if (task?.AssignedToUserId == App.CurrentUser.Id)
                 {
                     Helpers.NotificationsHelper.ShowPopupNotification(
-                        "Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©",
-                        $"ØªÙ… ØªÙƒÙ„ÙŠÙÙƒ Ø¨Ù…Ù‡Ù…Ø©: {taskDescription}",
+                        "ãåãÉ ÌÏíÏÉ",
+                        $"Êã ÊßáíÝß ÈãåãÉ: {taskDescription}",
                         this, null);
                     Helpers.NotificationsHelper.PlayNotificationSound();
                 }
             }
         }
 
-        // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± SignalR Ù„Ù„Ù…Ù‡Ù…Ø©
+        // ÅÑÓÇá ÅÔÚÇÑ SignalR ááãåãÉ
         private async Task SendTaskNotification(UserTask task, string notificationType)
         {
             try
             {
                 if (App.SignalRConnection != null && App.SignalRConnection.State == HubConnectionState.Connected)
                 {
-                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ù…Ø¹Ù†ÙŠ
+                    // ÅÑÓÇá ÅÔÚÇÑ ááãÓÊÎÏã ÇáãÚäí
                     if (task.AssignedToUserId != null)
                     {
                         await App.SignalRConnection.InvokeAsync("SendTaskNotification",
@@ -342,7 +354,7 @@ namespace HR_Application.Views.Conversations
                             DateTime.Now);
                     }
 
-                    // Ø¥Ø±Ø³Ø§Ù„ Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø°ÙŠ Ø£Ù†Ø´Ø£ Ø§Ù„Ù…Ù‡Ù…Ø© (Ø¥Ø°Ø§ ÙƒØ§Ù† Ù…Ø®ØªÙ„ÙØ§Ù‹)
+                    // ÅÑÓÇá ÅÔÚÇÑ ááãÓÊÎÏã ÇáÐí ÃäÔÃ ÇáãåãÉ (ÅÐÇ ßÇä ãÎÊáÝÇð)
                     if (task.AssignedByUserId != task.AssignedToUserId)
                     {
                         await App.SignalRConnection.InvokeAsync("SendTaskNotification",
@@ -365,6 +377,21 @@ namespace HR_Application.Views.Conversations
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadTasksAsync();
+            await LoadOfficals();
+        }
+
+        private async Task LoadOfficals()
+        {
+            try
+            {
+                var officals = await _context.Officals.Include(o => o.User).ToListAsync();
+                officialsBox.ItemsSource = officals;
+                
+            }
+            catch (Exception ex)
+            {
+                LocalizationManager.ShowMessage(ex.Message);
+            }
         }
 
         // Edit Task Button
@@ -374,15 +401,17 @@ namespace HR_Application.Views.Conversations
             if (button != null && button.DataContext is UserTask selectedTask)
             {
                 manageTaskGrid.Visibility = Visibility.Visible;
-                manageTaskTitle.Text = "ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù‡Ù…Ø©";
+                manageTaskTitle.Text = "ÊÚÏíá ÇáãåãÉ";
                 taskDescriptionBox.Text = selectedTask.Description;
                 dueDatePicker.SelectedDate = selectedTask.DueDate;
-                assignToBox.SelectedValue = selectedTask.AssignedToUserId;
+                assignToCodeBox.Text = selectedTask.AssignedToUser.Code.ToString();
+                assignToBox.SelectedValue = selectedTask.AssignedToUser.Code;
                 _taskId = selectedTask.Id;
+                assignToBox.IsDropDownOpen = false;
             }
             else
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù‡Ù…Ø© Ù„Ù„ØªØ¹Ø¯ÙŠÙ„.");
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ãåãÉ ááÊÚÏíá.");
             }
         }
 
@@ -392,7 +421,7 @@ namespace HR_Application.Views.Conversations
             var button = sender as Button;
             if (button != null && button.DataContext is UserTask selectedTask)
             {
-                var result = MessageBox.Show("Ù‡Ù„ Ø§Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø§Ù„Ù…Ù‡Ù…Ø©?", "Confirm Delete", MessageBoxButton.YesNo);
+                var result = LocalizationManager.ShowMessage("åá ÇäÊ ãÊÃßÏ ãä ÍÐÝ ÇáãåãÉ?", "Confirm Delete", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
                     await DeleteTaskAsync(selectedTask.Id);
@@ -400,7 +429,7 @@ namespace HR_Application.Views.Conversations
             }
             else
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ù‡Ù…Ø© Ù„Ø­Ø°ÙÙ‡Ø§.");
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ÇáãåãÉ áÍÐÝåÇ.");
             }
         }
 
@@ -411,23 +440,39 @@ namespace HR_Application.Views.Conversations
             {
                 if (string.IsNullOrWhiteSpace(taskDescriptionBox.Text))
                 {
-                    MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ ÙˆØµÙ Ù„Ù„Ù…Ù‡Ù…Ø©.");
+                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÇáæÕÝ.");
+                    return;
+                }
+                if (requestTypeBox.SelectedIndex == -1)
+                {
+                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÏÎÇá ÇáäæÚ");
                     return;
                 }
                 var user = users.FirstOrDefault(u => u.Code == code.ToString());
                 if (user == null)
                 {
-                    MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ù…Ø³ØªØ®Ø¯Ù… ØµØ§Ù„Ø­.");
+                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÑÞã ãÓÊÎÏã ÕÇáÍ.");
                     return;
                 }
                 if (_taskId == -1)
                     await AddTaskAsync(user);
                 else
                     await EditTaskAsync();
+
+
+                assignToCodeBox.Clear();
+                assignToBox.SelectedIndex = -1;
+                requestTypeBox.SelectedIndex = -1;
+                dueDatePicker.SelectedDate = null;
+                taskDescriptionBox.Clear();
+                _taskId = -1;
+                assignToBox.IsDropDownOpen = false;
+
+
             }
             else
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø°ÙŠ Ø³ÙŠØªÙ… ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ù…Ù‡Ù…Ø© Ù„Ù‡.");
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ÇáãÓÊÎÏã ÇáÐí ÓíÊã ÊÚííä ÇáãåãÉ áå.");
             }
         }
 
@@ -439,18 +484,23 @@ namespace HR_Application.Views.Conversations
             taskDescriptionBox.Text = string.Empty;
             dueDatePicker.SelectedDate = null;
             assignToBox.SelectedIndex = -1;
+            requestTypeBox.SelectedIndex = -1;
+            officialsBox.SelectedIndex = -1;
             assignToCodeBox.Clear();
+            taskDescriptionBox.Clear();
         }
 
         // Add Task Button
         private void addTaskBtn_Click(object sender, RoutedEventArgs e)
         {
             manageTaskGrid.Visibility = Visibility.Visible;
-            manageTaskTitle.Text = "Ø¥Ø¶Ø§ÙØ© Ù…Ù‡Ù…Ø© Ø¬Ø¯ÙŠØ¯Ø©";
+            manageTaskTitle.Text = "ÅÖÇÝÉ ãåãÉ ÌÏíÏÉ";
             assignToBox.SelectedIndex = -1;
             taskDescriptionBox.Text = string.Empty;
             dueDatePicker.SelectedDate = null;
             _taskId = -1;
+            assignToBox.IsDropDownOpen = false;
+
         }
 
         // Search User by Code
@@ -460,19 +510,21 @@ namespace HR_Application.Views.Conversations
             {
                 if (int.TryParse(assignToCodeBox.Text, out int userId))
                 {
-                    var user = _context.Users.Find(userId);
+                    e.Handled = true;
+                    var user = _context.Users.FirstOrDefault(u => u.Code == userId.ToString());
                     if (user != null)
                     {
-                        assignToBox.SelectedValue = user.Id;
+                        assignToBox.SelectedValue = user.Code;
+                        assignToBox.IsDropDownOpen = false;
                     }
                     else
                     {
-                        MessageBox.Show("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯.");
+                        LocalizationManager.ShowMessage("ÇáãÓÊÎÏã ÛíÑ ãæÌæÏ.");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ù…Ø³ØªØ®Ø¯Ù… ØµØ§Ù„Ø­.");
+                    LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÅÏÎÇá ÑÞã ãÓÊÎÏã ÕÇáÍ.");
                 }
             }
         }
@@ -600,6 +652,48 @@ namespace HR_Application.Views.Conversations
             else
             {
                 AssignedTasks = new ObservableCollection<UserTask>(allUsersTasks.Where(t => t.AssignedByUserId == App.CurrentUser.Id && t.Status == selectedStatus - 1));
+            }
+        }
+
+        private void taskDescriptionBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                taskDescriptionBox.Text += "\n";
+                taskDescriptionBox.CaretIndex = taskDescriptionBox.Text.Length;
+
+            }
+        }
+
+        private void requestTypeBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (requestTypeBox.SelectedIndex == 1)
+            {
+                if (App.CurrentUser.Manager != null)
+                {
+                    assignToCodeBox.Text = App.CurrentUser.Manager.Code;
+                    assignToBox.SelectedValue = App.CurrentUser.Manager.Code;
+                }
+                officalsPanel.Visibility = Visibility.Collapsed;
+
+            }
+            else
+            {
+                if (Properties.Settings.Default.OfficalsForAll || App.CurrentUser.JobTitle.IsManager.Value)
+                {
+                    officalsPanel.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void officialsBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (officialsBox.SelectedItem is Offical offical)
+            {
+                assignToBox.Text = offical.User.FullName;
+                assignToBox.SelectedValue = offical.User.Code;
+                assignToBox.IsDropDownOpen = false;
+                assignToCodeBox.Text = offical.User.Code;
             }
         }
     }

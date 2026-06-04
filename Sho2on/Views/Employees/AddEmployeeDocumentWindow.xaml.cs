@@ -1,11 +1,12 @@
-ï»¿// AddEmployeeDocumentWindow.xaml.cs
+// AddEmployeeDocumentWindow.xaml.cs
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
+using HR_Application.Helpers;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using MessageBox = System.Windows.MessageBox;
@@ -20,10 +21,10 @@ namespace HR_Application.Views
         private int _employeeId;
         private string _selectedFilePath;
 
-        // Ù‚Ø§Ø¦Ù…Ø© Ø¨Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ù…Ø³Ù…ÙˆØ­Ø©
+        // ŞÇÆãÉ ÈÃäæÇÚ ÇáãáİÇÊ ÇáãÓãæÍÉ
         private readonly Dictionary<string, string> _supportedFileTypes = new Dictionary<string, string>
         {
-            // Ø§Ù„ØµÙˆØ±
+            // ÇáÕæÑ
             { ".jpg", "JPEG Image" },
             { ".jpeg", "JPEG Image" },
             { ".png", "PNG Image" },
@@ -31,7 +32,7 @@ namespace HR_Application.Views
             { ".gif", "GIF Image" },
             { ".tiff", "TIFF Image" },
             
-            // Ù…Ø³ØªÙ†Ø¯Ø§Øª Office
+            // ãÓÊäÏÇÊ Office
             { ".doc", "Word Document" },
             { ".docx", "Word Document" },
             { ".xls", "Excel Document" },
@@ -39,7 +40,7 @@ namespace HR_Application.Views
             { ".ppt", "PowerPoint Document" },
             { ".pptx", "PowerPoint Document" },
             
-            // PDF ÙˆÙ…Ù„ÙØ§Øª Ø£Ø®Ø±Ù‰
+            // PDF æãáİÇÊ ÃÎÑì
             { ".pdf", "PDF Document" },
             { ".txt", "Text File" }
         };
@@ -54,10 +55,10 @@ namespace HR_Application.Views
 
         private void SetupFileFilter()
         {
-            // Ø¨Ù†Ø§Ø¡ ÙÙ„ØªØ± Ø§Ù„Ù…Ù„ÙØ§Øª Ø¯ÙŠÙ†Ø§Ù…ÙŠÙƒÙŠØ§Ù‹
-            string allSupported = "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ù…Ø¯Ø¹ÙˆÙ…Ø©|";
-            string images = "Ø§Ù„ØµÙˆØ±|";
-            string documents = "Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª|";
+            // ÈäÇÁ İáÊÑ ÇáãáİÇÊ ÏíäÇãíßíÇğ
+            string allSupported = "ÌãíÚ ÇáãáİÇÊ ÇáãÏÚæãÉ|";
+            string images = "ÇáÕæÑ|";
+            string documents = "ÇáãÓÊäÏÇÊ|";
             string pdf = "PDF|";
 
             foreach (var type in _supportedFileTypes)
@@ -81,17 +82,17 @@ namespace HR_Application.Views
                 }
             }
 
-            // Ø¥Ø²Ø§Ù„Ø© Ø§Ù„ÙØ§ØµÙ„Ø© Ø§Ù„Ø£Ø®ÙŠØ±Ø©
+            // ÅÒÇáÉ ÇáİÇÕáÉ ÇáÃÎíÑÉ
             allSupported = allSupported.TrimEnd(';');
             images = images.TrimEnd(';');
             documents = documents.TrimEnd(';');
             pdf = pdf.TrimEnd(';');
 
-            browseFileDialog.Filter = $"{allSupported}|{images}|{documents}|{pdf}|Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª (*.*)|*.*";
+            browseFileDialog.Filter = $"{allSupported}|{images}|{documents}|{pdf}|ÌãíÚ ÇáãáİÇÊ (*.*)|*.*";
             browseFileDialog.FilterIndex = 1;
         }
 
-        // Ø¨Ø§Ù‚ÙŠ Ø§Ù„ÙƒÙˆØ¯ ÙŠØ¨Ù‚Ù‰ ÙƒÙ…Ø§ Ù‡Ùˆ Ù…Ø¹ ØªØ¹Ø¯ÙŠÙ„ Ø¨Ø³ÙŠØ· ÙÙŠ browseBtn_Click
+        // ÈÇŞí ÇáßæÏ íÈŞì ßãÇ åæ ãÚ ÊÚÏíá ÈÓíØ İí browseBtn_Click
         private OpenFileDialog browseFileDialog = new OpenFileDialog();
 
         private void browseBtn_Click(object sender, RoutedEventArgs e)
@@ -104,7 +105,7 @@ namespace HR_Application.Views
                 string fileExtension = fileInfo.Extension.ToLower();
                 if (!_supportedFileTypes.ContainsKey(fileExtension))
                 {
-                    MessageBox.Show("Ù†ÙˆØ¹ Ø§Ù„Ù…Ù„Ù ØºÙŠØ± Ù…Ø¯Ø¹ÙˆÙ…. ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Ù…Ù† Ø§Ù„Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ù…Ø³Ù…ÙˆØ­Ø©.", "ØªØ­Ø°ÙŠØ±",
+                    LocalizationManager.ShowMessage("äæÚ Çáãáİ ÛíÑ ãÏÚæã. íÑÌì ÇÎÊíÇÑ ãáİ ãä ÇáÃäæÇÚ ÇáãÓãæÍÉ.", "ÊÍĞíÑ",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -118,7 +119,7 @@ namespace HR_Application.Views
             }
         }
 
-        // Ø¨Ø§Ù‚ÙŠ Ø§Ù„Ø¯ÙˆØ§Ù„ ØªØ¨Ù‚Ù‰ ÙƒÙ…Ø§ Ù‡ÙŠ...
+        // ÈÇŞí ÇáÏæÇá ÊÈŞì ßãÇ åí...
         private void LoadDocumentTypes()
         {
             documentTypeComboBox.ItemsSource = Enum.GetValues(typeof(EmployeeDocumentType))
@@ -134,11 +135,11 @@ namespace HR_Application.Views
         {
             return type switch
             {
-                EmployeeDocumentType.TrainingCertificate => "Ø§Ù„ØªØ¯Ø±ÙŠØ¨",
-                EmployeeDocumentType.WorkPermit => "ÙˆØ«Ø§Ø¦Ù‚ Ø§Ù„ØªØ¹ÙŠÙŠÙ†",
-                EmployeeDocumentType.SignedCompanyDocument => "ÙˆØ«Ø§Ø¦Ù‚ Ù…ÙˆÙ‚Ø¹Ù‡",
-                EmployeeDocumentType.Other => "Ø£Ø®Ø±Ù‰",
-                _ => "Ø£Ø®Ø±Ù‰"
+                EmployeeDocumentType.TrainingCertificate => "ÇáÊÏÑíÈ",
+                EmployeeDocumentType.WorkPermit => "æËÇÆŞ ÇáÊÚííä",
+                EmployeeDocumentType.SignedCompanyDocument => "æËÇÆŞ ãæŞÚå",
+                EmployeeDocumentType.Other => "ÃÎÑì",
+                _ => "ÃÎÑì"
             };
         }
 
@@ -160,7 +161,7 @@ namespace HR_Application.Views
             if (string.IsNullOrEmpty(titleTextBox.Text) || documentTypeComboBox.SelectedValue == null ||
                 string.IsNullOrEmpty(_selectedFilePath))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ù…Ù„Ø¡ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ ÙˆØ§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù", "ØªØ­Ø°ÙŠØ±",
+                LocalizationManager.ShowMessage("íÑÌì ãáÁ ÌãíÚ ÇáÍŞæá æÇÎÊíÇÑ ãáİ", "ÊÍĞíÑ",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -169,18 +170,18 @@ namespace HR_Application.Views
             {
                 var fileInfo = new FileInfo(_selectedFilePath);
 
-                // Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø±ÙƒØ²ÙŠ Ù„ÙˆØ«Ø§Ø¦Ù‚ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†
+                // ÇÓÊÎÏÇã ÇáãÓÇÑ ÇáãÑßÒí áæËÇÆŞ ÇáãæÙİíä
                 string storagePath = AppDbContext.CentralStoragePath;
                 string employeeDocumentsPath = Path.Combine(storagePath, "EmployeeDocuments");
 
                 if (!Directory.Exists(employeeDocumentsPath))
                     Directory.CreateDirectory(employeeDocumentsPath);
 
-                // ØªÙˆÙ„ÙŠØ¯ Ø§Ø³Ù… ÙØ±ÙŠØ¯ Ù„Ù„Ù…Ù„Ù
+                // ÊæáíÏ ÇÓã İÑíÏ ááãáİ
                 var fileName = $"{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileInfo.Name)}{fileInfo.Extension}";
                 var destinationPath = Path.Combine(employeeDocumentsPath, fileName);
 
-                // Ù†Ø³Ø® Ø§Ù„Ù…Ù„Ù Ù„Ù„Ù…Ø³Ø§Ø± Ø§Ù„Ù…Ø±ÙƒØ²ÙŠ
+                // äÓÎ Çáãáİ ááãÓÇÑ ÇáãÑßÒí
                 File.Copy(_selectedFilePath, destinationPath, true);
 
                 // Save to database
@@ -202,7 +203,7 @@ namespace HR_Application.Views
                     StorageType = "Central"
                 };
 
-                // Ø¥Ø°Ø§ ÙƒØ§Ù† ØªØ§Ø±ÙŠØ® Ø§Ù†ØªÙ‡Ø§Ø¡ Ù…Ø­Ø¯Ø¯
+                // ÅĞÇ ßÇä ÊÇÑíÎ ÇäÊåÇÁ ãÍÏÏ
                 if (expiryDatePicker.SelectedDate.HasValue)
                 {
                     document.ExpiryDate = expiryDatePicker.SelectedDate.Value;
@@ -211,14 +212,14 @@ namespace HR_Application.Views
                 _context.EmployeeDocuments.Add(document);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show($"ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© Ø¨Ù†Ø¬Ø§Ø­ Ø¥Ù„Ù‰:\n{destinationPath}", "Ù†Ø¬Ø§Ø­",
+                LocalizationManager.ShowMessage($"Êã ÅÖÇİÉ ÇáæËíŞÉ ÈäÌÇÍ Åáì:\n{destinationPath}", "äÌÇÍ",
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ø¶Ø§ÙØ© Ø§Ù„ÙˆØ«ÙŠÙ‚Ø©: {ex.InnerException?.Message ?? ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÅÖÇİÉ ÇáæËíŞÉ: {ex.InnerException?.Message ?? ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

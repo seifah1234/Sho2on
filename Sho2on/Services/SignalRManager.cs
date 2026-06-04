@@ -43,7 +43,7 @@ namespace HR_Application.Services
                     return;
                 }
 
-                var url = $"http://192.168.100.140:7001/chatHub?userId={userId}";
+                var url = $"http://{App.ServerIP}:7001/chatHub?userId={userId}";
 
                 App.SignalRConnection = new HubConnectionBuilder()
                     .WithUrl(url)

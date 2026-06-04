@@ -1,13 +1,13 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -47,7 +47,7 @@ namespace HR_Application
             }
             catch (Exception e)
             {
-                System.Windows.MessageBox.Show(e.Message);
+                LocalizationManager.ShowMessage(e.Message);
             }
             
         }
@@ -63,20 +63,20 @@ namespace HR_Application
                 string name = name_box.Text;
                 if (_context.Areas.Any(b => b.Name == name))
                 {
-                    MessageBox.Show("Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ù…ÙˆØ¬ÙˆØ¯Ø© Ø¨Ø§Ù„ÙØ¹Ù„!");
+                    LocalizationManager.ShowMessage("ÇáãäØŞÉ ãæÌæÏÉ ÈÇáİÚá!");
                     return;
                 }
                 var area = new Area { Name = name };
                 _context.Areas.Add(area);
                 _context.SaveChanges();
 
-                System.Windows.MessageBox.Show("ØªÙ… Ø§Ø¶Ø§ÙØ© Ø§Ù„Ù…Ù†Ø·Ù‚Ø©", "ØªÙ…", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÇÖÇİÉ ÇáãäØŞÉ", "Êã", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
 
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
 
             }
         }
@@ -90,7 +90,7 @@ namespace HR_Application
         { 
             if (area_list.SelectedItem is not Area area)
             {
-                System.Windows.MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ù†Ø·Ù‚Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáãäØŞÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
@@ -98,12 +98,12 @@ namespace HR_Application
                 {
                     _context.Areas.Remove(area);
                     await _context.SaveChangesAsync();
-                    System.Windows.MessageBox.Show("ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…Ù†Ø·Ù‚Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÍĞİ ÇáãäØŞÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 catch
                 {
-                    System.Windows.MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -120,18 +120,18 @@ namespace HR_Application
                     area.Name = name;
                     _context.Areas.Update(area);
                     await  _context.SaveChangesAsync();
-                    System.Windows.MessageBox.Show("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáãäØŞÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show("Ù„Ù… ØªØ®ØªØ§Ø± Ø§ÙŠ Ù…Ù†Ø·Ù‚Ø©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Çí ãäØŞÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
             }
             catch
             {
-                System.Windows.MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -156,3 +156,4 @@ namespace HR_Application
 
     }
 }
+

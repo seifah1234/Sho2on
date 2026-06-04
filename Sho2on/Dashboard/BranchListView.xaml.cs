@@ -1,11 +1,12 @@
 // BranchListView.xaml.cs
+using HR_Application.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -103,7 +104,7 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل بيانات الفروع: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"خطأ في تحميل بيانات الفروع: {ex.Message}", "خطأ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -232,3 +233,4 @@ namespace HR_Application.Dashboard
             _ = LoadDataAsync();
     }
 }
+

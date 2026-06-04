@@ -1,9 +1,9 @@
-﻿using System;
+﻿using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 
 namespace HR_Application
 {

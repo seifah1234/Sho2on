@@ -1,10 +1,10 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 
@@ -35,7 +35,7 @@ namespace HR_Application
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {e.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {e.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -45,7 +45,7 @@ namespace HR_Application
             {
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¯Ø±Ø¬Ø© Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇÓã ÇáÏÑÌÉ ÇáæÙíİíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -58,12 +58,12 @@ namespace HR_Application
                 await _context.Degrees.AddAsync(degree);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show("ØªÙ… Ø§Ø¶Ø§ÙØ© Ø§Ù„Ø¯Ø±Ø¬Ø© Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÇÖÇİÉ ÇáÏÑÌÉ ÇáæÙíİíÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadData();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -76,27 +76,27 @@ namespace HR_Application
         {
             if (list.SelectedItem is not Degree degree)
             {
-                MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø¯Ø±Ø¬Ø© Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáÏÑÌÉ ÇáæÙíİíÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             try
             {
-                var result = MessageBox.Show($"Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø§Ù„Ø¯Ø±Ø¬Ø© Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ© '{degree.Name}'ØŸ",
-                    "ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø­Ø°Ù", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var result = LocalizationManager.ShowMessage($"åá ÃäÊ ãÊÃßÏ ãä ÍĞİ ÇáÏÑÌÉ ÇáæÙíİíÉ '{degree.Name}'¿",
+                    "ÊÃßíÏ ÇáÍĞİ", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                 if (result == MessageBoxResult.Yes)
                 {
                     _context.Degrees.Remove(degree);
                     await _context.SaveChangesAsync();
 
-                    MessageBox.Show("ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¯Ø±Ø¬Ø© Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("Êã ÍĞİ ÇáÏÑÌÉ ÇáæÙíİíÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadData();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­Ø°Ù: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍĞİ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -106,13 +106,13 @@ namespace HR_Application
             {
                 if (list.SelectedItem is not Degree degree)
                 {
-                    MessageBox.Show("Ù„Ù… ØªØ®ØªØ§Ø± Ø£ÙŠ Ø¯Ø±Ø¬Ø© ÙˆØ¸ÙŠÙÙŠØ©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Ãí ÏÑÌÉ æÙíİíÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ø§Ù„Ø¯Ø±Ø¬Ø© Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇÓã ÇáÏÑÌÉ ÇáæÙíİíÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -122,12 +122,12 @@ namespace HR_Application
                 _context.Degrees.Update(degree);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¯Ø±Ø¬Ø© Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáÏÑÌÉ ÇáæÙíİíÉ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadData();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÊÚÏíá: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -144,7 +144,7 @@ namespace HR_Application
             await LoadData();
         }
 
-        // Ø¥Ø²Ø§Ù„Ø© Ø§Ù„Ø¯ÙˆØ§Ù„ ØºÙŠØ± Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…Ø© Ù…Ù† Ø§Ù„ÙƒÙˆØ¯ Ø§Ù„Ù‚Ø¯ÙŠÙ…
+        // ÅÒÇáÉ ÇáÏæÇá ÛíÑ ÇáãÓÊÎÏãÉ ãä ÇáßæÏ ÇáŞÏíã
         private void Exit_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) { }
         private void B_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) { }
         private void Exit_Click(object sender, RoutedEventArgs e) { }

@@ -1,13 +1,14 @@
-ï»¿using HR_Application.Views;
+using HR_Application.Views;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
-using System;
+using System; using HR_Application.Helpers;
+using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -45,7 +46,7 @@ namespace HR_Application.Dashboard
 
         private void InitializeDashboard()
         {
-            WelcomeText.Text = $"Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨ÙƒØŒ {App.CurrentUser?.FullName ?? "Ø§Ù„Ù…ÙˆØ¸Ù"}";
+            WelcomeText.Text = $"ãÑÍÈÇğ Èß¡ {App.CurrentUser?.FullName ?? "ÇáãæÙİ"}";
             LoadProfileImage();
             LoadEmployeeInfo();
         }
@@ -68,13 +69,13 @@ namespace HR_Application.Dashboard
                 }
                 else
                 {
-                    // ØµÙˆØ±Ø© Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
+                    // ÕæÑÉ ÇİÊÑÇÖíÉ
                     ProfileImage.Source = new BitmapImage(new Uri("pack://application:,,,/assets/images/default-avatar.png"));
                 }
             }
             catch
             {
-                // ÙÙŠ Ø­Ø§Ù„Ø© Ø­Ø¯ÙˆØ« Ø®Ø·Ø£ØŒ Ø¹Ø±Ø¶ ØµÙˆØ±Ø© Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
+                // İí ÍÇáÉ ÍÏæË ÎØÃ¡ ÚÑÖ ÕæÑÉ ÇİÊÑÇÖíÉ
                 ProfileImage.Source = new BitmapImage(new Uri("pack://application:,,,/assets/images/default-avatar.png"));
             }
         }
@@ -84,9 +85,9 @@ namespace HR_Application.Dashboard
             if (App.CurrentUser != null)
             {
                 EmployeeName.Text = App.CurrentUser.FullName;
-                EmployeeCode.Text = $"Ø§Ù„ÙƒÙˆØ¯: {App.CurrentUser.Code}";
+                EmployeeCode.Text = $"ÇáßæÏ: {App.CurrentUser.Code}";
 
-                // ØªØ­Ù…ÙŠÙ„ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„ÙˆØ¸ÙŠÙØ© ÙˆØ§Ù„Ø§Ø¯Ø§Ø±Ø©
+                // ÊÍãíá ãÚáæãÇÊ ÇáæÙíİÉ æÇáÇÏÇÑÉ
                 LoadJobAndDepartmentInfo();
             }
         }
@@ -112,8 +113,8 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                EmployeeJob.Text = "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
-                EmployeeDepartment.Text = "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
+                EmployeeJob.Text = "ÛíÑ ãÍÏÏ";
+                EmployeeDepartment.Text = "ÛíÑ ãÍÏÏ";
             }
         }
 
@@ -125,34 +126,34 @@ namespace HR_Application.Dashboard
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£",
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task LoadPersonalStatistics()
         {
-            // Ø±ØµÙŠØ¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª
+            // ÑÕíÏ ÇáÅÌÇÒÇÊ
             var leaveBalance = await _context.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.UserId == _currentUserId);
 
             if (leaveBalance != null)
             {
-                LeaveBalance.Text = $"{leaveBalance.TotalBalance - leaveBalance.UsedBalance} ÙŠÙˆÙ…";
+                LeaveBalance.Text = $"{leaveBalance.TotalBalance - leaveBalance.UsedBalance} íæã";
             }
             else
             {
-                LeaveBalance.Text = "0 ÙŠÙˆÙ…";
+                LeaveBalance.Text = "0 íæã";
             }
 
-            // Ø§Ù„Ø­Ø¶ÙˆØ± Ø§Ù„Ø´Ù‡Ø±ÙŠ
+            // ÇáÍÖæÑ ÇáÔåÑí
             var monthlyAttendance = await CalculateMonthlyAttendance();
             MonthlyAttendance.Text = $"{monthlyAttendance:F0}%";
 
-            // Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø£Ø®ÙŠØ±
+            // ÇáÑÇÊÈ ÇáÃÎíÑ
             await LoadLastSalary();
 
-            // Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ù…Ù„ Ø§Ù„Ø´Ù‡Ø±ÙŠØ©
+            // ÓÇÚÇÊ ÇáÚãá ÇáÔåÑíÉ
             await LoadWorkHours();
         }
 
@@ -174,12 +175,12 @@ namespace HR_Application.Dashboard
 
         private async Task<int> GetTotalWorkDays()
         {
-            // Ø­Ø³Ø§Ø¨ Ø£ÙŠØ§Ù… Ø§Ù„Ø¹Ù…Ù„ Ø§Ù„ÙØ¹Ù„ÙŠØ© ÙÙŠ Ø§Ù„Ø´Ù‡Ø± (Ø¨Ø§Ø³ØªØ«Ù†Ø§Ø¡ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©)
+            // ÍÓÇÈ ÃíÇã ÇáÚãá ÇáİÚáíÉ İí ÇáÔåÑ (ÈÇÓÊËäÇÁ ÇáÅÌÇÒÇÊ ÇáÃÓÈæÚíÉ)
             var user = await _context.Users
                 .Include(u => u.WeekHoliday)
                 .FirstOrDefaultAsync(u => u.Id == _currentUserId);
 
-            if (user?.WeekHoliday == null) return 20; // Ù‚ÙŠÙ…Ø© Ø§ÙØªØ±Ø§Ø¶ÙŠØ©
+            if (user?.WeekHoliday == null) return 20; // ŞíãÉ ÇİÊÑÇÖíÉ
 
             int totalWorkDays = 0;
             for (var date = _currentMonthStart; date <= _currentMonthEnd; date = date.AddDays(1))
@@ -187,8 +188,8 @@ namespace HR_Application.Dashboard
                 var dayOfWeek = (int)date.DayOfWeek;
                 bool isHoliday = dayOfWeek switch
                 {
-                    0 => user.WeekHoliday.Day7, // Ø§Ù„Ø£Ø­Ø¯
-                    1 => user.WeekHoliday.Day1, // Ø§Ù„Ø§Ø«Ù†ÙŠÙ†
+                    0 => user.WeekHoliday.Day7, // ÇáÃÍÏ
+                    1 => user.WeekHoliday.Day1, // ÇáÇËäíä
                     2 => user.WeekHoliday.Day2,
                     3 => user.WeekHoliday.Day3,
                     4 => user.WeekHoliday.Day4,
@@ -219,7 +220,7 @@ namespace HR_Application.Dashboard
             }
             else
             {
-                LastSalary.Text = "ØºÙŠØ± Ù…ØªÙˆÙØ±";
+                LastSalary.Text = "ÛíÑ ãÊæİÑ";
             }
         }
 
@@ -232,7 +233,7 @@ namespace HR_Application.Dashboard
                            a.TotalWorkHours.HasValue)
                 .SumAsync(a => a.TotalWorkHours.Value.TotalHours);
 
-            WorkHours.Text = $"{totalHours:F1} Ø³Ø§Ø¹Ø©";
+            WorkHours.Text = $"{totalHours:F1} ÓÇÚÉ";
         }
 
         // Quick Action Handlers
@@ -257,7 +258,7 @@ namespace HR_Application.Dashboard
         private void OpenMySalary(object sender, RoutedEventArgs e)
         {
             var window = new SalaryReport();
-            // ÙŠÙ…ÙƒÙ† ØªÙ…Ø±ÙŠØ± ÙƒÙˆØ¯ Ø§Ù„Ù…ÙˆØ¸Ù Ø§Ù„Ø­Ø§Ù„ÙŠ Ù„Ø¹Ø±Ø¶ Ø¨ÙŠØ§Ù†Ø§ØªÙ‡ ÙÙ‚Ø·
+            // íãßä ÊãÑíÑ ßæÏ ÇáãæÙİ ÇáÍÇáí áÚÑÖ ÈíÇäÇÊå İŞØ
             window.Show();
         }
 
@@ -273,21 +274,22 @@ namespace HR_Application.Dashboard
 
         private void OpenMyBenefits(object sender, RoutedEventArgs e)
         {
-            // ÙŠÙ…ÙƒÙ† Ø¥Ù†Ø´Ø§Ø¡ Ù†Ø§ÙØ°Ø© ØªØ¹Ø±Ø¶ Ù…Ø³ØªØ­Ù‚Ø§Øª Ø§Ù„Ù…ÙˆØ¸Ù ÙÙ‚Ø·
+            // íãßä ÅäÔÇÁ äÇİĞÉ ÊÚÑÖ ãÓÊÍŞÇÊ ÇáãæÙİ İŞØ
             var window = new BenefitsDeductions();
             window.Show();
         }
 
         private void OpenMyHistory(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„ÙˆØ¸ÙŠÙÙŠ ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", "Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±",
+            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ ÇáÓÌá ÇáæÙíİí İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OpenMyDocuments(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Ø³ÙŠØªÙ… ØªØ·ÙˆÙŠØ± Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ù‚Ø§Ø¯Ù…Ø©", "Ù‚ÙŠØ¯ Ø§Ù„ØªØ·ÙˆÙŠØ±",
+            LocalizationManager.ShowMessage("ÓíÊã ÊØæíÑ ÚÑÖ ÇáãÓÊäÏÇÊ İí ÇáäÓÎÉ ÇáŞÇÏãÉ", "ŞíÏ ÇáÊØæíÑ",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }
+

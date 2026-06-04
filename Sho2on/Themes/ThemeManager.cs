@@ -1,5 +1,5 @@
-using System;
-using System.Windows;
+using System; using HR_Application.Helpers;
+using System.Windows; using HR_Application.Helpers;
 using Application = System.Windows.Application;
 
 namespace HR_Application

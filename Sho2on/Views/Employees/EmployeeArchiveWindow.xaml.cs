@@ -1,16 +1,17 @@
-﻿// EmployeeArchiveWindow.xaml.cs
+// EmployeeArchiveWindow.xaml.cs
 using DocumentFormat.OpenXml.Wordprocessing;
 using MahApps.Metro.IconPacks;
+using HR_Application.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using static HR_Application.Views.EmployeeArchiveWindow;
@@ -20,7 +21,7 @@ using Color = System.Windows.Media.Color;
 using MessageBox = System.Windows.MessageBox;
 using PrintDialog = System.Windows.Controls.PrintDialog;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
@@ -61,10 +62,10 @@ namespace HR_Application.Views
             _employeeId = employeeId;
         }
 
-        // ── Navigation state ──────────────────────────────────────────
+        // ?? Navigation state ??????????????????????????????????????????
         private int _currentFolderTypeId = -1;
 
-        // ── Build folder list from your existing document collection ──
+        // ?? Build folder list from your existing document collection ??
         private void LoadFolders()
         {
             // Adjust this list to match your actual DocumentType enum/ids.
@@ -74,7 +75,7 @@ namespace HR_Application.Views
                 new FolderItem
                 {
                     TypeId        = 1,
-                    FolderName    = "وثائق موقعة",
+                    FolderName    = "����� �����",
                     FolderColor   = (SolidColorBrush)FindResource("SignedColor"),
                     FolderIconKind= PackIconMaterialKind.FileSign,
                     DocumentCount = CountDocsOfType(1)
@@ -82,7 +83,7 @@ namespace HR_Application.Views
                 new FolderItem
                 {
                     TypeId        = 7,
-                    FolderName    = "وثاق العمل",
+                    FolderName    = "���� �����",
                     FolderColor   = (SolidColorBrush)FindResource("CVColor"),
                     FolderIconKind= PackIconMaterialKind.FileAccount,
                     DocumentCount = CountDocsOfType(7)
@@ -90,7 +91,7 @@ namespace HR_Application.Views
                 new FolderItem
                 {
                     TypeId        = 6,
-                    FolderName    = "وثائق التدريب",
+                    FolderName    = "����� �������",
                     FolderColor   = (SolidColorBrush)FindResource("CertificateColor"),
                     FolderIconKind= PackIconMaterialKind.Certificate,
                     DocumentCount = CountDocsOfType(6)
@@ -98,7 +99,7 @@ namespace HR_Application.Views
                 new FolderItem
                 {
                     TypeId        = 99,
-                    FolderName    = "أخرى",
+                    FolderName    = "����",
                     FolderColor   = (SolidColorBrush)FindResource("DefaultColor"),
                     FolderIconKind= PackIconMaterialKind.FolderMultiple,
                     DocumentCount = CountDocsOfType(99)
@@ -108,7 +109,7 @@ namespace HR_Application.Views
             // Update total badge
             int total = 0;
             foreach (var f in folders) total += f.DocumentCount;
-            totalDocsCount.Text = $"{total} وثيقة";
+            totalDocsCount.Text = $"{total} �����";
 
             foldersItemsControl.ItemsSource = folders;
         }
@@ -121,7 +122,7 @@ namespace HR_Application.Views
              return _documents.Count(d => d.DocumentTypeId == typeId);
         }
 
-        // ── Folder card clicked → drill into folder ───────────────────
+        // ?? Folder card clicked ? drill into folder ???????????????????
         private void FolderCard_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (sender is Border border && border.Tag is FolderItem folder)
@@ -140,7 +141,7 @@ namespace HR_Application.Views
                 foldersItemsControl.Visibility = Visibility.Collapsed;
                 documentsScrollViewer.Visibility = Visibility.Visible;
 
-                statusText.Text = $"عرض وثائق: {folder.FolderName}";
+                statusText.Text = $"��� �����: {folder.FolderName}";
             }
         }
 
@@ -152,13 +153,13 @@ namespace HR_Application.Views
             documentsItemsControl.ItemsSource = filtered;
         }
 
-        // ── Back button → return to folder grid ───────────────────────
+        // ?? Back button ? return to folder grid ???????????????????????
         private void backToFoldersBtn_Click(object sender, RoutedEventArgs e)
         {
             NavigateToRoot();
         }
 
-        // ── Root breadcrumb clicked ────────────────────────────────────
+        // ?? Root breadcrumb clicked ????????????????????????????????????
         private void rootCrumbLink_Click(object sender, RoutedEventArgs e)
         {
             NavigateToRoot();
@@ -174,10 +175,10 @@ namespace HR_Application.Views
             documentsScrollViewer.Visibility = Visibility.Collapsed;
             foldersItemsControl.Visibility = Visibility.Visible;
 
-            statusText.Text = "جاهز";
+            statusText.Text = "����";
         }
 
-        // ── Call LoadFolders() from your existing Window_Loaded or constructor ──
+        // ?? Call LoadFolders() from your existing Window_Loaded or constructor ??
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 
@@ -195,12 +196,12 @@ namespace HR_Application.Views
                 if (employee != null)
                 {
                     txtEmployeeName.Text = employee.FullName;
-                    txtEmployeeCode.Text = $"كود: {employee.Id}";
+                    txtEmployeeCode.Text = $"���: {employee.Id}";
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل بيانات الموظف: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"��� �� ����� ������ ������: {ex.Message}", "���",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -221,7 +222,7 @@ namespace HR_Application.Views
                 {
                     Id = d.Id,
                     Title = d.Title,
-                    Description = d.Description ?? "لا يوجد وصف",
+                    Description = d.Description ?? "�� ���� ���",
                     UploadDate = d.UploadDate,
                     DocumentType = d.DocumentType,
                     Status = d.Status,
@@ -233,13 +234,13 @@ namespace HR_Application.Views
                 }).ToList();
 
                 documentsItemsControl.ItemsSource = _documents;
-                statusText.Text = $"تم تحميل {_documents.Count} وثيقة من المسار المركزي";
+                statusText.Text = $"�� ����� {_documents.Count} ����� �� ������ �������";
                 LoadFolders();
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل الأرشيف: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"��� �� ����� �������: {ex.Message}", "���",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -250,7 +251,7 @@ namespace HR_Application.Views
             return button?.Tag as DocumentCardModel;
         }
 
-        // في دوال CardView_Click و CardPreview_Click في EmployeeArchiveWindow
+        // �� ���� CardView_Click � CardPreview_Click �� EmployeeArchiveWindow
         private void CardView_Click(object sender, RoutedEventArgs e)
         {
             var document = GetSelectedDocument(sender);
@@ -268,13 +269,13 @@ namespace HR_Application.Views
                 }
                 else
                 {
-                    MessageBox.Show($"الملف غير موجود في المسار: {filePath}", "خطأ",
+                    LocalizationManager.ShowMessage($"����� ��� ����� �� ������: {filePath}", "���",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في عرض الوثيقة: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"��� �� ��� �������: {ex.Message}", "���",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -290,21 +291,21 @@ namespace HR_Application.Views
 
                 if (File.Exists(filePath))
                 {
-                    // فتح نافذة المعاينة مع تحديد أن هذه وثيقة موظف
-                    var previewWindow = new DocumentPreviewWindow(document.Id, true); // true تعني employee document
+                    // ��� ����� �������� �� ����� �� ��� ����� ����
+                    var previewWindow = new DocumentPreviewWindow(document.Id, true); // true ���� employee document
                     previewWindow.Owner = this;
                     previewWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                     previewWindow.ShowDialog();
                 }
                 else
                 {
-                    MessageBox.Show("الملف غير موجود", "خطأ",
+                    LocalizationManager.ShowMessage("����� ��� �����", "���",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في معاينة الوثيقة: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"��� �� ������ �������: {ex.Message}", "���",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -320,7 +321,7 @@ namespace HR_Application.Views
 
                 if (!File.Exists(sourcePath))
                 {
-                    MessageBox.Show("الملف غير موجود", "خطأ",
+                    LocalizationManager.ShowMessage("����� ��� �����", "���",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -328,19 +329,19 @@ namespace HR_Application.Views
                 var saveDialog = new SaveFileDialog
                 {
                     FileName = document.Title + document.FileType,
-                    Filter = $"جميع الملفات (*.*)|*.*"
+                    Filter = $"���� ������� (*.*)|*.*"
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
                     File.Copy(sourcePath, saveDialog.FileName, true);
-                    MessageBox.Show("تم تحميل الوثيقة بنجاح", "نجاح",
+                    LocalizationManager.ShowMessage("�� ����� ������� �����", "����",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في تحميل الوثيقة: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"��� �� ����� �������: {ex.Message}", "���",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -352,7 +353,7 @@ namespace HR_Application.Views
 
             try
             {
-                // فتح نافذة المعاينة واستخدام زر الطباعة الموجود فيها
+                // ��� ����� �������� �������� �� ������� ������� ����
                 var previewWindow = new DocumentPreviewWindow(document.Id, true);
                 previewWindow.Owner = this;
                 previewWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -360,7 +361,7 @@ namespace HR_Application.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"خطأ في الطباعة: {ex.Message}", "خطأ",
+                LocalizationManager.ShowMessage($"��� �� �������: {ex.Message}", "���",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -370,19 +371,19 @@ namespace HR_Application.Views
             var document = GetSelectedDocument(sender);
             if (document == null) return;
 
-            var result = MessageBox.Show($"هل أنت متأكد من حذف الوثيقة '{document.Title}'؟",
-                "تأكيد الحذف", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = LocalizationManager.ShowMessage($"�� ��� ����� �� ��� ������� '{document.Title}'�",
+                "����� �����", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
                 try
                 {
-                    // حذف الملف الفعلي
+                    // ��� ����� ������
                     var filePath = GetDocumentFilePath(document);
                     if (File.Exists(filePath))
                         File.Delete(filePath);
 
-                    // حذف من قاعدة البيانات
+                    // ��� �� ����� ��������
                     var dbDocument = await _context.EmployeeDocuments
                         .FirstOrDefaultAsync(ed => ed.Id == document.Id);
 
@@ -392,14 +393,14 @@ namespace HR_Application.Views
                         await _context.SaveChangesAsync();
                     }
 
-                    MessageBox.Show("تم حذف الوثيقة بنجاح", "نجاح",
+                    LocalizationManager.ShowMessage("�� ��� ������� �����", "����",
                         MessageBoxButton.OK, MessageBoxImage.Information);
 
                     LoadArchiveDocuments();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"خطأ في حذف الوثيقة: {ex.Message}", "خطأ",
+                    LocalizationManager.ShowMessage($"��� �� ��� �������: {ex.Message}", "���",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
@@ -407,25 +408,25 @@ namespace HR_Application.Views
 
         private string GetDocumentFilePath(DocumentCardModel document)
         {
-            // أولوية: المسار الكامل المباشر
+            // ������: ������ ������ �������
             if (!string.IsNullOrEmpty(document.FullPath) && File.Exists(document.FullPath))
                 return document.FullPath;
 
-            // ثانوية: مسار التخزين
+            // ������: ���� �������
             if (!string.IsNullOrEmpty(document.StoragePath) && File.Exists(document.StoragePath))
                 return document.StoragePath;
 
-            // افتراضي: المسار المركزي
+            // �������: ������ �������
             string subFolder = document.DocumentType == EmployeeDocumentType.SignedCompanyDocument ?
                 "SignedDocuments" : "EmployeeDocuments";
 
             string centralPath = Path.Combine(AppDbContext.CentralStoragePath, subFolder, document.FileName);
 
-            // إذا لم يكن موجوداً في المسار المركزي، جرب المسار المحلي
+            // ��� �� ��� ������� �� ������ �������� ��� ������ ������
             if (File.Exists(centralPath))
                 return centralPath;
 
-            // المحاولة الأخيرة: المسار المحلي القديم
+            // �������� �������: ������ ������ ������
             string localPath = Path.Combine(Directory.GetCurrentDirectory(), subFolder, document.FileName);
             return localPath;
         }
@@ -467,7 +468,7 @@ namespace HR_Application.Views
         public string FullPath { get; set; }
         public long FileSize { get; set; }
 
-        // الخصائص المحسوبة للعرض
+        // ������� �������� �����
         public string DocumentTypeName => GetDocumentTypeName(DocumentType);
         public int DocumentTypeId => GetDocumentTypeInt(DocumentType);
         public string DocumentIcon => GetDocumentIcon(DocumentType);
@@ -506,10 +507,10 @@ namespace HR_Application.Views
         {
             return type switch
             {
-                EmployeeDocumentType.SignedCompanyDocument => "وثائق موقعه",
-                EmployeeDocumentType.TrainingCertificate => "وثائق التدريب",
-                EmployeeDocumentType.WorkPermit => "وثائق التعيين",
-                _ => "وثيقة أخرى"
+                EmployeeDocumentType.SignedCompanyDocument => "����� �����",
+                EmployeeDocumentType.TrainingCertificate => "����� �������",
+                EmployeeDocumentType.WorkPermit => "����� �������",
+                _ => "����� ����"
             };
         }
 
@@ -517,10 +518,10 @@ namespace HR_Application.Views
         {
             return type switch
             {
-                EmployeeDocumentType.SignedCompanyDocument => "📄",
-                EmployeeDocumentType.TrainingCertificate => "📜",
-                EmployeeDocumentType.WorkPermit => "💼",
-                _ => "📎"
+                EmployeeDocumentType.SignedCompanyDocument => "??",
+                EmployeeDocumentType.TrainingCertificate => "??",
+                EmployeeDocumentType.WorkPermit => "??",
+                _ => "??"
             };
         }
         
@@ -540,13 +541,13 @@ namespace HR_Application.Views
         {
             return status switch
             {
-                DocumentStatus.Pending => "قيد الانتظار",
-                DocumentStatus.Signed => "موقعة",
-                DocumentStatus.Rejected => "مرفوضة",
-                DocumentStatus.Expired => "منتهية",
-                DocumentStatus.Active => "نشطة",
-                DocumentStatus.Archived => "مؤرشفة",
-                _ => "غير معروف"
+                DocumentStatus.Pending => "��� ��������",
+                DocumentStatus.Signed => "�����",
+                DocumentStatus.Rejected => "������",
+                DocumentStatus.Expired => "������",
+                DocumentStatus.Active => "����",
+                DocumentStatus.Archived => "������",
+                _ => "��� �����"
             };
         }
 

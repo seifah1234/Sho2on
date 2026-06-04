@@ -1,11 +1,11 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 
@@ -37,7 +37,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -61,7 +61,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáãÓÊÎÏãíä: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -90,7 +90,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáİÑæÚ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -125,30 +125,30 @@ namespace HR_Application
             {
                 if (userComboBox.SelectedItem == null)
                 {
-                    MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ø³ØªØ®Ø¯Ù… Ø£ÙˆÙ„Ø§Ù‹", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("íÑÌì ÇÎÊíÇÑ ãÓÊÎÏã ÃæáÇğ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var selectedUserName = userComboBox.SelectedItem as User;
                 if (selectedUserName == null)
                 {
-                    MessageBox.Show("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± ØµØ§Ù„Ø­", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáãÓÊÎÏã ÇáãÍÏÏ ÛíÑ ÕÇáÍ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 var selectedUser = _users.FirstOrDefault(u => u.Id == selectedUserName.Id);
 
                 if (selectedUser == null)
                 {
-                    MessageBox.Show("Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("ÇáãÓÊÎÏã ÇáãÍÏÏ ÛíÑ ãæÌæÏ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ø­Ø§Ù„ÙŠØ© Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                // ÇáÍÕæá Úáì ÇáİÑæÚ ÇáÍÇáíÉ ááãÓÊÎÏã
                 var currentUserBranches = await _context.UserBranches
                     .Where(ub => ub.UserID == selectedUser.Id)
                     .ToListAsync();
 
-                // Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©
+                // ãÚÇáÌÉ ÇáİÑæÚ ÇáãÍÏÏÉ
                 foreach (var branchVM in _branches)
                 {
                     var existingUserBranch = currentUserBranches
@@ -156,7 +156,7 @@ namespace HR_Application
 
                     if (branchVM.IsActive && existingUserBranch == null)
                     {
-                        // Ø¥Ø¶Ø§ÙØ© ÙØ±Ø¹ Ø¬Ø¯ÙŠØ¯ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                        // ÅÖÇİÉ İÑÚ ÌÏíÏ ááãÓÊÎÏã
                         var userBranch = new UserBranch
                         {
                             UserID = selectedUser.Id,
@@ -166,17 +166,17 @@ namespace HR_Application
                     }
                     else if (!branchVM.IsActive && existingUserBranch != null)
                     {
-                        // Ø¥Ø²Ø§Ù„Ø© ÙØ±Ø¹ Ù…Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                        // ÅÒÇáÉ İÑÚ ãä ÇáãÓÊÎÏã
                         _context.UserBranches.Remove(existingUserBranch);
                     }
                 }
 
                 await _context.SaveChangesAsync();
-                MessageBox.Show("ØªÙ… ØªØ­Ø¯ÙŠØ« ØµÙ„Ø§Ø­ÙŠØ§Øª Ø§Ù„ÙØ±ÙˆØ¹ Ø¨Ù†Ø¬Ø§Ø­", "Ù†Ø¬Ø§Ø­", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÊÍÏíË ÕáÇÍíÇÊ ÇáİÑæÚ ÈäÌÇÍ", "äÌÇÍ", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -198,20 +198,20 @@ namespace HR_Application
         {
             try
             {
-                // Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø¬Ù…ÙŠØ¹ Ø§Ù„ÙØ±ÙˆØ¹
+                // ÅÚÇÏÉ ÊÚííä ÌãíÚ ÇáİÑæÚ
                 foreach (var branch in _branches)
                 {
                     branch.IsActive = false;
                 }
 
-                // Ø§Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ù…Ø³Ù…ÙˆØ­ Ø¨Ù‡Ø§ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…
+                // ÇáÍÕæá Úáì ÇáİÑæÚ ÇáãÓãæÍ ÈåÇ ááãÓÊÎÏã
                 var userBranches = await _context.UserBranches
                     .Where(ub => ub.UserID == user.Id)
                     .Include(ub => ub.Branch)
                     .Select(ub => ub.Branch.Id)
                     .ToListAsync();
 
-                // ØªÙØ¹ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ù…Ø³Ù…ÙˆØ­ Ø¨Ù‡Ø§
+                // ÊİÚíá ÇáİÑæÚ ÇáãÓãæÍ ÈåÇ
                 foreach (var branchId in userBranches)
                 {
                     var branchVM = _branches.FirstOrDefault(b => b.Id == branchId);
@@ -221,12 +221,12 @@ namespace HR_Application
                     }
                 }
 
-                // ØªØ­Ø¯ÙŠØ« DataGrid
+                // ÊÍÏíË DataGrid
                 dataTable.Items.Refresh();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÕáÇÍíÇÊ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

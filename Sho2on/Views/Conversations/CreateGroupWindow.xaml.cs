@@ -1,20 +1,21 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System;
+using System; using HR_Application.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using HR_Application.Helpers;
 
 namespace HR_Application.Views.Conversations
 {
@@ -82,7 +83,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨Ø­Ø«: {ex.Message}");
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÇáÈÍË: {ex.Message}");
             }
         }
 
@@ -112,7 +113,7 @@ namespace HR_Application.Views.Conversations
             var dialog = new OpenFileDialog
             {
                 Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
-                Title = "Ø§Ø®ØªØ± ØµÙˆØ±Ø© Ù„Ù„Ù…Ø¬Ù…ÙˆØ¹Ø©"
+                Title = "ÇÎÊÑ ÕæÑÉ ááãÌãæÚÉ"
             };
 
             if (dialog.ShowDialog() == true)
@@ -122,7 +123,7 @@ namespace HR_Application.Views.Conversations
                     var fileInfo = new FileInfo(dialog.FileName);
                     if (fileInfo.Length > 5 * 1024 * 1024)
                     {
-                        MessageBox.Show("Ø­Ø¬Ù… Ø§Ù„ØµÙˆØ±Ø© ÙƒØ¨ÙŠØ± Ø¬Ø¯Ø§Ù‹. Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ 5MB");
+                        LocalizationManager.ShowMessage("ÍÌã ÇáÕæÑÉ ßÈíÑ ÌÏÇğ. ÇáÍÏ ÇáÃŞÕì 5MB");
                         return;
                     }
 
@@ -132,7 +133,7 @@ namespace HR_Application.Views.Conversations
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙˆØ±Ø©: {ex.Message}");
+                    LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÕæÑÉ: {ex.Message}");
                 }
             }
         }
@@ -161,7 +162,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¹Ø±Ø¶ Ø§Ù„ØµÙˆØ±Ø©: {ex.Message}");
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÚÑÖ ÇáÕæÑÉ: {ex.Message}");
             }
         }
 
@@ -169,20 +170,20 @@ namespace HR_Application.Views.Conversations
         {
             if (string.IsNullOrWhiteSpace(GroupNameBox.Text))
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… Ù„Ù„Ù…Ø¬Ù…ÙˆØ¹Ø©", "ØªÙ†Ø¨ÙŠÙ‡", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("íÑÌì ÅÏÎÇá ÇÓã ááãÌãæÚÉ", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
                 GroupNameBox.Focus();
                 return;
             }
 
             if (SelectedMembers.Count == 0)
             {
-                MessageBox.Show("ÙŠØ±Ø¬Ù‰ Ø¥Ø¶Ø§ÙØ© Ø¹Ø¶Ùˆ ÙˆØ§Ø­Ø¯ Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„", "ØªÙ†Ø¨ÙŠÙ‡", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("íÑÌì ÅÖÇİÉ ÚÖæ æÇÍÏ Úáì ÇáÃŞá", "ÊäÈíå", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                // Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø©
+                // ÅäÔÇÁ ÇáãÌãæÚÉ
                 var group = new ChatGroup
                 {
                     Name = GroupNameBox.Text.Trim(),
@@ -195,7 +196,7 @@ namespace HR_Application.Views.Conversations
                 _context.ChatGroups.Add(group);
                 await _context.SaveChangesAsync();
 
-                // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø£Ø¹Ø¶Ø§Ø¡
+                // ÅÖÇİÉ ÇáÃÚÖÇÁ
                 var members = SelectedMembers.Select(m => new ChatGroupMember
                 {
                     GroupId = group.Id,
@@ -205,7 +206,7 @@ namespace HR_Application.Views.Conversations
                     UnreadCount = 0
                 }).ToList();
 
-                // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ù†Ø´Ø¦ ÙƒÙ€ Admin
+                // ÅÖÇİÉ ÇáãäÔÆ ßÜ Admin
                 members.Add(new ChatGroupMember
                 {
                     GroupId = group.Id,
@@ -218,12 +219,12 @@ namespace HR_Application.Views.Conversations
                 _context.ChatGroupMembers.AddRange(members);
                 await _context.SaveChangesAsync();
 
-                // Ø±Ø³Ø§Ù„Ø© ØªØ±Ø­ÙŠØ¨ Ø£ÙˆÙ„ÙŠØ©
+                // ÑÓÇáÉ ÊÑÍíÈ ÃæáíÉ
                 var welcomeMessage = new ChatGroupMessage
                 {
                     GroupId = group.Id,
                     SenderId = _currentUserId,
-                    Message = $"ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© \"{group.Name}\"",
+                    Message = $"Êã ÅäÔÇÁ ÇáãÌãæÚÉ \"{group.Name}\"",
                     SentAt = DateTime.Now
                 };
                 _context.ChatGroupMessages.Add(welcomeMessage);
@@ -234,7 +235,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø©: {ex.Message}", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÅäÔÇÁ ÇáãÌãæÚÉ: {ex.Message}", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -265,7 +266,7 @@ namespace HR_Application.Views.Conversations
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ø®Ø·Ø£ ÙÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª: {ex.Message}");
+                LocalizationManager.ShowMessage($"ÎØÃ İí ÊÍãíá ÇáÈíÇäÇÊ: {ex.Message}");
             }
         }
     }

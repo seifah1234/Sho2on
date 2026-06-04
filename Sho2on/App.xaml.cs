@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using HR_Application.Helpers;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System.Configuration;
@@ -10,7 +11,9 @@ using System.Globalization;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
+using System.Windows.Media;
+using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application
@@ -20,6 +23,7 @@ namespace HR_Application
     /// </summary>
     public partial class App : System.Windows.Application
     {
+        private bool _isDarkTheme = false;
 
         public static User CurrentUser { get; set; }
         public static IServiceProvider ServiceProvider { get; private set; }
@@ -31,20 +35,44 @@ namespace HR_Application
 
 
             base.OnStartup(e);
+            ThemeManager.Initialize();
+            LocalizationManager.Initialize();
+            LocalizationManager.RegisterAutomaticLocalization();
             LoadServerSettings();
-            // Set the culture to English
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
-
-
+            LoginScreen login = new LoginScreen();
+            login.ShowDialog();
+            //LoadThemePreference();
         }
         public static string ConnectionString { get; set; }
         public static string SoftechConnectionString { get; set; }
         public static string SoftechSQLConnectionString { get; set; }
         public static List<string> userPermissions { get; set; }
         public static List<int> userBranches { get; set; }
+        public bool IsDarkTheme => _isDarkTheme;
 
+        private void LoadThemePreference()
+        {
+            // Simple implementation - could be expanded to use proper settings storage
+            try
+            {
+                var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var settingsPath = System.IO.Path.Combine(appDataPath, "ModernTodoApp", "settings.txt");
+
+                if (System.IO.File.Exists(settingsPath))
+                {
+                    var content = System.IO.File.ReadAllText(settingsPath);
+                    if (bool.TryParse(content, out bool isDark))
+                    {
+                        ApplyTheme(isDark);
+                    }
+                }
+            }
+            catch
+            {
+                // If loading fails, use default light theme
+                ApplyTheme(false);
+            }
+        }
         // إنشاء المجلدات المطلوبة إذا لم تكن موجودة
         private void CreateRequiredFolders()
         {
@@ -57,6 +85,119 @@ namespace HR_Application
                 {
                     Directory.CreateDirectory(path);
                 }
+            }
+        }
+
+        public void SwitchTheme()
+        {
+            _isDarkTheme = !_isDarkTheme;
+            ApplyTheme(_isDarkTheme);
+            SaveThemePreference();
+        }
+
+        
+
+        private void SaveThemePreference()
+        {
+            try
+            {
+                var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var appFolder = System.IO.Path.Combine(appDataPath, "ModernTodoApp");
+
+                if (!System.IO.Directory.Exists(appFolder))
+                {
+                    System.IO.Directory.CreateDirectory(appFolder);
+                }
+
+                var settingsPath = System.IO.Path.Combine(appFolder, "settings.txt");
+                System.IO.File.WriteAllText(settingsPath, _isDarkTheme.ToString());
+            }
+            catch
+            {
+                // Silently fail if saving theme preference fails
+            }
+        }
+
+        public void ApplyTheme(bool isDarkTheme)
+        {
+            _isDarkTheme = isDarkTheme;
+
+            // Clear existing theme resources
+            var existingTheme = Resources.MergedDictionaries.FirstOrDefault(d =>
+                d.Source?.OriginalString.Contains("Theme.xaml") == true);
+
+            if (existingTheme != null)
+            {
+                Resources.MergedDictionaries.Remove(existingTheme);
+            }
+
+            // Add new theme
+            var themeUri = _isDarkTheme ? "Themes/DarkTheme.xaml" : "Themes/LightTheme.xaml";
+            var newTheme = new ResourceDictionary()
+            {
+                Source = new Uri(themeUri, UriKind.Relative)
+            };
+
+            Resources.MergedDictionaries.Insert(0, newTheme);
+
+            if (!_isDarkTheme)
+            {
+                // ✅ Light → طبق الألوان اللي المستخدم مختارها
+                LoadColorsFromSettings();
+            }
+            else
+            {
+                // ✅ Dark → امسح أي تأثير من Settings وخليها اللي في XAML
+                ResetColorsToThemeDefaults();
+            }
+        }
+
+        public void LoadColorsFromSettings()
+        {
+            try
+            {
+                var primary = HR_Application.Properties.Settings.Default.PrimaryColor;
+                var secondary = HR_Application.Properties.Settings.Default.SecondaryColor;
+                var third = HR_Application.Properties.Settings.Default.ThirdColor;
+
+                Application.Current.Resources["PrimaryColor"] = new SolidColorBrush(primary);
+                Application.Current.Resources["SecondaryColor"] = new SolidColorBrush(secondary);
+                Application.Current.Resources["ThirdColor"] = new SolidColorBrush(third);
+
+                var primaryBackground = HR_Application.Properties.Settings.Default.PrimaryColorBackground;
+                var mainMenuColor = HR_Application.Properties.Settings.Default.MainMenuColor;
+                var primaryTextBrush = HR_Application.Properties.Settings.Default.PrimaryTextBrush;
+                var secondaryTextBrush = HR_Application.Properties.Settings.Default.SecondaryTextBrush;
+
+                Application.Current.Resources["InputBackground"] = new SolidColorBrush(primaryBackground);
+                Application.Current.Resources["BorderColor"] = new SolidColorBrush(mainMenuColor);
+                Application.Current.Resources["TextPrimaryColor"] = new SolidColorBrush(primaryTextBrush);
+                Application.Current.Resources["TextSecondaryColor"] = new SolidColorBrush(secondaryTextBrush);
+            }
+            catch
+            {
+                // fallback default لو حصل مشكلة
+                Application.Current.Resources["PrimaryColor"] = new SolidColorBrush(Colors.Blue);
+                Application.Current.Resources["SecondaryColor"] = new SolidColorBrush(Colors.Gray);
+                Application.Current.Resources["ThirdColor"] = new SolidColorBrush(Colors.LightGray);
+            }
+        }
+
+        private void ResetColorsToThemeDefaults()
+        {
+            try
+            {
+                Application.Current.Resources.Remove("PrimaryColor");
+                Application.Current.Resources.Remove("SecondaryColor");
+                Application.Current.Resources.Remove("ThirdColor");
+                Application.Current.Resources.Remove("InputBackground");
+                Application.Current.Resources.Remove("BorderColor");
+                Application.Current.Resources.Remove("TextPrimaryColor");
+                Application.Current.Resources.Remove("TextSecondaryColor");
+            }
+            catch
+            {
+                // ignore
             }
         }
 

@@ -12,7 +12,6 @@
              x:Name="ChatBoxControl">
 
     <UserControl.Resources>
-        <!-- محول لتحويل حالة الرسالة إلى أيقونة -->
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
 
@@ -25,11 +24,9 @@
         </Grid.RowDefinitions>
 
         <!-- Header - معلومات المستخدم -->
-        <Border Grid.Row="0" 
-                Background="{DynamicResource PrimaryColor}" 
+        <Border Grid.Row="0" Background="{DynamicResource PrimaryColor}" 
                 BorderBrush="{DynamicResource SecondaryColor}"
-                BorderThickness="0,0,0,1"
-                Padding="10">
+                BorderThickness="0,0,0,1" Padding="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -37,8 +34,8 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- صورة المستخدم -->
-                <Border Width="40" Height="40" CornerRadius="20" Margin="0,0,10,0">
+                <Border Width="40" Height="40" CornerRadius="20" Margin="0,0,10,0" 
+                        BorderBrush="{DynamicResource AccentColor}" BorderThickness="2">
                     <Border.Clip>
                         <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20"/>
                     </Border.Clip>
@@ -46,32 +43,25 @@
                            Stretch="UniformToFill"/>
                 </Border>
 
-                <!-- اسم المستخدم -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding SelectedUserName, ElementName=ChatBoxControl}" 
-                               FontWeight="Bold" 
-                               FontSize="16"
+                               FontWeight="Bold" FontSize="16"
                                Foreground="{DynamicResource TextPrimaryColor}"/>
                     <TextBlock Text="{Binding UserStatus, ElementName=ChatBoxControl}" Visibility="Hidden"
-                               FontSize="11"
-                               Opacity="0.7"
+                               FontSize="11" Opacity="0.7"
                                Foreground="{DynamicResource TextPrimaryColor}"/>
-                </StackPanel>
-
-                <!-- أزرار الإجراءات -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- منطقة الرسائل -->
-        <ScrollViewer Grid.Row="1" 
-                      x:Name="MessagesScrollViewer"
-                      VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" x:Name="MessagesScrollViewer" VerticalScrollBarVisibility="Auto">
             <ScrollViewer.Background>
-                <ImageBrush x:Name="ChatBackgroundBrush" 
-                    Stretch="UniformToFill"/>
+                <ImageBrush x:Name="ChatBackgroundBrush" Stretch="UniformToFill" Opacity="0.8">
+                    <ImageBrush.RelativeTransform>
+                        <ScaleTransform ScaleX="-1" CenterX="0.5"/>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
             </ScrollViewer.Background>
             <ItemsControl x:Name="MessagesItemsControl" Margin="10">
                 <ItemsControl.ItemTemplate>
@@ -79,11 +69,11 @@
                         <StackPanel Margin="0,5">
                             <!-- رسالة من المستخدم الآخر -->
                             <Border x:Name="OtherMessageBorder"
-                                    Background="{DynamicResource PrimaryColor}"
-                                    CornerRadius="0,10,10,10"
+                                    Background="{DynamicResource SurfaceColor}"
+                                    CornerRadius="0,12,12,12"
                                     Padding="10"
                                     Margin="0,0,50,0"
-                                   Visibility="{Binding MyMessageVisibility}"
+                                    Visibility="{Binding MyMessageVisibility}"
                                     BorderBrush="{DynamicResource SecondaryColor}"
                                     BorderThickness="1"
                                     MinWidth="200"
@@ -106,10 +96,9 @@
                                                Foreground="{DynamicResource TextPrimaryColor}"
                                                TextWrapping="Wrap"/>
 
-                                    <ItemsControl Grid.Row="1" 
-                      ItemsSource="{Binding Attachments}"
-                      Margin="0,5,0,0"
-                      Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Attachments}"
+                                                  Margin="0,5,0,0"
+                                                  Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <WrapPanel/>
@@ -118,13 +107,17 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Button Click="DownloadAttachment_Click" Tag="{Binding}"
-                            Background="{DynamicResource SecondaryColor}"
-                            Padding="5,2" Margin="0,0,5,5"
-                            Cursor="Hand">
+                                                        Background="{DynamicResource SurfaceLightColor}"
+                                                        Padding="5,2" Margin="0,0,5,5"
+                                                        Cursor="Hand">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <icons:PackIconMaterial Kind="{Binding FileIcon}" Width="16" Height="16" Margin="0,0,5,0" Foreground="{DynamicResource PrimaryColor}"/>
-                                                        <TextBlock Text="{Binding FileName}" FontSize="10" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
-                                                        <TextBlock Text="{Binding FileSizeText}" FontSize="8" Opacity="0.5" Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
+                                                        <icons:PackIconMaterial Kind="{Binding FileIcon}" Width="16" Height="16" 
+                                                                                Margin="0,0,5,0" Foreground="{DynamicResource AccentColor}"/>
+                                                        <TextBlock Text="{Binding FileName}" FontSize="10" VerticalAlignment="Center" 
+                                                                   Foreground="{DynamicResource TextPrimaryColor}"/>
+                                                        <TextBlock Text="{Binding FileSizeText}" FontSize="8" Opacity="0.5" 
+                                                                   Margin="5,0,0,0" VerticalAlignment="Center" 
+                                                                   Foreground="{DynamicResource MutedColor}"/>
                                                     </StackPanel>
                                                 </Button>
                                             </DataTemplate>
@@ -133,21 +126,20 @@
 
                                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5,0,0">
                                         <icons:PackIconMaterial Kind="{Binding StatusIcon}" Width="12" Height="12" 
-                            Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <TextBlock Text="{Binding EditedLabel}" 
-           FontSize="9" Opacity="0.6"
-           Foreground="{DynamicResource TextPrimaryColor}"
-           Visibility="{Binding ShowEditedLabel, 
-               Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                        <TextBlock Text="{Binding Time}" FontSize="10" Opacity="0.5" Margin="5,0,0,0"/>
+                                                                Foreground="{DynamicResource MutedColor}"/>
+                                        <TextBlock Text="{Binding EditedLabel}" FontSize="9" Opacity="0.6"
+                                                   Foreground="{DynamicResource MutedColor}"
+                                                   Visibility="{Binding ShowEditedLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBlock Text="{Binding Time}" FontSize="10" Opacity="0.5" Margin="5,0,0,0" FlowDirection="LeftToRight"
+                                                   Foreground="{DynamicResource MutedColor}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
 
                             <!-- رسالة من أنا -->
                             <Border x:Name="MyMessageBorder"
-                                    Background="{DynamicResource SecondaryColor}"
-                                    CornerRadius="10,0,10,10"
+                                    Background="{DynamicResource AccentColor}"
+                                    CornerRadius="12,0,12,12"
                                     Padding="10"
                                     MinWidth="200"
                                     Margin="50,0,0,0"
@@ -163,14 +155,12 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <TextBlock Text="{Binding MessageText}" 
-                         Foreground="{DynamicResource PrimaryColor}"
-                         TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding MessageText}" Foreground="White"
+                                               TextWrapping="Wrap"/>
 
-                                    <ItemsControl Grid.Row="1" 
-ItemsSource="{Binding Attachments}"
-Margin="0,5,0,0"
-Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Attachments}"
+                                                  Margin="0,5,0,0"
+                                                  Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <WrapPanel/>
@@ -179,13 +169,17 @@ Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityC
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Button Click="DownloadAttachment_Click" Tag="{Binding}"
-      Background="{DynamicResource PrimaryColor}"
-      Padding="5,2" Margin="0,0,5,5"
-      Cursor="Hand">
+                                                        Background="{DynamicResource SecondaryColor}"
+                                                        Padding="5,2" Margin="0,0,5,5"
+                                                        Cursor="Hand">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <icons:PackIconMaterial Kind="{Binding FileIcon}" Width="16" Height="16" Margin="0,0,5,0" Foreground="{DynamicResource SecondaryColor}"/>
-                                                        <TextBlock Text="{Binding FileName}" FontSize="10" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryColor}"/>
-                                                        <TextBlock Text="{Binding FileSizeText}" FontSize="8" Opacity="0.5" Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryColor}"/>
+                                                        <icons:PackIconMaterial Kind="{Binding FileIcon}" Width="16" Height="16" 
+                                                                                Margin="0,0,5,0" Foreground="White"/>
+                                                        <TextBlock Text="{Binding FileName}" FontSize="10" VerticalAlignment="Center" 
+                                                                   Foreground="White"/>
+                                                        <TextBlock Text="{Binding FileSizeText}" FontSize="8" Opacity="0.5" 
+                                                                   Margin="5,0,0,0" VerticalAlignment="Center" 
+                                                                   Foreground="White"/>
                                                     </StackPanel>
                                                 </Button>
                                             </DataTemplate>
@@ -193,59 +187,47 @@ Visibility="{Binding HasAttachments, Converter={StaticResource BoolToVisibilityC
                                     </ItemsControl>
 
                                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-                                        <TextBlock Text="{Binding EditedLabel}" 
-FontSize="9" Opacity="0.6"
-Foreground="{DynamicResource PrimaryColor}"
-Visibility="{Binding ShowEditedLabel, 
-    Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                        <!-- وقت الرسالة -->
-                                        <TextBlock Text="{Binding Time}" 
-                                       FontSize="10"
-                                       Opacity="0.5"
-                                       FlowDirection="LeftToRight"
-                                       Margin="5,2"
-                                                   Foreground="{DynamicResource PrimaryColor}"
-                                       HorizontalAlignment="{Binding Alignment}"/>
+                                        <TextBlock Text="{Binding EditedLabel}" FontSize="9" Opacity="0.6"
+                                                   Foreground="White"
+                                                   Visibility="{Binding ShowEditedLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBlock Text="{Binding Time}" FontSize="10" Opacity="0.5"
+                                                   FlowDirection="LeftToRight" Margin="5,2" Foreground="White"
+                                                   HorizontalAlignment="{Binding Alignment}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
-
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
 
+        <!-- Edit Bar -->
         <Border Grid.Row="2" x:Name="EditBar"
-        Background="#1A00BCD4" 
-        BorderBrush="#00BCD4"
-        BorderThickness="0,2,0,0"
-        Padding="10,5"
-        Visibility="Collapsed">
+                Background="{DynamicResource PrimaryColor}" 
+                BorderBrush="{DynamicResource AccentColor}"
+                BorderThickness="0,2,0,0"
+                Padding="10,5"
+                Visibility="Collapsed">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="EditingLabel" 
-                   Text="✏️ تعديل رسالة..."
-                   Foreground="#00BCD4" FontSize="12"
-                   VerticalAlignment="Center"/>
-                <Button Grid.Column="1" 
-                Content="✕ إلغاء"
-                Background="Transparent" BorderThickness="0"
-                Foreground="#00BCD4"
-                Click="CancelEdit_Click"/>
+                <TextBlock x:Name="EditingLabel" Text="✏️ تعديل رسالة..."
+                           Foreground="{DynamicResource AccentColor}" FontSize="12"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="✕ إلغاء"
+                        Background="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource AccentColor}"
+                        Click="CancelEdit_Click"/>
             </Grid>
         </Border>
-        
+
         <!-- منطقة إرسال الرسالة -->
-        <Border Grid.Row="3" 
-        Background="{DynamicResource PrimaryColor}" 
-        BorderBrush="{DynamicResource SecondaryColor}"
-        BorderThickness="0,1,0,0"
-                Padding="10">
+        <Border Grid.Row="3" Background="{DynamicResource PrimaryColor}" 
+                BorderBrush="{DynamicResource SecondaryColor}"
+                BorderThickness="0,1,0,0" Padding="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -254,27 +236,18 @@ Visibility="{Binding ShowEditedLabel,
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- زر إرفاق ملف -->
-                <Button Grid.Column="0" 
-                x:Name="AttachButton"
-                ToolTip="إرفاق ملف" 
-                Background="Transparent" 
-                BorderThickness="0" 
-                Margin="0,0,10,0"
-                Click="AttachButton_Click">
-                    <icons:PackIconMaterial Kind="Paperclip" Width="20" Height="20" Foreground="{DynamicResource TextPrimaryColor}"/>
+                <Button Grid.Column="0" x:Name="AttachButton" ToolTip="إرفاق ملف" 
+                        Background="Transparent" BorderThickness="0" Margin="0,0,10,0"
+                        Click="AttachButton_Click">
+                    <icons:PackIconMaterial Kind="Paperclip" Width="20" Height="20" 
+                                            Foreground="{DynamicResource TextPrimaryColor}"/>
                 </Button>
 
-                <!-- قائمة المرفقات المختارة -->
-                <ScrollViewer Grid.Column="1" 
-                      x:Name="AttachmentsScrollViewer"
-                      MaxHeight="60"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      Margin="0,0,10,0"
-                      Visibility="Collapsed">
-                    <ItemsControl x:Name="SelectedAttachmentsList" 
-                          ItemsSource="{Binding SelectedAttachments}">
+                <ScrollViewer Grid.Column="1" x:Name="AttachmentsScrollViewer"
+                              MaxHeight="60" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Margin="0,0,10,0" Visibility="Collapsed">
+                    <ItemsControl x:Name="SelectedAttachmentsList" ItemsSource="{Binding SelectedAttachments}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>
@@ -282,29 +255,22 @@ Visibility="{Binding ShowEditedLabel,
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="{DynamicResource SecondaryColor}" 
-                                CornerRadius="5" 
-                                Padding="5,5" 
-                                Margin="0,0,5,0">
+                                <Border Background="{DynamicResource SurfaceLightColor}" 
+                                        CornerRadius="8" Padding="5,5" Margin="0,0,5,0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <icons:PackIconMaterial Kind="File" Width="14" Height="14" Margin="0,0,5,0" Foreground="{DynamicResource PrimaryColor}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding FileName}" FontSize="10" Foreground="{DynamicResource PrimaryColor}"/>
-                                        <Button Grid.Column="2" 
-                                        Content="✕" 
-                                        Background="Transparent" 
-                                        BorderThickness="0"
-                                                Height="30"
-                                        Foreground="Red"
-                                        FontSize="8"
-                                                HorizontalAlignment="Center"
-                                        Margin="5"
-                                        Click="RemoveAttachment_Click"
-                                        Tag="{Binding}"/>
+                                        <icons:PackIconMaterial Kind="File" Width="14" Height="14" Margin="0,0,5,0" 
+                                                                Foreground="{DynamicResource AccentColor}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding FileName}" FontSize="10" 
+                                                   Foreground="{DynamicResource TextPrimaryColor}"/>
+                                        <Button Grid.Column="2" Content="✕" Background="Transparent" 
+                                                BorderThickness="0" Height="30" Foreground="Red"
+                                                FontSize="8" HorizontalAlignment="Center" Margin="5"
+                                                Click="RemoveAttachment_Click" Tag="{Binding}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -312,48 +278,35 @@ Visibility="{Binding ShowEditedLabel,
                     </ItemsControl>
                 </ScrollViewer>
 
-                <TextBox x:Name="MessageTextBox"
-                 Grid.Column="2"
-                 Tag="اكتب رسالة..."
-                 MinHeight="80"
-                 MaxHeight="100"
-                         Width="Auto"
-                 TextWrapping="Wrap"
-                 VerticalContentAlignment="Center"
-                 Background="{DynamicResource PrimaryColor}"
-                 Foreground="{DynamicResource TextPrimaryColor}"
-                 BorderBrush="{DynamicResource SecondaryColor}"
-                 BorderThickness="1"
-                 MaxLines="5"
-                 Padding="2,0"
-                 KeyDown="MessageTextBox_KeyDown"/>
+                <TextBox x:Name="MessageTextBox" Grid.Column="2"
+                         Tag="اكتب رسالة..." MinHeight="80" MaxHeight="100"
+                         Width="Auto" TextWrapping="Wrap"
+                         VerticalContentAlignment="Center"
+                         Background="{DynamicResource PrimaryColor}"
+                         Foreground="{DynamicResource TextPrimaryColor}"
+                         BorderBrush="{DynamicResource SecondaryColor}"
+                         BorderThickness="1" MaxLines="5" Padding="2,0"
+                         KeyDown="MessageTextBox_KeyDown"/>
 
-                <Button x:Name="SendButton"
-                Grid.Column="3"
-                ToolTip="إرسال"
-                Background="#00BCD4"
-                BorderThickness="0"
-                Margin="10,0,0,0"
-                Width="35"
-                Height="35"
-                Click="SendButton_Click">
-                    <icons:PackIconMaterial Kind="Send" Width="18" Height="18" Foreground="White" FlowDirection="RightToLeft"/>
+
+                <Button x:Name="SendButton" Grid.Column="3"
+        Click="SendButton_Click" IsEnabled="False"
+        Background="Transparent" BorderThickness="0" Margin="10,0,0,0">
+                    <icons:PackIconMaterial Kind="Send" Width="20" Height="20" FlowDirection="RightToLeft"
+                            Foreground="{DynamicResource AccentColor}"/>
                 </Button>
             </Grid>
         </Border>
 
         <!-- Placeholder عند عدم اختيار محادثة -->
-        <Border Grid.RowSpan="3" 
-                x:Name="NoChatSelectedPlaceholder"
-                Background="{DynamicResource MainBackground}"
-                Visibility="Visible">
+        <Border Grid.RowSpan="3" x:Name="NoChatSelectedPlaceholder"
+                Background="{DynamicResource MainBackground}" Visibility="Visible">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <icons:PackIconMaterial Kind="Chat" Width="80" Height="80" Opacity="0.3" Foreground="{DynamicResource SecondaryColor}"/>
-                <TextBlock Text="اختر محادثة للبدء" 
-                           FontSize="16" 
+                <icons:PackIconMaterial Kind="Chat" Width="80" Height="80" Opacity="0.3" 
+                                        Foreground="{DynamicResource SecondaryColor}"/>
+                <TextBlock Text="اختر محادثة للبدء" FontSize="16" 
                            Foreground="{DynamicResource SecondaryColor}"
-                           Opacity="0.5"
-                           Margin="0,20,0,0"/>
+                           Opacity="0.5" Margin="0,20,0,0"/>
             </StackPanel>
         </Border>
     </Grid>

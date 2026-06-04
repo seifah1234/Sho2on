@@ -1,4 +1,4 @@
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None,            //where theme specific resource dictionaries are located

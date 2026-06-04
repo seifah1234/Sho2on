@@ -1,9 +1,9 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
-using System;
+using System; using HR_Application.Helpers;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application
@@ -31,7 +31,7 @@ namespace HR_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage(ex.Message, "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -41,7 +41,7 @@ namespace HR_Application
             {
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    MessageBox.Show("Ø£Ø¯Ø®Ù„ Ø§Ø³Ù… Ø§Ù„ÙˆØ¸ÙŠÙØ©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("ÃÏÎá ÇÓã ÇáæÙíİÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -57,12 +57,12 @@ namespace HR_Application
                 await _context.SaveChangesAsync();
 
 
-                MessageBox.Show("ØªÙ… Ø¥Ø¶Ø§ÙØ© Ø§Ù„ÙˆØ¸ÙŠÙØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÅÖÇİÉ ÇáæÙíİÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­ÙØ¸", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ ÃËäÇÁ ÇáÍİÙ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -70,7 +70,7 @@ namespace HR_Application
         {
             if (list.SelectedItem is not JobTitle selectedJob)
             {
-                MessageBox.Show("Ù„Ù… ÙŠØªÙ… Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙˆØ¸ÙŠÙØ©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("áã íÊã ÇÎÊíÇÑ ÇáæÙíİÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -78,12 +78,12 @@ namespace HR_Application
             {
                 _context.JobTitles.Remove(selectedJob);
                 await _context.SaveChangesAsync();
-                MessageBox.Show("ØªÙ… Ø­Ø°Ù Ø§Ù„ÙˆØ¸ÙŠÙØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÍĞİ ÇáæÙíİÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Ø­Ø°Ù", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ ÃËäÇÁ ÇáÍĞİ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -91,7 +91,7 @@ namespace HR_Application
         {
             if (list.SelectedItem is not JobTitle selectedJob)
             {
-                MessageBox.Show("Ù„Ù… ØªØ®ØªØ§Ø± Ø£ÙŠ ÙˆØ¸ÙŠÙØ©", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("áã ÊÎÊÇÑ Ãí æÙíİÉ", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -106,12 +106,12 @@ namespace HR_Application
                 await _context.SaveChangesAsync();
 
 
-                MessageBox.Show("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ÙˆØ¸ÙŠÙØ©", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("Êã ÊÚÏíá ÇáæÙíİÉ", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
             catch
             {
-                MessageBox.Show("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„", "Ø®Ø·Ø£", MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("ÍÏË ÎØÃ ÃËäÇÁ ÇáÊÚÏíá", "ÎØÃ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -151,3 +151,4 @@ namespace HR_Application
         }
     }
 }
+

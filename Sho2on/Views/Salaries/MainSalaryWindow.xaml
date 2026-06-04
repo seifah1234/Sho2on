@@ -7,7 +7,7 @@
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Height="700" Width="1200"
+        Height="1000" Width="1200"
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
         WindowState="Maximized"
@@ -329,7 +329,7 @@
 
                                 <!-- قسم الساعة اليومية -->
                                 <Border x:Name="ShiftSalary" CornerRadius="5" Padding="10" 
-                                        Background="#F5F5F5" Margin="0,10,0,0" 
+                                        BorderBrush="#F5F5F5" Margin="0,10,0,0" BorderThickness="1"
                                         Visibility="Collapsed">
                                     <StackPanel>
                                         <TextBlock Text="تفاصيل الساعة اليومية" 
@@ -339,19 +339,16 @@
 
                                         <StackPanel Orientation="Vertical">
                                             <TextBox x:Name="shift_hour_box" Tag="عدد الساعات" 
-                                                     Style="{DynamicResource ModernTextBox}" 
                                                      Width="120" 
                                                      TextChanged="shift_hour_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
                                             <TextBox x:Name="shift_price_box" Tag="سعر الساعة" 
-                                                     Style="{DynamicResource ModernTextBox}" 
                                                      Width="120" 
                                                      TextChanged="shift_price_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
                                             <TextBox x:Name="day_shift_box" Tag="عدد الأيام" 
-                                                     Style="{DynamicResource ModernTextBox}" 
                                                      Width="120" 
                                                      TextChanged="day_shift_box_TextChanged"/>
                                         </StackPanel>
@@ -360,7 +357,7 @@
 
                                 <!-- قسم الساعة الشهرية -->
                                 <Border x:Name="HourSalary" CornerRadius="5" Padding="10" 
-                                        Background="#F5F5F5" Margin="0,10,0,0" 
+                                        BorderBrush="#F5F5F5" Margin="0,10,0,0" BorderThickness="1"
                                         Visibility="Collapsed">
                                     <StackPanel>
                                         <TextBlock Text="تفاصيل الساعة الشهرية" 
@@ -370,19 +367,16 @@
 
                                         <StackPanel Orientation="Vertical">
                                             <TextBox x:Name="hour_box" Tag="عدد الساعات" 
-                                                     Style="{DynamicResource ModernTextBox}" 
                                                      Width="120" 
                                                      TextChanged="hour_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
                                             <TextBox x:Name="hour_price_box" Tag="سعر الساعة" 
-                                                     Style="{DynamicResource ModernTextBox}" 
                                                      Width="120" 
                                                      TextChanged="hour_price_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
                                             <TextBox x:Name="day_hour_box" Tag="عدد الأيام" 
-                                                     Style="{DynamicResource ModernTextBox}" 
                                                      Width="120" 
                                                      TextChanged="day_hour_box_TextChanged"/>
                                         </StackPanel>

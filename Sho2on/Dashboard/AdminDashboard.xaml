@@ -4,6 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:controls="clr-namespace:HR_Application.Controls"
         xmlns:local="clr-namespace:HR_Application.Dashboard"
         Background="Transparent"
         FlowDirection="RightToLeft">
@@ -103,81 +104,19 @@
 
             <!-- ══════════ LAYER 0: Sectors (Master) ══════════ -->
             <Grid x:Name="MasterView">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- Header -->
-                <Border Grid.Row="0" CornerRadius="0 0 20 20" Padding="24,18"
-                        Background="{DynamicResource HeaderBackground}">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="#000000" Opacity="0.3"/>
-                    </Border.Effect>
-                    <Border.BorderBrush>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="Transparent" Offset="0"/>
-                            <GradientStop Color="#00BCD4"     Offset="0.5"/>
-                            <GradientStop Color="Transparent" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Border.BorderBrush>
-                    <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
-
-                    <Grid HorizontalAlignment="Stretch">
-                        <StackPanel VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal">
-                                <Border CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#00838F" Offset="0"/>
-                                            <GradientStop Color="#0D47A1" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Icon:PackIconMaterial Kind="ViewDashboard" Width="18" Height="18"
-                                                           Foreground="#FFFFFF"
-                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="لوحة تحكم رئيس الإدارة"
-                                           FontSize="22" FontWeight="Bold"
-                                           Foreground="{DynamicResource SecondaryColor}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Border CornerRadius="20" Padding="14,5"
-                                    Background="{DynamicResource SurfaceLightColor}" BorderThickness="1">
-                                <Border.BorderBrush>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                        <GradientStop Color="#00BCD4" Offset="0"/>
-                                        <GradientStop Color="#0D47A1" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.BorderBrush>
-                                <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="Calendar" Width="14" Height="14"
-                                                           Foreground="{DynamicResource AccentColor}"
-                                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <TextBlock Text="{Binding CurrentDateTime}"
-                                               FontSize="13" Foreground="{DynamicResource ThirdColor}"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Grid>
-                </Border>
 
                 <!-- Scrollable content -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Background="Transparent" Visibility="Visible">
+                        
                     <Grid Margin="20,16,20,24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- ══ Row 0: Sectors Overview ══ -->
+                        <!-- ══ Row 0: Sectors Overview ══ 
                         <Border Grid.Row="0" Style="{DynamicResource StatCard}" Margin="0,0,0,0" Padding="0">
                             <StackPanel>
-                                <!-- Section header -->
                                 <Border Style="{DynamicResource CardHeaderBrush}">
                                     <Grid>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -212,7 +151,6 @@
                                     </Rectangle.Fill>
                                 </Rectangle>
 
-                                <!-- Sectors cards -->
                                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                               VerticalScrollBarVisibility="Disabled"
                                               Padding="12,12,12,16">
@@ -241,7 +179,6 @@
                                                                    Fill="{Binding AccentBrush}"/>
 
                                                         <StackPanel Margin="16,18,16,14">
-                                                            <!-- Icon + Name -->
                                                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                                                                 <Border Width="38" Height="38" CornerRadius="10"
                                                                         Background="#22FFFFFF" Margin="0,0,10,0">
@@ -256,10 +193,9 @@
                                                                            Foreground="White"
                                                                            VerticalAlignment="Center"
                                                                            TextWrapping="Wrap"
-                                                                           MaxWidth="140"/>
+                                                                           MaxWidth="140" FontSize = "12"/>
                                                             </StackPanel>
 
-                                                            <!-- Stats -->
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="*"/>
@@ -287,7 +223,6 @@
                                                                 </StackPanel>
                                                             </Grid>
 
-                                                            <!-- View hint -->
                                                             <Border Margin="0,12,0,0" CornerRadius="8"
                                                                     Background="#22FFFFFF" Padding="8,4"
                                                                     HorizontalAlignment="Center">
@@ -309,9 +244,9 @@
                                     </ItemsControl>
                                 </ScrollViewer>
                             </StackPanel>
-                        </Border>
+                        </Border>-->
 
-                        <!-- ══ Row 1: Quick Actions + Alerts ══ -->
+                        <!-- ══ Row 1: Quick Actions + Alerts ══ 
                         <Grid Grid.Row="1" Margin="0,16,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -402,24 +337,232 @@
                                     </ListView>
                                 </StackPanel>
                             </Border>
+                        </Grid>-->
+
+                        <controls:DashboardTreeControl Grid.Row="0" x:Name="myTreeControl"/>
+
+                        <!-- ══ Row 2: Charts ══ -->
+                        <Grid Grid.Row="1" Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Right column: Two Pie Charts -->
+                            <Grid Grid.Column="0" Margin="0,0,8,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Pie: Gender Distribution -->
+                                <Border Grid.Row="1" Style="{DynamicResource StatCard}" Margin="0,8,0,0" Padding="0">
+                                    <StackPanel>
+                                        <Border Style="{DynamicResource CardHeaderBrush}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="GenderMaleFemale" Width="18" Height="18"
+                                                       Foreground="#F48FB1"
+                                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                <TextBlock Text="توزيع النوع" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Rectangle Height="1" Opacity="0.15">
+                                            <Rectangle.Fill>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="Transparent" Offset="0"/>
+                                                    <GradientStop Color="#00BCD4" Offset="0.5"/>
+                                                    <GradientStop Color="Transparent" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <Grid Margin="12,8,12,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <lvc:PieChart x:Name="GenderPieChart"
+                                          Height="180"
+                                          InnerRadius="40"
+                                          LegendLocation="None"
+                                          Hoverable="True"
+                                          DataTooltip="{x:Null}"
+                                          Background="Transparent"/>
+                                            <!-- Legend -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                                                <StackPanel Orientation="Horizontal" Margin="0,4">
+                                                    <Border Width="12" Height="12" CornerRadius="3"
+                                            Background="#42A5F5" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="MaleLabel" Text="ذكور: 0"
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryColor}"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,4">
+                                                    <Border Width="12" Height="12" CornerRadius="3"
+                                            Background="#F48FB1" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="FemaleLabel" Text="إناث: 0"
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryColor}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                
+                                <!-- Bar: Employees by Sector -->
+                                <Border Grid.Row="0" Style="{DynamicResource StatCard}" Margin="0,0,0,8" Padding="0">
+                                    <StackPanel>
+                                        <Border Style="{DynamicResource CardHeaderBrush}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="OfficeBuildingMarker" Width="18" Height="18"
+                       Foreground="{DynamicResource AccentColor}"
+                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                <TextBlock Text="الموظفون بالقطاعات" FontSize="15" FontWeight="SemiBold"
+           Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Rectangle Height="1" Opacity="0.15">
+                                            <Rectangle.Fill>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="Transparent" Offset="0"/>
+                                                    <GradientStop Color="#00BCD4" Offset="0.5"/>
+                                                    <GradientStop Color="Transparent" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <lvc:CartesianChart x:Name="SectorBarChart"
+            Height="200"
+            Margin="12,8,12,12"
+            Background="Transparent">
+                                            <lvc:CartesianChart.AxisX>
+                                                <lvc:Axis Title="" Labels="{Binding SectorLabels}"
+          Foreground="{DynamicResource TextSecondaryColor}"
+          FontSize="10">
+                                                    <lvc:Axis.Separator>
+                                                        <lvc:Separator IsEnabled="False"/>
+                                                    </lvc:Axis.Separator>
+                                                </lvc:Axis>
+                                            </lvc:CartesianChart.AxisX>
+                                            <lvc:CartesianChart.AxisY>
+                                                <lvc:Axis Foreground="{DynamicResource TextSecondaryColor}"
+          FontSize="10" MinValue="0">
+                                                    <lvc:Axis.Separator>
+                                                        <lvc:Separator StrokeThickness="0.3" StrokeDashArray="4"
+                       Stroke="{DynamicResource BorderColor}"/>
+                                                    </lvc:Axis.Separator>
+                                                </lvc:Axis>
+                                            </lvc:CartesianChart.AxisY>
+                                        </lvc:CartesianChart>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Left column: Two Bar Charts -->
+                            <Grid Grid.Column="1" Margin="8,0,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Pie: Department Distribution -->
+                                <Border Grid.Row="1" Style="{DynamicResource StatCard}" Margin="0,8,0,0" Padding="0">
+                                            <StackPanel>
+                                                <Border Style="{DynamicResource CardHeaderBrush}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Icon:PackIconMaterial Kind="Sitemap" Width="18" Height="18"
+                       Foreground="#CE93D8"
+                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                        <TextBlock Text="الموظفون بالإدارات" FontSize="15" FontWeight="SemiBold"
+           Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <Rectangle Height="1" Opacity="0.15">
+                                                    <Rectangle.Fill>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                            <GradientStop Color="Transparent" Offset="0"/>
+                                                            <GradientStop Color="#00BCD4" Offset="0.5"/>
+                                                            <GradientStop Color="Transparent" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Rectangle.Fill>
+                                                </Rectangle>
+                                                <lvc:PieChart x:Name="DeptPieChart"
+      Height="200"
+      InnerRadius="35"
+      LegendLocation="Bottom"
+      Margin="12,8,12,12"
+                      Foreground="{DynamicResource TextPrimaryColor}"
+      Background="Transparent"/>
+                                            </StackPanel>
+                                        </Border>
+                                <!-- Bar: Employees by Branch -->
+                                <Border Grid.Row="0" Style="{DynamicResource StatCard}" Margin="0,0,0,8" Padding="0">
+                                    <StackPanel>
+                                        <Border Style="{DynamicResource CardHeaderBrush}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Icon:PackIconMaterial Kind="OfficeBuildingOutline" Width="18" Height="18"
+                                                       Foreground="#66BB6A"
+                                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                <TextBlock Text="الموظفون بالفروع" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Rectangle Height="1" Opacity="0.15">
+                                            <Rectangle.Fill>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="Transparent" Offset="0"/>
+                                                    <GradientStop Color="#00BCD4" Offset="0.5"/>
+                                                    <GradientStop Color="Transparent" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <lvc:CartesianChart x:Name="BranchBarChart"
+                                            Height="200"
+                                            Margin="12,8,12,12"
+                        MinWidth="400"
+                        Background="Transparent"
+                                                            Foreground="Black"
+                        DisableAnimations="True">
+                                            <lvc:CartesianChart.AxisX>
+                                                <lvc:Axis Title="" Labels="{Binding BranchLabels}"
+                                          Foreground="{DynamicResource TextSecondaryColor}"
+                                          FontSize="10">
+                                                </lvc:Axis>
+                                            </lvc:CartesianChart.AxisX>
+                                            <lvc:CartesianChart.AxisY>
+                                                <lvc:Axis Foreground="{DynamicResource TextSecondaryColor}"
+                                          FontSize="10" MinValue="0">
+                                                    <lvc:Axis.Separator>
+                                                        <lvc:Separator StrokeThickness="0.3" StrokeDashArray="4"
+                                                       Stroke="{DynamicResource BorderColor}"/>
+                                                    </lvc:Axis.Separator>
+                                                </lvc:Axis>
+                                            </lvc:CartesianChart.AxisY>
+                                        </lvc:CartesianChart>
+                                    </StackPanel>
+                                </Border>
+
+                                
+                            </Grid>
                         </Grid>
-
                     </Grid>
-                </ScrollViewer>
-            </Grid>
 
-            <!-- ══════════ LAYER 1: Branches Detail ══════════ -->
+           
+                </ScrollViewer>
+
+            </Grid>
+   
+
+            <!-- ══════════ LAYER 1: Branches Detail ══════════ 
             <Grid x:Name="BranchView" Visibility="Collapsed">
                 <local:BranchListView x:Name="BranchDetail"
                                       BackRequested="BranchView_BackRequested"
                                       BranchSelected="BranchView_BranchSelected"/>
-            </Grid>
+            </Grid>-->
 
-            <!-- ══════════ LAYER 2: Department Detail ══════════ -->
+            <!-- ══════════ LAYER 2: Department Detail ══════════
             <Grid x:Name="DepartmentView" Visibility="Collapsed">
                 <local:DepartmentDetailView x:Name="DepartmentDetail"
                                             BackRequested="DepartmentView_BackRequested"/>
-            </Grid>
+            </Grid> -->
 
         </Grid>
     </Border>

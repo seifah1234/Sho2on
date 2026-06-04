@@ -1,7 +1,7 @@
-ï»¿using Sho2on.Database.Models;
+using Sho2on.Database.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
+using System.Windows; using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using MessageBox = System.Windows.MessageBox;
@@ -11,12 +11,12 @@ namespace HR_Application.Views.Employees.Holidays
     public partial class EmployeeSelectionWindow : Window
     {
         public User SelectedUser { get; private set; }
-        public string WindowTitle { get; set; } = "Ø§Ø®ØªØ± Ù…ÙˆØ¸Ù";
-        public string SelectButtonText { get; set; } = "Ø§Ø®ØªÙŠØ§Ø±";
+        public string WindowTitle { get; set; } = "ÇÎÊÑ ãæÙİ";
+        public string SelectButtonText { get; set; } = "ÇÎÊíÇÑ";
 
         public string? _searchCode;
 
-        public EmployeeSelectionWindow(List<User> users, bool showManagersOnly = false, string title = "Ø§Ø®ØªØ± Ù…ÙˆØ¸Ù", string? searchCode = null)
+        public EmployeeSelectionWindow(List<User> users, bool showManagersOnly = false, string title = "ÇÎÊÑ ãæÙİ", string? searchCode = null)
         {
             InitializeComponent();
 
@@ -28,7 +28,7 @@ namespace HR_Application.Views.Employees.Holidays
 
             
 
-            // ÙÙ„ØªØ±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† Ø¥Ø°Ø§ Ø·ÙÙ„Ø¨ Ø§Ù„Ù…Ø¯ÙŠØ±ÙŠÙ† ÙÙ‚Ø·
+            // İáÊÑÉ ÇáãÓÊÎÏãíä ÅĞÇ ØõáÈ ÇáãÏíÑíä İŞØ
             if (showManagersOnly)
             {
                 users = users.Where(u => u.JobTitle.IsManager.HasValue && u.JobTitle.IsManager.Value).ToList();
@@ -36,7 +36,7 @@ namespace HR_Application.Views.Employees.Holidays
 
             dgEmployees.ItemsSource = users;
 
-            // Ø¥Ø¶Ø§ÙØ© Ø¹Ù…ÙˆØ¯ Ø¨Ø­Ø« Ø³Ø±ÙŠØ¹
+            // ÅÖÇİÉ ÚãæÏ ÈÍË ÓÑíÚ
             SetupSearchFilter();
 
             if (users.Any())
@@ -88,7 +88,7 @@ namespace HR_Application.Views.Employees.Holidays
             }
             else
             {
-                MessageBox.Show("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ù…ÙˆØ¸Ù Ù…Ù† Ø§Ù„Ù‚Ø§Ø¦Ù…Ø©", "ØªØ­Ø°ÙŠØ±", MessageBoxButton.OK, MessageBoxImage.Warning);
+                LocalizationManager.ShowMessage("ÇáÑÌÇÁ ÇÎÊíÇÑ ãæÙİ ãä ÇáŞÇÆãÉ", "ÊÍĞíÑ", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -121,9 +121,9 @@ namespace HR_Application.Views.Employees.Holidays
         {
             if (value is bool isActive)
             {
-                return isActive ? "Ù†Ø´Ø·" : "ØºÙŠØ± Ù†Ø´Ø·";
+                return isActive ? "äÔØ" : "ÛíÑ äÔØ";
             }
-            return "ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ";
+            return "ÛíÑ ãÚÑæİ";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
