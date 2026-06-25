@@ -524,12 +524,17 @@ namespace HR_Application
 
                 // البحث عن المستخدم في قاعدة البيانات
                 string code = emplo_code_box.Text;
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Code == code);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Code == _selectedUser.Code);
 
                 if (user != null)
                 {
                     // تحديث البيانات
                     UpdateUserData(user);
+                    if (_selectedUser.Code != user.Code && users.Any(u => u.Code == user.Code))
+                    {
+                        MessageBox.Show("هذا الكود مستخدم بالفعل", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
                     user.UpdatedAt = DateTime.Now;
 
                     await _context.SaveChangesAsync();
@@ -551,6 +556,7 @@ namespace HR_Application
         private void UpdateUserData(User user)
         {
             // تحديث جميع الحقول
+            user.Code = emplo_code_box.Text;
             user.NationalID = emplo_card_box.Text;
             user.PhoneNumber = emplo_tele_box.Text;
             user.FullName = emplo_name_box.Text;

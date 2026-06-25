@@ -102,7 +102,7 @@
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
                                     <TextBox x:Name="txtEmployeeCode" 
-                                             Tag="كود الموظف" 
+                                             Tag="{DynamicResource TagEmployeeCode}" 
                                              Width="120"
                                              KeyDown="txtEmployeeCode_KeyDown"
                                              VerticalAlignment="Bottom"
@@ -261,7 +261,7 @@ Background="{DynamicResource SecondaryColor}"/>
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBox x:Name="txtApproverName" 
-                                             Tag="اسم الموافق" 
+                                             Tag="{DynamicResource TagApproverName}" 
                                              Width="300"
                                              Style="{DynamicResource WideInputFieldStyle}"
                                              Margin="5"

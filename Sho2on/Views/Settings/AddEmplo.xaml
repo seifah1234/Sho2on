@@ -403,7 +403,7 @@
                                           Checked="blacklist_check_Checked"
                                           Unchecked="blacklist_check_Unchecked"/>
                                 <TextBox x:Name="blacklist_notes_box"
-                                         Tag="سبب الإضافة للقائمة السوداء"
+                                         Tag="{DynamicResource TagBlacklistReason}"
                                          Style="{StaticResource ModernTextBox}"
                                          Margin="0,10,0,0" Height="72"
                                          TextWrapping="Wrap" AcceptsReturn="True"
@@ -476,17 +476,17 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                        <TextBox x:Name="emplo_code_box"    Tag="كود الموظف"      Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <TextBox x:Name="emplo_name_box"    Tag="الاسم بالكامل"   Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <TextBox x:Name="emplo_card_box"    Tag="الرقم القومي"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox x:Name="emplo_code_box"    Tag="{DynamicResource TagEmployeeCode}"      Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox x:Name="emplo_name_box"    Tag="{DynamicResource TagFullName}"   Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox x:Name="emplo_card_box"    Tag="{DynamicResource TagNationalNumber}"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <Label Content="{DynamicResource Qualification}" Style="{StaticResource FieldLabel}" Margin="0 10"/>
                                         <ComboBox x:Name="qualificationBox" SelectedValuePath="Id" DisplayMemberPath="Name"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,10,0">
-                                        <TextBox x:Name="emplo_tele_box"    Tag="رقم الهاتف (واتساب)"            Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <TextBox x:Name="emplo_email_box"   Tag="البريد الإلكتروني"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <TextBox x:Name="emplo_address_box" Tag="العنوان"               Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox x:Name="emplo_tele_box"    Tag="{DynamicResource TagPhoneWhatsApp}"            Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox x:Name="emplo_email_box"   Tag="{DynamicResource TagEmail}"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox x:Name="emplo_address_box" Tag="{DynamicResource TagAddress}"               Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                         <Label Content="{DynamicResource Accommodation}" Style="{StaticResource FieldLabel}" Margin="0 10"/>
                                         <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" x:Name="recidenceBox"/>
 
@@ -610,7 +610,7 @@
                                     <StackPanel Visibility="Collapsed" Grid.Column="1" Margin="10,0,10,0">
                                         <Label Content="{DynamicResource Comfort}" Style="{StaticResource FieldLabel}"/>
                                         <ComboBox x:Name="break_box" Margin="0,0,0,10"/>
-                                        <TextBox Visibility="Collapsed" x:Name="holiday_balance_box" Tag="رصيد الإجازات" Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox Visibility="Collapsed" x:Name="holiday_balance_box" Tag="{DynamicResource TagLeaveBalanceHamza}" Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                     </StackPanel>
 
                                     <!-- Status checkboxes -->
@@ -687,9 +687,9 @@
                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                         <Label Content="{DynamicResource Insured}" Style="{DynamicResource FieldLabel}"/>
                                         <ComboBox x:Name="insuredComboBox"       Tag="مؤمن عليه"               DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,20,0,0"/>
-                                        <TextBox  x:Name="ssn_box"               Tag="الرقم التأميني"          Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <TextBox  x:Name="health_insurance_box"  Tag="رقم التأمين الصحي"       Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
-                                        <TextBox  x:Name="army_certificate_box"  Tag="رقم الشهادة العسكرية"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox  x:Name="ssn_box"               Tag="{DynamicResource TagInsuranceNumber}"          Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox  x:Name="health_insurance_box"  Tag="{DynamicResource TagHealthInsuranceNumber}"       Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
+                                        <TextBox  x:Name="army_certificate_box"  Tag="{DynamicResource TagMilitaryCertificateNumber}"    Style="{StaticResource ModernTextBox}" Margin="0,20,0,0"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0">

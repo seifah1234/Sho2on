@@ -4,6 +4,7 @@
         xmlns:uc="clr-namespace:HR_Application.UserControls"
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         Height="800" Width="1050" MinWidth="850"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
@@ -122,12 +123,7 @@
 
             <!-- TabControl المحسن -->
             <TabControl Grid.Row="1" FlowDirection="RightToLeft" Margin="10" Background="Transparent">
-                <TabItem Background="Transparent">
-                    <TabItem.Header>
-                        <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
-                            <Label Content="{DynamicResource MonthSettings}"/>
-                        </Border>
-                    </TabItem.Header>
+                <TabItem Background="Transparent" Header="{DynamicResource MonthSettings}">
                     <Grid>
                         <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  >
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -136,8 +132,8 @@
 
                                 <!-- حقول بداية ونهاية الشهر -->
                                 <StackPanel Margin="20" HorizontalAlignment="Center" Orientation="Horizontal">
-                                    <TextBox Tag="بداية الشهر" x:Name="begin_month" Margin="10"/>
-                                    <TextBox Tag="نهاية الشهر" x:Name="end_month" Margin="10"/>
+                                    <TextBox Tag="{DynamicResource TagMonthStart}" x:Name="begin_month" Margin="10"/>
+                                    <TextBox Tag="{DynamicResource TagMonthEnd}" x:Name="end_month" Margin="10"/>
                                 </StackPanel>
 
                                 <!-- زر الحفظ -->
@@ -151,13 +147,8 @@
                         </Border>
                     </Grid>
                 </TabItem>
-                
-                <TabItem Background="Transparent">
-                    <TabItem.Header>
-                        <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
-                            <Label Content="{DynamicResource ProgramSettings}"/>
-                        </Border>
-                    </TabItem.Header>
+
+                <TabItem Background="Transparent" Header="{DynamicResource ProgramSettings}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -182,7 +173,7 @@
                             </StackPanel>
                         </Border>
 
-        
+
                         <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}" Grid.Column="0" Grid.Row="1">
                             <GroupBox Header="{DynamicResource Tasks}">
                                 <CheckBox Content="{DynamicResource ShowAdministratorsToEveryone}" x:Name="officalsForAllBox" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="officalsForAllBox_Checked" Unchecked="officalsForAllBox_Unchecked"/>
@@ -190,56 +181,75 @@
 
                         </Border>
 
-                        
-                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  Grid.Column="1" Grid.Row="0">
+
+                        <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}" 
+        Grid.Column="1" Grid.Row="0">
                             <ScrollViewer>
-                                 <StackPanel Orientation="Vertical">
-                                <TextBlock Text="{DynamicResource Colors}" Foreground="{DynamicResource TextPrimaryColor}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                <UniformGrid Columns="2">
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="{DynamicResource MainColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="mainColorPicker" Width="200" SelectedColor="{Binding PrimaryColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="{DynamicResource SubColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="secondaryColorPicker" Width="200" SelectedColor="{Binding SecondaryColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="{DynamicResource ThirdColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="hoverColorPicker" Width="200" SelectedColor="{Binding ThirdColorBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="{DynamicResource BackgroundColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="backgroundColorPicker" Width="200" SelectedColor="{Binding PrimaryColorBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="{DynamicResource ListColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="menuColorPicker" Width="200" SelectedColor="{Binding MainMenuColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="{DynamicResource MainSpeechColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="primaryTextColorPicker" Width="200" SelectedColor="{Binding PrimaryTextBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Vertical" Margin="5">
-                                        <Label Content="{DynamicResource SubSpeechColor}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                        <xctk:ColorPicker Name="secondaryTextColorPicker" Width="200" SelectedColor="{Binding SecondaryTextBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                </UniformGrid>
-                            </StackPanel>
-                                
+                                <StackPanel Orientation="Vertical" Margin="15">
+                                    <TextBlock Text="{DynamicResource Colors}" 
+                       Foreground="{DynamicResource TextPrimaryColor}" 
+                       FontSize="24" FontWeight="Bold" 
+                       HorizontalAlignment="Center" Margin="0 0 0 15"/>
+                                    <!-- Primary Color -->
+                                    <Label Content="{DynamicResource PrimaryColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas Background="Transparent"
+UsingAlphaChannel="False"
+SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"/>
+                                    <!-- Text Color -->
+                                    <Label Content="{DynamicResource TextPrimaryColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas Background="Transparent"
+UsingAlphaChannel="False"
+SelectedColor="{Binding TextPrimaryColor, Mode=TwoWay}"/>
+
+                                    <Label Content="{DynamicResource SecondaryColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas Background="Transparent"
+UsingAlphaChannel="False"
+SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
+                                    <Label Content="{DynamicResource TextSecondaryColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas Background="Transparent"
+UsingAlphaChannel="False"
+SelectedColor="{Binding TextSecondaryColor, Mode=TwoWay}"/>
+                                    <!-- Accent Color -->
+                                    <Label Content="{DynamicResource AccentColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas x:Name="accentColorCanvas"
+UsingAlphaChannel="False"
+SelectedColor="{Binding AccentColor, Mode=TwoWay}"/>
+
+
+                                    <Label Content="{DynamicResource ThirdColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas Background="Transparent"
+UsingAlphaChannel="False"
+SelectedColor="{Binding ThirdColor, Mode=TwoWay}"/>
+
+
+                                    <!-- Sidebar Color -->
+                                    <Label Content="{DynamicResource SideBarColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas Background="Transparent"
+                                        
+UsingAlphaChannel="False"
+SelectedColor="{Binding SidebarColor, Mode=TwoWay}"/>
+
+
+                                    <!-- Save Button -->
+                                    <Button x:Name="saveColors_btn" 
+                    Click="SaveColors_Click"
+                                            Margin="10"
+                    Style="{DynamicResource SaveButtonStyle}"
+                    HorizontalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Icon:PackIconMaterial Kind="Palette" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                            <TextBlock Text="{DynamicResource SaveColors}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
                             </ScrollViewer>
                         </Border>
 
                     </Grid>
                 </TabItem>
 
-                
-                <TabItem Background="Transparent">
-                    <TabItem.Header>
-                        <Border CornerRadius="8" Background="{DynamicResource PrimaryColor}" Padding="3">
-                            <Label Content="{DynamicResource CompanyData}"/>
-                        </Border>
-                    </TabItem.Header>
+
+                <TabItem Background="Transparent" Header="{DynamicResource CompanyData}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -248,7 +258,7 @@
                         <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}"  >
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <!-- تفاصيل الشهر -->
-                                <TextBox Tag="اسم الشركة" x:Name="company_name_txt" Margin="10"/>
+                                <TextBox Tag="{DynamicResource TagCompanyName}" x:Name="company_name_txt" Margin="10"/>
                                 <!-- زر الحفظ -->
                                 <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="save_company_Btn" Click="save_company_Btn_Click" Margin="20">
                                     <StackPanel Orientation="Horizontal">
@@ -262,7 +272,7 @@
                     </Grid>
                 </TabItem>
 
-                
+
             </TabControl>
         </Grid>
     </Border>

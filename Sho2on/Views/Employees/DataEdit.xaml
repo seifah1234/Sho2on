@@ -172,12 +172,12 @@
                                     <StackPanel Orientation="Horizontal">
                                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="5 0 0 5">
                                             <TextBox Visibility="Collapsed" Style="{DynamicResource InputFieldStyle}" Name="job_box" Margin="5"/>
-                                            <!--<TextBox Width="250" Name="name_box" Tag="اسم الموظف" FlowDirection="RightToLeft" Margin="5"/>-->
+                                            <!--<TextBox Width="250" Name="name_box" Tag="{DynamicResource TagEmployeeName}" FlowDirection="RightToLeft" Margin="5"/>-->
                                             <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
                                                 <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                                                 <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                             </StackPanel>
-                                            <TextBox Name="code_box" Tag="كود الموظف" FlowDirection="RightToLeft" Margin="5"/>
+                                            <TextBox Name="code_box" Tag="{DynamicResource TagEmployeeCode}" FlowDirection="RightToLeft" Margin="5"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel FlowDirection="RightToLeft" VerticalAlignment="Center" Orientation="Horizontal" Margin="0 0 10 0">

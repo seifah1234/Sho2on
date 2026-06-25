@@ -48,7 +48,7 @@
                     <!-- حقل الكود -->
                     <TextBox x:Name="code_box" 
                              Margin="0 20 0 0" 
-                             Tag="كود الفرع" 
+                             Tag="{DynamicResource TagBranchCode}" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 
@@ -61,7 +61,7 @@
                     <!-- حقل الاسم -->
                     <TextBox x:Name="name_box" 
                              Margin="0 20 0 0" 
-                             Tag="اسم الفرع" 
+                             Tag="{DynamicResource TagBranchName}" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 

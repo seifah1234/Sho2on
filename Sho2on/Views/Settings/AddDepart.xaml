@@ -53,7 +53,7 @@
                         <TextBox 
                             x:Name="name_box" 
                             Margin="0 20 0 20" 
-                            Tag="اسم الادارة" 
+                            Tag="{DynamicResource TagDepartmentName}" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 

@@ -116,12 +116,12 @@
                     <StackPanel Orientation="Vertical" Margin="10">
                         <TextBox x:Name="txtEmployeeId" 
                                  PreviewTextInput="NumberValidationTextBox"
-                                 Tag="كود الموظف"/>
+                                 Tag="{DynamicResource TagEmployeeCode}"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical" Margin="10">
 
-                        <TextBox Width="250" Name="employeeName_box" Tag="اسم الموظف" 
+                        <TextBox Width="250" Name="employeeName_box" Tag="{DynamicResource TagEmployeeName}" 
              FlowDirection="RightToLeft" KeyDown="employeeName_box_KeyDown" />
                     </StackPanel>
 

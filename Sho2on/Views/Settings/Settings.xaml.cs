@@ -31,244 +31,143 @@ namespace HR_Application
 
         private string connectionString = App.ConnectionString;
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private Color _primaryColor = Colors.Blue; // Default #007bff
-        private Color _secondaryColor = Colors.Blue;
-        private Color _ThirdColorBrush = Colors.Blue;
-        private Color _primaryColorBackgroundColor = Colors.Blue; // Default #007bff
-        private Color _mainMenuColorColor = Colors.Blue;
-        private Color _primaryTextBrush = Colors.Blue;
-        private Color _secondaryTextBrush = Colors.Blue;
-        private string _primaryColorHex = "#007BFF";
-        private string _secondaryColorHex = "#007BFF";
-        private string _ThirdColorBrushHex = "#007BFF";
-        private string _primaryColorBackgroundColorHex = "#ececec";
-        private string _mainMenuColorHex = "#0047ab";
-        private string _primaryTextBrushHex = "#0047ab";
-        private string _secondaryTextBrushHex = "#F0FFF0";
-
-        public Color PrimaryColor
-        {
-            get => _primaryColor;
-            set { _primaryColor = value; UpdateColorResource("PrimaryColor", value); OnPropertyChanged(nameof(PrimaryColor)); }
-        }
+        private Color _secondaryColor;
+        private Color _accentColor;
+        private Color _sidebarColor;
+        private Color _primaryColor;
+        private Color _textPrimaryColor;
+        private Color _textSecondaryColor;
+        private Color _thirdColorBrush;
 
         public Color SecondaryColor
         {
             get => _secondaryColor;
-            set { _secondaryColor = value; UpdateColorResource("SecondaryColor", value); OnPropertyChanged(nameof(SecondaryColor)); }
+            set { _secondaryColor = value; OnPropertyChanged(nameof(SecondaryColor)); }
         }
 
+        public Color AccentColor
+        {
+            get => _accentColor;
+            set { _accentColor = value; OnPropertyChanged(nameof(AccentColor)); }
+        }
+
+        public Color SidebarColor
+        {
+            get => _sidebarColor;
+            set { _sidebarColor = value; OnPropertyChanged(nameof(SidebarColor)); }
+        }
+        public Color PrimaryColor
+        {
+            get => _primaryColor;
+            set { _primaryColor = value; OnPropertyChanged(nameof(PrimaryColor)); }
+        }
+        public Color TextPrimaryColor
+        {
+            get => _textPrimaryColor;
+            set { _textPrimaryColor = value; OnPropertyChanged(nameof(TextPrimaryColor)); }
+        }
+        public Color TextSecondaryColor
+        {
+            get => _textSecondaryColor;
+            set { _textSecondaryColor = value; OnPropertyChanged(nameof(TextSecondaryColor)); }
+        }
         public Color ThirdColorBrush
         {
-            get => _ThirdColorBrush;
-            set { _ThirdColorBrush = value; UpdateColorResource("ThirdColorBrush", value); OnPropertyChanged(nameof(ThirdColorBrush)); }
-        }
-
-        public Color PrimaryColorBackground
-        {
-            get => _primaryColorBackgroundColor;
-            set { _primaryColorBackgroundColor = value; UpdateColorResource("PrimaryColorBackground", value); OnPropertyChanged(nameof(PrimaryColorBackground)); }
-        }
-
-        public Color MainMenuColor
-        {
-            get => _mainMenuColorColor;
-            set { _mainMenuColorColor = value; UpdateColorResource("MainMenuColor", value); OnPropertyChanged(nameof(MainMenuColor)); }
-        }
-
-        public Color PrimaryTextBrush
-        {
-            get => _primaryTextBrush;
-            set { _primaryTextBrush = value; UpdateColorResource("PrimaryTextBrush", value); OnPropertyChanged(nameof(PrimaryTextBrush)); }
-        }
-
-        public Color SecondaryTextBrush
-        {
-            get => _secondaryTextBrush;
-            set { _secondaryTextBrush = value; UpdateColorResource("SecondaryTextBrush", value); OnPropertyChanged(nameof(SecondaryTextBrush)); }
-        }
-
-        public string PrimaryColorHex
-        {
-            get => _primaryColorHex;
-            set
-            {
-                if (TryParseHexColor(value, out Color color))
-                {
-                    _primaryColorHex = value;
-                    PrimaryColor = color;
-                    OnPropertyChanged(nameof(PrimaryColorHex));
-                }
-                else
-                {
-                    LocalizationManager.ShowMessage("تنسيق لون غير صالح. استخدم تنسيق #RRGGBB",
-                       LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        public string SecondaryColorHex
-        {
-            get => _secondaryColorHex;
-            set
-            {
-                if (TryParseHexColor(value, out Color color))
-                {
-                    _secondaryColorHex = value;
-                    SecondaryColor = color;
-                    OnPropertyChanged(nameof(SecondaryColorHex));
-                }
-                else
-                {
-                    LocalizationManager.ShowMessage("تنسيق لون غير صالح. استخدم تنسيق #RRGGBB",
-                       LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        public string ThirdColorBrushHex
-        {
-            get => _ThirdColorBrushHex;
-            set
-            {
-                if (TryParseHexColor(value, out Color color))
-                {
-                    _ThirdColorBrushHex = value;
-                    ThirdColorBrush = color;
-                    OnPropertyChanged(nameof(ThirdColorBrushHex));
-                }
-                else
-                {
-                    LocalizationManager.ShowMessage("تنسيق لون غير صالح. استخدم تنسيق #RRGGBB",
-                        LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-
-
-        public string PrimaryColorBackgroundHex
-        {
-            get => _primaryColorBackgroundColorHex;
-            set
-            {
-                if (TryParseHexColor(value, out Color color))
-                {
-                    _primaryColorBackgroundColorHex = value;
-                    PrimaryColorBackground = color;
-                    OnPropertyChanged(nameof(PrimaryColorBackgroundHex));
-                }
-                else
-                {
-                    LocalizationManager.ShowMessage("تنسيق لون غير صالح. استخدم تنسيق #RRGGBB",
-                       LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        public string MainMenuColorHex
-        {
-            get => _mainMenuColorHex;
-            set
-            {
-                if (TryParseHexColor(value, out Color color))
-                {
-                    _mainMenuColorHex = value;
-                    MainMenuColor = color;
-                    OnPropertyChanged(nameof(MainMenuColorHex));
-                }
-                else
-                {
-                    LocalizationManager.ShowMessage("تنسيق لون غير صالح. استخدم تنسيق #RRGGBB",
-                         LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        public string PrimaryTextBrushHex
-        {
-            get => _primaryTextBrushHex;
-            set
-            {
-                if (TryParseHexColor(value, out Color color))
-                {
-                    _primaryTextBrushHex = value;
-                    PrimaryTextBrush = color;
-                    OnPropertyChanged(nameof(PrimaryTextBrushHex));
-                }
-                else
-                {
-                    LocalizationManager.ShowMessage("تنسيق لون غير صالح. استخدم تنسيق #RRGGBB",
-                       LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        public string SecondaryTextBrushHex
-        {
-            get => _secondaryTextBrushHex;
-            set
-            {
-                if (TryParseHexColor(value, out Color color))
-                {
-                    _secondaryTextBrushHex = value;
-                    SecondaryTextBrush = color;
-                    OnPropertyChanged(nameof(SecondaryTextBrushHex));
-                }
-                else
-                {
-                    LocalizationManager.ShowMessage("تنسيق لون غير صالح. استخدم تنسيق #RRGGBB",
-                        LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            get => _thirdColorBrush;
+            set { _thirdColorBrush = value; OnPropertyChanged(nameof(ThirdColorBrush)); }
         }
 
         public Settings()
         {
             InitializeComponent();
+            LoadSavedColors();
             DataContext = this;
-
             LoadData();
         }
 
-        private void UpdateColorResource(string key, Color color)
+        private void LoadSavedColors()
         {
-            // نحدد الـ LightTheme.xaml
+            _accentColor = ParseColor(Properties.Settings.Default.AccentColor, "#0097A7");
+            _sidebarColor = ParseColor(Properties.Settings.Default.SidebarColor, "#004D56");
+            _thirdColorBrush = ParseColor(Properties.Settings.Default.ThirdColorBrush, "#00838F");
+            _primaryColor = ParseColor(Properties.Settings.Default.PrimaryColor, "#FFFFFF");
+            _textPrimaryColor = ParseColor(Properties.Settings.Default.PrimaryTextBrush, "#1A3C40");
+            _secondaryColor = ParseColor(Properties.Settings.Default.SecondaryColor, "#006064");
+            _textSecondaryColor = ParseColor(Properties.Settings.Default.SecondaryTextBrush, "#37474F");
+        }
+
+        private Color ParseColor(string hex, string fallback)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(hex) && hex.StartsWith("#"))
+                    return (Color)ColorConverter.ConvertFromString(hex);
+            }
+            catch { }
+            return (Color)ColorConverter.ConvertFromString(fallback);
+        }
+
+        private string ColorToHex(Color color) =>
+        $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+
+        private void UpdateResource(string key, Color color)
+        {
             var lightTheme = Application.Current.Resources.MergedDictionaries
-                .FirstOrDefault(rd => rd.Source != null && rd.Source.OriginalString.Contains("LightTheme.xaml"));
+                .FirstOrDefault(rd => rd.Source != null &&
+                                rd.Source.OriginalString.Contains("LightTheme.xaml"));
+
+            if (lightTheme != null)
+                lightTheme[key] = new SolidColorBrush(color);
+        }
+
+        private void SaveColors_Click(object sender, RoutedEventArgs e)
+        {
+            // تحديث الـ Resources فوراً
+            UpdateResource("SecondaryColor", _secondaryColor);
+            UpdateResource("ThirdColorBrushBrush", _thirdColorBrush); // نفس اللون
+            UpdateResource("PrimaryColor", _primaryColor);
+            UpdateResource("AccentColor", _accentColor);
+            UpdateResource("TextPrimaryColor", _textPrimaryColor);
+            UpdateResource("TextSecondaryColor", _textSecondaryColor);
+
+            // تحديث الـ SidebarBrush (LinearGradient)
+            var lightTheme = Application.Current.Resources.MergedDictionaries
+                .FirstOrDefault(rd => rd.Source != null &&
+                                rd.Source.OriginalString.Contains("LightTheme.xaml"));
 
             if (lightTheme != null)
             {
-                lightTheme[key] = new SolidColorBrush(color);
-
-                // نحفظ القيمة في Settings
-                Properties.Settings.Default[key] = color;
-                Properties.Settings.Default.Save();
+                var sidebarBrush = new LinearGradientBrush
+                {
+                    StartPoint = new System.Windows.Point(0, 0),
+                    EndPoint = new System.Windows.Point(0, 1)
+                };
+                sidebarBrush.GradientStops.Add(new GradientStop(_sidebarColor, 0));
+                sidebarBrush.GradientStops.Add(
+                    new GradientStop(DarkenColor(_sidebarColor, 0.8), 1));
+                lightTheme["SidebarBrush"] = sidebarBrush;
             }
+
+            // حفظ في Settings
+            Properties.Settings.Default.SecondaryColor = ColorToHex(_secondaryColor);
+            Properties.Settings.Default.PrimaryColor = ColorToHex(_primaryColor);
+            Properties.Settings.Default.PrimaryTextBrush = ColorToHex(_textPrimaryColor);
+            Properties.Settings.Default.ThirdColorBrush = ColorToHex(_thirdColorBrush);
+            Properties.Settings.Default.AccentColor = ColorToHex(_accentColor);
+            Properties.Settings.Default.SidebarColor = ColorToHex(_sidebarColor);
+            Properties.Settings.Default.SecondaryTextBrush = ColorToHex(_sidebarColor);
+            Properties.Settings.Default.SecondaryTextBrush = ColorToHex(_textSecondaryColor);
+            Properties.Settings.Default.Save();
+
+            LocalizationManager.ShowMessage("تم حفظ الالوان!");
         }
 
-
-        private bool TryParseHexColor(string hex, out Color color)
+        private Color DarkenColor(Color color, double factor)
         {
-            color = Colors.Black; // Default fallback
-            if (string.IsNullOrEmpty(hex) || !hex.StartsWith("#") || (hex.Length != 7 && hex.Length != 9))
-                return false;
-
-            try
-            {
-                color = (Color)ColorConverter.ConvertFromString(hex);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private string ColorToHex(Color color)
-        {
-            return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+            return Color.FromRgb(
+                (byte)(color.R * factor),
+                (byte)(color.G * factor),
+                (byte)(color.B * factor));
         }
 
         protected void OnPropertyChanged(string propertyName)
@@ -280,23 +179,6 @@ namespace HR_Application
         {
             try
             {
-                PrimaryColor = Properties.Settings.Default.PrimaryColor;
-                SecondaryColor = Properties.Settings.Default.SecondaryColor;
-                ThirdColorBrush = Properties.Settings.Default.ThirdColorBrush;
-                PrimaryColorBackground = Properties.Settings.Default.PrimaryColorBackground;
-                MainMenuColor = Properties.Settings.Default.MainMenuColor;
-                PrimaryTextBrush = Properties.Settings.Default.PrimaryTextBrush;
-                SecondaryTextBrush = Properties.Settings.Default.SecondaryTextBrush;
-
-                PrimaryColorHex = ColorToHex(PrimaryColor);
-                SecondaryColorHex = ColorToHex(SecondaryColor);
-                ThirdColorBrushHex = ColorToHex(ThirdColorBrush);
-
-                PrimaryColorBackgroundHex = ColorToHex(PrimaryColorBackground);
-                MainMenuColorHex = ColorToHex(MainMenuColor);
-                PrimaryTextBrushHex = ColorToHex(PrimaryTextBrush);
-                SecondaryTextBrushHex = ColorToHex(SecondaryTextBrush);
-
                 string month_data = "";
                 
                  month_data = $"اعدادات بداية الشهر الحالية : {Properties.Settings.Default.StartOfMonth} و نهايته : {Properties.Settings.Default.EndOfMonth}";

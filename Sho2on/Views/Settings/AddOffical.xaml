@@ -52,7 +52,7 @@
                         <TextBox 
                             x:Name="name_box" 
                             Margin="0 20 0 20" 
-                            Tag="المسمى" 
+                            Tag="{DynamicResource TagTitle}" 
                              Width="250" 
                              Height="40" 
                              FlowDirection="RightToLeft" 
@@ -64,7 +64,7 @@
                             <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                             <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                         </StackPanel>
-                        <TextBox Width="100" Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="2" VerticalAlignment="Bottom" KeyDown="code_box_KeyDown"/>
+                        <TextBox Width="100" Name="code_box" Tag="{DynamicResource TagCode}" FlowDirection="RightToLeft" Margin="2" VerticalAlignment="Bottom" KeyDown="code_box_KeyDown"/>
                     </StackPanel>
 
                     <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">

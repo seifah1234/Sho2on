@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sho2on.Database.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,4 +13,6 @@ public class Degree
     public string Name { get; set; }
 
     public DateTime? EditedAt { get; set; } = DateTime.Now;
+
+    public ICollection<User> Users { get; set; } = new List<User>();
 }

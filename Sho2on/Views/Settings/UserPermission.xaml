@@ -124,7 +124,7 @@
                             <!-- TextBox لكلمة المرور -->
                             <StackPanel Margin="5" HorizontalAlignment="Left" Orientation="Vertical">
                                 <Label Content="{DynamicResource Username3}" Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Margin="0 0 0 5"/>
-                                <TextBox Style="{DynamicResource UsernameTextBoxStyle}" Tag="اسم المستخدم" Name="username_box"/>
+                                <TextBox Style="{DynamicResource UsernameTextBoxStyle}" Tag="{DynamicResource TagUsername}" Name="username_box"/>
                             </StackPanel>
                             
                             <StackPanel Margin="5" HorizontalAlignment="Left" Orientation="Vertical">

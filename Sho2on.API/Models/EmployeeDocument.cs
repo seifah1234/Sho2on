@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.API.Models
+namespace Sho2on.Database.Models
 {
     public class EmployeeDocument
     {
@@ -36,6 +36,9 @@ namespace Sho2on.API.Models
         public long FileSize { get; set; }
 
         public string Description { get; set; }
+        public string StoragePath { get; set; }
+        public string StorageType { get; set; } = "Central";
+        public string FullPath { get; set; }
 
         [Required]
         public DateTime UploadDate { get; set; } = DateTime.Now;
@@ -46,7 +49,7 @@ namespace Sho2on.API.Models
         [Required]
         public int UploadedBy { get; set; }
 
-        public DocumentStatus Status { get; set; } = DocumentStatus.Pending;
+        public DocumentStatus Status { get; set; } = DocumentStatus.Active;
 
         public string Notes { get; set; }
 
@@ -70,18 +73,8 @@ namespace Sho2on.API.Models
         // وثائق الشركة الموقعة
         SignedCompanyDocument = 1,
 
-        // وثائق شخصية
-        CV = 2,                 // السيرة الذاتية
-        NationalID = 3,         // البطاقة الشخصية
-        DrivingLicense = 4,     // رخصة القيادة
-        DegreeCertificate = 5,  // شهادة المؤهل
         TrainingCertificate = 6,// شهادات التدريب
         WorkPermit = 7,         // تصريح العمل
-        Insurance = 8,          // التأمين
-        MilitaryCertificate = 9,// الشهادة العسكرية
-        Passport = 10,          // الجواز
-        PersonalContract = 11,  // العقد الشخصي
-        Photo = 12,             // صورة شخصية
         Other = 99              // أخرى
     }
 

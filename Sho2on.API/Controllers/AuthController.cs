@@ -14,10 +14,10 @@ namespace Sho2on.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id.ToString() == dto.Id);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Code.ToString() == dto.Id);
             if (user == null) return BadRequest("الموظف غير موجود");
             if (user.PasswordHash == null) return BadRequest("غير مسجل");
-            if (user.PasswordHash != HashPassword(dto.Password)) return BadRequest("بيانات غير صحيحة");
+            if (user.PasswordHash != dto.Password) return BadRequest("بيانات غير صحيحة");
             if (user.RegisteredDeviceId != dto.DeviceId) return BadRequest("الجهاز غير مسجل");
             return Ok(new { user.Id, user.FullName, user.BranchId });
         }
@@ -25,14 +25,14 @@ namespace Sho2on.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id.ToString() == dto.Id);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Code.ToString() == dto.Id);
             if (user == null) return BadRequest("الموظف غير موجود");
             if (user.PasswordHash != null) return BadRequest("أنت مسجل بالفعل");
             var settings = await _db.Settings.FirstAsync();
             int usedUsers = await _db.Users.CountAsync(x => x.PasswordHash != null);
             if (usedUsers >= settings.MaxMobileUsers) return BadRequest("عدد المستخدمين المسموح به ممتلئ");
 
-            user.PasswordHash = HashPassword(dto.Password);
+            user.PasswordHash = dto.Password;
             user.RegisteredDeviceId = dto.DeviceId;
             await _db.SaveChangesAsync();
             return Ok(new

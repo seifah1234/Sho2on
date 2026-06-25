@@ -158,7 +158,7 @@
                     <!-- الفلاتر الوسطى -->
                     <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
-                            <TextBox Width="150" Tag="كود الموظف" VerticalAlignment="Bottom" FlowDirection="RightToLeft" Name="code_box" Margin="5"/>
+                            <TextBox Width="150" Tag="{DynamicResource TagEmployeeCode}" VerticalAlignment="Bottom" FlowDirection="RightToLeft" Name="code_box" Margin="5"/>
                             <StackPanel Margin="5" Orientation="Vertical" HorizontalAlignment="Center">
                                 <Label VerticalAlignment="Center" Content="{DynamicResource Branch}" Foreground="{DynamicResource ThirdColorBrushBrush}" />
                                 <ComboBox Width="200" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
@@ -168,7 +168,7 @@
                             <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="Name" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                             <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                         </StackPanel>
-                        <TextBox Visibility="Collapsed" Style="{DynamicResource InputFieldStyle}" Tag="اسم الموظف" FlowDirection="RightToLeft" Name="name_box" Margin="5"/>
+                        <TextBox Visibility="Collapsed" Style="{DynamicResource InputFieldStyle}" Tag="{DynamicResource TagEmployeeName}" FlowDirection="RightToLeft" Name="name_box" Margin="5"/>
                     </StackPanel>
 
                     <!-- الأزرار -->

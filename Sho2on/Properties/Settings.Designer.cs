@@ -331,11 +331,11 @@ namespace HR_Application.Properties
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
 
-        public global::System.Windows.Media.Color PrimaryColor
+        public global::System.String PrimaryColor
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["PrimaryColor"]));
+                return ((global::System.String)(this["PrimaryColor"]));
             }
             set
             {
@@ -346,11 +346,27 @@ namespace HR_Application.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
-        public global::System.Windows.Media.Color SecondaryColor
+
+        public global::System.String MainColor
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["SecondaryColor"]));
+                return ((global::System.String)(this["MainColor"]));
+            }
+            set
+            {
+                this["MainColor"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
+        public global::System.String SecondaryColor
+        {
+            get
+            {
+                return ((global::System.String)(this["SecondaryColor"]));
             }
             set
             {
@@ -361,11 +377,11 @@ namespace HR_Application.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("#660503")]
-        public global::System.Windows.Media.Color ThirdColorBrush
+        public global::System.String ThirdColorBrush
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["ThirdColorBrush"]));
+                return ((global::System.String)(this["ThirdColorBrush"]));
             }
             set
             {
@@ -376,11 +392,11 @@ namespace HR_Application.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("#ececec")]
-        public global::System.Windows.Media.Color PrimaryColorBackground
+        public global::System.String PrimaryColorBackground
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["PrimaryColorBackground"]));
+                return ((global::System.String)(this["PrimaryColorBackground"]));
             }
             set
             {
@@ -391,11 +407,11 @@ namespace HR_Application.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
-        public global::System.Windows.Media.Color MainMenuColor
+        public global::System.String MainMenuColor
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["MainMenuColor"]));
+                return ((global::System.String)(this["MainMenuColor"]));
             }
             set
             {
@@ -406,11 +422,11 @@ namespace HR_Application.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("#0047ab")]
-        public global::System.Windows.Media.Color PrimaryTextBrush
+        public global::System.String PrimaryTextBrush
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["PrimaryTextBrush"]));
+                return ((global::System.String)(this["PrimaryTextBrush"]));
             }
             set
             {
@@ -420,16 +436,46 @@ namespace HR_Application.Properties
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#F0FFF0")]
-        public global::System.Windows.Media.Color SecondaryTextBrush
+        [global::System.Configuration.DefaultSettingValueAttribute("#37474F")]
+        public global::System.String SecondaryTextBrush
         {
             get
             {
-                return ((global::System.Windows.Media.Color)(this["SecondaryTextBrush"]));
+                return ((global::System.String)(this["SecondaryTextBrush"]));
             }
             set
             {
                 this["SecondaryTextBrush"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#0097A7")]
+        public global::System.String AccentColor
+        {
+            get
+            {
+                return ((global::System.String)(this["AccentColor"]));
+            }
+            set
+            {
+                this["AccentColor"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#004D56")]
+        public global::System.String SidebarColor
+        {
+            get
+            {
+                return ((global::System.String)(this["SidebarColor"]));
+            }
+            set
+            {
+                this["SidebarColor"] = value;
             }
         }
     }

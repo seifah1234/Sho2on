@@ -148,12 +148,12 @@
                                         <ComboBox DisplayMemberPath="Name" SelectedValuePath="Id" FlowDirection="LeftToRight" Name="branch_box" Margin="5 0 0 0"/>
                                     </StackPanel>
                                     <!-- TextBoxes 
-                                    <TextBox Width="200" Name="name_box" Tag="الاسم" FlowDirection="RightToLeft" Margin="10"/>-->
+                                    <TextBox Width="200" Name="name_box" Tag="{DynamicResource TagName}" FlowDirection="RightToLeft" Margin="10"/>-->
                                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
                                         <TextBlock Width="250" Name="user_box" Margin="5"/>
                                         <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="اسم الموظف: " VerticalAlignment="Center" Margin="10 0 0 0"/>
                                     </StackPanel>
-                                    <TextBox Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="10"/>
+                                    <TextBox Name="code_box" Tag="{DynamicResource TagCode}" FlowDirection="RightToLeft" Margin="10"/>
                                 </StackPanel>
                             </StackPanel>
                         </GroupBox>
@@ -175,8 +175,8 @@
 
                                 <!-- TextBoxes السفلية -->
                                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="10">
-                                    <TextBox Width="400" Name="text_box" Tag="ملاحظات" Margin="10 0"/>
-                                    <TextBox Name="value_box" Tag="القيمة" Margin="10 0"/>
+                                    <TextBox Width="400" Name="text_box" Tag="{DynamicResource TagNotes}" Margin="10 0"/>
+                                    <TextBox Name="value_box" Tag="{DynamicResource TagValue}" Margin="10 0"/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>

@@ -174,7 +174,7 @@
                                 <!-- حقل القيمة المالية -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
                                     <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource NumberOfMinutes}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
-                                    <TextBox Style="{DynamicResource InputFieldStyle}" x:Name="ValueMoneyTextBox" Tag="عدد الدقائق"/>
+                                    <TextBox Style="{DynamicResource InputFieldStyle}" x:Name="ValueMoneyTextBox" Tag="{DynamicResource TagMinutesCount}"/>
                                 </StackPanel>
 
                                 <!-- أزرار التعديل والحفظ -->
@@ -282,7 +282,7 @@
                                 <!-- حقل القيمة المالية -->
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="5 10 5 12" HorizontalAlignment="Center">
                                     <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{DynamicResource Value}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThirdColorBrushBrush}"/>
-                                    <TextBox Style="{DynamicResource InputFieldStyle}" x:Name="ValueMoneyMoneyTextBox" Tag="القيمة"/>
+                                    <TextBox Style="{DynamicResource InputFieldStyle}" x:Name="ValueMoneyMoneyTextBox" Tag="{DynamicResource TagValue}"/>
                                 </StackPanel>
 
                                 <!-- أزرار التعديل والحفظ -->
@@ -353,8 +353,8 @@
                             <GroupBox Margin="5" Foreground="{DynamicResource ThirdColorBrushBrush}" Header="{DynamicResource RepeatedDelay}">
 
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
-                                    <TextBox Tag="عدد التكرار" x:Name="delay_repeat" Margin="10"/>
-                                    <TextBox Tag="قيمة التأخير" x:Name="delay_value" Margin="10"/>
+                                    <TextBox Tag="{DynamicResource TagRepeatCount}" x:Name="delay_repeat" Margin="10"/>
+                                    <TextBox Tag="{DynamicResource TagDelayValue}" x:Name="delay_value" Margin="10"/>
                                 </StackPanel>
                             </GroupBox>
 

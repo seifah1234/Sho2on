@@ -137,15 +137,15 @@
                                     <StackPanel Orientation="Horizontal">
                                         <StackPanel Margin="10" Orientation="Vertical" HorizontalAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Margin="5">
-                                                <TextBox Width="100" Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="2"/>
+                                                <TextBox Width="100" Name="code_box" Tag="{DynamicResource TagCode}" FlowDirection="RightToLeft" Margin="2"/>
                                                 <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
                                                     <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                                     <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5">
-                                            <TextBox Width="100" Name="holiday_balance_box" Tag="رصيد الاجازات" FlowDirection="RightToLeft" Margin="2"/>
-                                            <TextBox Width="250" Name="cardId_box" Tag="الرقم القومي" FlowDirection="RightToLeft" Margin="2"/>
+                                            <TextBox Width="100" Name="holiday_balance_box" Tag="{DynamicResource TagLeaveBalance}" FlowDirection="RightToLeft" Margin="2"/>
+                                            <TextBox Width="250" Name="cardId_box" Tag="{DynamicResource TagNationalNumber}" FlowDirection="RightToLeft" Margin="2"/>
                                             
                                         </StackPanel>
 
@@ -257,7 +257,7 @@
                                                 </StackPanel>
 
                                                 <StackPanel Margin="5">
-                                                    <TextBox Tag="رقم الواتساب" x:Name="whatsAppNoBox" Width="150"/>
+                                                    <TextBox Tag="{DynamicResource TagWhatsAppNumber}" x:Name="whatsAppNoBox" Width="150"/>
                                                 </StackPanel>
                                             </UniformGrid>
                                         </StackPanel>

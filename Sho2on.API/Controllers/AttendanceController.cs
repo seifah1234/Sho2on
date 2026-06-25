@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.API.DTOs;
-using Sho2on.API.Models;
+using Sho2on.Database.Models;
 
 namespace Sho2on.API.Controllers
 {

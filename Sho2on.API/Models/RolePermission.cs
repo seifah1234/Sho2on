@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.API.Models
+namespace Sho2on.Database.Models
 {
     public class RolePermission
     {

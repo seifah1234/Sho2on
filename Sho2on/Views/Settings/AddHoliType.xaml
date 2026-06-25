@@ -31,7 +31,7 @@ Height="450" Width="600" MinHeight="450" MinWidth="600" WindowStartupLocation="C
             <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{DynamicResource BorderColor}"  >
 
                     <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" >
-                        <TextBox x:Name="name_box" Margin="0 10 0 10" Tag="البيان" FlowDirection="RightToLeft" Width="200" HorizontalAlignment="Center"/>
+                        <TextBox x:Name="name_box" Margin="0 10 0 10" Tag="{DynamicResource TagStatement}" FlowDirection="RightToLeft" Width="200" HorizontalAlignment="Center"/>
 
 
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">

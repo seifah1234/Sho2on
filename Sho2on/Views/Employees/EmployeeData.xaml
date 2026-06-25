@@ -137,15 +137,15 @@
                                     <StackPanel Orientation="Horizontal">
                                         <StackPanel Margin="10" Orientation="Vertical" HorizontalAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Margin="5">
-                                                <TextBox Width="100" Name="code_box" Tag="{Binding Code}" FlowDirection="RightToLeft" Margin="2" VerticalAlignment="Bottom"/>
+                                                <TextBox Width="100" Name="code_box" Tag="{DynamicResource Code}" FlowDirection="RightToLeft" Margin="2" VerticalAlignment="Bottom"/>
                                                 <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
                                                     <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
                                                     <ComboBox Width="250" SelectionChanged="userComboBox_SelectionChanged" Loaded="searchComboBox_Loaded" SelectedValuePath="Code" DisplayMemberPath="FullName" HorizontalContentAlignment="Right" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" Name="user_box" Margin="5"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5">
-                                                <TextBox Width="100" Name="holiday_balance_box" Tag="{Binding LeaveBalance}" FlowDirection="RightToLeft" Margin="2"/>
-                                                <TextBox Width="250" Name="cardId_box" Tag="{Binding NationalNumber}" FlowDirection="RightToLeft" Margin="2"/>
+                                                <TextBox Width="100" Name="holiday_balance_box" Tag="{DynamicResource LeaveBalance}" FlowDirection="RightToLeft" Margin="2"/>
+                                                <TextBox Width="250" Name="cardId_box" Tag="{DynamicResource NationalNumber}" FlowDirection="RightToLeft" Margin="2"/>
                                             
                                         </StackPanel>
 
@@ -257,7 +257,7 @@
                                                 </StackPanel>
 
                                                 <StackPanel Margin="5">
-                                                    <TextBox Tag="{Binding WhatsNumber}" x:Name="whatsAppNoBox" Width="150"/>
+                                                <TextBox Tag="{DynamicResource WhatsNumber}" x:Name="whatsAppNoBox" Width="150"/>
                                                 </StackPanel>
                                             </UniformGrid>
                                         </StackPanel>

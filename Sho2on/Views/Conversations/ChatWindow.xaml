@@ -322,9 +322,9 @@
                     <TextBlock Text="{DynamicResource AddANewConversation}" FontSize="18" FontWeight="Bold" 
                                Foreground="{DynamicResource AccentColor}" Margin="0,0,0,15"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBox x:Name="newChatCodeBox" Tag="كود المستخدم..." Margin="0,0,10,10" Width="120" 
+                        <TextBox x:Name="newChatCodeBox" Tag="{DynamicResource TagUserCodePlaceholder}" Margin="0,0,10,10" Width="120" 
                                  KeyDown="SearchUser_KeyDown"/>
-                        <TextBox x:Name="newChatUserBox" Tag="اسم المستخدم..." Margin="0,0,0,10" 
+                        <TextBox x:Name="newChatUserBox" Tag="{DynamicResource TagUsernamePlaceholder}" Margin="0,0,0,10" 
                                  KeyDown="SearchUser_KeyDown"/>
                     </StackPanel>
                     <ScrollViewer MaxHeight="400" Margin="0,10">

@@ -198,9 +198,9 @@
                         <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="{DynamicResource EmployeeData3}" Margin="10">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <TextBox Name="employeeCode_box" Tag="كود الموظف" KeyDown="employeeCode_box_KeyDown"
+                                            <TextBox Name="employeeCode_box" Tag="{DynamicResource TagEmployeeCode}" KeyDown="employeeCode_box_KeyDown"
              FlowDirection="RightToLeft" Margin="10" Width="120"/>
-                                        <TextBox Width="250" Name="employeeName_box" Tag="اسم الموظف" 
+                                        <TextBox Width="250" Name="employeeName_box" Tag="{DynamicResource TagEmployeeName}" 
              FlowDirection="RightToLeft" Margin="10" />
 
                                         <Button Style="{DynamicResource SecondaryButtonStyle}" 
@@ -315,7 +315,7 @@
                                  <GroupBox Style="{DynamicResource GroupBoxStyle}" Header="{DynamicResource Incumbent}" Margin="10">
                                     <StackPanel>
                                        <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <TextBox VerticalAlignment="Bottom" Name="ReplaceEmployeeCode_box" Tag="كود الموظف" KeyDown="ReplaceEmployeeCode_box_KeyDown"
+                                        <TextBox VerticalAlignment="Bottom" Name="ReplaceEmployeeCode_box" Tag="{DynamicResource TagEmployeeCode}" KeyDown="ReplaceEmployeeCode_box_KeyDown"
  FlowDirection="RightToLeft" Margin="10" Width="120"/>
                                             <StackPanel FlowDirection="RightToLeft" Orientation="Vertical">
                                                 <Label Foreground="{DynamicResource ThirdColorBrushBrush}" FontSize="14" FontWeight="Bold" Content="{DynamicResource EmployeeName}" VerticalAlignment="Center" Margin="10 0 0 0"/>
@@ -405,7 +405,7 @@ Margin="10">
                                             <DatePicker Name="startDate_picker" FlowDirection="RightToLeft" Width="150"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical" Margin="10">
-                                            <TextBox Name="duration_box" Tag="مدة الإجازة" 
+                                            <TextBox Name="duration_box" Tag="{DynamicResource TagLeaveDuration}" 
                              TextAlignment="Center" Width="100" IsReadOnly="True"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -415,7 +415,7 @@ Margin="10">
                                         <TextBlock Text="{DynamicResource ReasonForLeave2}" Foreground="White" FlowDirection="RightToLeft" 
                            FontWeight="SemiBold" Margin="0,0,0,5"/>
                                         <TextBox Width="500" MinHeight="80" Name="reason_box" 
-                         Tag="الرجاء كتابة سبب الإجازة" FlowDirection="RightToLeft"
+                         Tag="{DynamicResource TagLeaveReason}" FlowDirection="RightToLeft"
                          TextWrapping="Wrap" AcceptsReturn="True"/>
                                     </StackPanel>
 

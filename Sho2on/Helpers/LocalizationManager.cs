@@ -639,6 +639,7 @@ namespace HR_Application.Helpers
             ["تأمين الشركة:"] = "Company insurance:",
             ["تأمينات الشركة"] = "Company insurances",
             ["تأمينات الموظف"] = "Employee insurances",
+            ["هل تريد الخروج من البرنامج ؟"] = "Are you sure to exist the application ?",
             ["تأمينات الموظف:"] = "Employee insurances:",
             ["تاريخ آخر تحميل"] = "Date of last download",
             ["تاريخ الإلغاء"] = "Cancellation date",
@@ -1153,6 +1154,7 @@ namespace HR_Application.Helpers
             ["🖨️ طباعة"] = "🖨️ Print",
             ["🗑️ حذف"] = "🗑️ Delete",
             ["🛠️ الخدمات الذاتية"] = "🛠️ Self-services",
+            ["تم حفظ الالوان!"] = "Colors saved successfully!",
 
         };
 

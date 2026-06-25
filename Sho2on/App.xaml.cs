@@ -1,8 +1,11 @@
-﻿using HR_Application.Services;
+﻿using HR_Application.Helpers;
+using HR_Application.Helpers;
+using HR_Application.Services;
+using MaterialDesignColors;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using HR_Application.Helpers;
+using OpenTK.Graphics.OpenGL;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System.Configuration;
@@ -11,9 +14,11 @@ using System.Globalization;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Windows; using HR_Application.Helpers;
+using System.Windows; 
 using System.Windows.Media;
 using Application = System.Windows.Application;
+using Color = System.Windows.Media.Color;
+using ColorConverter = System.Windows.Media.ColorConverter;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HR_Application
@@ -41,7 +46,7 @@ namespace HR_Application
             LoadServerSettings();
             LoginScreen login = new LoginScreen();
             login.ShowDialog();
-            //LoadThemePreference();
+            LoadThemePreference();
         }
         public static string ConnectionString { get; set; }
         public static string SoftechConnectionString { get; set; }
@@ -152,27 +157,56 @@ namespace HR_Application
             }
         }
 
+        private void UpdateResource(string key, System.Windows.Media.Color color)
+        {
+            var lightTheme = Application.Current.Resources.MergedDictionaries
+                .FirstOrDefault(rd => rd.Source != null &&
+                                rd.Source.OriginalString.Contains("LightTheme.xaml"));
+
+            if (lightTheme != null)
+                lightTheme[key] = new SolidColorBrush(color);
+        }
+
+        private System.Windows.Media.Color ParseColor(string hex, string fallback)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(hex) && hex.StartsWith("#"))
+                    return (Color)ColorConverter.ConvertFromString(hex);
+            }
+            catch { }
+            return (Color)ColorConverter.ConvertFromString(fallback);
+        }
+
         public void LoadColorsFromSettings()
         {
             try
             {
-                var primary = HR_Application.Properties.Settings.Default.PrimaryColor;
-                var secondary = HR_Application.Properties.Settings.Default.SecondaryColor;
-                var third = HR_Application.Properties.Settings.Default.ThirdColorBrush;
+                // تحديث الـ Resources فوراً
+                UpdateResource("SecondaryColor", ParseColor(HR_Application.Properties.Settings.Default.SecondaryColor, "#006064"));
+                UpdateResource("ThirdColorBrushBrush", ParseColor(HR_Application.Properties.Settings.Default.ThirdColorBrush, "#00838F")); // نفس اللون
+                UpdateResource("PrimaryColor", ParseColor(HR_Application.Properties.Settings.Default.PrimaryColor, "#FFFFFF"));
+                UpdateResource("AccentColor", ParseColor(HR_Application.Properties.Settings.Default.AccentColor, "#0097A7"));
+                UpdateResource("TextPrimaryColor", ParseColor(HR_Application.Properties.Settings.Default.PrimaryTextBrush, "#1A3C40"));
+                UpdateResource("TextSecondaryColor", ParseColor(HR_Application.Properties.Settings.Default.SecondaryTextBrush, "#37474F"));
 
-                Application.Current.Resources["PrimaryColor"] = new SolidColorBrush(primary);
-                Application.Current.Resources["SecondaryColor"] = new SolidColorBrush(secondary);
-                Application.Current.Resources["ThirdColorBrush"] = new SolidColorBrush(third);
+                // تحديث الـ SidebarBrush (LinearGradient)
+                var lightTheme = Application.Current.Resources.MergedDictionaries
+                    .FirstOrDefault(rd => rd.Source != null &&
+                                    rd.Source.OriginalString.Contains("LightTheme.xaml"));
 
-                var primaryBackground = HR_Application.Properties.Settings.Default.PrimaryColorBackground;
-                var mainMenuColor = HR_Application.Properties.Settings.Default.MainMenuColor;
-                var primaryTextBrush = HR_Application.Properties.Settings.Default.PrimaryTextBrush;
-                var secondaryTextBrush = HR_Application.Properties.Settings.Default.SecondaryTextBrush;
-
-                Application.Current.Resources["InputBackground"] = new SolidColorBrush(primaryBackground);
-                Application.Current.Resources["BorderColor"] = new SolidColorBrush(mainMenuColor);
-                Application.Current.Resources["TextPrimaryColor"] = new SolidColorBrush(primaryTextBrush);
-                Application.Current.Resources["TextSecondaryColor"] = new SolidColorBrush(secondaryTextBrush);
+                if (lightTheme != null)
+                {
+                    var sidebarBrush = new LinearGradientBrush
+                    {
+                        StartPoint = new System.Windows.Point(0, 0),
+                        EndPoint = new System.Windows.Point(0, 1)
+                    };
+                    sidebarBrush.GradientStops.Add(new GradientStop(ParseColor(HR_Application.Properties.Settings.Default.SidebarColor, "#004D56"), 0));
+                    sidebarBrush.GradientStops.Add(
+                        new GradientStop(DarkenColor(ParseColor(HR_Application.Properties.Settings.Default.SidebarColor, "#004D56"), 0.8), 1));
+                    lightTheme["SidebarBrush"] = sidebarBrush;
+                }
             }
             catch
             {
@@ -181,6 +215,13 @@ namespace HR_Application
                 Application.Current.Resources["SecondaryColor"] = new SolidColorBrush(Colors.Gray);
                 Application.Current.Resources["ThirdColorBrush"] = new SolidColorBrush(Colors.LightGray);
             }
+        }
+        private Color DarkenColor(Color color, double factor)
+        {
+            return Color.FromRgb(
+                (byte)(color.R * factor),
+                (byte)(color.G * factor),
+                (byte)(color.B * factor));
         }
 
         private void ResetColorsToThemeDefaults()

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sho2on.API.Models
+namespace Sho2on.Database.Models
 {
     public class LeaveBalance
     {
@@ -18,10 +14,7 @@ namespace Sho2on.API.Models
         public int UserId { get; set; }
 
         [Required]
-        public int Year { get; set; }
-
-        [Required]
-        public int LeaveType { get; set; }
+        public int LeaveTypeId { get; set; }
 
         [Required]
         public int TotalBalance { get; set; }
@@ -29,10 +22,14 @@ namespace Sho2on.API.Models
         [Required]
         public int UsedBalance { get; set; }
 
-        [Required]
-        public int RemainingBalance => TotalBalance - UsedBalance;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
+        // Navigation Properties
         [ForeignKey(nameof(UserId))]
         public virtual User User { get; set; }
+
+        [ForeignKey(nameof(LeaveTypeId))]
+        public virtual LeaveType LeaveType { get; set; }
     }
 }

@@ -2,12 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.API.Models
+namespace Sho2on.Database.Models
 {
     public class User
     {
+
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        public string Code { get; set; }
 
         // Personal Information
         [Required, StringLength(14)]
@@ -18,6 +22,9 @@ namespace Sho2on.API.Models
 
         [Required, StringLength(150)]
         public string FullName { get; set; }
+
+        [StringLength(150)]
+        public string? Username { get; set; }
 
         [EmailAddress]
         public string? Email { get; set; }
@@ -34,11 +41,22 @@ namespace Sho2on.API.Models
         public decimal? MinSalary { get; set; }
         public string? RegisteredDeviceId { get; set; }
 
+        public decimal? LoanMaxAmount { get; set; } = 0;
+
         public char Gender { get; set; }  // M / F
 
+        public decimal MaxLoanAmount { get; set; } = 0; // الحد الأقصى للسلفة المسموح بها
+        public decimal CurrentLoanBalance { get; set; } = 0; // رصيد السلف الحالي
+
+        public bool CanTakeLoan { get; set; } = true; // هل يمكن أخذ سلفة أم لا
+
         // Work Information
+        [ForeignKey(nameof(Area))]
+        public int? AreaId { get; set; }
         [ForeignKey(nameof(Branch))]
         public int BranchId { get; set; }
+        [ForeignKey(nameof(Manager))]
+        public int? ManagerId { get; set; }
 
         [ForeignKey(nameof(Department))]
         public int DepartmentId { get; set; }
@@ -53,13 +71,18 @@ namespace Sho2on.API.Models
         public int ShiftId { get; set; }
 
         [ForeignKey(nameof(Break))]
-        public int BreakId { get; set; }
+        public int? BreakId { get; set; }
 
         [ForeignKey(nameof(WeekHoliday))]
         public int WeekHolidayId { get; set; }
 
         [ForeignKey(nameof(JobType))]
         public int? JobTypeId { get; set; }
+
+        [ForeignKey(nameof(Qualification))]
+        public int? QualificationId { get; set; }
+        public int? RecidenceId { get; set; }
+        public int? MaritalId { get; set; }
 
         public bool ExemptLate { get; set; }
         public bool ExemptEarlyLeave { get; set; }
@@ -70,7 +93,7 @@ namespace Sho2on.API.Models
         public TimeSpan WorkHours { get; set; }
         public bool InDuty { get; set; }
 
-        public bool IsInsured { get; set; }
+        public int? InsuredId { get; set; }
         public int HolidayBalance { get; set; }
 
         // Sensitive / Administrative
@@ -107,7 +130,9 @@ namespace Sho2on.API.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         // Navigation Properties
+        public Area? Area { get; set; } = null!;
         public Branch? Branch { get; set; } = null!;
+        public User? Manager { get; set; } = null!;
         public Department? Department { get; set; } = null!;
         public JobTitle? JobTitle { get; set; } = null!;
         public Degree? Degree { get; set; } = null!;
@@ -115,6 +140,7 @@ namespace Sho2on.API.Models
         public Break? Break { get; set; } = null!;
         public WeekHoliday? WeekHoliday { get; set; } = null!;
         public JobType? JobType { get; set; } = null!;
+        public Qualification? Qualification { get; set; } = null!;
         public ICollection<UserBranch>? UserBranches { get; internal set; }
         public ICollection<UserRole>? UserRoles { get; internal set; }
         public ICollection<FingerPrint>? FingerPrints { get; internal set; }
@@ -124,5 +150,17 @@ namespace Sho2on.API.Models
         public ICollection<LeaveBalance>? LeaveBalances { get; internal set; }
         public ICollection<EmployeeDocument>? EmployeeDocuments { get; internal set; }
         public ICollection<EmployeeEvaluation>?  EmployeeEvaluations { get; internal set; }
+        public ICollection<Loan>? Loans { get; internal set; }
+        public ICollection<Loan>? ApprovedLoans { get; internal set; }
+        public ICollection<SalaryPayment>? SalaryPayments { get; internal set; }
+        public ICollection<EmployeePermission>? EmployeePermissions { get; internal set; }
+
+        public ICollection<User>? MyEmployees { get; internal set; }
+
+        public ICollection<UserTask>? AssignedByTasks { get; internal set; }
+        public ICollection<UserTask>? AssignedToTasks { get; internal set; }
+
+        public ICollection<Chat>? SenderChats { get; internal set; }
+        public ICollection<Chat>? ReceiverChats { get; internal set; }
     }
 }

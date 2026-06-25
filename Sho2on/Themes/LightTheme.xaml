@@ -10,21 +10,21 @@
                 x:Key="ThemeName">Light</sys:String>
 
     <!-- Core palette -->
-    <SolidColorBrush x:Key="PrimaryColor"       Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="AccentColor"         Color="#0097A7"/>
-    <SolidColorBrush x:Key="AccentDeepColor"     Color="#006064"/>
-    <SolidColorBrush x:Key="SecondaryColor"      Color="#006064"/>
-    <SolidColorBrush x:Key="ThirdColorBrushBrush"          Color="#00838F"/>
-    <SolidColorBrush x:Key="SurfaceColor"        Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="SurfaceLightColor"   Color="#E0F7FA"/>
-    <SolidColorBrush x:Key="TextMenuColor"       Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="BorderColor"         Color="#B2EBF2"/>
-    <SolidColorBrush x:Key="MutedColor"          Color="#80CBC4"/>
-    <SolidColorBrush x:Key="TextPrimaryColor"    Color="#1A3C40"/>
-    <SolidColorBrush x:Key="TextSecondaryColor"  Color="#37474F"/>
-    <SolidColorBrush x:Key="DangerColor"         Color="#D32F2F"/>
-    <SolidColorBrush x:Key="SuccessColor"        Color="#388E3C"/>
-    <SolidColorBrush x:Key="WarningColor"        Color="#F57C00"/>
+    <SolidColorBrush x:Key="PrimaryColor"         Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AccentColor"          Color="#0097A7"/>
+    <SolidColorBrush x:Key="SecondaryColor"       Color="#006064"/>
+    <SolidColorBrush x:Key="TextPrimaryColor"     Color="#1A3C40"/>
+    <SolidColorBrush x:Key="ThirdColorBrushBrush" Color="#00838F"/>
+    <SolidColorBrush x:Key="TextSecondaryColor"   Color="#37474F"/>
+    <SolidColorBrush x:Key="SurfaceColor"         Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceLightColor"    Color="#E0F7FA"/>
+    <SolidColorBrush x:Key="TextMenuColor"        Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BorderColor"          Color="#B2EBF2"/>
+    <SolidColorBrush x:Key="MutedColor"           Color="#80CBC4"/>
+    <SolidColorBrush x:Key="AccentDeepColor"      Color="#006064"/>
+    <SolidColorBrush x:Key="SuccessColor"         Color="#388E3C"/>
+    <SolidColorBrush x:Key="WarningColor"         Color="#F57C00"/>
+    <SolidColorBrush x:Key="DangerColor"          Color="#D32F2F"/>
 
     <!-- Inputs -->
     <SolidColorBrush x:Key="InputBackground"     Color="#F5FDFE"/>

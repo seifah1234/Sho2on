@@ -47,7 +47,7 @@
                         <TextBox 
                             x:Name="name_box" 
                             Margin="0 20 0 20" 
-                            Tag="اسم المؤهل" 
+                            Tag="{DynamicResource TagQualificationName}" 
                              Width="250" 
                              FlowDirection="RightToLeft" 
                              HorizontalAlignment="Center" 

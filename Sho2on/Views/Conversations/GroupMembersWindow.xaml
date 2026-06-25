@@ -139,7 +139,7 @@
                            Foreground="{DynamicResource TextPrimaryColor}"/>
 
                 <TextBox x:Name="SearchMemberBox" 
-                         Tag="ابحث باسم المستخدم أو الكود..."
+                         Tag="{DynamicResource TagSearchByUsernameOrCode}"
                          KeyDown="SearchUser_KeyDown"
                          MinHeight="35"
                          Width="Auto"

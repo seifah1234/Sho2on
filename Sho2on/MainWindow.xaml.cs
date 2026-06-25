@@ -50,6 +50,7 @@ namespace HR_Application
         private CommissionProcessorService _commissionProcessor;
         private DispatcherTimer _timer;
         private string _currentDateTime;
+        public List<Area> Alarms = new List<Area>();
 
         protected virtual void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -1623,20 +1624,51 @@ namespace HR_Application
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeFlags();
-            LoadGIFAsync();
-            DashboardManager dashboardManager = new DashboardManager();
-            dashboardControl.Children.Add(dashboardManager.GetDashboardWindow());
-            UpdateThemeButton();
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.Logo))
-                GIFBack.Source = new BitmapImage(new Uri(Properties.Settings.Default.Logo));
-            if (Properties.Settings.Default.Language == "ar")
-                WelcomeText.Text = $"„—Õ»« »ﬂ° {App.CurrentUser.FullName}";
-            else
-                WelcomeText.Text = $"Welcome, {App.CurrentUser.FullName}";
+            try
+            {
+                InitializeFlags();
+                LoadGIFAsync();
+                DashboardManager dashboardManager = new DashboardManager();
+                dashboardControl.Children.Add(dashboardManager.GetDashboardWindow());
+                UpdateThemeButton();
+                if (!string.IsNullOrEmpty(Properties.Settings.Default.Logo))
+                    GIFBack.Source = new BitmapImage(new Uri(Properties.Settings.Default.Logo));
+                if (Properties.Settings.Default.Language == "ar")
+                    WelcomeText.Text = $"„—Õ»« »ﬂ° {App.CurrentUser.FullName}";
+                else
+                    WelcomeText.Text = $"Welcome, {App.CurrentUser.FullName}";
+
+                DateOnly today = DateOnly.Parse(DateTime.UtcNow.Date.ToString("dd-MM-yyyy"));
+
+                var employeesWithExpiredLicenses = _context.Users
+                        .Where(u => u.DriverLicenseExpiration.HasValue && u.DriverLicenseExpiration.Value <= today)
+                        .ToList();
+
+                var employeesWithExpiredIDs = _context.Users
+                    .Where(u => u.NationalIDExpiration.HasValue && u.NationalIDExpiration.Value <= today)
+                    .ToList();
 
 
-            StartTimer();
+
+                Alarms = employeesWithExpiredLicenses.Select(u => new Area { Name = $"—Œ’… «·ﬁÌ«œ… „‰ ÂÌ… : {u.FullName} ( ‰ ÂÌ ›Ì {u.DriverLicenseExpiration})" })
+                    .Concat(employeesWithExpiredIDs.Select(u => new Area { Name = $"«·»ÿ«ﬁ… «·‘Œ’Ì… „‰ ÂÌ… : {u.FullName} ( ‰ ÂÌ ›Ì {u.NationalIDExpiration})" }))
+                    .ToList();
+
+
+                if (Alarms.Count > 0)
+                {
+                    alarmsDataGrid.ItemsSource = Alarms;
+                    AlarmBadgeText.Text = Alarms.Count.ToString();
+                    AlarmBadge.Visibility = Visibility.Visible;
+                }
+
+
+                StartTimer();
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            
 
 
         }
@@ -1689,6 +1721,26 @@ namespace HR_Application
             chatWindow.Show();
         }
 
+        private void AlarmsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                
+
+                if (alarmsControl.Visibility == Visibility.Collapsed)
+                    alarmsControl.Visibility = Visibility.Visible;
+                else
+                    alarmsControl.Visibility = Visibility.Collapsed;
+
+
+            }
+            catch (Exception ex)
+            {
+                LocalizationManager.ShowMessage($"Œÿ√ ›Ì › Õ ‰«›–… «· ‰»ÌÂ« : {ex.Message}", "Œÿ√",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
     }
     public class BooleanToVisibilityConverter : IValueConverter
     {

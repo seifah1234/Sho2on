@@ -131,7 +131,7 @@
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
                             <TextBox x:Name="txtEmployeeCode" 
-                                             Tag="كود الموظف" 
+                                             Tag="{DynamicResource TagEmployeeCode}" 
                                              Width="120"
                                      VerticalAlignment="Bottom"
                                              KeyDown="txtEmployeeCode_KeyDown"
@@ -185,7 +185,7 @@
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <TextBox x:Name="txtApproverName" 
-                      Tag="اسم الموافق" 
+                      Tag="{DynamicResource TagApproverName}" 
                       Width="300"
                       Style="{DynamicResource WideInputFieldStyle}"
                       Margin="5"
@@ -208,8 +208,8 @@
 
                         <!-- TextBoxes للبيان والقيمة -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBox Width="400" Name="text_box" Tag="ملاحظات" Margin="10" TabIndex="3"/>
-                            <TextBox Style="{DynamicResource InputFieldStyle}" Visibility="Collapsed" Name="value_box" Tag="القيمة" Margin="10" TabIndex="3"/>
+                            <TextBox Width="400" Name="text_box" Tag="{DynamicResource TagNotes}" Margin="10" TabIndex="3"/>
+                            <TextBox Style="{DynamicResource InputFieldStyle}" Visibility="Collapsed" Name="value_box" Tag="{DynamicResource TagValue}" Margin="10" TabIndex="3"/>
                         </StackPanel>
 
                         <!-- زر الإضافة -->

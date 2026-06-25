@@ -87,7 +87,7 @@
             <Border Grid.Row="1" Grid.Column="1" CornerRadius="20 0 0 20" Background="{DynamicResource BorderColor}"  >
                 <StackPanel Margin="10" VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" Width="280">
                     <!-- حقل البيان -->
-                    <TextBox x:Name="name_box" Margin="0 20 0 0" Tag="الاسم" FlowDirection="RightToLeft" HorizontalAlignment="Center" Width="250"/>
+                    <TextBox x:Name="name_box" Margin="0 20 0 0" Tag="{DynamicResource TagName}" FlowDirection="RightToLeft" HorizontalAlignment="Center" Width="250"/>
 
                     <!-- WeekPicker المخصص -->
                     <uc:WeekPicker x:Name="Week" Width="250" Margin="0 20 0 0" HorizontalAlignment="Center"/>

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sho2on.API.Models
+namespace Sho2on.Database.Models
 {
     public class Procedure
     {
@@ -15,22 +15,27 @@ namespace Sho2on.API.Models
         public int Id { get; set; }
 
         [Required, StringLength(200)]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
+        public string? Status { get; set; } = "Pending";
 
         [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
         [Required]
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         [Required]
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [Required]
-        public int Type { get; set; }
+        public int? Type { get; set; }
 
         [Required]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
+
+        public int? ApprovedByUserId { get; set; }
+
+        public DateTime? ApprovedDate { get; set; }
 
         public int? BranchId { get; set; }
 
@@ -40,5 +45,15 @@ namespace Sho2on.API.Models
         [ForeignKey(nameof(BranchId))]
         public Branch? Branch { get; set; }
 
+        [ForeignKey("ApprovedByUserId")]
+        public virtual User? ApprovedBy { get; set; }
+
+    }
+    public static class ProcedureStatus
+    {
+        public const string UnderReview = "Under Review";
+        public const string Pending = "Pending";
+        public const string Approved = "Approved";
+        public const string Rejected = "Rejected";
     }
 }

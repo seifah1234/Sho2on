@@ -31,7 +31,7 @@
             <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource BorderColor}" CornerRadius="20 0 0 20"  Opacity="0.95"  >
 
                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" >
-                    <TextBox x:Name="name_box" Margin="0 10 0 20" Tag="اسم الجروب" Width="230" FlowDirection="RightToLeft" HorizontalAlignment="Center"
+                    <TextBox x:Name="name_box" Margin="0 10 0 20" Tag="{DynamicResource TagGroupName}" Width="230" FlowDirection="RightToLeft" HorizontalAlignment="Center"
                              Padding="10" 
                              BorderThickness="2" />
 

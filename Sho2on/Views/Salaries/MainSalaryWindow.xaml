@@ -338,17 +338,17 @@
                                                    Margin="0,0,0,5"/>
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBox x:Name="shift_hour_box" Tag="عدد الساعات" 
+                                            <TextBox x:Name="shift_hour_box" Tag="{DynamicResource TagHoursCount}" 
                                                      Width="120" 
                                                      TextChanged="shift_hour_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
-                                            <TextBox x:Name="shift_price_box" Tag="سعر الساعة" 
+                                            <TextBox x:Name="shift_price_box" Tag="{DynamicResource TagHourPrice}" 
                                                      Width="120" 
                                                      TextChanged="shift_price_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
-                                            <TextBox x:Name="day_shift_box" Tag="عدد الأيام" 
+                                            <TextBox x:Name="day_shift_box" Tag="{DynamicResource TagDaysCount}" 
                                                      Width="120" 
                                                      TextChanged="day_shift_box_TextChanged"/>
                                         </StackPanel>
@@ -366,17 +366,17 @@
                                                    Margin="0,0,0,5"/>
 
                                         <StackPanel Orientation="Vertical">
-                                            <TextBox x:Name="hour_box" Tag="عدد الساعات" 
+                                            <TextBox x:Name="hour_box" Tag="{DynamicResource TagHoursCount}" 
                                                      Width="120" 
                                                      TextChanged="hour_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
-                                            <TextBox x:Name="hour_price_box" Tag="سعر الساعة" 
+                                            <TextBox x:Name="hour_price_box" Tag="{DynamicResource TagHourPrice}" 
                                                      Width="120" 
                                                      TextChanged="hour_price_box_TextChanged"
                                                      Margin="0,0,0,5"/>
 
-                                            <TextBox x:Name="day_hour_box" Tag="عدد الأيام" 
+                                            <TextBox x:Name="day_hour_box" Tag="{DynamicResource TagDaysCount}" 
                                                      Width="120" 
                                                      TextChanged="day_hour_box_TextChanged"/>
                                         </StackPanel>

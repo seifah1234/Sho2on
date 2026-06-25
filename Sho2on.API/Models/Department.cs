@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sho2on.Database.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,5 +12,10 @@ public class Department
     [Required, StringLength(50)]
     public string Name { get; set; }
 
+    public bool? IsHR {  get; set; }
+
     public DateTime? EditedAt { get; set; } = DateTime.Now;
+
+    public ICollection<User> Users { get; set; }
+
 }

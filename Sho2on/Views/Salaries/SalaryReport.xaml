@@ -131,8 +131,8 @@
                                         <TextBlock Text="{DynamicResource DownloadData2}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
-                                <TextBox Width="300" Name="name_box" Tag="الاسم" FlowDirection="RightToLeft" Margin="5 0 5 0"/>
-                                <TextBox Name="code_box" Tag="الكود" FlowDirection="RightToLeft" Margin="5 0 5 0"/>
+                                <TextBox Width="300" Name="name_box" Tag="{DynamicResource TagName}" FlowDirection="RightToLeft" Margin="5 0 5 0"/>
+                                <TextBox Name="code_box" Tag="{DynamicResource TagCode}" FlowDirection="RightToLeft" Margin="5 0 5 0"/>
                             </StackPanel>
 
                             <!-- الصف الثاني: الفلاتر -->

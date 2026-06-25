@@ -245,7 +245,7 @@
                     </StackPanel>
                     <Label Content="{DynamicResource SetTo}" Margin="0,0,0,5" Foreground="{DynamicResource TextPrimaryColor}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBox Name="assignToCodeBox" Tag="الكود" VerticalAlignment="Bottom" Margin="5" 
+                        <TextBox Name="assignToCodeBox" Tag="{DynamicResource TagCode}" VerticalAlignment="Bottom" Margin="5" 
                                  KeyDown="assignToCodeBox_KeyDown"/>
                         <ComboBox Width="350" SelectionChanged="userComboBox_SelectionChanged" 
                                   SelectedValuePath="Code" DisplayMemberPath="FullName" 
@@ -257,7 +257,7 @@
                     <Label Content="{DynamicResource DeliveryDate}" Margin="0,0,0,5" Foreground="{DynamicResource TextPrimaryColor}"/>
                     <DatePicker Name="dueDatePicker" Margin="0,0,0,10" Tag="موعد التسليم"/>
                     <TextBox TextWrapping="Wrap" MinWidth="500" MaxWidth="500" MinHeight="100" 
-                             Name="taskDescriptionBox" Margin="0,0,0,10" Tag="وصف المهمة" MaxLines="5"
+                             Name="taskDescriptionBox" Margin="0,0,0,10" Tag="{DynamicResource TagTaskDescription}" MaxLines="5"
                              KeyDown="taskDescriptionBox_KeyDown" 
                              VerticalContentAlignment="Top"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

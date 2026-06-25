@@ -11,6 +11,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Active theme — ThemeManager.cs swaps this at runtime -->
                 <ResourceDictionary Source="Themes/DarkTheme.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml"/>
+
             </ResourceDictionary.MergedDictionaries>
 
             <!-- ── Font ── -->
@@ -76,6 +78,7 @@
             <Style TargetType="{x:Type TextBlock}">
                 <Setter Property="FontWeight"  Value="SemiBold"/>
                 <Setter Property="FontFamily"  Value="{DynamicResource Mada}"/>
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryColor}"/>
                 <Setter Property="FontSize"    Value="14"/>
             </Style>
 
@@ -537,6 +540,9 @@
 
             <Style TargetType="{x:Type DataGridRow}">
                 <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Height" Value="30"/>
                 <Setter Property="Foreground" Value="{DynamicResource ThirdColorBrush}"/>
                 
                 <Style.Triggers>

@@ -170,7 +170,7 @@
 
                     <!-- Name input -->
                     <TextBox x:Name="name_box"
-                             Tag="اسم الوظيفة"
+                             Tag="{DynamicResource TagJobName}"
                              Width="270"
                              Height="42"
                              Margin="0,0,0,20"
