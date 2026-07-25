@@ -432,10 +432,10 @@
     <sys:String x:Key="Everyone">الكل</sys:String>
     <sys:String x:Key="Code">الكود</sys:String>
     <sys:String x:Key="Code2">الكود:</sys:String>
-    <sys:String x:Key="AccentColorTxt">اللون الرابع</sys:String>
+    <sys:String x:Key="AccentColorTxt">لون الايقونات</sys:String>
     <sys:String x:Key="ThirdColorTxt">اللون الثالث</sys:String>
-    <sys:String x:Key="PrimaryColorTxt">اللون الرئيسي</sys:String>
-    <sys:String x:Key="SecondaryColorTxt">اللون الفرعي</sys:String>
+    <sys:String x:Key="PrimaryColorTxt">لون الخلفيه الرئيسي</sys:String>
+    <sys:String x:Key="SecondaryColorTxt">لون خط الكتابه الفرعي</sys:String>
     <sys:String x:Key="TextPrimaryColorTxt">لون النص الاساسي</sys:String>
     <sys:String x:Key="TextSecondaryColorTxt">لون النص الفرعي</sys:String>
     <sys:String x:Key="MainColor">اللون الاساسي</sys:String>
@@ -973,7 +973,7 @@
     <sys:String x:Key="OtherDues">مستحقات أخرى</sys:String>
     <sys:String x:Key="MyDues">مستحقاتي</sys:String>
     <sys:String x:Key="User4">مستخدم</sys:String>
-    <sys:String x:Key="AndroidUser">مستخدم اندرويد</sys:String>
+    <sys:String x:Key="AndroidUser">مستخدم موبايل</sys:String>
     <sys:String x:Key="Received">مستلمة</sys:String>
     <sys:String x:Key="MyDocuments">مستنداتي</sys:String>
     <sys:String x:Key="PerformanceLevelGood">مستوى الأداء: جيد</sys:String>

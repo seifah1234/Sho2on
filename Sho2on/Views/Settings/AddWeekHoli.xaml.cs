@@ -69,6 +69,9 @@ namespace HR_Application
             Week.D5.IsChecked = false;
             Week.D6.IsChecked = false;
             Week.D7.IsChecked = false;
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
         }
 
         private async void save_Btn(object sender, RoutedEventArgs e)
@@ -104,6 +107,13 @@ namespace HR_Application
                     CreatedAt = DateTime.Now,
                     EditedAt = DateTime.Now
                 };
+
+
+                if (_weekHolidays.FirstOrDefault(a => a.Name == weekHoliday.Name) != null)
+                {
+                    LocalizationManager.ShowMessage("هذه الإجازة موجودة بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
                 await _context.WeekHolidays.AddAsync(weekHoliday);
                 await _context.SaveChangesAsync();
@@ -239,6 +249,9 @@ namespace HR_Application
                         Week.D5.IsChecked = weekHoliday.Day5;
                         Week.D6.IsChecked = weekHoliday.Day6;
                         Week.D7.IsChecked = weekHoliday.Day7;
+                        editBtn.Visibility = Visibility.Visible;
+                        deleteBtn.Visibility = Visibility.Visible;
+                        saveBtn.Visibility = Visibility.Collapsed;
                     }
                 }
                 catch (Exception ex)
@@ -251,6 +264,12 @@ namespace HR_Application
                 name_box.Clear();
                 ResetDays();
             }
+        }
+
+        private void clearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ResetDays();
+            list.SelectedItem = null;
         }
     }
 }

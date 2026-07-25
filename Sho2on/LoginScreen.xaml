@@ -24,7 +24,7 @@
             <Setter Property="BorderBrush"    Value="{DynamicResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="0,0,0,2"/>
             <Setter Property="Background"     Value="{DynamicResource InputBackground}"/>
-            <Setter Property="Foreground"     Value="{DynamicResource InputForeground}"/>
+            <Setter Property="Foreground"     Value="{DynamicResource SecondaryColor}"/>
             <Setter Property="CaretBrush"     Value="{DynamicResource AccentColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -61,7 +61,7 @@
             <Setter Property="BorderBrush"    Value="{DynamicResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="0,0,0,2"/>
             <Setter Property="Background"     Value="{DynamicResource InputBackground}"/>
-            <Setter Property="Foreground"     Value="{DynamicResource InputForeground}"/>
+            <Setter Property="Foreground"     Value="{DynamicResource SecondaryColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
@@ -185,8 +185,8 @@
                             MinWidth="78"
                             Cursor="Hand"
                             Click="LanguageToggleButton_Click"
-                            Background="{DynamicResource SurfaceLightColor}"
-                            Foreground="{DynamicResource SecondaryColor}"
+                            Background="{DynamicResource PrimaryColor}"
+                            Foreground="{DynamicResource TextPrimaryColor}"
                             BorderBrush="{DynamicResource AccentColor}"
                             BorderThickness="1"/>
                 </Grid>

@@ -37,7 +37,7 @@ namespace HR_Application
         private Color _primaryColor;
         private Color _textPrimaryColor;
         private Color _textSecondaryColor;
-        private Color _thirdColorBrush;
+        private Color _thirdColor;
 
         public Color SecondaryColor
         {
@@ -71,10 +71,10 @@ namespace HR_Application
             get => _textSecondaryColor;
             set { _textSecondaryColor = value; OnPropertyChanged(nameof(TextSecondaryColor)); }
         }
-        public Color ThirdColorBrush
+        public Color ThirdColor
         {
-            get => _thirdColorBrush;
-            set { _thirdColorBrush = value; OnPropertyChanged(nameof(ThirdColorBrush)); }
+            get => _thirdColor;
+            set { _thirdColor = value; OnPropertyChanged(nameof(ThirdColor)); }
         }
 
         public Settings()
@@ -89,7 +89,7 @@ namespace HR_Application
         {
             _accentColor = ParseColor(Properties.Settings.Default.AccentColor, "#0097A7");
             _sidebarColor = ParseColor(Properties.Settings.Default.SidebarColor, "#004D56");
-            _thirdColorBrush = ParseColor(Properties.Settings.Default.ThirdColorBrush, "#00838F");
+            _thirdColor = ParseColor(Properties.Settings.Default.ThirdColorBrush, "#00838F");
             _primaryColor = ParseColor(Properties.Settings.Default.PrimaryColor, "#FFFFFF");
             _textPrimaryColor = ParseColor(Properties.Settings.Default.PrimaryTextBrush, "#1A3C40");
             _secondaryColor = ParseColor(Properties.Settings.Default.SecondaryColor, "#006064");
@@ -124,7 +124,7 @@ namespace HR_Application
         {
             // تحديث الـ Resources فوراً
             UpdateResource("SecondaryColor", _secondaryColor);
-            UpdateResource("ThirdColorBrushBrush", _thirdColorBrush); // نفس اللون
+            UpdateResource("InputBackground", _thirdColor); // نفس اللون
             UpdateResource("PrimaryColor", _primaryColor);
             UpdateResource("AccentColor", _accentColor);
             UpdateResource("TextPrimaryColor", _textPrimaryColor);
@@ -152,7 +152,7 @@ namespace HR_Application
             Properties.Settings.Default.SecondaryColor = ColorToHex(_secondaryColor);
             Properties.Settings.Default.PrimaryColor = ColorToHex(_primaryColor);
             Properties.Settings.Default.PrimaryTextBrush = ColorToHex(_textPrimaryColor);
-            Properties.Settings.Default.ThirdColorBrush = ColorToHex(_thirdColorBrush);
+            Properties.Settings.Default.ThirdColorBrush = ColorToHex(_thirdColor);
             Properties.Settings.Default.AccentColor = ColorToHex(_accentColor);
             Properties.Settings.Default.SidebarColor = ColorToHex(_sidebarColor);
             Properties.Settings.Default.SecondaryTextBrush = ColorToHex(_sidebarColor);

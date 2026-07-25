@@ -1,12 +1,14 @@
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System; using HR_Application.Helpers;
+using System; 
+using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows; using HR_Application.Helpers;
+using System.Windows; 
+using HR_Application.Helpers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -14,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.EntityFrameworkCore;
 
 namespace HR_Application
 {
@@ -25,15 +28,15 @@ namespace HR_Application
     public partial class AddRole : Window
     {
 
+        private List<Role> _roles = new List<Role>();
 
         public AddRole()
         {
             InitializeComponent();
-            LoadData();
 
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
             try
             {
@@ -41,10 +44,13 @@ namespace HR_Application
 
                 using(var db = new AppDbContext(App.ConnectionString))
                 {
-                   list.ItemsSource = db.Roles.ToList();
+                    _roles = await db.Roles.ToListAsync();
+                   list.ItemsSource = _roles;
                 }
 
-              
+                editBtn.Visibility = Visibility.Collapsed;
+                saveBtn.Visibility = Visibility.Visible;
+
             }
             catch (Exception e)
             {
@@ -59,7 +65,7 @@ namespace HR_Application
         }
 
 
-        private void save_Btn(object sender, EventArgs e)
+        private async void save_Btn(object sender, EventArgs e)
         {
 
             try
@@ -72,11 +78,16 @@ namespace HR_Application
                     {
                         RoleName = name
                     };
-                    db.Roles.Add(role);
-                    db.SaveChanges();
+                    if (_roles.FirstOrDefault(r =>  r.RoleName == role.RoleName) == null)
+                    {
+                        LocalizationManager.ShowMessage("هذا الجروب موجود بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    await db.Roles.AddAsync(role);
+                    await db.SaveChangesAsync();
                 }
                 LocalizationManager.ShowMessage("تم اضافة الجروب", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
 
             }
             catch
@@ -93,7 +104,7 @@ namespace HR_Application
 
        
 
-        private void edit_Btn(object sender, EventArgs e)
+        private async void edit_Btn(object sender, EventArgs e)
         {
 
             try
@@ -108,11 +119,11 @@ namespace HR_Application
                         if (existingRole != null)
                         {
                             existingRole.RoleName = name;
-                            db.SaveChanges();
+                            await db.SaveChangesAsync();
                         }
                     }
                     LocalizationManager.ShowMessage("تم تعديل الجروب", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadData();
+                    await LoadData();
                 }
                 else
                 {
@@ -133,8 +144,10 @@ namespace HR_Application
             {
                 
                 name_box.Text = role.RoleName;
-                 
-                
+                editBtn.Visibility = Visibility.Visible;
+                saveBtn.Visibility = Visibility.Collapsed;
+
+
             }
 
         }
@@ -161,6 +174,19 @@ namespace HR_Application
 
                 this.WindowState = WindowState.Maximized;
             }
+        }
+
+        private void clearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            list.SelectedItem = null;
+            name_box.Clear();
+            editBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadData();
         }
     }
 }

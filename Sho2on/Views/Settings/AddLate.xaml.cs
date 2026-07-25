@@ -160,6 +160,11 @@ namespace HR_Application
                     EditedAt = DateTime.Now
                 };
 
+                if ((LatesMoney.FirstOrDefault(a => a.Name == lateOvertime.Name) != null && moneyType == 1) || (Lates.FirstOrDefault(a => a.Name == lateOvertime.Name) != null && moneyType == 0))
+                {
+                    LocalizationManager.ShowMessage("هذه القيمة موجودة بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
                 await _context.LateOvertimes.AddAsync(lateOvertime);
                 await _context.SaveChangesAsync();
 
@@ -314,6 +319,10 @@ namespace HR_Application
             fromTimePicker.Clear();
             toTimePicker.Clear();
             valueTextBox.Clear();
+
+            editMoneyBtn.Visibility = Visibility.Visible;
+            deleteMoneyBtn.Visibility = Visibility.Visible;
+            saveMoneyBtn.Visibility = Visibility.Collapsed;
         }
 
         private void list_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -329,6 +338,9 @@ namespace HR_Application
             if (listMoney.SelectedItem is LateOvertime selectedItem)
             {
                 FillFormWithData(selectedItem, 1);
+                editMoneyBtn.Visibility = Visibility.Visible;
+                deleteMoneyBtn.Visibility = Visibility.Visible;
+                saveMoneyBtn.Visibility = Visibility.Collapsed;
             }
         }
 

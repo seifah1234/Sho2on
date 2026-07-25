@@ -1,27 +1,34 @@
 using Sho2on.Database;
 using System.Linq;
-using System.Windows; using HR_Application.Helpers;
+using System.Windows; 
+using HR_Application.Helpers;
 using MessageBox = System.Windows.MessageBox;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace HR_Application
 {
     public partial class AddDepart : Window
     {
         private AppDbContext _context;
-        private Department _selectedDepartment;
+        private Department? _selectedDepartment;
+        private List<Department> _departments;
 
         public AddDepart()
         {
             InitializeComponent();
             _context = new AppDbContext(App.ConnectionString);
-            LoadData();
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            list.ItemsSource = _context.Departments.OrderBy(d => d.Name).ToList();
+            _departments = await _context.Departments.OrderBy(d => d.Name).ToListAsync();
+            list.ItemsSource = _departments;
             name_box.Clear();
             _selectedDepartment = null;
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
         }
 
         private async void save_Btn(object sender, EventArgs e)
@@ -41,10 +48,16 @@ namespace HR_Application
 
                 };
 
+                if (_departments.FirstOrDefault(d => d.Name == name_box.Text.Trim()) != null)
+                {
+                    LocalizationManager.ShowMessage("هذه الادارة موجودة بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 await _context.Departments.AddAsync(department);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم إضافة الإدارة", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -65,7 +78,7 @@ namespace HR_Application
                 _context.Departments.Remove(_selectedDepartment);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم حذف الإدارة", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -89,7 +102,7 @@ namespace HR_Application
                 _context.Departments.Update(_selectedDepartment);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم تعديل الإدارة", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -104,6 +117,9 @@ namespace HR_Application
                 _selectedDepartment = selected;
                 name_box.Text = selected.Name;
                 isHR_box.IsChecked = selected.IsHR;
+                editBtn.Visibility = Visibility.Visible;
+                deleteBtn.Visibility = Visibility.Visible;
+                saveBtn.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -113,6 +129,22 @@ namespace HR_Application
         private void Max_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void clearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _selectedDepartment = null;
+            name_box.Clear();
+            isHR_box.IsChecked = false;
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadData();
+            
         }
     }
 }

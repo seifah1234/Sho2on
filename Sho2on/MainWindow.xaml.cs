@@ -493,7 +493,7 @@ namespace HR_Application
         private void AddLateOpen(object sender, RoutedEventArgs e) => OpenWindow<AddLate>();
         private void AddOfficalsOpen(object sender, RoutedEventArgs e) => OpenWindow<AddOffical>();
 
-        private void AddJobDegreeOpen(object sender, RoutedEventArgs e) => OpenWindow<AddJobDegree>();
+        private void AddJobDegreeOpen(object sender, RoutedEventArgs e) => OpenWindow<AddSection>();
 
         private void AddHoliTypeOpen(object sender, RoutedEventArgs e) => OpenWindow<LeaveTypesManagementWindow>();
         private void HolidaysManagementOpen(object sender, RoutedEventArgs e) => OpenWindow<LeaveManagementWindow>();

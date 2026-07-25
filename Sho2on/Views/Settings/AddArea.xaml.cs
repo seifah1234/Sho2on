@@ -1,13 +1,16 @@
+using DocumentFormat.OpenXml.Math;
+using HR_Application.Helpers;
+using HR_Application.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System; using HR_Application.Helpers;
+using System; 
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows; using HR_Application.Helpers;
+using System.Windows; 
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -33,7 +36,7 @@ namespace HR_Application
             InitializeComponent();
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
             try
             {
@@ -41,9 +44,12 @@ namespace HR_Application
                 name_box.Clear();
                 _areas.Clear();
 
-                _areas = _context.Areas.ToList();
+                _areas = await _context.Areas.ToListAsync();
                 area_list.ItemsSource = _areas;
-            
+                editBtn.Visibility = Visibility.Collapsed;
+                deleteBtn.Visibility = Visibility.Collapsed;
+                saveBtn.Visibility = Visibility.Visible;
+
             }
             catch (Exception e)
             {
@@ -67,11 +73,19 @@ namespace HR_Application
                     return;
                 }
                 var area = new Area { Name = name };
-                _context.Areas.Add(area);
-                _context.SaveChanges();
+
+
+                if (_areas.FirstOrDefault(a => a.Name == area.Name) != null)
+                {
+                    LocalizationManager.ShowMessage("هذه المنطقة موجودة بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                await _context.Areas.AddAsync(area);
+                await _context.SaveChangesAsync();
 
                 LocalizationManager.ShowMessage("تم اضافة المنطقة", LocalizationManager.Translate("تم"), MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
 
             }
             catch (Exception ex)
@@ -99,7 +113,7 @@ namespace HR_Application
                     _context.Areas.Remove(area);
                     await _context.SaveChangesAsync();
                     LocalizationManager.ShowMessage("تم حذف المنطقة", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadData();
+                    await LoadData();
                 }
                 catch
                 {
@@ -121,7 +135,7 @@ namespace HR_Application
                     _context.Areas.Update(area);
                     await  _context.SaveChangesAsync();
                     LocalizationManager.ShowMessage("تم تعديل المنطقة", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadData();
+                    await LoadData();
                 }
                 else
                 {
@@ -143,7 +157,10 @@ namespace HR_Application
                 
                 name_box.Text = area.Name;
                 code_box.Text = area.Id.ToString();
-                       
+                editBtn.Visibility = Visibility.Visible;
+                deleteBtn.Visibility = Visibility.Visible;
+                saveBtn.Visibility = Visibility.Collapsed;
+
             }
 
         }
@@ -151,9 +168,18 @@ namespace HR_Application
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             
-            LoadData();
+            await LoadData();
         }
 
+        private void clearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            area_list.SelectedItem = null;
+            name_box.Clear();
+            code_box.Clear();
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
+        }
     }
 }
 

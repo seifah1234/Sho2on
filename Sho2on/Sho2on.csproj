@@ -144,7 +144,9 @@
     <PackageReference Include="zkemDll" Version="1.0.0" />
     <PackageReference Include="ZKemkeeper" Version="1.0.2" />
   </ItemGroup>
-	
+	<PropertyGroup>
+  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+</PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Sho2on.Database\Sho2on.Database.csproj" />

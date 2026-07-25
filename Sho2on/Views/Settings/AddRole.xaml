@@ -5,6 +5,7 @@
     xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
     Height="450" Width="600" MinHeight="450" MinWidth="700"
         WindowStartupLocation="CenterScreen" 
+        Loaded="Window_Loaded"
         Background="Transparent">
     <Border CornerRadius="15" Background="{DynamicResource MainBackgroundBrush}"  >
         <Grid>
@@ -32,40 +33,45 @@
 
                 <StackPanel VerticalAlignment="Center" Orientation="Vertical" HorizontalAlignment="Center" >
                     <TextBox x:Name="name_box" Margin="0 10 0 20" Tag="{DynamicResource TagGroupName}" Width="230" FlowDirection="RightToLeft" HorizontalAlignment="Center"
-                             Padding="10" 
                              BorderThickness="2" />
 
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
 
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColorBrush}" Height="45"  Width="110" Margin="5" Click="edit_Btn">
+                    <UniformGrid Margin="10" HorizontalAlignment="Center" FlowDirection="RightToLeft" VerticalAlignment="Center">
+                        <Button BorderThickness="2" x:Name="saveBtn" BorderBrush="{DynamicResource ThirdColorBrush}" Background="Transparent" Height="40" Width="100" Margin="5" Click="save_Btn">
                             <Button.Content>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Foreground="{DynamicResource ThirdColorBrushBrush}" Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColorBrush}" Height="45"  Width="110" Margin="5" Click="save_Btn">
-                            <Button.Content>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" >
                                     <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                    <TextBlock Text="{DynamicResource Save}" Foreground="{DynamicResource ThirdColorBrushBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColorBrushBrush}" Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                    </StackPanel>
-                        <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
-
-                        <Button BorderThickness="2" Background="Transparent" BorderBrush="{DynamicResource ThirdColorBrush}" Width="110" Margin="5" Height="45" Click="exit_Btn">
+                        <Button x:Name="editBtn" Visibility="Collapsed"  BorderThickness="2" BorderBrush="{DynamicResource ThirdColorBrush}" Background="Transparent" Height="40" Width="100" Margin="5" Click="edit_Btn">
                             <Button.Content>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Text="{DynamicResource Amendment}" Foreground="{DynamicResource ThirdColorBrushBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button BorderThickness="2" BorderBrush="{DynamicResource ThirdColorBrush}" Background="Transparent" Width="100" Margin="5" Height="40" Click="exit_Btn">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                     <TextBlock Foreground="{DynamicResource ThirdColorBrushBrush}" Text="{DynamicResource Exit}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
-                        </StackPanel>
-                    </StackPanel>
+                        <Button x:Name="clearBtn" BorderThickness="2" BorderBrush="{DynamicResource ThirdColorBrush}" Background="Transparent" Width="100" Margin="5" Height="40" Click="clearBtn_Click" >
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Icon:PackIconMaterial Foreground="{DynamicResource ThirdColorBrushBrush}" Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                    <TextBlock Foreground="{DynamicResource ThirdColorBrushBrush}" Text="{DynamicResource New}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </UniformGrid>
+
+                </StackPanel>
                 </Border>
 
             <!-- الجانب الأيسر: قائمة الفروع -->

@@ -694,7 +694,7 @@
     <sys:String x:Key="LoadingDocuments">Loading documents...</sys:String>
     <sys:String x:Key="DraggingMovements">Dragging movements...</sys:String>
     <sys:String x:Key="Ready">ready</sys:String>
-    <sys:String x:Key="New">new</sys:String>
+    <sys:String x:Key="New">Clear</sys:String>
     <sys:String x:Key="Penalty">penalty</sys:String>
     <sys:String x:Key="Penalty2">penalty:</sys:String>
     <sys:String x:Key="AllTypes">All types</sys:String>
@@ -972,7 +972,7 @@
     <sys:String x:Key="OtherDues">Other dues</sys:String>
     <sys:String x:Key="MyDues">My dues</sys:String>
     <sys:String x:Key="User4">user</sys:String>
-    <sys:String x:Key="AndroidUser">Android user</sys:String>
+    <sys:String x:Key="AndroidUser">Mobile user</sys:String>
     <sys:String x:Key="Received">Received</sys:String>
     <sys:String x:Key="MyDocuments">My documents</sys:String>
     <sys:String x:Key="PerformanceLevelGood">Performance level: good</sys:String>

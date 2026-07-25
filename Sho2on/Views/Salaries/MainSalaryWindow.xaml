@@ -533,6 +533,7 @@
                                         <TextBlock x:Name="totalSalaryText" Text="0.00" 
                                                    Grid.Column="1" 
                                                    FontSize="16"
+                                                   FlowDirection="LeftToRight"
                                                    FontWeight="Bold"
                                                    VerticalAlignment="Center"/>
                                     </Grid>

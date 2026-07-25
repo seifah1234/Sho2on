@@ -286,36 +286,34 @@
                                 </StackPanel>
 
                                 <!-- أزرار التعديل والحفظ -->
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Orientation="Horizontal">
-                                    <Button Style="{DynamicResource ActionButtonStyle}" Click="editMoney_Btn" Margin="5">
+                                <UniformGrid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" >
+                                    <Button Visibility="Collapsed" Name="editMoneyBtn" Style="{DynamicResource ActionButtonStyle}" Click="editMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Pencil" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                             <TextBlock Text="{DynamicResource Amendment}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{DynamicResource ActionButtonStyle}" Click="saveMoney_Btn" Margin="5">
+                                    <Button x:Name="saveMoneyBtn" Style="{DynamicResource ActionButtonStyle}" Click="saveMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                             <TextBlock Text="{DynamicResource Save}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                </StackPanel>
 
                                 <!-- أزرار الخروج والحذف -->
-                                <StackPanel Margin="10" Orientation="Horizontal" HorizontalAlignment="Center">
                                     <Button Style="{DynamicResource ActionButtonStyle}" Click="exitMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                             <TextBlock Text="{DynamicResource Exit}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{DynamicResource ActionButtonStyle}" Click="deleteMoney_Btn" Margin="5">
+                                    <Button Visibility="Collapsed" Name="deleteMoneyBtn" Style="{DynamicResource ActionButtonStyle}" Click="deleteMoney_Btn" Margin="5">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Delete" VerticalAlignment="Center" Margin="0 0 5 0"/>
                                             <TextBlock Text="{DynamicResource Delete}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                </StackPanel>
+                                </UniformGrid>
                             </StackPanel>
                         </Border>
 

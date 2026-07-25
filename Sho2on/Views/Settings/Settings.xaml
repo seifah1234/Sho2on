@@ -42,8 +42,8 @@
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource ButtonHoverBackground}"/>
-            <Setter Property="Foreground" Value="{DynamicResource ButtonHoverForeground}"/>
+            <Setter Property="Background" Value="{DynamicResource SecondaryColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -167,7 +167,7 @@
                                 <Button Style="{DynamicResource SaveButtonStyle}" HorizontalAlignment="Center" x:Name="upload_logo_btn" Click="upload_logo_btn_Click" Margin="20">
                                     <StackPanel Orientation="Horizontal">
                                         <Icon:PackIconMaterial Kind="Upload" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                        <TextBlock Text="Upload" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Upload" VerticalAlignment="Center" Foreground="Black"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -205,13 +205,13 @@ SelectedColor="{Binding TextPrimaryColor, Mode=TwoWay}"/>
                                     <xctk:ColorCanvas Background="Transparent"
 UsingAlphaChannel="False"
 SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
-                                    <Label Content="{DynamicResource TextSecondaryColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                    <xctk:ColorCanvas Background="Transparent"
+                                    <Label Visibility="Collapsed" Content="{DynamicResource TextSecondaryColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <xctk:ColorCanvas Visibility="Collapsed" Background="Transparent"
 UsingAlphaChannel="False"
 SelectedColor="{Binding TextSecondaryColor, Mode=TwoWay}"/>
                                     <!-- Accent Color -->
                                     <Label Content="{DynamicResource AccentColorTxt}" Foreground="{DynamicResource TextPrimaryColor}"/>
-                                    <xctk:ColorCanvas x:Name="accentColorCanvas"
+                                    <xctk:ColorCanvas x:Name="accentColorCanvas" Background="Transparent"
 UsingAlphaChannel="False"
 SelectedColor="{Binding AccentColor, Mode=TwoWay}"/>
 
@@ -238,7 +238,7 @@ SelectedColor="{Binding SidebarColor, Mode=TwoWay}"/>
                     HorizontalAlignment="Center">
                                         <StackPanel Orientation="Horizontal">
                                             <Icon:PackIconMaterial Kind="Palette" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                                            <TextBlock Text="{DynamicResource SaveColors}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource SaveColors}" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryColor}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>

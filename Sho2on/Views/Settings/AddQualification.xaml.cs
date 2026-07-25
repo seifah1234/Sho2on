@@ -1,28 +1,43 @@
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using System.Linq;
-using System.Windows; using HR_Application.Helpers;
+using System.Windows; 
+using HR_Application.Helpers;
 using MessageBox = System.Windows.MessageBox;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace HR_Application
 {
     public partial class AddQualification : Window
     {
         private AppDbContext _context;
-        private Qualification _selectedQualification;
+        private Qualification? _selectedQualification;
+        private List<Qualification> _qualifications;
 
         public AddQualification()
         {
             InitializeComponent();
             _context = new AppDbContext(App.ConnectionString);
-            LoadData();
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            list.ItemsSource = _context.Qualifications.OrderBy(d => d.Name).ToList();
-            name_box.Clear();
-            _selectedQualification = null;
+            try
+            {
+
+                _qualifications = await _context.Qualifications.OrderBy(d => d.Name).ToListAsync();
+                list.ItemsSource = _qualifications;
+                name_box.Clear();
+                _selectedQualification = null;
+                editBtn.Visibility = Visibility.Collapsed;
+                deleteBtn.Visibility = Visibility.Collapsed;
+                saveBtn.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private async void save_Btn(object sender, EventArgs e)
@@ -41,10 +56,18 @@ namespace HR_Application
 
                 };
 
-                await _context.Qualifications.AddAsync(qualification);
-                await _context.SaveChangesAsync();
-                LocalizationManager.ShowMessage("تم إضافة المؤهل", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                if (_qualifications.FirstOrDefault(q => q.Name == qualification.Name) == null)
+                {
+
+                    await _context.Qualifications.AddAsync(qualification);
+                    await _context.SaveChangesAsync();
+                    LocalizationManager.ShowMessage("تم إضافة المؤهل", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await LoadData();
+                }else
+                {
+                    LocalizationManager.ShowMessage("هذا المؤهل موجود بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
             catch
             {
@@ -65,7 +88,7 @@ namespace HR_Application
                 _context.Qualifications.Remove(_selectedQualification);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم حذف المؤهل", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -87,7 +110,7 @@ namespace HR_Application
                 _context.Qualifications.Update(_selectedQualification);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم تعديل المؤهل", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -101,6 +124,9 @@ namespace HR_Application
             {
                 _selectedQualification = selected;
                 name_box.Text = selected.Name;
+                editBtn.Visibility = Visibility.Visible;
+                deleteBtn.Visibility = Visibility.Visible;
+                saveBtn.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -110,6 +136,21 @@ namespace HR_Application
         private void Max_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void clearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _selectedQualification = null;
+            name_box.Clear();
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
+
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadData();
         }
     }
 }

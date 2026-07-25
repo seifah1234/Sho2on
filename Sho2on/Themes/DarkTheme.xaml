@@ -22,8 +22,8 @@
     <SolidColorBrush x:Key="TextMenuColor"       Color="#CFD8DC"/>
     <SolidColorBrush x:Key="BorderColor"         Color="#1E3040"/>
     <SolidColorBrush x:Key="MutedColor"          Color="#546E7A"/>
-    <SolidColorBrush x:Key="TextPrimaryColor"    Color="#CFD8DC"/>
-    <SolidColorBrush x:Key="TextSecondaryColor"  Color="#90A4AE"/>
+    <SolidColorBrush x:Key="TextPrimaryColor"    Color="#E0F7FA"/>
+    <SolidColorBrush x:Key="TextSecondaryColor"  Color="#E0F7FA"/>
     <SolidColorBrush x:Key="DangerColor"         Color="#EF5350"/>
     <SolidColorBrush x:Key="SuccessColor"        Color="#66BB6A"/>
     <SolidColorBrush x:Key="WarningColor"        Color="#FFA726"/>

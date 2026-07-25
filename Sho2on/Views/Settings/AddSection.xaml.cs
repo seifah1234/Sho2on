@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
-using System; using HR_Application.Helpers;
+using System; 
+using HR_Application.Helpers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows; using HR_Application.Helpers;
+using System.Windows;
 using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 
@@ -13,12 +14,13 @@ namespace HR_Application
     /// <summary>
     /// Interaction logic for AddJobDegree.xaml
     /// </summary>
-    public partial class AddJobDegree : Window
+    public partial class AddSection : Window
     {
         private readonly AppDbContext _context = new AppDbContext(App.ConnectionString);
         private List<Degree> _degrees = new List<Degree>();
 
-        public AddJobDegree()
+
+        public AddSection()
         {
             InitializeComponent();
         }
@@ -32,6 +34,9 @@ namespace HR_Application
 
                 _degrees = await _context.Degrees.ToListAsync();
                 list.ItemsSource = _degrees;
+                editBtn.Visibility = Visibility.Collapsed;
+                deleteBtn.Visibility = Visibility.Collapsed;
+                saveBtn.Visibility = Visibility.Visible;
             }
             catch (Exception e)
             {
@@ -45,7 +50,7 @@ namespace HR_Application
             {
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    LocalizationManager.ShowMessage("يرجى إدخال اسم الدرجة الوظيفية", LocalizationManager.Translate("تحذير"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("يرجى إدخال اسم القطاع", LocalizationManager.Translate("تحذير"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -55,10 +60,16 @@ namespace HR_Application
                     EditedAt = DateTime.Now
                 };
 
+                if (_degrees.FirstOrDefault(d => d.Name == degree.Name) != null)
+                {
+                    LocalizationManager.ShowMessage("هذا القطاع موجود بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 await _context.Degrees.AddAsync(degree);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("تم اضافة الدرجة الوظيفية", LocalizationManager.Translate("نجاح"), MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("تم اضافة القطاع", LocalizationManager.Translate("نجاح"), MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadData();
             }
             catch (Exception ex)
@@ -76,13 +87,13 @@ namespace HR_Application
         {
             if (list.SelectedItem is not Degree degree)
             {
-                LocalizationManager.ShowMessage("لم يتم اختيار الدرجة الوظيفية", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                LocalizationManager.ShowMessage("لم يتم اختيار القطاع", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             try
             {
-                var result = LocalizationManager.ShowMessage($"هل أنت متأكد من حذف الدرجة الوظيفية '{degree.Name}'؟",
+                var result = LocalizationManager.ShowMessage($"هل أنت متأكد من حذف القطاع '{degree.Name}'؟",
                     LocalizationManager.Translate("تأكيد الحذف"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                 if (result == MessageBoxResult.Yes)
@@ -90,7 +101,7 @@ namespace HR_Application
                     _context.Degrees.Remove(degree);
                     await _context.SaveChangesAsync();
 
-                    LocalizationManager.ShowMessage("تم حذف الدرجة الوظيفية", LocalizationManager.Translate("نجاح"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationManager.ShowMessage("تم حذف القطاع", LocalizationManager.Translate("نجاح"), MessageBoxButton.OK, MessageBoxImage.Information);
                     await LoadData();
                 }
             }
@@ -106,13 +117,13 @@ namespace HR_Application
             {
                 if (list.SelectedItem is not Degree degree)
                 {
-                    LocalizationManager.ShowMessage("لم تختار أي درجة وظيفية", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationManager.ShowMessage("لم تختار أي قطاع", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(name_box.Text))
                 {
-                    LocalizationManager.ShowMessage("يرجى إدخال اسم الدرجة الوظيفية", LocalizationManager.Translate("تحذير"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationManager.ShowMessage("يرجى إدخال اسم القطاع", LocalizationManager.Translate("تحذير"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -122,7 +133,7 @@ namespace HR_Application
                 _context.Degrees.Update(degree);
                 await _context.SaveChangesAsync();
 
-                LocalizationManager.ShowMessage("تم تعديل الدرجة الوظيفية", LocalizationManager.Translate("نجاح"), MessageBoxButton.OK, MessageBoxImage.Information);
+                LocalizationManager.ShowMessage("تم تعديل القطاع", LocalizationManager.Translate("نجاح"), MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadData();
             }
             catch (Exception ex)
@@ -136,6 +147,9 @@ namespace HR_Application
             if (list.SelectedItem is Degree degree)
             {
                 name_box.Text = degree.Name;
+                editBtn.Visibility = Visibility.Visible;
+                deleteBtn.Visibility = Visibility.Visible;
+                saveBtn.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -150,5 +164,15 @@ namespace HR_Application
         private void Exit_Click(object sender, RoutedEventArgs e) { }
         private void Min_Click(object sender, RoutedEventArgs e) { }
         private void Max_Click(object sender, RoutedEventArgs e) { }
+
+        private void clearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            list.SelectedItem = null;
+            name_box.Clear();
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
+
+        }
     }
 }

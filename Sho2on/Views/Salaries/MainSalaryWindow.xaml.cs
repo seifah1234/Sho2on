@@ -355,7 +355,7 @@ namespace HR_Application.Views
             // تطبيق عامل التصفية بالكود
             if (!string.IsNullOrEmpty(code_box.Text))
             {
-                query = query.Where(u => u.Code.Contains(code_box.Text));
+                query = query.Where(u => u.Code == code_box.Text);
             }
 
 
@@ -487,7 +487,7 @@ namespace HR_Application.Views
                 total -= (string.IsNullOrEmpty(box_box.Text)) ? 0 : Convert.ToDecimal(box_box.Text);
                 total -= (string.IsNullOrEmpty(comp_insurance_box.Text)) ? 0 : Convert.ToDecimal(comp_insurance_box.Text);
 
-                totalSalaryText.Text = total.ToString("N2");
+                totalSalaryText.Text = total.ToString("F2");
             }
             catch (Exception ex)
             {
@@ -563,6 +563,7 @@ namespace HR_Application.Views
             ShiftSalary.Visibility = Visibility.Collapsed;
             salary_box.IsEnabled = false;
             salaryType = 3;
+            day_hour_box.Visibility = Visibility.Collapsed;
         }
 
         private void hour_box_TextChanged(object sender, TextChangedEventArgs e)
@@ -600,19 +601,16 @@ namespace HR_Application.Views
             try
             {
                 if (!string.IsNullOrEmpty(hour_box.Text) &&
-                    !string.IsNullOrEmpty(hour_price_box.Text) &&
-                    !string.IsNullOrEmpty(day_hour_box.Text))
+                    !string.IsNullOrEmpty(hour_price_box.Text))
                 {
                     double hour = Convert.ToDouble(hour_box.Text);
                     double hourPrice = Convert.ToDouble(hour_price_box.Text);
-                    double days = Convert.ToDouble(day_hour_box.Text);
 
-                    if (days > 0)
-                    {
-                        double salary = hour * hourPrice / days;
+                    
+                        double salary = hour * hourPrice;
                         salary_box.Text = Math.Round(salary, 3).ToString();
                         CalculateTotalSalary();
-                    }
+                    
                 }
             }
             catch (Exception)

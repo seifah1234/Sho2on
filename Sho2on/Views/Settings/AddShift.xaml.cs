@@ -1,15 +1,21 @@
+using HR_Application.Helpers;
+using HR_Application.Helpers;
 using MaterialDesignThemes.Wpf;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Office.Interop.Excel;
 using Sho2on.Database;
 using Sho2on.Database.Models; // عدل المسار حسب مكان موديل Shift
-using System; using HR_Application.Helpers;
+using System; 
 using System.Linq;
-using System.Windows; using HR_Application.Helpers;
+using System.Threading.Tasks;
+using System.Windows; 
 using System.Windows.Controls;
 using System.Windows.Media;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
 using MessageBox = System.Windows.MessageBox;
+using Window = System.Windows.Window;
 
 namespace HR_Application
 {
@@ -17,24 +23,28 @@ namespace HR_Application
     {
         private AppDbContext _context;
         private Shift _selectedShift;
+        private List<Shift> _shifts;
 
         public AddShift()
         {
             InitializeComponent();
             _context = new AppDbContext(App.ConnectionString);
-            LoadData();
         }
 
 
 
-        private void LoadData()
+        private async Task LoadData()
         {
             _selectedShift = null;
-            list.ItemsSource = _context.Shifts
+            _shifts = await _context.Shifts
                                        .OrderBy(s => s.StartTime)
-                                       .ToList();
+                                       .ToListAsync();
+            list.ItemsSource = _shifts;
             fromTimePicker.SelectedTime = null;
             toTimePicker.SelectedTime = null;
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
         }
 
         private async void save_Btn(object sender, RoutedEventArgs e)
@@ -58,11 +68,18 @@ namespace HR_Application
                     EditedAt = DateTime.Now
                 };
 
+
+                if (_shifts.FirstOrDefault(a => a.Name == shift.Name) != null)
+                {
+                    LocalizationManager.ShowMessage("هذه الوردية موجودة بالفعل", LocalizationManager.Translate("خطأ"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 await _context.Shifts.AddAsync(shift);
                 await _context.SaveChangesAsync();
 
                 LocalizationManager.ShowMessage("تم إضافة الوردية", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -95,7 +112,7 @@ namespace HR_Application
                 await _context.SaveChangesAsync();
 
                 LocalizationManager.ShowMessage("تم تعديل الوردية", "", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -117,7 +134,7 @@ namespace HR_Application
                 await _context.SaveChangesAsync();
 
                 LocalizationManager.ShowMessage("تم حذف الوردية", LocalizationManager.Translate("نجح"), MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadData();
+                await LoadData();
             }
             catch
             {
@@ -132,6 +149,9 @@ namespace HR_Application
                 _selectedShift = selected;
                 fromTimePicker.SelectedTime = DateTime.Today.Add(selected.StartTime);
                 toTimePicker.SelectedTime = DateTime.Today.Add(selected.EndTime);
+                editBtn.Visibility = Visibility.Visible;
+                deleteBtn.Visibility = Visibility.Visible;
+                saveBtn.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -143,6 +163,21 @@ namespace HR_Application
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
+        private void clearBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+            fromTimePicker.SelectedTime = null;
+            toTimePicker.SelectedTime = null;
+            editBtn.Visibility = Visibility.Collapsed;
+            deleteBtn.Visibility = Visibility.Collapsed;
+            saveBtn.Visibility = Visibility.Visible;
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadData();
+            
+        }
     }
 }
 

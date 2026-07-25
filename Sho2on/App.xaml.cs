@@ -46,7 +46,7 @@ namespace HR_Application
             LoadServerSettings();
             LoginScreen login = new LoginScreen();
             login.ShowDialog();
-            LoadThemePreference();
+            //LoadThemePreference();
         }
         public static string ConnectionString { get; set; }
         public static string SoftechConnectionString { get; set; }
@@ -184,7 +184,7 @@ namespace HR_Application
             {
                 // تحديث الـ Resources فوراً
                 UpdateResource("SecondaryColor", ParseColor(HR_Application.Properties.Settings.Default.SecondaryColor, "#006064"));
-                UpdateResource("ThirdColorBrushBrush", ParseColor(HR_Application.Properties.Settings.Default.ThirdColorBrush, "#00838F")); // نفس اللون
+                UpdateResource("InputBackground", ParseColor(HR_Application.Properties.Settings.Default.ThirdColorBrush, "#00838F")); // نفس اللون
                 UpdateResource("PrimaryColor", ParseColor(HR_Application.Properties.Settings.Default.PrimaryColor, "#FFFFFF"));
                 UpdateResource("AccentColor", ParseColor(HR_Application.Properties.Settings.Default.AccentColor, "#0097A7"));
                 UpdateResource("TextPrimaryColor", ParseColor(HR_Application.Properties.Settings.Default.PrimaryTextBrush, "#1A3C40"));

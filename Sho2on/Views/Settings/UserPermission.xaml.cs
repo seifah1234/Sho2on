@@ -96,7 +96,7 @@ namespace HR_Application
                         Id = user.Id,
                         Name = user.FullName,
                         Username = user.Username,
-                        Code = user.Id,
+                        Code = user.Code,
                         // الحصول على الدور الأول إذا كان موجوداً
                         RoleID = user.UserRoles.FirstOrDefault()?.RoleId ?? 0,
                         Password = user.PasswordHash
@@ -118,7 +118,7 @@ namespace HR_Application
             public int Id { get; set; }
             public string Name { get; set; }
             public string Username { get; set; }
-            public int Code { get; set; }
+            public string Code { get; set; }
             public int RoleID { get; set; }
             public string Password { get; set; }
         }
