@@ -1,0 +1,196 @@
+﻿.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.panel {
+    background: #FFFFFF;
+    border: 1px solid #EDEAE3;
+    border-radius: 14px;
+    padding: 18px 20px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #F0EEE8;
+}
+
+    .panel-header i {
+        color: #FF6F59;
+        font-size: 17px;
+    }
+
+    .panel-header h3 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1F1B3A;
+    }
+
+/* الشجرة */
+.tree-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    padding: 9px 6px;
+    cursor: pointer;
+    text-align: right;
+    border-radius: 8px;
+}
+
+    .tree-row:hover {
+        background: #FAF8F5;
+    }
+
+    .tree-row:disabled {
+        cursor: default;
+    }
+
+.chevron {
+    transition: transform 0.15s ease;
+    color: #746F93;
+    font-size: 13px;
+}
+
+.tree-row.expanded .chevron {
+    transform: rotate(-90deg);
+}
+
+.chevron-spacer {
+    width: 13px;
+    display: inline-block;
+}
+
+.tree-name {
+    font-weight: 600;
+    color: #1F1B3A;
+    font-size: 14px;
+}
+
+.tree-badge {
+    font-size: 11px;
+    background: #F0EEF7;
+    color: #4A4570;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.tree-count {
+    font-size: 12.5px;
+    color: #211B4E;
+    margin-inline-start: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    .tree-count.muted {
+        color: #A6A3C2;
+    }
+
+.tree-children {
+    padding-inline-start: 26px;
+    border-inline-start: 2px solid #F0EEE8;
+    margin-inline-start: 12px;
+}
+
+/* إجراءات سريعة + تنبيهات */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.qa-btn {
+    background: #FAF8F5;
+    border: 1px solid #E4DFD6;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #211B4E;
+    cursor: pointer;
+}
+
+    .qa-btn:hover {
+        border-color: #211B4E;
+        background: #F0EEF7;
+    }
+
+.alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alert-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FAF8F5;
+    border: 1px solid #F0EEE8;
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: #4A4570;
+}
+
+    .alert-item i {
+        color: #FF6F59;
+    }
+
+.muted {
+    color: #A6A3C2;
+    font-size: 13px;
+}
+
+/* الرسوم البيانية */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+}
+
+.chart-panel {
+    padding: 14px 16px;
+}
+
+    .chart-panel .panel-header {
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+    }
+
+        .chart-panel .panel-header h3 {
+            font-size: 13px;
+        }
+
+        .chart-panel .panel-header i {
+            font-size: 14px;
+        }
+
+.chart-container {
+    position: relative;
+    height: 160px;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .two-col, .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,184 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Components.Authorization
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@using Sho2on.Web.Constants
+@using Sho2on.Web.Components.Layout
+@using Microsoft.AspNetCore.Authorization
+@inject DashboardService DashboardSvc
+@inject LocalizationService Lang
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div class="dashboard">
+
+    @if (!isManagement)
+    {
+        <!-- داشبورد الموظف العادي: زي ما عملنا قبل كده -->
+        <div class="stat-grid">
+            <div class="stat-card accent">
+                <span class="stat-label">@Lang.T("رصيد إجازاتك")</span>
+                <span class="stat-value">@personalStats?.LeaveBalance</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">@Lang.T("الوظيفة")</span>
+                <span class="stat-value small">@personalStats?.UserJob</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- ══ الشجرة الهرمية ══ -->
+        <div class="panel">
+            <div class="panel-header">
+                <i class="bi bi-diagram-3"></i>
+                <h3>@Lang.T("الهيكل التنظيمي")</h3>
+            </div>
+            @if (tree != null)
+            {
+                <div class="tree-wrapper">
+                    <DashboardTreeNode Node="tree" />
+                </div>
+            }
+        </div>
+
+        <!-- ══ إجراءات سريعة + تنبيهات ══ -->
+        <div class="two-col">
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="bi bi-lightning-charge"></i>
+                    <h3>@Lang.T("إجراءات سريعة")</h3>
+                </div>
+                <div class="quick-actions">
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries")'>@Lang.T("تقرير المرتبات")</button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/employees")'>@Lang.T("إدارة الموظفين")</button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/reports")'>@Lang.T("الحضور الشهري")</button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries/pay")'>@Lang.T("صرف المرتبات")</button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/leaves")'>@Lang.T("الأذونات")</button>
+                    <button class="qa-btn">@Lang.T("نسخة احتياطية")</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="bi bi-bell"></i>
+                    <h3>@Lang.T("التنبيهات")</h3>
+                </div>
+                <div class="alerts-list">
+                    @if (alerts != null && alerts.Count > 0)
+                    {
+                        @foreach (var a in alerts)
+                        {
+                            <div class="alert-item">
+                                <i class="bi @a.Icon"></i>
+                                <span>@a.Message</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="muted">@Lang.T("لا توجد تنبيهات حالياً")</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ الرسوم البيانية ══ -->
+        <div class="charts-grid">
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-gender-ambiguous"></i><h3>@Lang.T("توزيع النوع")</h3></div>
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-diagram-2"></i><h3>@Lang.T("موظفين حسب الإدارة")</h3></div>
+                <div class="chart-container">
+                    <canvas id="deptChart"></canvas>
+                </div>
+            </div>
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-building"></i><h3>@Lang.T("موظفين حسب الفرع")</h3></div>
+                <div class="chart-container">
+                    <canvas id="branchChart"></canvas>
+                </div>
+            </div>
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-building-check"></i><h3>@Lang.T("موظفين حسب القطاع")</h3></div>
+                <div class="chart-container">
+                    <canvas id="sectorChart"></canvas>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    bool isManagement;
+    Sho2on.Web.Models.DashboardTreeNode? tree;
+    List<Sho2on.Web.Models.DashboardAlert>? alerts;
+    DashboardChartsData? charts;
+    Sho2on.Web.Models.DashboardStats? personalStats;
+
+    protected override void OnInitialized()
+    {
+        Lang.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        isManagement = Sho2on.Web.Constants.RoleNames.ManagementRoles.Any(r => user.IsInRole(r));
+
+        if (isManagement)
+        {
+            tree = await DashboardSvc.GetCompanyTreeAsync();
+            alerts = await DashboardSvc.GetAlertsAsync();
+            charts = await DashboardSvc.GetChartsDataAsync();
+        }
+        else
+        {
+            var userId = int.Parse(user.FindFirst("UserId")?.Value ?? "0");
+            personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
+        }
+    }
+
+    bool chartsRendered = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (isManagement && charts != null && !chartsRendered)
+        {
+            chartsRendered = true;
+            await RenderChartsAsync();
+        }
+    }
+
+    async Task RenderChartsAsync()
+    {
+        await JS.InvokeVoidAsync("renderPieChart", "genderChart",
+            new[] { "ذكور", "إناث" }, new[] { charts!.MaleCount, charts.FemaleCount },
+            new[] { "#211B4E", "#FF6F59" });
+
+        await JS.InvokeVoidAsync("renderPieChart", "deptChart",
+            charts.DepartmentLabels, charts.DepartmentCounts,
+            new[] { "#211B4E", "#FF6F59", "#4A4570", "#F2B134", "#2DD4BF", "#B8B3DE", "#746F93", "#0F3D3E" });
+
+        await JS.InvokeVoidAsync("renderBarChart", "branchChart",
+            charts.BranchLabels, charts.BranchCounts, "#FF6F59");
+
+        await JS.InvokeVoidAsync("renderBarChart", "sectorChart",
+            charts.SectorLabels, charts.SectorCounts, "#211B4E");
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+    }
+}

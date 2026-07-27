@@ -1,0 +1,289 @@
+﻿@page "/employees/add"
+@page "/employees/edit/{Id:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@using Sho2on.Web.Components.Layout
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NavigationManager Nav
+@inject NotificationService Notify
+@implements IDisposable
+
+<div class="employee-form-page">
+    <h2>@(Id.HasValue ? Lang.T("تعديل بيانات موظف") : Lang.T("إضافة موظف جديد"))</h2>
+
+    @if (model == null || lookups == null)
+    {
+        <p>@Lang.T("جاري التحميل...")</p>
+    }
+    else
+    {
+        <EditForm Model="model" OnValidSubmit="HandleSave">
+            <DataAnnotationsValidator />
+
+            <div class="tabs">
+                @foreach (var tab in tabTitles)
+                {
+                    <button type="button" class="tab-btn @(activeTab == tab ? "active" : "")" @onclick="() => activeTab = tab">
+                        @Lang.T(tab)
+                    </button>
+                }
+            </div>
+
+            <div class="tab-content">
+                @if (activeTab == "بيانات شخصية")
+                {
+                    <div class="form-grid">
+                        <div class="field"><label>@Lang.T("الاسم الكامل")</label><InputText @bind-Value="model!.FullName" /><ValidationMessage For="() => model.FullName" /></div>
+                        <div class="field"><label>@Lang.T("الكود")</label><InputText @bind-Value="model!.Code" /></div>
+                        <div class="field"><label>@Lang.T("الرقم القومي")</label><InputText @bind-Value="model!.NationalID" /></div>
+                        <div class="field"><label>@Lang.T("رقم الموبايل")</label><InputText @bind-Value="model!.PhoneNumber" /></div>
+                        <div class="field"><label>@Lang.T("البريد الإلكتروني")</label><InputText @bind-Value="model!.Email" /></div>
+                        <div class="field full"><label>@Lang.T("العنوان")</label><InputText @bind-Value="model!.Address" /></div>
+                        <div class="field"><label>@Lang.T("تاريخ الميلاد")</label><InputDate @bind-Value="model!.BirthDate" /></div>
+                        <div class="field">
+                            <label>@Lang.T("النوع")</label>
+                            <select @bind="model!.Gender" class="select-input">
+                                <option value="M">@Lang.T("ذكر")</option>
+                                <option value="F">@Lang.T("أنثى")</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("الحالة الاجتماعية")</label>
+                            <select @bind="model!.MaritalId" class="select-input">
+                                <option value="">@Lang.T("غير محدد")</option>
+                                @foreach (var m in Sho2on.Web.Constants.StaticLookups.MaritalStatuses)
+                                {
+                                    <option value="@m.Id">@m.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("الإقامة")</label>
+                            <select @bind="model!.RecidenceId" class="select-input">
+                                <option value="">@Lang.T("غير محدد")</option>
+                                @foreach (var r in Sho2on.Web.Constants.StaticLookups.ResidenceTypes)
+                                {
+                                    <option value="@r.Id">@r.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("التأمين")</label>
+                            <select @bind="model!.InsuredId" class="select-input">
+                                @foreach (var i in Sho2on.Web.Constants.StaticLookups.InsuranceTypes)
+                                {
+                                    <option value="@i.Id">@i.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                }
+                else if (activeTab == "بيانات الوظيفة")
+                {
+                    <div class="form-grid">
+                        <div class="field"><label>@Lang.T("تاريخ التعيين")</label><InputDate @bind-Value="model!.HireDate" /></div>
+                        <div class="field">
+                            <label>@Lang.T("الفرع")</label>
+                            <select @bind="model!.BranchId" class="select-input">
+                                @foreach (var b in lookups.Branches)
+                                {
+                                    <option value="@b.Id">@b.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("الإدارة")</label>
+                            <select @bind="model!.DepartmentId" class="select-input">
+                                @foreach (var d in lookups.Departments)
+                                {
+                                    <option value="@d.Id">@d.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("الوظيفة")</label>
+                            <select @bind="model!.JobTitleId" class="select-input">
+                                @foreach (var j in lookups.JobTitles)
+                                {
+                                    <option value="@j.Id">@j.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("القطاع")</label>
+                            <select @bind="model!.DegreeId" class="select-input">
+                                @foreach (var d in lookups.Degrees)
+                                {
+                                    <option value="@d.Id">@d.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("المدير المباشر")</label>
+                            <select @bind="model!.ManagerId" class="select-input">
+                                <option value="">@Lang.T("بدون")</option>
+                                @foreach (var m in lookups.Managers)
+                                {
+                                    <option value="@m.Id">@m.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("الوردية")</label>
+                            <select @bind="model!.ShiftId" class="select-input">
+                                @foreach (var s in lookups.Shifts)
+                                {
+                                    <option value="@s.Id">@s.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("فترة الراحة")</label>
+                            <select @bind="model!.BreakId" class="select-input">
+                                <option value="">@Lang.T("بدون")</option>
+                                @foreach (var b in lookups.Breaks)
+                                {
+                                    <option value="@b.Id">@b.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("العطلة الأسبوعية")</label>
+                            <select @bind="model!.WeekHolidayId" class="select-input">
+                                @foreach (var w in lookups.WeekHolidays)
+                                {
+                                    <option value="@w.Id">@w.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("نوع الوظيفة")</label>
+                            <select @bind="model!.JobTypeId" class="select-input">
+                                <option value="">@Lang.T("بدون")</option>
+                                @foreach (var j in lookups.JobTypes)
+                                {
+                                    <option value="@j.Id">@j.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("المؤهل")</label>
+                            <select @bind="model!.QualificationId" class="select-input">
+                                <option value="">@Lang.T("بدون")</option>
+                                @foreach (var q in lookups.Qualifications)
+                                {
+                                    <option value="@q.Id">@q.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("المنطقة")</label>
+                            <select @bind="model!.AreaId" class="select-input">
+                                <option value="">@Lang.T("بدون")</option>
+                                @foreach (var a in lookups.Areas)
+                                {
+                                    <option value="@a.Id">@a.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.UnderTraining" /><label>@Lang.T("تحت التدريب")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.UnderEmployment" /><label>@Lang.T("على رأس العمل")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.InDuty" /><label>@Lang.T("في الخدمة")</label></div>
+                    </div>
+                }
+                else if (activeTab == "الراتب والسلف")
+                {
+                    <div class="form-grid">
+                        <div class="field"><label>@Lang.T("الراتب الأساسي")</label><InputNumber @bind-Value="model!.MainSalary" /></div>
+                        <div class="field"><label>@Lang.T("الحد الأدنى للراتب")</label><InputNumber @bind-Value="model!.MinSalary" /></div>
+                        <div class="field"><label>@Lang.T("الحد الأقصى للسلفة")</label><InputNumber @bind-Value="model!.MaxLoanAmount" /></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.CanTakeLoan" /><label>@Lang.T("يمكنه طلب سلفة")</label></div>
+                    </div>
+                }
+                else if (activeTab == "الحضور والإعفاءات")
+                {
+                    <div class="form-grid">
+                        <div class="field"><label>@Lang.T("رصيد الإجازات")</label><InputNumber @bind-Value="model!.HolidayBalance" /></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptLate" /><label>@Lang.T("إعفاء من التأخير")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptEarlyLeave" /><label>@Lang.T("إعفاء من الانصراف المبكر")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptOvertime" /><label>@Lang.T("إعفاء من العمل الإضافي")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptAbsence" /><label>@Lang.T("إعفاء من الغياب")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptEarlyEnter" /><label>@Lang.T("إعفاء من الحضور المبكر")</label></div>
+                    </div>
+                }
+                else if (activeTab == "المستندات")
+                {
+                    <div class="form-grid">
+                        <div class="field"><label>@Lang.T("تاريخ انتهاء الرقم القومي")</label><InputDate @bind-Value="model!.NationalIDExpiration" /></div>
+                        <div class="field"><label>@Lang.T("تاريخ انتهاء رخصة القيادة")</label><InputDate @bind-Value="model!.DriverLicenseExpiration" /></div>
+                        <div class="field"><label>@Lang.T("تاريخ انتهاء رخصة المركبة")</label><InputDate @bind-Value="model!.VehicleLicenseExpiration" /></div>
+                        <div class="field"><label>@Lang.T("تاريخ انتهاء الشهادة العسكرية")</label><InputDate @bind-Value="model!.ArmyCertificateExpiration" /></div>
+                        <div class="field"><label>@Lang.T("رقم الشهادة العسكرية")</label><InputText @bind-Value="model!.ArmyCertificateNumber" /></div>
+                        <div class="field"><label>@Lang.T("الرقم التأميني")</label><InputText @bind-Value="model!.SSN" /></div>
+                        <div class="field"><label>@Lang.T("رقم التأمين الصحي")</label><InputText @bind-Value="model!.HealthInsuranceNumber" /></div>
+                    </div>
+                }
+                else if (activeTab == "إعدادات الحساب")
+                {
+                    <div class="form-grid">
+                        <div class="field"><label>@Lang.T("اسم المستخدم")</label><InputText @bind-Value="model!.Username" /></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.IsUser" /><label>@Lang.T("له حساب دخول للنظام")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.IsMobileUser" /><label>@Lang.T("مستخدم تطبيق الموبايل")</label></div>
+                        <div class="field checkbox danger"><InputCheckbox @bind-Value="model!.Blacklist" /><label>@Lang.T("قائمة سوداء")</label></div>
+                        @if (model!.Blacklist)
+                        {
+                            <div class="field full"><label>@Lang.T("سبب الإدراج بالقائمة السوداء")</label><InputText @bind-Value="model!.BlacklistReason" /></div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" @onclick='() => Nav.NavigateTo("/employees")'>@Lang.T("إلغاء")</button>
+                <button type="submit" class="btn-primary">@Lang.T("حفظ")</button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    EmployeeFormModel? model;
+    EmployeeLookups? lookups;
+    string activeTab = "بيانات شخصية";
+
+    readonly string[] tabTitles = {
+        "بيانات شخصية", "بيانات الوظيفة", "الراتب والسلف",
+        "الحضور والإعفاءات", "المستندات", "إعدادات الحساب"
+    };
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lookups = await EmployeeSvc.GetLookupsAsync();
+        model = Id.HasValue ? await EmployeeSvc.GetByIdAsync(Id.Value) : new EmployeeFormModel();
+    }
+
+    async Task HandleSave()
+    {
+        try
+        {
+            await EmployeeSvc.SaveAsync(model!);
+            Notify.ShowSuccess(Lang.T("تم حفظ بيانات الموظف بنجاح"));
+            Nav.NavigateTo("/employees");
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("حدث خطأ أثناء حفظ البيانات، حاول مرة أخرى"));
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

@@ -1,0 +1,135 @@
+﻿.topbar {
+    height: var(--topbar-height);
+    background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 30px;
+    gap: 30px;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.page-info h2 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--text);
+}
+
+.page-info span {
+    color: var(--text-light);
+    font-size: 13px;
+}
+
+.topbar-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-box {
+    width: 420px;
+    height: 46px;
+    background: #f5f7fb;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding-inline: 16px;
+    gap: 10px;
+}
+
+    .search-box input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .search-box i {
+        color: gray;
+    }
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-btn {
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .25s;
+    position: relative;
+}
+
+    .icon-btn:hover {
+        background: #f5f7fb;
+    }
+
+    .icon-btn i {
+        font-size: 18px;
+    }
+
+.notification {
+    position: relative;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-inline: 10px;
+    cursor: pointer;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+    .user-info strong {
+        font-size: 14px;
+    }
+
+    .user-info small {
+        color: gray;
+        font-size: 12px;
+    }

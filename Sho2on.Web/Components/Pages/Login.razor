@@ -1,0 +1,79 @@
+﻿@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@page "/login"
+@rendermode InteractiveServer
+@using Sho2on.Web.Services
+@using Sho2on.Web.Components.Layout
+
+@layout EmptyLayout
+@inject LocalizationService Lang
+
+<div class="login-page" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
+
+    <div class="brand-panel">
+        <svg class="brand-pattern" viewBox="0 0 300 500" preserveAspectRatio="xMidYMid slice">
+            <g stroke="#FF6F59" stroke-width="1" fill="none">
+                <path d="M40 60 L60 40 L80 60 L60 80 Z" />
+                <path d="M180 20 L200 0 L220 20 L200 40 Z" />
+                <path d="M20 200 L40 180 L60 200 L40 220 Z" />
+                <path d="M240 150 L260 130 L280 150 L260 170 Z" />
+                <path d="M120 300 L140 280 L160 300 L140 320 Z" />
+                <path d="M60 400 L80 380 L100 400 L80 420 Z" />
+                <path d="M220 380 L240 360 L260 380 L240 400 Z" />
+            </g>
+        </svg>
+
+        <div class="brand-content">
+            <div class="brand-mark">S</div>
+            <h1>@Lang.T("نظام Sho2on")</h1>
+            <p>@Lang.T("إدارة الموظفين والحضور والرواتب في مكان واحد")</p>
+        </div>
+
+        <p class="brand-footer">© Sho2on HR</p>
+    </div>
+
+    <div class="form-panel">
+        <button class="lang-toggle" @onclick="async ()=>
+            await Lang.Toggle()">
+            @(Lang.IsRtl ? "English" : "عربي")
+        </button>
+
+        <div class="form-box">
+            <h3>@Lang.T("تسجيل الدخول")</h3>
+            <p>@Lang.T("أهلاً بك، سجّل دخولك للمتابعة")</p>
+
+            <form method="post" action="/account/login" class="login-form">
+                <div class="field">
+                    <label for="username">@Lang.T("اسم المستخدم")</label>
+                    <input id="username" type="text" name="username" placeholder="@Lang.T("اسم المستخدم")" autocomplete="username" />
+                </div>
+
+                <div class="field">
+                    <label for="password">@Lang.T("كلمة المرور")</label>
+                    <input id="password" type="password" name="password" placeholder="@Lang.T("كلمة المرور")" autocomplete="current-password" />
+                </div>
+
+                <button type="submit" class="login-submit">@Lang.T("تسجيل الدخول")</button>
+            </form>
+
+            @if (ErrorType == "invalid")
+            {
+                <div class="error-message">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @Lang.T("اسم المستخدم أو كلمة المرور غير صحيحة")
+                </div>
+            }
+            else if (ErrorType == "connection")
+            {
+                <div class="error-message">
+                    <i class="bi bi-wifi-off"></i>
+                    @Lang.T("تعذر الاتصال بالخادم، برجاء المحاولة لاحقاً")
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? ErrorType { get; set; }
+}

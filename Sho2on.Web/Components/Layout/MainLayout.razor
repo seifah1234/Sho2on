@@ -1,0 +1,44 @@
+﻿@inherits LayoutComponentBase
+@inject UiStateService UiState
+@inject LocalizationService Lang
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="layout @(UiState.SidebarCollapsed ? "sidebar-collapsed" : "")" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
+    <Sidebar />
+    <div class="layout-body">
+        <Topbar />
+        <main class="page-content">
+            <ErrorBoundary>
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <div class="error-fallback">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <p>@Lang.T("حدث خطأ غير متوقع في هذه الصفحة")</p>
+                        <button @onclick="Reload">@Lang.T("إعادة تحميل الصفحة")</button>
+                    </div>
+                </ErrorContent>
+            </ErrorBoundary>
+        </main>
+    </div>
+</div>
+
+<ToastContainer />
+
+@code {
+    protected override void OnInitialized()
+    {
+        UiState.OnChange += StateHasChanged;
+        Lang.OnChange += StateHasChanged;
+    }
+
+    void Reload() => Nav.NavigateTo(Nav.Uri, forceLoad: true);
+
+    public void Dispose()
+    {
+        UiState.OnChange -= StateHasChanged;
+        Lang.OnChange -= StateHasChanged;
+    }
+}

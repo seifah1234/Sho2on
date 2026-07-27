@@ -1,0 +1,203 @@
+﻿.login-page {
+    min-height: 100vh;
+    display: flex;
+    font-family: 'Tajawal', 'Segoe UI', sans-serif;
+}
+
+/* البانل الغامق - الهوية */
+.brand-panel {
+    flex: 0 0 42%;
+    background: #211B4E;
+    position: relative;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.brand-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.14;
+    pointer-events: none;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 1;
+}
+
+.brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    background: #FF6F59;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 17px;
+    color: #211B4E;
+    margin-bottom: 24px;
+}
+
+.brand-content h1 {
+    color: #FFFFFF;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.4;
+}
+
+.brand-content p {
+    color: #B8B3DE;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+    max-width: 240px;
+}
+
+.brand-footer {
+    position: relative;
+    z-index: 1;
+    color: #6E68A0;
+    font-size: 12px;
+    margin: 0;
+}
+
+/* البانل الفاتح - الفورم */
+.form-panel {
+    flex: 1;
+    background: #FAF8F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    position: relative;
+}
+
+.lang-toggle {
+    position: absolute;
+    top: 20px;
+    inset-inline-start: 20px;
+    background: none;
+    border: 1px solid #E4DFD6;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #746F93;
+    cursor: pointer;
+}
+
+    .lang-toggle:hover {
+        border-color: #211B4E;
+        color: #211B4E;
+    }
+
+.form-box {
+    width: 100%;
+    max-width: 320px;
+}
+
+    .form-box h3 {
+        margin: 0 0 6px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1F1B3A;
+    }
+
+    .form-box > p {
+        margin: 0 0 28px;
+        font-size: 13.5px;
+        color: #746F93;
+    }
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4A4570;
+    margin-bottom: 6px;
+}
+
+
+.login-submit {
+    margin-top: 8px;
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 9px;
+    background: #FF6F59;
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
+}
+
+    .login-submit:hover {
+        background: #F0573F;
+    }
+
+    .login-submit:active {
+        transform: translateY(1px);
+    }
+
+    .login-submit:focus-visible {
+        outline: 2px solid #211B4E;
+        outline-offset: 2px;
+    }
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FBEAEA;
+    color: #A13636;
+    border: 1px solid #F0CFCF;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    margin-top: 4px;
+}
+
+/* Responsive: تحت 800px البانل الغامق يبقى شريط علوي بسيط بدل نص الشاشة */
+@media (max-width: 800px) {
+    .login-page {
+        flex-direction: column;
+    }
+
+    .brand-panel {
+        flex: 0 0 auto;
+        padding: 28px 24px;
+        min-height: 140px;
+        justify-content: flex-start;
+    }
+
+    .brand-content p,
+    .brand-footer {
+        display: none;
+    }
+
+    .brand-mark {
+        margin-bottom: 12px;
+    }
+
+    .brand-content h1 {
+        font-size: 20px;
+    }
+
+    .form-panel {
+        padding: 32px 20px 40px;
+    }
+}

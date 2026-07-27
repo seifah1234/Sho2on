@@ -1,0 +1,32 @@
+﻿.status-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-present {
+    background: #E9F7EF;
+    color: #1F7A47;
+}
+
+.status-absent {
+    background: #FBEAEA;
+    color: #A13636;
+}
+
+.status-leave {
+    background: #EFF0FA;
+    color: #4A4570;
+}
+
+.status-holiday {
+    background: #FFF4E5;
+    color: #B8730C;
+}
+
+.status-pending {
+    background: #F5F3EF;
+    color: #A6A3C2;
+}

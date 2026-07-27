@@ -1,0 +1,30 @@
+﻿@using Sho2on.Web.Models.Navigation
+@using Sho2on.Web.Services
+
+@inject NavigationManager Nav
+@inject LocalizationService Lang
+
+<NavLink href="@Item.Url"
+         class="menu-item"
+         ActiveClass="active"
+         Match="NavLinkMatch.Prefix">
+
+    @if (!string.IsNullOrWhiteSpace(Item.Icon))
+    {
+        <i class="bi @Item.Icon"></i>
+    }
+
+    <span>
+
+        @Lang.T(Item.Title)
+
+    </span>
+
+</NavLink>
+
+@code {
+
+    [Parameter]
+    public NavigationItem Item { get; set; } = default!;
+
+}

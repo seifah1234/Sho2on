@@ -1,0 +1,53 @@
+﻿@using Sho2on.Web.Models.Navigation
+@using Sho2on.Web.Services
+@inject LocalizationService Lang
+
+<div class="menu-group">
+
+    @if (Item.Children.Any())
+    {
+        <button class="menu-button"
+                @onclick="() => Item.Expanded = !Item.Expanded">
+
+            <div>
+
+                <i class="bi @Item.Icon"></i>
+
+                <span>
+
+                    @Lang.T(Item.Title)
+
+                </span>
+
+            </div>
+
+            <i class="bi @(Item.Expanded ? "bi-chevron-down" : "bi-chevron-left")"></i>
+
+        </button>
+
+        @if (Item.Expanded)
+        {
+            <div class="submenu">
+
+                @foreach (var child in Item.Children)
+                {
+                    <SidebarItem Item="child" />
+                }
+
+            </div>
+        }
+
+    }
+    else
+    {
+        <SidebarItem Item="Item" />
+    }
+
+</div>
+
+@code {
+
+    [Parameter]
+    public NavigationItem Item { get; set; } = default!;
+
+}

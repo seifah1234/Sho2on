@@ -252,6 +252,11 @@ namespace Sho2on.Database
                 _connectionString = connectionString;
             }
 
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+
+        }
+
             // DbSets
             public DbSet<Area> Areas { get; set; }
             public DbSet<Chat> Chats { get; set; }

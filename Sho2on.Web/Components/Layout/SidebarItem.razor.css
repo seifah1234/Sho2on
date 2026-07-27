@@ -1,0 +1,18 @@
+﻿.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+    .menu-item span {
+        margin-inline-start: 4px;
+    }
+
+    .menu-item i {
+        width: 22px;
+        min-width: 22px;
+        text-align: center;
+        font-size: 18px;
+        margin-inline-end: 8px;
+    }

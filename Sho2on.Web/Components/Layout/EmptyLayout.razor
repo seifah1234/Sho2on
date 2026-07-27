@@ -1,0 +1,8 @@
+﻿@using Sho2on.Web.Services
+@inherits LayoutComponentBase
+@inject LocalizationService LocalizationService
+
+
+<div class="empty-layout" dir="@(LocalizationService.IsRtl ? "rtl" : "ltr")">
+	@Body
+</div>

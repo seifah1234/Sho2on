@@ -1,0 +1,185 @@
+﻿@page "/attendance"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject AttendanceService AttendanceSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<AttendanceList> Logger
+@implements IDisposable
+
+<div class="attendance-page">
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input type="date" class="search-input" @bind="selectedDate" @bind:after="HandleFilterChanged" />
+
+            <select class="select-input" @bind="selectedBranchId" @bind:after="HandleFilterChanged">
+                <option value="">@Lang.T("كل الفروع")</option>
+                @if (branches != null)
+                {
+                    @foreach (var b in branches)
+                    {
+                        <option value="@b.Id">@b.Name</option>
+                    }
+                }
+            </select>
+
+            <input class="search-input" placeholder="@Lang.T("ابحث باسم الموظف")"
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="HandleSearchKeyUp" />
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (result == null || result.Items.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <p>@Lang.T("لا توجد سجلات حضور لهذا اليوم")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الكود")</th>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("الفرع")</th>
+                        <th>@Lang.T("الحضور")</th>
+                        <th>@Lang.T("الانصراف")</th>
+                        <th>@Lang.T("التأخير")</th>
+                        <th>@Lang.T("الحالة")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in result.Items)
+                    {
+                        <tr>
+                            <td>@a.EmployeeCode</td>
+                            <td>@a.EmployeeName</td>
+                            <td>@a.BranchName</td>
+                            <td>@(a.CheckInTime?.ToString("hh:mm tt") ?? "—")</td>
+                            <td>@(a.CheckOutTime?.ToString("hh:mm tt") ?? "—")</td>
+                            <td>@(a.Late.HasValue && a.Late.Value.TotalMinutes > 0 ? $"{(int)a.Late.Value.TotalMinutes} د" : "—")</td>
+                            <td><span class="status-badge status-@GetStatusClass(a.Status)">@Lang.T(a.Status)</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (result.TotalPages > 1)
+        {
+            <div class="pagination">
+                <span class="pagination-info">
+                    @Lang.T("عرض") @((result.Page - 1) * result.PageSize + 1)-@(Math.Min(result.Page * result.PageSize, result.TotalCount))
+                    @Lang.T("من") @result.TotalCount
+                </span>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled="@(currentPage == 1)" @onclick="() => GoToPage(currentPage - 1)"><i class="bi bi-chevron-right"></i></button>
+                    @for (int p = 1; p <= result.TotalPages; p++)
+                    {
+                        var pageNum = p;
+                        @if (pageNum == 1 || pageNum == result.TotalPages || Math.Abs(pageNum - currentPage) <= 1)
+                        {
+                            <button class="page-btn @(pageNum == currentPage ? "active" : "")" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                        }
+                        else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                        {
+                            <span class="page-dots">…</span>
+                        }
+                    }
+                    <button class="page-btn" disabled="@(currentPage == result.TotalPages)" @onclick="() => GoToPage(currentPage + 1)"><i class="bi bi-chevron-left"></i></button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    PagedResult<AttendanceListItem>? result;
+    List<(int Id, string Name)>? branches;
+    DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    string selectedBranchId = "";
+    string searchTerm = "";
+    int currentPage = 1;
+    int pageSize = 15;
+    bool loading = true;
+    System.Timers.Timer? debounceTimer;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        branches = lookups.Branches;
+        await LoadAttendance();
+    }
+
+    async Task LoadAttendance()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
+            result = await AttendanceSvc.GetPagedListAsync(selectedDate, branchId, searchTerm, currentPage, pageSize);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل سجل الحضور");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+            result = new();
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task HandleFilterChanged()
+    {
+        currentPage = 1;
+        await LoadAttendance();
+    }
+
+    void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        currentPage = 1;
+        debounceTimer?.Stop();
+        debounceTimer = new System.Timers.Timer(400) { AutoReset = false };
+        debounceTimer.Elapsed += async (s, args) => await InvokeAsync(LoadAttendance);
+        debounceTimer.Start();
+    }
+
+    async Task GoToPage(int page)
+    {
+        if (page < 1 || (result != null && page > result.TotalPages)) return;
+        currentPage = page;
+        await LoadAttendance();
+    }
+
+    string GetStatusClass(string status) => status switch
+    {
+        "حاضر" => "present",
+        "غائب" => "absent",
+        "إجازة" => "leave",
+        "عطلة" => "holiday",
+        _ => "pending"
+    };
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+        debounceTimer?.Dispose();
+    }
+}

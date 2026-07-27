@@ -1,0 +1,66 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.layout-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.page-content {
+    padding: 24px;
+}
+
+::deep .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width 0.2s ease, opacity 0.15s ease;
+}
+
+.sidebar-collapsed ::deep .sidebar {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    border: none;
+}
+
+/* شكل الـ Scrollbar بسيط ومتماشي مع الهوية */
+::deep .sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+::deep .sidebar::-webkit-scrollbar-thumb {
+    background: #E4DFD6;
+    border-radius: 10px;
+}
+
+.error-fallback {
+    text-align: center;
+    padding: 60px 20px;
+    color: #746F93;
+}
+
+    .error-fallback i {
+        font-size: 32px;
+        color: #FF6F59;
+        margin-bottom: 12px;
+    }
+
+    .error-fallback button {
+        margin-top: 14px;
+        background: #211B4E;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 20px;
+        font-family: inherit;
+        cursor: pointer;
+    }

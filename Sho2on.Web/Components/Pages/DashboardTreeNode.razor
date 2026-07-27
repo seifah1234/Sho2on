@@ -1,0 +1,39 @@
+﻿@using Sho2on.Web.Models
+
+<div class="tree-node">
+    <button class="tree-row @(expanded ? "expanded" : "")" @onclick="Toggle" disabled="@(Node.Children.Count == 0)">
+        @if (Node.Children.Count > 0)
+        {
+            <i class="bi bi-chevron-down chevron"></i>
+        }
+        else
+        {
+            <span class="chevron-spacer"></span>
+        }
+        <span class="tree-name">@Node.Name</span>
+        <span class="tree-badge">@Node.Type</span>
+        <span class="tree-count">
+            <i class="bi bi-people"></i> @Node.TotalEmployees
+        </span>
+        @if (Node.TotalChildren > 0)
+        {
+            <span class="tree-count muted">@Node.TotalChildren @Node.ChildrenType</span>
+        }
+    </button>
+
+    @if (expanded && Node.Children.Count > 0)
+    {
+        <div class="tree-children">
+            @foreach (var child in Node.Children)
+            {
+                <DashboardTreeNode Node="child" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Sho2on.Web.Models.DashboardTreeNode Node { get; set; } = new();
+    bool expanded = false;
+    void Toggle() { if (Node.Children.Count > 0) expanded = !expanded; }
+}

@@ -1,0 +1,213 @@
+﻿@page "/employees"
+@using Sho2on.Web.Models
+@using static Sho2on.Web.Services.EmployeeService
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<EmployeeList> Logger
+@implements IDisposable
+
+<div class="employees-page">
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input class="search-input" placeholder="@Lang.T("ابحث بالاسم أو الكود أو الموبايل")"
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="HandleSearchKeyUp" />
+
+            <select class="select-input" @bind="selectedBranchId">
+                <option value="">@Lang.T("كل الفروع")</option>
+                @if (branches != null)
+                {
+                    @foreach (var b in branches)
+                    {
+                        <option value="@b.Id">@b.Name</option>
+                    }
+                }
+            </select>
+
+            <label class="checkbox-inline">
+                <input type="checkbox" @bind="includeArchived" />
+                @Lang.T("عرض المؤرشفين")
+            </label>
+
+            <button class="btn-secondary" @onclick="LoadEmployees">@Lang.T("بحث")</button>
+        </div>
+
+        <button class="btn-primary" @onclick='() => Nav.NavigateTo("/employees/add")'>
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة موظف")
+        </button>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (result == null || result.TotalCount == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p>@Lang.T("لا يوجد موظفون مطابقون")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الكود")</th>
+                        <th>@Lang.T("الاسم")</th>
+                        <th>@Lang.T("الفرع")</th>
+                        <th>@Lang.T("الإدارة")</th>
+                        <th>@Lang.T("الوظيفة")</th>
+                        <th>@Lang.T("الموبايل")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var emp in result!.Items)
+                    {
+                        <tr class="@(emp.IsArchived ? "archived-row" : "")">
+                            <td>@emp.Code</td>
+                            <td>@emp.FullName</td>
+                            <td>@emp.BranchName</td>
+                            <td>@emp.DepartmentName</td>
+                            <td>@emp.JobTitleName</td>
+                            <td>@emp.PhoneNumber</td>
+                            <td class="row-actions">
+                                <button class="icon-action" title="@Lang.T("تعديل")" @onclick='() => Nav.NavigateTo($"/employees/edit/{emp.Id}")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="icon-action @(emp.IsArchived ? "restore" : "danger")"
+                                        title="@(emp.IsArchived ? Lang.T("استعادة") : Lang.T("أرشفة"))"
+                                        @onclick='() => ToggleArchive(emp)'>
+                                    <i class="bi @(emp.IsArchived ? "bi-arrow-counterclockwise" : "bi-archive")"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (result != null && result.TotalPages > 1)
+        {
+            <div class="pagination">
+                <span class="pagination-info">
+                    @Lang.T("عرض") @((result.Page - 1) * result.PageSize + 1)-@(Math.Min(result.Page * result.PageSize, result.TotalCount))
+                    @Lang.T("من") @result.TotalCount
+                </span>
+
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled="@(currentPage == 1)" @onclick="() => GoToPage(currentPage - 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+
+                    @for (int p = 1; p <= result.TotalPages; p++)
+                    {
+                        var pageNum = p;
+                        @if (pageNum == 1 || pageNum == result.TotalPages || Math.Abs(pageNum - currentPage) <= 1)
+                        {
+                            <button class="page-btn @(pageNum == currentPage ? "active" : "")" @onclick="() => GoToPage(pageNum)">
+                                @pageNum
+                            </button>
+                        }
+                        else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                        {
+                            <span class="page-dots">…</span>
+                        }
+                    }
+
+                    <button class="page-btn" disabled="@(currentPage == result.TotalPages)" @onclick="() => GoToPage(currentPage + 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    PagedResult<EmployeeListItem>? result;
+    int currentPage = 1;
+    int pageSize = 15;
+    List<(int Id, string Name)>? branches;
+    string searchTerm = "";
+    string selectedBranchId = "";
+    bool includeArchived = false;
+    bool loading = true;
+    System.Timers.Timer? debounceTimer;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        branches = lookups.Branches;
+        await LoadEmployees();
+    }
+
+    async Task LoadEmployees()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
+            result = await EmployeeSvc.GetPagedListAsync(searchTerm, branchId, includeArchived, currentPage, pageSize);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل قائمة الموظفين");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+            result = new();
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task GoToPage(int page)
+    {
+        if (page < 1 || (result != null && page > result.TotalPages)) return;
+        currentPage = page;
+        await LoadEmployees();
+    }
+
+    void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        currentPage = 1;
+        debounceTimer?.Stop();
+        debounceTimer = new System.Timers.Timer(400) { AutoReset = false };
+        debounceTimer.Elapsed += async (s, args) => await InvokeAsync(LoadEmployees);
+        debounceTimer.Start();
+    }
+
+    async Task ToggleArchive(EmployeeListItem emp)
+    {
+        try
+        {
+            currentPage = 1;
+            await EmployeeSvc.ToggleArchiveAsync(emp.Id);
+            Notify.ShowSuccess(emp.IsArchived ? Lang.T("تم استعادة الموظف") : Lang.T("تم أرشفة الموظف"));
+            await LoadEmployees();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تغيير حالة أرشفة الموظف {Id}", emp.Id);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+        debounceTimer?.Dispose();
+    }
+}

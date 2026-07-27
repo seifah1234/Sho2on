@@ -1,0 +1,62 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@inject NavigationService Navigation
+@inject LocalizationService Lang
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthProvider
+@implements IDisposable
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <div class="logo-icon">S</div>
+            <div class="logo-text">
+                <h3>Sho2on</h3>
+                <span>@Lang.T("نظام الموارد البشرية")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-menu">
+        @foreach (var item in Navigation.GetMenu())
+        {
+            <SidebarGroup Item="item" />
+        }
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="avatar">@initials</div>
+            <div>
+                <strong>@userName</strong>
+                <small>@userRole</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    string userName = "";
+    string userRole = "";
+    string initials = "?";
+
+    protected override void OnInitialized()
+    {
+        Lang.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userName = user.FindFirst("FullName")?.Value ?? user.Identity?.Name ?? "";
+        userRole = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+        if (!string.IsNullOrEmpty(userName)) initials = userName.Trim()[0].ToString().ToUpper();
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+    }
+}

@@ -1,0 +1,72 @@
+﻿.tree-node {
+    font-family: 'Tajawal', 'Segoe UI', sans-serif;
+}
+
+.tree-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    padding: 9px 6px;
+    cursor: pointer;
+    text-align: right;
+    border-radius: 8px;
+}
+
+    .tree-row:hover {
+        background: #FAF8F5;
+    }
+
+    .tree-row:disabled {
+        cursor: default;
+    }
+
+.chevron {
+    transition: transform 0.15s ease;
+    color: #746F93;
+    font-size: 13px;
+}
+
+.tree-row.expanded .chevron {
+    transform: rotate(-90deg);
+}
+
+.chevron-spacer {
+    width: 13px;
+    display: inline-block;
+}
+
+.tree-name {
+    font-weight: 600;
+    color: #1F1B3A;
+    font-size: 14px;
+}
+
+.tree-badge {
+    font-size: 11px;
+    background: #F0EEF7;
+    color: #4A4570;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.tree-count {
+    font-size: 12.5px;
+    color: #211B4E;
+    margin-inline-start: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    .tree-count.muted {
+        color: #A6A3C2;
+    }
+
+.tree-children {
+    padding-inline-start: 26px;
+    border-inline-start: 2px solid #F0EEE8;
+    margin-inline-start: 12px;
+}

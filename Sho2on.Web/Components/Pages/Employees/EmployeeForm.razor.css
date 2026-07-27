@@ -1,0 +1,97 @@
+﻿.employee-form-page h2 {
+    font-size: 19px;
+    color: #1F1B3A;
+    margin-bottom: 18px;
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    border-bottom: 1px solid #EDEAE3;
+    margin-bottom: 22px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #746F93;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+    .tab-btn.active {
+        color: #211B4E;
+        border-bottom-color: #FF6F59;
+    }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #4A4570;
+    margin-bottom: 5px;
+}
+
+.field.full {
+    grid-column: 1 / -1;
+}
+
+
+.field.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+    .field.checkbox label {
+        margin: 0;
+    }
+
+    .field.checkbox.danger label {
+        color: #A13636;
+    }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid #EDEAE3;
+}
+
+.btn-primary {
+    background: #211B4E;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: none;
+    border: 1px solid #E4DFD6;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-family: inherit;
+    font-weight: 600;
+    color: #4A4570;
+    cursor: pointer;
+}
