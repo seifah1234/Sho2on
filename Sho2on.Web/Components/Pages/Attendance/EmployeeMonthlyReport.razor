@@ -1,0 +1,336 @@
+﻿@page "/attendance/employee-report"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.EmployeeService
+@inject EmployeeService EmployeeSvc
+@inject AttendanceService AttendanceSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<EmployeeMonthlyReport> Logger
+@implements IDisposable
+
+<div class="monthly-report-page">
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input class="search-input" list="emp-datalist" placeholder="@Lang.T("اكتب اسم أو كود الموظف")"
+                   @bind="employeeInputText" @bind:event="oninput" @bind:after="HandleEmployeePicked" />
+            <datalist id="emp-datalist">
+                @if (employees != null)
+                {
+                    @foreach (var e in employees)
+                    {
+                        <option value="@($"{e.Code} - {e.FullName}")" />
+                    }
+                }
+            </datalist>
+
+            <select class="select-input" @bind="selectedMonth">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var mm = m;
+                    <option value="@mm">@arabicMonths[mm - 1]</option>
+                }
+            </select>
+
+            <select class="select-input" @bind="selectedYear">
+                @for (int y = DateTime.Today.Year; y >= DateTime.Today.Year - 5; y--)
+                {
+                    var yy = y;
+                    <option value="@yy">@yy</option>
+                }
+            </select>
+
+            <button class="btn-secondary" @onclick="LoadReport" disabled="@(selectedUserId == null)">@Lang.T("عرض")</button>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (report == null)
+    {
+        <div class="empty-state">
+            <i class="bi bi-calendar-week"></i>
+            <p>@Lang.T("اختر موظف وشهر لعرض التقرير")</p>
+        </div>
+    }
+    else
+    {
+        <div class="report-header">
+            <div>
+                <strong>@report.EmployeeName</strong>
+                <span class="muted"> (@report.EmployeeCode) — @report.BranchName</span>
+            </div>
+        </div>
+
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-value">@report.TotalAbsenceDays</div>
+                <div class="stat-label">@Lang.T("أيام الغياب")</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@report.TotalWeeklyRestDays</div>
+                <div class="stat-label">@Lang.T("الراحة الأسبوعية")</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@report.TotalHolidayDays</div>
+                <div class="stat-label">@Lang.T("أيام العطلة")</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@FormatSpan(report.TotalLate)</div>
+                <div class="stat-label">@Lang.T("التأخير")</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@FormatSpan(report.TotalOvertime)</div>
+                <div class="stat-label">@Lang.T("الاضافي")</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@FormatSpan(report.TotalWorkHours)</div>
+                <div class="stat-label">@Lang.T("ساعات العمل")</div>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("اليوم")</th>
+                        <th>@Lang.T("التاريخ")</th>
+                        <th>@Lang.T("الحضور")</th>
+                        <th>@Lang.T("الانصراف")</th>
+                        <th>@Lang.T("الوردية")</th>
+                        <th>@Lang.T("التأخير")</th>
+                        <th>@Lang.T("الاضافي")</th>
+                        <th>@Lang.T("الحالة")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var day in report.Days)
+                    {
+                        <tr class="@RowClass(day)">
+                            <td>@Lang.T(day.DayName)</td>
+                            <td>@day.Date.ToString("dd/MM/yyyy")</td>
+
+                            @if (edits.TryGetValue(day.Date, out var edit))
+                            {
+                                <td><input type="time" class="search-input" @bind="edit.CheckIn" /></td>
+                                <td><input type="time" class="search-input" @bind="edit.CheckOut" /></td>
+                            }
+                            else
+                            {
+                                <td>@(day.CheckInTime.HasValue ? FormatTime(day.CheckInTime) : "—")</td>
+                                <td>@(day.CheckOutTime.HasValue ? FormatTime(day.CheckOutTime) : "—")</td>
+                            }
+
+                            <td>
+                                <select class="select-input" value="@day.ShiftId" @onchange="e => ChangeShift(day, e.Value)">
+                                    <option value="">—</option>
+                                    @if (shifts != null)
+                                    {
+                                        @foreach (var s in shifts)
+                                        {
+                                            <option value="@s.Id">@s.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+
+                            <td>@(day.Late is { } l && l > TimeSpan.Zero ? FormatSpan(l) : "—")</td>
+                            <td>@(day.Overtime is { } o && o > TimeSpan.Zero ? FormatSpan(o) : "—")</td>
+                            <td><span class="status-badge status-@GetStatusClass(day)">@Lang.T(day.Status)</span></td>
+
+                            <td class="row-actions">
+                                @if (edits.ContainsKey(day.Date))
+                                {
+                                    <button class="icon-action success" title="@Lang.T("حفظ")" @onclick="() => SaveEdit(day)"><i class="bi bi-check-lg"></i></button>
+                                    <button class="icon-action" title="@Lang.T("إلغاء")" @onclick="() => edits.Remove(day.Date)"><i class="bi bi-x-lg"></i></button>
+                                }
+                                else
+                                {
+                                    <button class="icon-action" title="@Lang.T("تعديل")" @onclick="() => StartEdit(day)"><i class="bi bi-pencil"></i></button>
+                                    <button class="icon-action danger" title="@Lang.T("غياب")" @onclick="() => MarkAbsence(day)"><i class="bi bi-person-x"></i></button>
+                                    <button class="icon-action" title="@Lang.T("عطلة")" @onclick="() => MarkHoliday(day)"><i class="bi bi-calendar-x"></i></button>
+                                    @if (day.IsAbsence || day.IsHoliday)
+                                    {
+                                        <button class="icon-action restore" title="@Lang.T("إلغاء الاستثناء")" @onclick="() => CancelException(day)"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "employeeId")] int? QueryEmployeeId { get; set; }
+    [SupplyParameterFromQuery(Name = "month")] int? QueryMonth { get; set; }
+    [SupplyParameterFromQuery(Name = "year")] int? QueryYear { get; set; }
+
+    List<EmployeeListItem>? employees;
+    List<(int Id, string Name)>? shifts;
+    readonly string[] arabicMonths = { "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
+
+    string employeeInputText = "";
+    int? selectedUserId;
+    int selectedMonth = DateTime.Today.Month;
+    int selectedYear = DateTime.Today.Year;
+
+    EmployeeMonthlyReportResult? report;
+    bool loading = false;
+
+    Dictionary<DateOnly, RowEdit> edits = new();
+
+    class RowEdit
+    {
+        public TimeOnly? CheckIn { get; set; }
+        public TimeOnly? CheckOut { get; set; }
+    }
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await EmployeeSvc.GetListAsync(null, null, false);
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        shifts = lookups.Shifts;
+
+        if (QueryEmployeeId.HasValue)
+        {
+            selectedUserId = QueryEmployeeId.Value;
+            var emp = employees.FirstOrDefault(e => e.Id == QueryEmployeeId.Value);
+            if (emp != null) employeeInputText = $"{emp.Code} - {emp.FullName}";
+            if (QueryMonth.HasValue) selectedMonth = QueryMonth.Value;
+            if (QueryYear.HasValue) selectedYear = QueryYear.Value;
+            await LoadReport();
+        }
+    }
+
+    void HandleEmployeePicked()
+    {
+        var emp = employees?.FirstOrDefault(e => employeeInputText.StartsWith(e.Code + " - "));
+        selectedUserId = emp?.Id;
+    }
+
+    async Task LoadReport()
+    {
+        if (selectedUserId == null) return;
+        loading = true;
+        edits.Clear();
+        StateHasChanged();
+        try
+        {
+            report = await AttendanceSvc.GetEmployeeMonthlyReportAsync(selectedUserId.Value, selectedMonth, selectedYear);
+            if (report == null) Notify.ShowError(Lang.T("لم يتم العثور على الموظف"));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تحميل تقرير شهر الموظف");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل التقرير"));
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    void StartEdit(MonthlyAttendanceDay day)
+    {
+        edits[day.Date] = new RowEdit
+        {
+            CheckIn = day.CheckInTime.HasValue ? TimeOnly.FromTimeSpan(day.CheckInTime.Value) : null,
+            CheckOut = day.CheckOutTime.HasValue ? TimeOnly.FromTimeSpan(day.CheckOutTime.Value) : null
+        };
+    }
+
+    async Task SaveEdit(MonthlyAttendanceDay day)
+    {
+        if (selectedUserId == null || !edits.TryGetValue(day.Date, out var edit)) return;
+        try
+        {
+            await AttendanceSvc.SaveDayAsync(selectedUserId.Value, day.Date,
+                edit.CheckIn?.ToTimeSpan(), edit.CheckOut?.ToTimeSpan(),
+                isAbsence: false, isHoliday: false,
+                day.ExemptLate, day.ExemptEarlyLeave, day.ExemptEarlyEnter, day.ExemptOvertime);
+
+            edits.Remove(day.Date);
+            Notify.ShowSuccess(Lang.T("تم حفظ البيانات"));
+            await LoadReport();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في حفظ بيانات اليوم");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الحفظ"));
+        }
+    }
+
+    async Task MarkAbsence(MonthlyAttendanceDay day)
+    {
+        if (selectedUserId == null) return;
+        await AttendanceSvc.SaveDayAsync(selectedUserId.Value, day.Date, null, null,
+            isAbsence: true, isHoliday: false,
+            day.ExemptLate, day.ExemptEarlyLeave, day.ExemptEarlyEnter, day.ExemptOvertime);
+        await LoadReport();
+    }
+
+    async Task MarkHoliday(MonthlyAttendanceDay day)
+    {
+        if (selectedUserId == null) return;
+        await AttendanceSvc.SaveDayAsync(selectedUserId.Value, day.Date, null, null,
+            isAbsence: false, isHoliday: true,
+            day.ExemptLate, day.ExemptEarlyLeave, day.ExemptEarlyEnter, day.ExemptOvertime);
+        await LoadReport();
+    }
+
+    async Task CancelException(MonthlyAttendanceDay day)
+    {
+        if (selectedUserId == null) return;
+        await AttendanceSvc.SaveDayAsync(selectedUserId.Value, day.Date, null, null,
+            isAbsence: false, isHoliday: false,
+            day.ExemptLate, day.ExemptEarlyLeave, day.ExemptEarlyEnter, day.ExemptOvertime);
+        await LoadReport();
+    }
+
+    async Task ChangeShift(MonthlyAttendanceDay day, object? value)
+    {
+        if (selectedUserId == null) return;
+        if (!int.TryParse(value?.ToString(), out var shiftId) || shiftId == 0) return;
+        try
+        {
+            await AttendanceSvc.ChangeShiftAsync(selectedUserId.Value, day.Date, shiftId);
+            Notify.ShowSuccess(Lang.T("تم تغيير الوردية"));
+            await LoadReport();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تغيير الوردية");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تغيير الوردية"));
+        }
+    }
+
+    string RowClass(MonthlyAttendanceDay day) =>
+        day.IsHoliday ? "row-holiday" : day.IsAbsence ? "row-absence" : day.IsWeeklyRest ? "row-rest" : "";
+
+    string GetStatusClass(MonthlyAttendanceDay day) => day.Status switch
+    {
+        "حاضر" => "present",
+        "غائب" => "absent",
+        "إجازة" => "leave",
+        "عطلة" => "holiday",
+        "راحة أسبوعية" => "rest",
+        _ => "pending"
+    };
+
+    string FormatTime(TimeSpan? t) => t.HasValue ? TimeOnly.FromTimeSpan(t.Value).ToString("hh:mm tt") : "—";
+    string FormatSpan(TimeSpan span) => $"{(int)span.TotalHours:00}:{span.Minutes:00}";
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

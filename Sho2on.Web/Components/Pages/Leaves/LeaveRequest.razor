@@ -1,0 +1,282 @@
+﻿@page "/leaves/request"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Components.Forms
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.LeaveRequestService
+
+@inject LeaveRequestService LeaveRequestSvc
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject LocalizationService Lang
+@inject ILogger<LeaveRequest> Logger
+
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="LeaveTabs.Items" />
+<div class="leave-request-page">
+
+    <div class="page-title">
+        <div>
+            <h2>@Lang.T("طلب إجازة جديد")</h2>
+            <p>@Lang.T("أدخل بيانات الطلب، وسيُرسل للاعتماد عند الحاجة.")</p>
+        </div>
+    </div>
+
+    <EditForm Model="form" OnValidSubmit="Submit">
+        <DataAnnotationsValidator />
+
+        <section class="form-card">
+            <h3>@Lang.T("الموظف")</h3>
+
+            <div class="employee-search">
+                <input class="search-input"
+                       placeholder="@Lang.T("ابحث باسم الموظف أو الكود")"
+                       @bind="employeeSearch"
+                       @bind:event="oninput" />
+
+                <button class="btn-secondary" type="button" @onclick="SearchEmployees">
+                    @Lang.T("بحث")
+                </button>
+            </div>
+
+            @if (employees.Count > 0)
+            {
+                <div class="employee-options">
+                    @foreach (var employee in employees)
+                    {
+                        <button type="button"
+                                class="employee-option @(form.UserId == employee.Id ? "selected" : "")"
+                                @onclick="() => SelectEmployee(employee)">
+                            <strong>@employee.FullName</strong>
+                            <span>@employee.Code</span>
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (selectedEmployee is not null)
+            {
+                <div class="selected-employee">
+                    <i class="bi bi-person-check"></i>
+                    <span>@selectedEmployee.FullName — @selectedEmployee.Code</span>
+                </div>
+            }
+
+            <ValidationMessage For="() => form.UserId" />
+        </section>
+
+        <section class="form-card">
+            <h3>@Lang.T("بيانات الإجازة")</h3>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>@Lang.T("نوع الإجازة")</label>
+                    <InputSelect class="select-input"
+                                 @bind-Value="form.LeaveTypeId"
+                                 @bind-Value:after="LoadBalance">
+                        <option value="0">@Lang.T("اختر نوع الإجازة")</option>
+                        @foreach (var type in leaveTypes)
+                        {
+                            <option value="@type.Id">@type.Name (@type.Code)</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => form.LeaveTypeId" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("من تاريخ")</label>
+                    <InputDate @bind-Value="form.StartDate"
+                               @bind-Value:after="UpdateDuration" />
+                    <ValidationMessage For="() => form.StartDate" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("إلى تاريخ")</label>
+                    <InputDate @bind-Value="form.EndDate"
+                               @bind-Value:after="UpdateDuration" />
+                    <ValidationMessage For="() => form.EndDate" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("المدة")</label>
+                    <input value="@($"{duration} {Lang.T("يوم")}")" readonly />
+                </div>
+            </div>
+
+            @if (selectedLeaveType is not null)
+            {
+                <div class="leave-info">
+                    <span>@Lang.T("الحد الأقصى"): @(selectedLeaveType.MaxConsecutiveDays?.ToString() ?? @Lang.T("لا يوجد"))</span>
+                    <span>@Lang.T("الخصم من الرصيد"): @(selectedLeaveType.DeductFromBalance ? @Lang.T("نعم") : @Lang.T("لا"))</span>
+                    <span>@Lang.T("يتطلب اعتماد"): @(selectedLeaveType.RequiresApproval ? @Lang.T("نعم") : @Lang.T("لا"))</span>
+                </div>
+            }
+
+            @if (balance is not null && selectedLeaveType?.DeductFromBalance == true)
+            {
+                <div class="balance-summary">
+                    <span>@Lang.T("الإجمالي"): <strong>@balance.Total يوم</strong></span>
+                    <span>@Lang.T("المستخدم"): <strong>@balance.Used يوم</strong></span>
+                    <span>@Lang.T("المتبقي"): <strong>@balance.Remaining يوم</strong></span>
+                </div>
+            }
+
+            <div class="field">
+                <label>@Lang.T("سبب الإجازة")</label>
+                <InputTextArea @bind-Value="form.Reason" rows="4" />
+                <ValidationMessage For="() => form.Reason" />
+            </div>
+
+            <div class="field">
+                <label>@Lang.T("ملاحظات")</label>
+                <InputTextArea @bind-Value="form.Notes" rows="3" />
+            </div>
+        </section>
+
+        @if (selectedLeaveType?.RequiresApproval == true)
+        {
+            <section class="form-card">
+                <h3>@Lang.T("الاعتماد والبديل")</h3>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label>@Lang.T("المسؤول عن الاعتماد")</label>
+                        <InputSelect class="select-input" @bind-Value="form.ApproverId">
+                            <option value="">@Lang.T("اختر المسؤول")</option>
+
+                            @foreach (var employee in allEmployees.Where(x => x.Id != form.UserId))
+                            {
+                                <option value="@employee.Id">@employee.FullName — @employee.Code</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="field">
+                        <label>@Lang.T("الموظف البديل (اختياري)")</label>
+                        <InputSelect class="select-input" @bind-Value="form.ReplacementUserId">
+                            <option value="">@Lang.T("لا يوجد")</option>
+
+                            @foreach (var employee in allEmployees.Where(x => x.Id != form.UserId))
+                            {
+                                <option value="@employee.Id">@employee.FullName — @employee.Code</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+            </section>
+        }
+
+        <div class="form-actions">
+            <button class="btn-primary" type="submit" disabled="@saving">
+                <i class="bi bi-send"></i>
+                @(saving ? @Lang.T("جاري الإرسال...") : @Lang.T("إرسال الطلب"))
+            </button>
+
+            <button class="btn-secondary" type="button" @onclick='() => Nav.NavigateTo("/leaves")'>
+                @Lang.T("إلغاء")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private LeaveRequestFormModel form = new();
+    private List<EmployeeLookup> employees = [];
+    private List<EmployeeLookup> allEmployees = [];
+    private List<LeaveTypeLookup> leaveTypes = [];
+    private EmployeeLookup? selectedEmployee;
+    private BalanceInfo? balance;
+    private string employeeSearch = "";
+    private int duration;
+    private bool saving;
+
+    private LeaveTypeLookup? selectedLeaveType =>
+        leaveTypes.FirstOrDefault(x => x.Id == form.LeaveTypeId);
+
+    protected override async Task OnInitializedAsync()
+    {
+        leaveTypes = await LeaveRequestSvc.GetActiveLeaveTypesAsync();
+
+        // للاختيار في قائمتي الاعتماد والبديل.
+        allEmployees = await LeaveRequestSvc.SearchEmployeesAsync("");
+        UpdateDuration();
+    }
+
+    private async Task SearchEmployees()
+    {
+        employees = await LeaveRequestSvc.SearchEmployeesAsync(employeeSearch);
+    }
+
+    private async Task SelectEmployee(EmployeeLookup employee)
+    {
+        selectedEmployee = employee;
+        form.UserId = employee.Id;
+
+        // مدير الموظف الافتراضي هو المسؤول عن الاعتماد إن وُجد.
+        form.ApproverId = employee.ManagerId;
+
+        employees = [];
+        await LoadBalance();
+    }
+
+    private async Task UpdateDuration()
+    {
+        if (!form.StartDate.HasValue || !form.EndDate.HasValue)
+        {
+            duration = 0;
+            return;
+        }
+
+        duration = form.EndDate.Value.Date >= form.StartDate.Value.Date
+            ? (form.EndDate.Value.Date - form.StartDate.Value.Date).Days + 1
+            : 0;
+
+        await LoadBalance();
+    }
+
+    private async Task LoadBalance()
+    {
+        balance = null;
+
+        if (form.UserId <= 0 || form.LeaveTypeId <= 0)
+            return;
+
+        balance = await LeaveRequestSvc.GetBalanceAsync(
+            form.UserId,
+            form.LeaveTypeId);
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            saving = true;
+
+            await LeaveRequestSvc.CreateAsync(form);
+
+            var message = selectedLeaveType?.RequiresApproval == true
+                ? Lang.T("تم إرسال طلب الإجازة للاعتماد")
+                : Lang.T("تم تسجيل الإجازة واعتمادها تلقائيًا");
+
+            Notify.ShowSuccess(message);
+            Nav.NavigateTo("/leaves");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to create leave request");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء إرسال طلب الإجازة"));
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+}

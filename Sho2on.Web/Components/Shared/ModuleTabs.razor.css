@@ -1,0 +1,73 @@
+﻿.module-tabs {
+    width: 100%;
+    margin: 0 0 24px;
+    overflow: hidden;
+    border-bottom: 1px solid #e4dfd6;
+    background: #fff;
+}
+
+.module-tabs-list {
+    display: flex;
+    align-items: stretch;
+    min-width: max-content;
+    padding: 0 8px;
+}
+
+/* مهم: ::deep لأن الـ a داخل NavLink Component */
+.module-tabs ::deep .module-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 16px;
+    color: #746f93;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+    .module-tabs ::deep .module-tab::after {
+        position: absolute;
+        right: 12px;
+        bottom: -1px;
+        left: 12px;
+        height: 3px;
+        content: "";
+        background: transparent;
+        border-radius: 4px 4px 0 0;
+    }
+
+    .module-tabs ::deep .module-tab:hover {
+        color: #211b4e;
+        background: #faf8f5;
+    }
+
+    .module-tabs ::deep .module-tab.is-active {
+        color: #211b4e;
+        font-weight: 700;
+    }
+
+        .module-tabs ::deep .module-tab.is-active::after {
+            background: #211b4e;
+        }
+
+    .module-tabs ::deep .module-tab i {
+        font-size: 15px;
+    }
+
+@media (max-width: 600px) {
+    .module-tabs-list {
+        flex-wrap: wrap;
+        min-width: 0;
+        padding-bottom: 4px;
+    }
+
+    .module-tabs ::deep .module-tab {
+        min-height: 42px;
+        padding: 0 12px;
+        font-size: 12.5px;
+    }
+}

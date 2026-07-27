@@ -1,0 +1,117 @@
+﻿.employee-results {
+    background: #fff;
+    border: 1px solid #edeae3;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+}
+
+    .employee-results p {
+        margin: 0 0 10px;
+        color: #4a4570;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+.employee-option {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    background: #fff;
+    border: 1px solid #edeae3;
+    border-radius: 8px;
+    padding: 11px 14px;
+    margin-top: 7px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+    .employee-option:hover,
+    .employee-option.selected {
+        border-color: #211b4e;
+        background: #faf8f5;
+    }
+
+.employee-name {
+    color: #1f1b3a;
+    font-weight: 600;
+}
+
+.employee-meta {
+    color: #a6a3c2;
+    font-size: 12px;
+}
+
+.employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    background: #fff;
+    border: 1px solid #edeae3;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+}
+
+    .employee-header h2 {
+        margin: 0;
+        color: #211b4e;
+        font-size: 18px;
+    }
+
+    .employee-header p {
+        margin: 5px 0 0;
+        color: #746f93;
+        font-size: 13px;
+    }
+
+.balance-input input {
+    width: 90px;
+    border: 1px solid #e4dfd6;
+    border-radius: 7px;
+    padding: 7px 9px;
+    font-family: inherit;
+    text-align: center;
+}
+
+.remaining {
+    font-weight: 700;
+}
+
+    .remaining.good {
+        color: #1f7a47;
+    }
+
+    .remaining.warning {
+        color: #b7791f;
+    }
+
+    .remaining.danger {
+        color: #a13636;
+    }
+
+    .remaining.neutral {
+        color: #746f93;
+    }
+
+.balance-note {
+    color: #746f93;
+    font-size: 12.5px;
+    margin-top: 12px;
+}
+
+@media (max-width: 650px) {
+    .employee-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .employee-option {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}

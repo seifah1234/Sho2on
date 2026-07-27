@@ -33,6 +33,12 @@ builder.Services.AddScoped<UiStateService>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<AttendanceService>();
+builder.Services.AddScoped<LeaveTypeService>();
+builder.Services.AddScoped<LeaveBalanceService>();
+builder.Services.AddScoped<LeaveRequestService>();
+builder.Services.AddScoped<LeaveManagementService>();
+builder.Services.AddScoped<PermissionRequestService>();
+builder.Services.AddScoped<PermissionManagementService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

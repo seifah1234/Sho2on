@@ -39,6 +39,7 @@ namespace Sho2on.Web.Services
                 {
                     new() { Title = "طلب إجازة", Url = "/leaves/request" },
                     new() { Title = "إدارة الإجازات", Url = "/leaves" },
+                    new() { Title = "أرصدة الإجازات", Url = "/leaves/balances" },
                     new() { Title = "طلب إذن", Url = "/leaves/permission-request" },
                     new() { Title = "إدارة الأذونات", Url = "/leaves/permissions" },
                 }

@@ -1,0 +1,28 @@
+﻿@using Sho2on.Web.Models.Navigation
+@using Sho2on.Web.Services
+
+@inject LocalizationService Lang
+
+<nav class="module-tabs" aria-label="@Lang.T("التنقل داخل القسم")">
+    <div class="module-tabs-list">
+        @foreach (var tab in Tabs)
+        {
+            <NavLink href="@tab.Url"
+                     class="module-tab"
+                     ActiveClass="is-active"
+                     Match="NavLinkMatch.All">
+                @if (!string.IsNullOrWhiteSpace(tab.Icon))
+                {
+                    <i class="@tab.Icon"></i>
+                }
+
+                <span>@Lang.T(tab.Title)</span>
+            </NavLink>
+        }
+    </div>
+</nav>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ModuleTab> Tabs { get; set; } = [];
+}

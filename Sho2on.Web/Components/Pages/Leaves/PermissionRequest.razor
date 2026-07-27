@@ -1,0 +1,233 @@
+﻿@page "/leaves/permission-request"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Components.Forms
+@using Sho2on.Web.Models
+@using Sho2on.Web.Models.Navigation
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.PermissionRequestService
+
+@inject PermissionRequestService PermissionSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+
+<div class="permission-request-page">
+
+    <ModuleTabs Tabs="LeaveTabs.Items" />
+
+    <div class="page-title">
+        <h2>@Lang.T("طلب إذن جديد")</h2>
+        <p>@Lang.T("سجل فترة الإذن وأرسلها للمسؤول للاعتماد.")</p>
+    </div>
+
+    <EditForm Model="form" OnValidSubmit="Submit">
+        <DataAnnotationsValidator />
+
+        <section class="form-card">
+            <h3>@Lang.T("الموظف")</h3>
+
+            <div class="employee-search">
+                <input class="search-input"
+                       placeholder="@Lang.T("ابحث باسم الموظف أو الكود")"
+                       @bind="searchTerm"
+                       @bind:event="oninput" />
+
+                <button class="btn-secondary" type="button" @onclick="SearchEmployees">
+                    @Lang.T("بحث")
+                </button>
+            </div>
+
+            @if (employees.Count > 0)
+            {
+                <div class="employee-options">
+                    @foreach (var employee in employees)
+                    {
+                        <button type="button"
+                                class="employee-option @(form.UserId == employee.Id ? "selected" : "")"
+                                @onclick="() => SelectEmployee(employee)">
+                            <strong>@employee.FullName</strong>
+                            <span>@employee.Code</span>
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (selectedEmployee is not null)
+            {
+                <div class="selected-employee">
+                    <i class="bi bi-person-check"></i>
+                    @selectedEmployee.FullName — @selectedEmployee.Code
+                </div>
+            }
+
+            <ValidationMessage For="() => form.UserId" />
+        </section>
+
+        <section class="form-card">
+            <h3>@Lang.T("بيانات الإذن")</h3>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>@Lang.T("نوع الإذن")</label>
+                    <InputSelect class="select-input" @bind-Value="form.PermissionType">
+                        <option value="">@Lang.T("اختر نوع الإذن")</option>
+                        <option value="EarlyLeave">@Lang.T("خروج مبكر")</option>
+                        <option value="LateEntry">@Lang.T("دخول متأخر")</option>
+                        <option value="PersonalLeave">@Lang.T("إذن شخصي")</option>
+                        <option value="Emergency">@Lang.T("إذن طارئ")</option>
+                        <option value="Official">@Lang.T("إذن رسمي")</option>
+                        <option value="Other">@Lang.T("أخرى")</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => form.PermissionType" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("تاريخ الإذن")</label>
+                    <InputDate @bind-Value="form.Date" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("من وقت")</label>
+                    <input type="time"
+                           class="select-input"
+                           value="@form.StartTime"
+                           @onchange="OnStartTimeChanged" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("إلى وقت")</label>
+                    <input type="time"
+                           class="select-input"
+                           value="@form.EndTime"
+                           @onchange="OnEndTimeChanged" />
+                </div>
+            </div>
+
+            <div class="permission-duration">
+                @Lang.T("مدة الإذن"): <strong>@duration.ToString("0.##") @Lang.T("ساعة")</strong>
+            </div>
+
+            <div class="field">
+                <label>@Lang.T("سبب الإذن")</label>
+                <InputTextArea @bind-Value="form.Reason" rows="4" />
+                <ValidationMessage For="() => form.Reason" />
+            </div>
+
+            <div class="field">
+                <label>@Lang.T("ملاحظات")</label>
+                <InputTextArea @bind-Value="form.Notes" rows="3" />
+            </div>
+        </section>
+
+        <section class="form-card">
+            <h3>@Lang.T("الاعتماد")</h3>
+
+            <div class="field">
+                <label>@Lang.T("المسؤول عن الاعتماد")</label>
+
+                <InputSelect class="select-input" @bind-Value="form.ApproverId">
+                    <option value="">@Lang.T("اختر المسؤول")</option>
+
+                    @foreach (var employee in allEmployees.Where(x => x.Id != form.UserId))
+                    {
+                        <option value="@employee.Id">
+                            @employee.FullName — @employee.Code
+                        </option>
+                    }
+                </InputSelect>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <button class="btn-primary" type="submit" disabled="@saving">
+                <i class="bi bi-send"></i>
+                @(saving ? Lang.T("جاري الإرسال...") : Lang.T("إرسال الطلب"))
+            </button>
+
+            <button class="btn-secondary" type="button"
+                    @onclick='() => Nav.NavigateTo("/leaves/permissions")'>
+                @Lang.T("إلغاء")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private PermissionRequestFormModel form = new();
+    private List<EmployeeItem> employees = [];
+    private List<EmployeeItem> allEmployees = [];
+    private EmployeeItem? selectedEmployee;
+    private string searchTerm = "";
+    private double duration;
+    private bool saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allEmployees = await PermissionSvc.SearchEmployeesAsync("");
+    }
+
+    private async Task SearchEmployees()
+    {
+        employees = await PermissionSvc.SearchEmployeesAsync(searchTerm);
+
+        if (employees.Count == 0)
+            Notify.ShowError(Lang.T("لم يتم العثور على موظفين"));
+    }
+
+    private void SelectEmployee(EmployeeItem employee)
+    {
+        selectedEmployee = employee;
+        form.UserId = employee.Id;
+        form.ApproverId = employee.ManagerId;
+        employees = [];
+    }
+
+    private void CalculateDuration()
+    {
+        duration = 0;
+
+        if (!TimeOnly.TryParse(form.StartTime, out var startTime) ||
+            !TimeOnly.TryParse(form.EndTime, out var endTime) ||
+            endTime <= startTime)
+        {
+            return;
+        }
+
+        duration = (endTime - startTime).TotalHours;
+    }
+
+    private void OnStartTimeChanged(ChangeEventArgs args)
+    {
+        form.StartTime = args.Value?.ToString() ?? "";
+        CalculateDuration();
+    }
+
+    private void OnEndTimeChanged(ChangeEventArgs args)
+    {
+        form.EndTime = args.Value?.ToString() ?? "";
+        CalculateDuration();
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            saving = true;
+            await PermissionSvc.CreateAsync(form);
+
+            Notify.ShowSuccess(Lang.T("تم إرسال طلب الإذن للاعتماد"));
+            Nav.NavigateTo("/leaves/permissions");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+}

@@ -1,0 +1,31 @@
+﻿ ﻿.form-card {
+     background: #FFFFFF;
+     border: 1px solid #EDEAE3;
+     border-radius: 12px;
+     padding: 24px;
+     max-width: 480px;
+     display: flex;
+     flex-direction: column;
+     gap: 16px;
+    
+}
+
+
+ .current-shift-box {
+     background: #FAF8F5;
+     border: 1px solid #EDEAE3;
+     border-radius: 8px;
+     padding: 10px 14px;
+     display: flex;
+     justify-content: space-between;
+     font-size: 13.5px;
+     color: #4A4570;
+    
+}
+
+
+ .muted {
+     color: #A6A3C2;
+     font-size: 13.5px;
+    
+}

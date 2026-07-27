@@ -1,0 +1,140 @@
+﻿@page "/attendance/shift-change"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.EmployeeService
+@inject EmployeeService EmployeeSvc
+@inject AttendanceService AttendanceSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<ShiftChange> Logger
+@implements IDisposable
+
+<div class="shift-change-page">
+
+    <div class="form-card">
+
+        <div class="field">
+            <label>@Lang.T("الموظف")</label>
+            <input class="search-input" list="emp-datalist" placeholder="@Lang.T("اكتب اسم أو كود الموظف")"
+                   @bind="employeeInputText" @bind:event="oninput" @bind:after="HandleEmployeePicked" />
+            <datalist id="emp-datalist">
+                @if (employees != null)
+                {
+                    @foreach (var e in employees)
+                    {
+                        <option value="@($"{e.Code} - {e.FullName}")" />
+                    }
+                }
+            </datalist>
+        </div>
+
+        <div class="field">
+            <label>@Lang.T("التاريخ")</label>
+            <input type="date" class="search-input" @bind="selectedDate" @bind:after="LoadCurrentShift" />
+        </div>
+
+        @if (selectedEmployee != null)
+        {
+            <div class="current-shift-box">
+                <span>@Lang.T("الوردية الحالية"):</span>
+                <strong>@(currentShiftName ?? Lang.T("غير محددة"))</strong>
+            </div>
+
+            <div class="field">
+                <label>@Lang.T("الوردية الجديدة")</label>
+                <select class="select-input" @bind="selectedShiftId">
+                    <option value="0">@Lang.T("اختر وردية")</option>
+                    @if (shifts != null)
+                    {
+                        @foreach (var s in shifts)
+                        {
+                            <option value="@s.Id">@s.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <button class="btn-primary" disabled="@(selectedShiftId == 0 || saving)" @onclick="SaveShift">
+                <i class="bi bi-check-lg"></i> @Lang.T("حفظ")
+            </button>
+        }
+        else
+        {
+            <p class="muted">@Lang.T("اختر الموظف أولاً")</p>
+        }
+    </div>
+
+</div>
+
+@code {
+    List<EmployeeListItem>? employees;
+    List<(int Id, string Name)>? shifts;
+
+    string employeeInputText = "";
+    EmployeeListItem? selectedEmployee;
+
+    DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    int selectedShiftId = 0;
+    string? currentShiftName;
+    bool saving = false;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await EmployeeSvc.GetListAsync(null, null, false);
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        shifts = lookups.Shifts;
+    }
+
+    async Task HandleEmployeePicked()
+    {
+        selectedEmployee = employees?.FirstOrDefault(e => employeeInputText.StartsWith(e.Code + " - "));
+        currentShiftName = null;
+        selectedShiftId = 0;
+        if (selectedEmployee != null)
+            await LoadCurrentShift();
+    }
+
+    async Task LoadCurrentShift()
+    {
+        if (selectedEmployee == null) return;
+        try
+        {
+            var (shiftId, shiftName) = await AttendanceSvc.GetShiftForDateAsync(selectedEmployee.Id, selectedDate);
+            currentShiftName = shiftName;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تحميل الوردية الحالية");
+            Notify.ShowError(Lang.T("تعذر تحميل بيانات الوردية"));
+        }
+    }
+
+    async Task SaveShift()
+    {
+        if (selectedEmployee == null || selectedShiftId == 0) return;
+
+        saving = true;
+        try
+        {
+            await AttendanceSvc.ChangeShiftAsync(selectedEmployee.Id, selectedDate, selectedShiftId);
+            Notify.ShowSuccess(Lang.T("تم تغيير الوردية بنجاح"));
+            await LoadCurrentShift();
+            selectedShiftId = 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تغيير الوردية");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تغيير الوردية"));
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

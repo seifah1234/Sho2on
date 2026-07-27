@@ -1,0 +1,157 @@
+﻿@page "/attendance/monthly"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@inject EmployeeService EmployeeSvc
+@inject AttendanceService AttendanceSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<MonthlyReport> Logger
+@implements IDisposable
+
+<div class="monthly-overview-page">
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input class="search-input" placeholder="@Lang.T("ابحث بالاسم أو الكود")"
+                    @bind="searchTerm" @bind:event="oninput" />
+
+            <select class="select-input" @bind="selectedBranchId">
+                <option value="">@Lang.T("كل الفروع")</option>
+                @if (branches != null)
+                {
+                    @foreach (var b in branches)
+                    {
+                        <option value="@b.Id">@b.Name</option>
+                    }
+                }
+            </select>
+
+            <select class="select-input" @bind="selectedMonth">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var mm = m;
+                    <option value="@mm">@arabicMonths[mm - 1]</option>
+                }
+            </select>
+
+            <select class="select-input" @bind="selectedYear">
+                @for (int y = DateTime.Today.Year; y >= DateTime.Today.Year - 5; y--)
+                {
+                    var yy = y;
+                    <option value="@yy">@yy</option>
+                }
+            </select>
+
+            <button class="btn-secondary" @onclick="LoadReport">@Lang.T("بحث")</button>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (items == null || items.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-bar-chart"></i>
+            <p>@Lang.T("لا توجد بيانات لهذا الشهر")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الكود")</th>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("الفرع")</th>
+                        <th>@Lang.T("أيام الغياب")</th>
+                        <th>@Lang.T("أيام العطلة")</th>
+                        <th>@Lang.T("التأخير")</th>
+                        <th>@Lang.T("الاضافي")</th>
+                        <th>@Lang.T("ساعات العمل")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in items)
+                    {
+                        <tr>
+                            <td>@it.EmployeeCode</td>
+                            <td>@it.EmployeeName</td>
+                            <td>@it.BranchName</td>
+                            <td>@(it.TotalAbsenceDays > 0 ? it.TotalAbsenceDays.ToString() : "—")</td>
+                            <td>@(it.TotalHolidayDays > 0 ? it.TotalHolidayDays.ToString() : "—")</td>
+                            <td>@FormatSpan(it.TotalLate)</td>
+                            <td>@FormatSpan(it.TotalOvertime)</td>
+                            <td>@FormatSpan(it.TotalWorkHours)</td>
+                            <td class="row-actions">
+                                <button class="icon-action" title="@Lang.T("عرض التفاصيل")"
+                                        @onclick="() => ViewDetails(it)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="results-count">@Lang.T("عدد الموظفين"): @items.Count</p>
+    }
+</div>
+
+@code {
+    List<(int Id, string Name)>? branches;
+    List<EmployeeMonthlySummaryItem>? items;
+    readonly string[] arabicMonths = { "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
+
+    string searchTerm = "";
+    string selectedBranchId = "";
+    int selectedMonth = DateTime.Today.Month;
+    int selectedYear = DateTime.Today.Year;
+    bool loading = false;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        branches = lookups.Branches;
+        await LoadReport();
+    }
+
+    async Task LoadReport()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
+            items = await AttendanceSvc.GetMonthlySummaryAsync(branchId, searchTerm, selectedMonth, selectedYear);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تحميل التقرير الشهري");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+            items = new();
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    void ViewDetails(EmployeeMonthlySummaryItem it)
+    {
+        Nav.NavigateTo($"/attendance/employee-report?employeeId={it.UserId}&month={selectedMonth}&year={selectedYear}");
+    }
+
+    string FormatSpan(TimeSpan span) => $"{(int)span.TotalHours:00}:{span.Minutes:00}";
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

@@ -57,7 +57,9 @@
                 <div class="quick-actions">
                     <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries")'>@Lang.T("تقرير المرتبات")</button>
                     <button class="qa-btn" @onclick='() => Nav.NavigateTo("/employees")'>@Lang.T("إدارة الموظفين")</button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/reports")'>@Lang.T("الحضور الشهري")</button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/monthly")'>
+                        @Lang.T("الحضور الشهري")
+                    </button>
                     <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries/pay")'>@Lang.T("صرف المرتبات")</button>
                     <button class="qa-btn" @onclick='() => Nav.NavigateTo("/leaves")'>@Lang.T("الأذونات")</button>
                     <button class="qa-btn">@Lang.T("نسخة احتياطية")</button>

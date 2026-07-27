@@ -1,0 +1,258 @@
+﻿@page "/leaves/permissions"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+
+@using System.Security.Claims
+@using Sho2on.Web.Models.Navigation
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.PermissionManagementService
+
+@inject PermissionManagementService PermissionMgmtSvc
+@inject AuthenticationStateProvider AuthProvider
+@inject LocalizationService Lang
+@inject NotificationService Notify
+
+<div class="permission-management-page">
+
+    <ModuleTabs Tabs="LeaveTabs.Items" />
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input class="search-input"
+                   placeholder="@Lang.T("ابحث باسم الموظف أو الكود")"
+                   @bind="searchTerm"
+                   @bind:event="oninput" />
+
+            <select class="select-input" @bind="selectedStatus">
+                <option value="">@Lang.T("كل الحالات")</option>
+                <option value="Pending">@Lang.T("قيد الانتظار")</option>
+                <option value="Approved">@Lang.T("معتمد")</option>
+                <option value="Rejected">@Lang.T("مرفوض")</option>
+            </select>
+
+            <button class="btn-secondary" @onclick="LoadRequests">
+                <i class="bi bi-search"></i>
+                @Lang.T("بحث")
+            </button>
+        </div>
+
+        <a href="/leaves/permission-request" class="btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            @Lang.T("طلب إذن جديد")
+        </a>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (requests.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-clock-history"></i>
+            <p>@Lang.T("لا توجد طلبات أذونات")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("نوع الإذن")</th>
+                        <th>@Lang.T("التاريخ والوقت")</th>
+                        <th>@Lang.T("المدة")</th>
+                        <th>@Lang.T("الحالة")</th>
+                        <th>@Lang.T("المسؤول")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in requests)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.EmployeeName</strong>
+                                <small>@item.EmployeeCode</small>
+                            </td>
+                            <td>@GetPermissionTypeText(item.PermissionType)</td>
+                            <td>
+                                @item.StartDateTime.ToString("yyyy/MM/dd")
+                                <br />
+                                <small>
+                                    @item.StartDateTime.ToString("HH:mm")
+                                    -
+                                    @item.EndDateTime.ToString("HH:mm")
+                                </small>
+                            </td>
+                            <td>@item.Duration.ToString("0.##") @Lang.T("ساعة")</td>
+                            <td>
+                                <span class="status @GetStatusClass(item.Status)">
+                                    @GetStatusText(item.Status)
+                                </span>
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(item.ApproverName) ? "-" : item.ApproverName)</td>
+                            <td class="row-actions">
+                                @if (item.Status == "Pending")
+                                {
+                                    <button class="icon-action success"
+                                            title="@Lang.T("اعتماد")"
+                                            @onclick="() => Approve(item)">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+
+                                    <button class="icon-action danger"
+                                            title="@Lang.T("رفض")"
+                                            @onclick="() => OpenReject(item)">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (rejectingRequest is not null)
+    {
+        <div class="modal-backdrop">
+            <div class="modal-card">
+                <h3>@Lang.T("رفض طلب الإذن")</h3>
+
+                <textarea class="reject-reason"
+                          placeholder="@Lang.T("اكتب سبب الرفض")"
+                          @bind="rejectionReason"></textarea>
+
+                <div class="form-actions">
+                    <button class="btn-primary danger-button" @onclick="ConfirmReject">
+                        @Lang.T("تأكيد الرفض")
+                    </button>
+
+                    <button class="btn-secondary" @onclick="CloseReject">
+                        @Lang.T("إلغاء")
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<PermissionListItem> requests = [];
+    private PermissionListItem? rejectingRequest;
+    private string searchTerm = "";
+    private string selectedStatus = "";
+    private string rejectionReason = "";
+    private int currentUserId;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+
+        int.TryParse(
+            authState.User.FindFirstValue("UserId"),
+            out currentUserId);
+
+        await LoadRequests();
+    }
+
+    private async Task LoadRequests()
+    {
+        loading = true;
+
+        try
+        {
+            requests = await PermissionMgmtSvc.GetRequestsAsync(
+                selectedStatus,
+                searchTerm);
+        }
+        catch
+        {
+            Notify.ShowError(Lang.T("تعذر تحميل طلبات الأذونات"));
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task Approve(PermissionListItem item)
+    {
+        try
+        {
+            await PermissionMgmtSvc.ApproveAsync(item.Id, currentUserId);
+            Notify.ShowSuccess(Lang.T("تم اعتماد طلب الإذن"));
+            await LoadRequests();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+    }
+
+    private void OpenReject(PermissionListItem item)
+    {
+        rejectingRequest = item;
+        rejectionReason = "";
+    }
+
+    private void CloseReject()
+    {
+        rejectingRequest = null;
+        rejectionReason = "";
+    }
+
+    private async Task ConfirmReject()
+    {
+        if (rejectingRequest is null)
+            return;
+
+        try
+        {
+            await PermissionMgmtSvc.RejectAsync(
+                rejectingRequest.Id,
+                currentUserId,
+                rejectionReason);
+
+            Notify.ShowSuccess(Lang.T("تم رفض طلب الإذن"));
+
+            CloseReject();
+            await LoadRequests();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+    }
+
+    private string GetPermissionTypeText(string type) => type switch
+    {
+        "EarlyLeave" => Lang.T("خروج مبكر"),
+        "LateEntry" => Lang.T("دخول متأخر"),
+        "PersonalLeave" => Lang.T("إذن شخصي"),
+        "Emergency" => Lang.T("إذن طارئ"),
+        "Official" => Lang.T("إذن رسمي"),
+        _ => Lang.T("أخرى")
+    };
+
+    private string GetStatusText(string status) => status switch
+    {
+        "Pending" => Lang.T("قيد الانتظار"),
+        "Approved" => Lang.T("معتمد"),
+        "Rejected" => Lang.T("مرفوض"),
+        _ => status
+    };
+
+    private static string GetStatusClass(string status) => status switch
+    {
+        "Pending" => "pending",
+        "Approved" => "approved",
+        "Rejected" => "rejected",
+        _ => ""
+    };
+}

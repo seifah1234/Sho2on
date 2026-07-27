@@ -1,0 +1,250 @@
+﻿@page "/leaves/balances"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.LeaveBalanceService
+
+@inject LeaveBalanceService BalanceSvc
+@inject NotificationService Notify
+@inject ILogger<LeaveBalances> Logger
+
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="LeaveTabs.Items" />
+<div class="leave-balances-page">
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input class="search-input"
+                   placeholder="ابحث باسم الموظف أو الكود"
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   @onkeyup="HandleSearchKeyUp" />
+
+            <button class="btn-secondary" @onclick="SearchEmployees">
+                <i class="bi bi-search"></i>
+                بحث
+            </button>
+        </div>
+    </div>
+
+    @if (employees.Count > 0)
+    {
+        <div class="employee-results">
+            <p>اختر الموظف:</p>
+
+            @foreach (var employee in employees)
+            {
+                <button class="employee-option @(selectedEmployee?.Id == employee.Id ? "selected" : "")"
+                        @onclick="() => SelectEmployee(employee)">
+                    <span class="employee-name">@employee.FullName</span>
+                    <span class="employee-meta">
+                        @employee.Code
+                        @if (!string.IsNullOrWhiteSpace(employee.BranchName))
+                        {
+                            <span>— @employee.BranchName</span>
+                        }
+                    </span>
+                </button>
+            }
+        </div>
+    }
+
+    @if (selectedEmployee is not null)
+    {
+        <div class="employee-header">
+            <div>
+                <h2>@selectedEmployee.FullName</h2>
+                <p>
+                    كود: @selectedEmployee.Code
+                    @if (!string.IsNullOrWhiteSpace(selectedEmployee.DepartmentName))
+                    {
+                        <span> — @selectedEmployee.DepartmentName</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(selectedEmployee.BranchName))
+                    {
+                        <span> — @selectedEmployee.BranchName</span>
+                    }
+                </p>
+            </div>
+
+            <button class="btn-primary" @onclick="SaveBalances" disabled="@saving">
+                <i class="bi bi-floppy"></i>
+                @(saving ? "جاري الحفظ..." : "حفظ الأرصدة")
+            </button>
+        </div>
+
+        @if (loadingBalances)
+        {
+            <div class="empty-state">
+                <p>جاري تحميل الأرصدة...</p>
+            </div>
+        }
+        else if (balances.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="bi bi-calendar-x"></i>
+                <p>لا توجد أنواع إجازات نشطة.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نوع الإجازة</th>
+                            <th>الكود</th>
+                            <th>الإجمالي</th>
+                            <th>المستخدم</th>
+                            <th>المتبقي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var balance in balances)
+                        {
+                            <tr>
+                                <td>@balance.LeaveTypeName</td>
+                                <td><span class="code-badge">@balance.LeaveTypeCode</span></td>
+                                <td class="balance-input">
+                                    <input type="number"
+                                           min="0"
+                                           @bind="balance.TotalBalance" />
+                                </td>
+                                <td>@balance.UsedBalance يوم</td>
+                                <td>
+                                    <span class="remaining @(GetBalanceClass(balance))">
+                                        @balance.RemainingBalance يوم
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="balance-note">
+                الرصيد المستخدم محسوب تلقائيًا من طلبات الإجازة المعتمدة، ولا يمكن تعديله من هذه الشاشة.
+            </p>
+        }
+    }
+    else if (employees.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-person-search"></i>
+            <p>ابحث واختر موظفًا لعرض أرصدة إجازاته.</p>
+        </div>
+    }
+</div>
+
+@code {
+    private string searchTerm = "";
+    private List<EmployeeOption> employees = [];
+    private EmployeeOption? selectedEmployee;
+    private List<LeaveBalanceItem> balances = [];
+    private bool loadingBalances;
+    private bool saving;
+
+    private async Task HandleSearchKeyUp(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+            await SearchEmployees();
+    }
+
+    private async Task SearchEmployees()
+    {
+        try
+        {
+            selectedEmployee = null;
+            balances = [];
+            employees = await BalanceSvc.SearchEmployeesAsync(searchTerm);
+
+            if (employees.Count == 0)
+                Notify.ShowError("لم يتم العثور على موظفين");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to search employees for leave balances");
+            Notify.ShowError("تعذر البحث عن الموظفين");
+        }
+    }
+
+    private async Task SelectEmployee(EmployeeOption employee)
+    {
+        selectedEmployee = employee;
+        employees = [];
+        await LoadBalances();
+    }
+
+    private async Task LoadBalances()
+    {
+        if (selectedEmployee is null)
+            return;
+
+        try
+        {
+            loadingBalances = true;
+            balances = await BalanceSvc.GetBalancesAsync(selectedEmployee.Id);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load leave balances for employee {EmployeeId}",
+                selectedEmployee.Id);
+
+            Notify.ShowError("تعذر تحميل أرصدة الإجازات");
+        }
+        finally
+        {
+            loadingBalances = false;
+        }
+    }
+
+    private async Task SaveBalances()
+    {
+        if (selectedEmployee is null)
+            return;
+
+        try
+        {
+            saving = true;
+
+            await BalanceSvc.SaveBalancesAsync(selectedEmployee.Id, balances);
+
+            Notify.ShowSuccess("تم حفظ أرصدة الإجازات بنجاح");
+            await LoadBalances();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to save leave balances for employee {EmployeeId}",
+                selectedEmployee.Id);
+
+            Notify.ShowError("حدث خطأ أثناء حفظ الأرصدة");
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+
+    private static string GetBalanceClass(LeaveBalanceItem balance)
+    {
+        if (balance.TotalBalance == 0)
+            return "neutral";
+
+        var ratio = (double)balance.RemainingBalance / balance.TotalBalance;
+
+        return ratio switch
+        {
+            >= 0.5 => "good",
+            >= 0.25 => "warning",
+            _ => "danger"
+        };
+    }
+}

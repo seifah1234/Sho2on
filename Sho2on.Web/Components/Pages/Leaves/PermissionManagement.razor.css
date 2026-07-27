@@ -1,0 +1,73 @@
+﻿.permission-management-page td small {
+    display: block;
+    margin-top: 3px;
+    color: #a6a3c2;
+    direction: ltr;
+}
+
+.status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+    .status.pending {
+        color: #9a6700;
+        background: #fff4d6;
+    }
+
+    .status.approved {
+        color: #1f7a47;
+        background: #e7f6ec;
+    }
+
+    .status.rejected {
+        color: #a13636;
+        background: #f9e8e8;
+    }
+
+.modal-backdrop {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(31, 27, 58, .45);
+}
+
+.modal-card {
+    width: min(100%, 440px);
+    padding: 24px;
+    background: #fff;
+    border-radius: 12px;
+}
+
+    .modal-card h3 {
+        margin: 0 0 16px;
+        color: #211b4e;
+    }
+
+.reject-reason {
+    width: 100%;
+    min-height: 100px;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border: 1px solid #e4dfd6;
+    border-radius: 9px;
+    font: inherit;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.danger-button {
+    background: #a13636;
+}

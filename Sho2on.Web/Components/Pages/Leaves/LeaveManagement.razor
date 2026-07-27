@@ -1,0 +1,282 @@
+﻿@page "/leaves"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+
+@using System.Security.Claims
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.LeaveManagementService
+
+@inject LeaveManagementService LeaveManagementSvc
+@inject AuthenticationStateProvider AuthProvider
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<LeaveManagement> Logger
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="LeaveTabs.Items" />
+
+<div class="leave-management-page">
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input class="search-input"
+                   placeholder="@Lang.T("ابحث باسم الموظف أو الكود")"
+                   @bind="searchTerm"
+                   @bind:event="oninput" />
+
+            <select class="select-input" @bind="selectedStatus">
+                <option value="-1">@Lang.T("كل الحالات")</option>
+                <option value="1">@Lang.T("قيد الانتظار")</option>
+                <option value="2">@Lang.T("معتمد")</option>
+                <option value="3">@Lang.T("مرفوض")</option>
+                <option value="4">@Lang.T("ملغي")</option>
+            </select>
+
+            <button class="btn-secondary" @onclick="LoadRequests">
+                <i class="bi bi-search"></i>
+                @Lang.T("بحث")
+            </button>
+        </div>
+
+        <a class="btn-primary" href="/leaves/request">
+            <i class="bi bi-plus-lg"></i>
+            @Lang.T("طلب إجازة جديد")
+        </a>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (requests.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <p>@Lang.T("لا توجد طلبات إجازة")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("نوع الإجازة")</th>
+                        <th>@Lang.T("الفترة")</th>
+                        <th>@Lang.T("المدة")</th>
+                        <th>@Lang.T("الحالة")</th>
+                        <th>@Lang.T("المسؤول")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in requests)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.EmployeeName</strong>
+                                <small>@item.EmployeeCode</small>
+                            </td>
+                            <td>@item.LeaveTypeName</td>
+                            <td>
+                                @item.StartDate.ToString("yyyy/MM/dd")
+                                -
+                                @item.EndDate.ToString("yyyy/MM/dd")
+                            </td>
+                            <td>@item.Duration @Lang.T("يوم")</td>
+                            <td>
+                                <span class="status @GetStatusClass(item.Status)">
+                                    @GetStatusText(item.Status)
+                                </span>
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(item.ApproverName) ? "-" : item.ApproverName)</td>
+                            <td class="row-actions">
+                                @if (item.Status == 1)
+                                {
+                                    <button class="icon-action success"
+                                            title="@Lang.T("اعتماد")"
+                                            @onclick="() => Approve(item)">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+
+                                    <button class="icon-action danger"
+                                            title="@Lang.T("رفض")"
+                                            @onclick="() => OpenReject(item)">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                }
+
+                                @if (item.Status is 1 or 2)
+                                {
+                                    <button class="icon-action danger"
+                                            title="@Lang.T("إلغاء")"
+                                            @onclick="() => Cancel(item)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (rejectingRequest is not null)
+    {
+        <div class="modal-backdrop">
+            <div class="modal-card">
+                <h3>@Lang.T("رفض طلب الإجازة")</h3>
+
+                <p>
+                    @rejectingRequest.EmployeeName
+                    —
+                    @rejectingRequest.LeaveTypeName
+                </p>
+
+                <textarea class="reject-reason"
+                          placeholder="@Lang.T("اكتب سبب الرفض")"
+                          @bind="rejectionReason"></textarea>
+
+                <div class="form-actions">
+                    <button class="btn-primary danger-button" @onclick="ConfirmReject">
+                        @Lang.T("تأكيد الرفض")
+                    </button>
+
+                    <button class="btn-secondary" @onclick="CloseReject">
+                        @Lang.T("إلغاء")
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<LeaveListItem> requests = [];
+    private string searchTerm = "";
+    private int selectedStatus = -1;
+    private bool loading = true;
+    private int currentUserId;
+    private LeaveListItem? rejectingRequest;
+    private string rejectionReason = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+
+        int.TryParse(
+            authState.User.FindFirstValue("UserId"),
+            out currentUserId);
+
+        await LoadRequests();
+    }
+
+    private async Task LoadRequests()
+    {
+        try
+        {
+            loading = true;
+
+            requests = await LeaveManagementSvc.GetRequestsAsync(
+                selectedStatus,
+                searchTerm);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load leave requests");
+            Notify.ShowError(Lang.T("تعذر تحميل طلبات الإجازة"));
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task Approve(LeaveListItem item)
+    {
+        try
+        {
+            await LeaveManagementSvc.ApproveAsync(item.Id, currentUserId);
+            Notify.ShowSuccess(Lang.T("تم اعتماد طلب الإجازة"));
+            await LoadRequests();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to approve leave {LeaveId}", item.Id);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء اعتماد الطلب"));
+        }
+    }
+
+    private void OpenReject(LeaveListItem item)
+    {
+        rejectingRequest = item;
+        rejectionReason = "";
+    }
+
+    private void CloseReject()
+    {
+        rejectingRequest = null;
+        rejectionReason = "";
+    }
+
+    private async Task ConfirmReject()
+    {
+        if (rejectingRequest is null)
+            return;
+
+        try
+        {
+            await LeaveManagementSvc.RejectAsync(
+                rejectingRequest.Id,
+                currentUserId,
+                rejectionReason);
+
+            Notify.ShowSuccess(Lang.T("تم رفض طلب الإجازة"));
+            CloseReject();
+            await LoadRequests();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+    }
+
+    private async Task Cancel(LeaveListItem item)
+    {
+        try
+        {
+            await LeaveManagementSvc.CancelAsync(item.Id);
+            Notify.ShowSuccess(Lang.T("تم إلغاء طلب الإجازة"));
+            await LoadRequests();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Notify.ShowError(ex.Message);
+        }
+    }
+
+    private string GetStatusText(int status) => status switch
+    {
+        1 => Lang.T("قيد الانتظار"),
+        2 => Lang.T("معتمد"),
+        3 => Lang.T("مرفوض"),
+        4 => Lang.T("ملغي"),
+        _ => "-"
+    };
+
+    private static string GetStatusClass(int status) => status switch
+    {
+        1 => "pending",
+        2 => "approved",
+        3 => "rejected",
+        4 => "cancelled",
+        _ => ""
+    };
+}
