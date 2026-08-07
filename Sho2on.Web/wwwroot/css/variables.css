@@ -1,45 +1,61 @@
 ﻿:root {
-    /* ===== Brand ===== */
-
-    --primary: #211B4E;
-    --primary-light: #2E6DA4;
-    --primary-dark: #09365A;
-    --accent: #00A8A8;
-    --accent-light: #32D1D1;
-    --success: #22C55E;
-    --warning: #F59E0B;
-    --danger: #EF4444;
-    --info: #3B82F6;
-    /* ===== Background ===== */
-
-    --background: #F5F7FB;
+    /* ===== الهوية الأساسية - أزرق كحلي فاخر ===== */
+    --primary: #1B2838;
+    --primary-light: #2D4263;
+    --primary-dark: #0F1923;
+    --accent: #C8A951;
+    --accent-hover: #B8943D;
+    /* ===== حالات (Status) ===== */
+    --success: #059669;
+    --success-bg: #ECFDF5;
+    --warning: #D97706;
+    --warning-bg: #FFFBEB;
+    --danger: #DC2626;
+    --danger-bg: #FEF2F2;
+    --info: #1B2838;
+    --info-bg: #F0F4F8;
+    /* ===== خلفيات ===== */
+    --background: #F8F7F4;
     --surface: #FFFFFF;
-    --surface-hover: #F8FAFC;
-    /* ===== Text ===== */
-
-    --text: #1F2937;
-    --text-light: #6B7280;
+    --surface-hover: #F3F1EC;
+    /* ===== نصوص ===== */
+    --text: #1A1A1A;
+    --text-light: #4A4A4A;
     --text-muted: #9CA3AF;
-    /* ===== Border ===== */
-
-    --border: #E5E7EB;
-    /* ===== Radius ===== */
-
+    /* ===== حدود ===== */
+    --border: #E5E0D5;
+    --border-hover: #C8C0B0;
+    /* ===== تدرجات ===== */
+    --gradient-primary: linear-gradient(135deg, #1B2838 0%, #2D4263 100%);
+    --gradient-accent: linear-gradient(135deg, #C8A951 0%, #D4B96A 100%);
+    --gradient-success: linear-gradient(135deg, #059669 0%, #10B981 100%);
+    --gradient-warning: linear-gradient(135deg, #D97706 0%, #F59E0B 100%);
+    --gradient-danger: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+    --gradient-info: linear-gradient(135deg, #1B2838 0%, #3B5998 100%);
+    /* ===== زوايا ===== */
     --radius-xs: 6px;
     --radius-sm: 10px;
     --radius-md: 14px;
     --radius-lg: 18px;
     --radius-xl: 24px;
-    /* ===== Shadow ===== */
-
-    --shadow-sm: 0 2px 6px rgba(0,0,0,.05);
-    --shadow-md: 0 8px 24px rgba(0,0,0,.08);
-    --shadow-lg: 0 20px 40px rgba(0,0,0,.12);
-    /* ===== Animation ===== */
-
-    --transition: .25s ease;
-    /* ===== Layout ===== */
-
-    --sidebar-width: 270px;
+    --radius-full: 9999px;
+    /* ===== ظلال ===== */
+    --shadow-xs: 0 1px 2px rgba(27, 40, 56, 0.04);
+    --shadow-sm: 0 2px 8px rgba(27, 40, 56, 0.06);
+    --shadow-md: 0 8px 24px rgba(27, 40, 56, 0.10);
+    --shadow-lg: 0 16px 40px rgba(27, 40, 56, 0.14);
+    --shadow-xl: 0 24px 56px rgba(27, 40, 56, 0.18);
+    /* ===== انتقالات ===== */
+    --transition-fast: 0.12s ease;
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    /* ===== تخطيط ===== */
+    --sidebar-width: 260px;
     --topbar-height: 72px;
+    /* ===== زخارف ===== */
+    --decor-primary: rgba(27, 40, 56, 0.04);
+    --decor-accent: rgba(200, 169, 81, 0.08);
+    /* ===== عناصر تفاعلية ===== */
+    --focus-ring: 0 0 0 3px rgba(27, 40, 56, 0.08);
+    --focus-ring-accent: 0 0 0 3px rgba(200, 169, 81, 0.15);
 }

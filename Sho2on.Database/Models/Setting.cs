@@ -15,7 +15,20 @@ namespace Sho2on.Database.Models
         public int MaxMobileUsers { get; set; } = 0;
 
         public string? CentralDocumentStoragePath { get; set; } = string.Empty;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        // ══ إعدادات التأخير والإضافي ══
+        public int LateOvertimeCalculationMode { get; set; } = 0; // 0 = نسبة من الحد الأدنى (دقائق)، 1 = مبلغ ثابت (مالية)
+
+        // قيمة التأخير المتكرر
+        public decimal LateValue { get; set; } = 0;
+
+        // عدد مرات التأخير قبل تطبيق العقوبة
+        public int LateRepeat { get; set; } = 0;
+
+        // ══ إعدادات الشهر ══
+        public int StartOfMonth { get; set; } = 26;
+        public int EndOfMonth { get; set; } = 25;
+
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

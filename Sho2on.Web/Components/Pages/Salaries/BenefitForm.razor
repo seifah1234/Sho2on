@@ -1,0 +1,344 @@
+﻿@page "/salaries/benefits-deductions/add"
+@page "/salaries/benefits-deductions/edit/{id:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject BenefitService BenefitSvc
+@inject EmployeeService EmployeeSvc
+@inject BenefitTypeService BenefitTypeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<BenefitForm> Logger
+@implements IDisposable
+
+<div class="benefit-form-page">
+    <div class="page-header">
+        <h2>@(isEdit ? Lang.T("تعديل استحقاق / استقطاع") : Lang.T("إضافة استحقاق / استقطاع"))</h2>
+        <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/salaries/benefits-deductions")'>
+            <i class="bi bi-arrow-right"></i>
+            @Lang.T("العودة للقائمة")
+        </button>
+    </div>
+
+    <div class="form-container">
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="form-grid">
+                <!-- اختيار الموظف -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("الموظف") <span class="required">*</span></label>
+                    <EmployeeSearchSelect SelectedUserId="selectedUserId"
+                                          SelectedUserIdChanged="HandleEmployeeChanged"
+                                          Placeholder="@Lang.T("ابحث عن موظف")" />
+                </div>
+
+                <!-- نوع الاستحقاق/الاستقطاع -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("نوع الاستحقاق/الاستقطاع") <span class="required">*</span></label>
+                    <select class="select-input" @bind="model.BenefitTypeId" @bind:after="OnBenefitTypeChanged">
+                        <option value="0">@Lang.T("اختر النوع")</option>
+                        @foreach (var type in onceBenefitTypes)
+                        {
+                            <option value="@type.Id">
+                                @type.Name (@(type.Type == "Benefit" ? Lang.T("استحقاق") : Lang.T("استقطاع"))) - @type.Percentage.ToString("N2")%
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- المبلغ -->
+                <div class="form-group">
+                    <label class="form-label">
+                        @Lang.T("المبلغ") <span class="required">*</span>
+                        @if (isAutoCalculated)
+                        {
+                            <small class="calculated-hint">(@Lang.T("تم حسابه تلقائياً"))</small>
+                        }
+                    </label>
+                    <div class="input-with-currency">
+                        <InputNumber class="form-input" @bind-Value="model.Amount" step="1" min="0" />
+                        <span class="currency">@Lang.T("ج.م")</span>
+                    </div>
+                </div>
+
+                <!-- التاريخ -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("التاريخ") <span class="required">*</span></label>
+                    <InputDate class="form-input" @bind-Value="model.Date" />
+                </div>
+
+                <!-- ملاحظات -->
+                <div class="form-group full-width">
+                    <label class="form-label">@Lang.T("ملاحظات")</label>
+                    <InputTextArea class="form-textarea" @bind-Value="model.Notes"
+                                   placeholder="@Lang.T("ملاحظات إضافية (اختياري)...")" />
+                </div>
+
+                <!-- بطاقة معاينة -->
+                @if (selectedBenefitType != null && model.Amount > 0 && selectedUserId > 0)
+                {
+                    <div class="preview-card full-width">
+                        <h4><i class="bi bi-eye"></i> @Lang.T("معاينة")</h4>
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <span class="preview-label">@Lang.T("الموظف")</span>
+                                <span class="preview-value">@employeeName</span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">@Lang.T("النوع")</span>
+                                <span class="preview-value @(selectedBenefitType.Type == "Benefit" ? "text-success" : "text-danger")">
+                                    <i class="bi @(selectedBenefitType.Type == "Benefit" ? "bi-plus-circle" : "bi-dash-circle")"></i>
+                                    @selectedBenefitType.Name
+                                </span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">@Lang.T("النسبة")</span>
+                                <span class="preview-value">@selectedBenefitType.Percentage.ToString("N2")%</span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">@Lang.T("يطبق على")</span>
+                                <span class="preview-value">@GetTargetDisplay(selectedBenefitType.SalaryTarget)</span>
+                            </div>
+                            <div class="preview-item highlight">
+                                <span class="preview-label">@Lang.T("المبلغ")</span>
+                                <span class="preview-value @(selectedBenefitType.Type == "Benefit" ? "text-success" : "text-danger")" style="font-size: 22px;">
+                                    @(selectedBenefitType.Type == "Benefit" ? "+" : "-") @model.Amount.ToString("N2") @Lang.T("ج.م")
+                                </span>
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">@Lang.T("التاريخ")</span>
+                                <span class="preview-value">@model.Date.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" @onclick='() => Nav.NavigateTo("/salaries/benefits-deductions")'>
+                    @Lang.T("إلغاء")
+                </button>
+                <button type="submit" class="btn-primary" disabled="@(!canSubmit)">
+                    <i class="bi bi-save"></i>
+                    @(isEdit ? Lang.T("تحديث") : Lang.T("إضافة"))
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? id { get; set; }
+
+    private BenefitDto model = new();
+    private int? selectedUserId;
+    private string employeeName = "";
+    private bool isEdit = false;
+    private bool isSubmitting = false;
+    private List<BenefitTypeDto> onceBenefitTypes = new();
+    private BenefitTypeDto? selectedBenefitType;
+    private bool isAutoCalculated = false;
+    private decimal employeeFixedSalary = 0;
+    private decimal employeeVariableSalary = 0;
+    private decimal employeeTotalSalary = 0;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isEdit = id.HasValue && id.Value > 0;
+        model.Date = DateTime.Now;
+
+        await LoadOnceBenefitTypes();
+
+        if (isEdit)
+        {
+            await LoadData(id.Value);
+        }
+    }
+
+    async Task LoadOnceBenefitTypes()
+    {
+        try
+        {
+            var allTypes = await BenefitTypeSvc.GetAllAsync();
+            onceBenefitTypes = allTypes.Where(t => t.Frequency == "Once" && t.IsActive).ToList();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ");
+            Notify.ShowError(Lang.T("حدث خطأ"));
+        }
+    }
+
+    async Task LoadData(int benefitId)
+    {
+        try
+        {
+            var data = await BenefitSvc.GetByIdAsync(benefitId);
+            if (data == null)
+            {
+                Notify.ShowError(Lang.T("العنصر غير موجود"));
+                Nav.NavigateTo("/salaries/benefits-deductions");
+                return;
+            }
+
+            model = data;
+            selectedUserId = data.UserId;
+            isAutoCalculated = false;
+
+            await LoadEmployeeInfo(data.UserId);
+            selectedBenefitType = onceBenefitTypes.FirstOrDefault(t => t.Id == data.BenefitTypeId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ");
+            Notify.ShowError(Lang.T("حدث خطأ"));
+        }
+    }
+
+    async Task HandleEmployeeChanged(int? userId)
+    {
+        selectedUserId = userId;
+        model.UserId = userId ?? 0;
+
+        if (userId.HasValue)
+        {
+            await LoadEmployeeInfo(userId.Value);
+            CalculateAmount();
+        }
+        else
+        {
+            employeeName = "";
+            isAutoCalculated = false;
+        }
+
+        StateHasChanged();
+    }
+
+    async Task LoadEmployeeInfo(int userId)
+    {
+        try
+        {
+            var employee = await EmployeeSvc.GetEmployeeDetailAsync(userId);
+            if (employee != null)
+            {
+                employeeName = employee.FullName;
+                employeeFixedSalary = employee.FixedSalary ?? 0;
+                employeeVariableSalary = employee.HourlyRate ?? 0;
+                employeeTotalSalary = employeeFixedSalary + employeeVariableSalary;
+            }
+
+            var salaryInfo = await EmployeeSvc.GetEmployeeSalaryInfoAsync(userId);
+            if (salaryInfo != null)
+            {
+                employeeFixedSalary = salaryInfo.FixedSalary ?? employeeFixedSalary;
+                employeeVariableSalary = salaryInfo.HourlyRate ?? employeeVariableSalary;
+                employeeTotalSalary = employeeFixedSalary + employeeVariableSalary;
+            }
+        }
+        catch
+        {
+            employeeName = "";
+        }
+    }
+
+    void OnBenefitTypeChanged()
+    {
+        selectedBenefitType = onceBenefitTypes.FirstOrDefault(t => t.Id == model.BenefitTypeId);
+
+        if (selectedBenefitType != null)
+        {
+            model.BenefitType = selectedBenefitType.Type;
+            CalculateAmount();
+        }
+
+        StateHasChanged();
+    }
+
+    void CalculateAmount()
+    {
+        if (selectedBenefitType == null || selectedBenefitType.Percentage <= 0)
+        {
+            isAutoCalculated = false;
+            return;
+        }
+
+        decimal baseSalary = selectedBenefitType.SalaryTarget switch
+        {
+            "Fixed" => employeeFixedSalary,
+            "Variable" => employeeVariableSalary,
+            "Total" => employeeTotalSalary,
+            _ => employeeTotalSalary
+        };
+
+        if (baseSalary > 0)
+        {
+            model.Amount = Math.Round(baseSalary * (selectedBenefitType.Percentage / 100), 2);
+            isAutoCalculated = true;
+        }
+    }
+
+    bool canSubmit
+    {
+        get
+        {
+            if (isSubmitting) return false;
+            if (model.UserId <= 0) return false;
+            if (model.BenefitTypeId <= 0) return false;
+            if (model.Amount <= 0) return false;
+            if (model.Date == default) return false;
+            return true;
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (!canSubmit) return;
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            bool success;
+            string message;
+
+            if (isEdit)
+            {
+                (success, message) = await BenefitSvc.UpdateAsync(model);
+            }
+            else
+            {
+                (success, message, _) = await BenefitSvc.CreateAsync(model);
+            }
+
+            if (success) { Notify.ShowSuccess(message); Nav.NavigateTo("/salaries/benefits-deductions"); }
+            else Notify.ShowError(message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ");
+            Notify.ShowError(Lang.T("حدث خطأ"));
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    string GetTargetDisplay(string target) => target switch
+    {
+        "Fixed" => Lang.T("الراتب الثابت"),
+        "Variable" => Lang.T("الراتب المتغير"),
+        "Total" => Lang.T("إجمالي الراتب"),
+        _ => target
+    };
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

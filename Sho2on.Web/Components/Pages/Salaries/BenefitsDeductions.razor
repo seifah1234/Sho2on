@@ -1,0 +1,251 @@
+﻿@page "/salaries/benefits-deductions"
+@page "/salaries/benefits-deductions/{userId?}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject BenefitService BenefitSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<BenefitsDeductions> Logger
+@implements IDisposable
+
+<div class="benefits-page">
+    <div class="page-header">
+        <h2>@Lang.T("الاستحقاقات والاستقطاعات")</h2>
+        <div class="header-actions">
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/salaries/benefits-deductions/add")'>
+                <i class="bi bi-plus-circle"></i>
+                @Lang.T("إضافة")
+            </button>
+        </div>
+    </div>
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <div class="filter-group">
+                <EmployeeSearchSelect SelectedUserId="selectedUserId" 
+                                     SelectedUserIdChanged="HandleEmployeeChanged"
+                                     Placeholder="@Lang.T("ابحث عن موظف")" />
+
+                <select class="select-input" @bind="selectedType" @bind:after="HandleFilterChanged">
+                    <option value="">@Lang.T("الكل")</option>
+                    <option value="Benefit">@Lang.T("استحقاق")</option>
+                    <option value="Deduction">@Lang.T("استقطاع")</option>
+                </select>
+
+                <input class="search-input" 
+                       placeholder="@Lang.T("بحث...")"
+                       @bind="searchTerm" 
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearchKeyUp" />
+            </div>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (result == null || result.Items.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-file-earmark-minus"></i>
+            <p>@Lang.T("لا توجد بيانات")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("النوع")</th>
+                        <th>@Lang.T("المبلغ")</th>
+                        <th>@Lang.T("التاريخ")</th>
+                        <th>@Lang.T("الملاحظات")</th>
+                        <th>@Lang.T("الإجراءات")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in result.Items)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>
+                                <div class="employee-info">
+                                    <span class="emp-code">@item.UserCode</span>
+                                    <span class="emp-name">@item.UserName</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="benefit-type-name">@item.BenefitTypeName</span>
+                                <span class="status-badge @item.TypeClass">@item.TypeDisplay</span>
+                            </td>
+                            <td class="@item.AmountClass">@item.AmountDisplay <span class="currency-sm">ج.م</span></td>
+                            <td>@item.Date.ToString("yyyy/MM/dd")</td>
+                            <td>@(string.IsNullOrEmpty(item.Notes) ? "—" : item.Notes)</td>
+                            <td>
+                                <button class="btn-sm btn-outline" @onclick='() => Nav.NavigateTo($"/salaries/benefits-deductions/edit/{item.Id}")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn-sm btn-danger" @onclick='() => DeleteItem(item.Id)'>
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (result.TotalPages > 1)
+        {
+            <div class="pagination">
+                <span class="pagination-info">
+                    @Lang.T("عرض") @((result.Page - 1) * result.PageSize + 1)-@(Math.Min(result.Page * result.PageSize, result.TotalCount))
+                    @Lang.T("من") @result.TotalCount
+                </span>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled="@(currentPage == 1)" @onclick="() => GoToPage(currentPage - 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    @for (int p = 1; p <= result.TotalPages; p++)
+                    {
+                        var pageNum = p;
+                        @if (pageNum == 1 || pageNum == result.TotalPages || Math.Abs(pageNum - currentPage) <= 1)
+                        {
+                            <button class="page-btn @(pageNum == currentPage ? "active" : "")" @onclick="() => GoToPage(pageNum)">
+                                @pageNum
+                            </button>
+                        }
+                        else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                        {
+                            <span class="page-dots">…</span>
+                        }
+                    }
+                    <button class="page-btn" disabled="@(currentPage == result.TotalPages)" @onclick="() => GoToPage(currentPage + 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public string? userId { get; set; }
+
+    private PagedResult<BenefitDto>? result;
+    private int? selectedUserId;
+    private string selectedType = "";
+    private string searchTerm = "";
+    private int currentPage = 1;
+    private int pageSize = 15;
+    private bool loading = true;
+    private System.Timers.Timer? debounceTimer;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(userId) && int.TryParse(userId, out int id))
+            selectedUserId = id;
+
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            result = await BenefitSvc.GetPagedListAsync(
+                selectedUserId,
+                null,
+                string.IsNullOrEmpty(selectedType) ? null : selectedType,
+                searchTerm,
+                currentPage,
+                pageSize);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل البيانات");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+            result = new();
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleEmployeeChanged(int? id)
+    {
+        selectedUserId = id;
+        currentPage = 1;
+        await LoadData();
+    }
+
+    private async Task HandleFilterChanged()
+    {
+        currentPage = 1;
+        await LoadData();
+    }
+
+    private void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        currentPage = 1;
+        debounceTimer?.Stop();
+        debounceTimer = new System.Timers.Timer(400) { AutoReset = false };
+        debounceTimer.Elapsed += async (s, args) => await InvokeAsync(LoadData);
+        debounceTimer.Start();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        if (page < 1 || (result != null && page > result.TotalPages)) return;
+        currentPage = page;
+        await LoadData();
+    }
+
+    private async Task DeleteItem(int id)
+    {
+        // TODO: Implement Confirm Modal
+        try
+        {
+            var (success, message) = await BenefitSvc.DeleteAsync(id);
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                await LoadData();
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء الحذف");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الحذف"));
+        }
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+        debounceTimer?.Dispose();
+    }
+}

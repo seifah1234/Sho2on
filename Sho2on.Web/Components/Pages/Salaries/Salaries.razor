@@ -1,0 +1,264 @@
+﻿@page "/salaries"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject SalaryService SalarySvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<Salaries> Logger
+@implements IDisposable
+
+<div class="salaries-page">
+    <div class="page-header">
+        <h2>@Lang.T("الرواتب")</h2>
+        <div class="header-actions">
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/salaries/off-cycle")'>
+                <i class="bi bi-cash"></i> @Lang.T("صرف فوري")
+            </button>
+            <button class="btn-success" @onclick="ProcessBulkPayment">
+                <i class="bi bi-people"></i> @Lang.T("صرف جماعي")
+            </button>
+            <button class="btn-outline" @onclick="ExportReport">
+                <i class="bi bi-download"></i> @Lang.T("تصدير")
+            </button>
+        </div>
+    </div>
+
+    <div class="page-toolbar">
+        <div class="filter-group">
+            <EmployeeSearchSelect SelectedUserId="selectedUserId"
+                                  SelectedUserIdChanged="HandleEmployeeChanged"
+                                  Placeholder="@Lang.T("ابحث عن موظف")" />
+
+            <select class="select-input" @bind="selectedMonth">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var monthName = new DateTime(2000, m, 1).ToString("MMMM", new System.Globalization.CultureInfo("ar-EG"));
+                    <option value="@m">@monthName</option>
+                }
+            </select>
+
+            <select class="select-input" @bind="selectedYear">
+                @for (int y = DateTime.Now.Year - 2; y <= DateTime.Now.Year + 1; y++)
+                {
+                    <option value="@y">@y</option>
+                }
+            </select>
+
+            <select class="select-input" @bind="selectedStatus">
+                <option value="">@Lang.T("جميع الحالات")</option>
+                <option value="Paid">@Lang.T("مدفوع")</option>
+                <option value="Unpaid">@Lang.T("غير مدفوع")</option>
+            </select>
+
+            <div class="filter-checkbox">
+                <input type="checkbox" id="hideZeroSalaries" @bind="hideZeroSalaries" />
+                <label for="hideZeroSalaries">@Lang.T("إخفاء الرواتب الصفرية")</label>
+            </div>
+
+            <button class="btn-primary" @onclick="LoadData">
+                <i class="bi bi-search"></i> @Lang.T("عرض")
+            </button>
+        </div>
+    </div>
+
+    @if (summary != null)
+    {
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-label">@Lang.T("إجمالي الموظفين")</div>
+                <div class="summary-value">@summary.TotalEmployees</div>
+            </div>
+            <div class="summary-card highlight-positive">
+                <div class="summary-label">@Lang.T("إجمالي الاستحقاقات")</div>
+                <div class="summary-value">@summary.TotalAdditions.ToString("N0") @Lang.T("ج.م")</div>
+            </div>
+            <div class="summary-card highlight-negative">
+                <div class="summary-label">@Lang.T("إجمالي الاستقطاعات")</div>
+                <div class="summary-value">@summary.TotalDeductions.ToString("N0") @Lang.T("ج.م")</div>
+            </div>
+            <div class="summary-card total">
+                <div class="summary-label">@Lang.T("صافي الرواتب")</div>
+                <div class="summary-value">@summary.TotalNetSalary.ToString("N0") @Lang.T("ج.م")</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">@Lang.T("مدفوع")</div>
+                <div class="summary-value">@summary.PaidCount</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">@Lang.T("غير مدفوع")</div>
+                <div class="summary-value">@summary.UnpaidCount</div>
+            </div>
+        </div>
+    }
+
+    @if (loading)
+    {
+        <div class="loading-state"><i class="bi bi-hourglass-split"></i><p>@Lang.T("جاري التحميل...")</p></div>
+    }
+    else if (result == null || result.Items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-file-earmark-minus"></i><p>@Lang.T("لا توجد بيانات للشهر المختار")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("كود")</th>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("الراتب الثابت")</th>
+                        <th>@Lang.T("الراتب المتغير")</th>
+                        <th>@Lang.T("إجمالي الاستحقاقات")</th>
+                        <th>@Lang.T("إجمالي الاستقطاعات")</th>
+                        <th>@Lang.T("الصافي")</th>
+                        <th>@Lang.T("الحالة")</th>
+                        <th>@Lang.T("الإجراءات")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var group in filteredAndSortedSalaries)
+                    {
+                        <tr>
+                            <td>@group.User?.Code</td>
+                            <td>@group.User?.FullName</td>
+                            <td>@group.FixedSalary.ToString("N0")</td>
+                            <td>@group.VariableSalary.ToString("N0")</td>
+                            <td class="amount-positive">@group.TotalAdditions.ToString("N0")</td>
+                            <td class="amount-negative">@group.TotalDeductions.ToString("N0")</td>
+                            <td class="amount-total">@group.NetSalary.ToString("N0")</td>
+                            <td>
+                                <span class="status-badge @group.StatusClass">@group.StatusDisplay</span>
+                            </td>
+                            <td>
+                                <button class="btn-sm btn-outline" @onclick='() => Nav.NavigateTo($"/salaries/details/{group.User?.Id}?month={selectedMonth}&year={selectedYear}")' title="@Lang.T("تفاصيل")">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                @if (!group.IsPaid)
+                                {
+                                    <button class="btn-sm btn-success" @onclick="() => PaySingleEmployee(group.User?.Id ?? 0)" title="@Lang.T("صرف")">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2"><strong>@Lang.T("الإجمالي")</strong></td>
+                        <td><strong>@filteredAndSortedSalaries.Sum(g => g.FixedSalary).ToString("N0")</strong></td>
+                        <td><strong>@filteredAndSortedSalaries.Sum(g => g.VariableSalary).ToString("N0")</strong></td>
+                        <td><strong>@filteredAndSortedSalaries.Sum(g => g.TotalAdditions).ToString("N0")</strong></td>
+                        <td><strong>@filteredAndSortedSalaries.Sum(g => g.TotalDeductions).ToString("N0")</strong></td>
+                        <td><strong>@filteredAndSortedSalaries.Sum(g => g.NetSalary).ToString("N0")</strong></td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        @if (result.TotalPages > 1)
+        {
+            <div class="pagination">
+                <span class="pagination-info">
+                    @Lang.T("عرض") @((result.Page - 1) * result.PageSize + 1)-@(Math.Min(result.Page * result.PageSize, result.TotalCount))
+                    @Lang.T("من") @result.TotalCount
+                </span>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled="@(currentPage == 1)" @onclick="() => GoToPage(currentPage - 1)"><i class="bi bi-chevron-right"></i></button>
+                    @for (int p = 1; p <= result.TotalPages; p++)
+                    {
+                        var pageNum = p;
+                        @if (pageNum == 1 || pageNum == result.TotalPages || Math.Abs(pageNum - currentPage) <= 1)
+                        {
+                            <button class="page-btn @(pageNum == currentPage ? "active" : "")" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                        }
+                        else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                        {
+                            <span class="page-dots">…</span>
+                        }
+                    }
+                    <button class="page-btn" disabled="@(currentPage == result.TotalPages)" @onclick="() => GoToPage(currentPage + 1)"><i class="bi bi-chevron-left"></i></button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private PagedResult<SalaryPaymentGroupDto>? result;
+    private SalarySummaryDto? summary;
+    private int? selectedUserId;
+    private int selectedMonth = DateTime.Now.Month;
+    private int selectedYear = DateTime.Now.Year;
+    private string selectedStatus = "";
+    private bool hideZeroSalaries = true;
+    private int currentPage = 1;
+    private int pageSize = 15;
+    private bool loading = false;
+    private bool isLoading = false;
+
+    private List<SalaryPaymentGroupDto> filteredAndSortedSalaries => GetFilteredAndSorted();
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+    async Task LoadData()
+    {
+        if (isLoading) return;
+        isLoading = true; loading = true; StateHasChanged();
+
+        try
+        {
+            result = await SalarySvc.GetSalariesPagedAsync(selectedUserId, selectedMonth, selectedYear,
+                string.IsNullOrEmpty(selectedStatus) ? null : selectedStatus, currentPage, pageSize);
+            summary = await SalarySvc.GetSalarySummaryAsync(selectedUserId, null, selectedMonth, selectedYear);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ");
+            Notify.ShowError(Lang.T("حدث خطأ"));
+            result = new(); summary = new();
+        }
+        finally { loading = false; isLoading = false; StateHasChanged(); }
+    }
+
+    List<SalaryPaymentGroupDto> GetFilteredAndSorted()
+    {
+        if (result?.Items == null || !result.Items.Any()) return new();
+        var query = result.Items.AsQueryable();
+        if (hideZeroSalaries) query = query.Where(g => g.NetSalary > 0);
+        return query.OrderBy(g => g.NetSalary == 0 ? 1 : 0).ThenBy(g => g.NetSalary).ToList();
+    }
+
+    async Task HandleEmployeeChanged(int? userId) { selectedUserId = userId; currentPage = 1; await LoadData(); }
+    async Task GoToPage(int page) { if (page < 1 || (result != null && page > result.TotalPages)) return; currentPage = page; await LoadData(); }
+
+    async Task ProcessBulkPayment()
+    {
+        var (success, message) = await SalarySvc.ProcessBulkPaymentAsync(selectedMonth, selectedYear);
+        if (success) { Notify.ShowSuccess(message); await LoadData(); }
+        else Notify.ShowError(message);
+    }
+
+    async Task PaySingleEmployee(int userId)
+    {
+        var (success, message) = await SalarySvc.PaySingleEmployeeAsync(userId, selectedMonth, selectedYear);
+        if (success) { Notify.ShowSuccess(message); await LoadData(); }
+        else Notify.ShowError(message);
+    }
+
+    async Task ExportReport() => Notify.ShowWarning(Lang.T("جاري التطوير..."));
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

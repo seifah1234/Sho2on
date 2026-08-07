@@ -1,0 +1,347 @@
+﻿@page "/settings/company-documents"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject CompanyDocumentService DocSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<CompanyDocuments> Logger
+@implements IDisposable
+
+<div class="documents-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-folder2-open"></i> @Lang.T("مستندات الشركة")</h2>
+            <p class="page-subtitle">@Lang.T("اللوائح والعقود والمستندات الرسمية الخاصة بالشركة")</p>
+        </div>
+        <button class="btn-primary" @onclick="OpenUploadModal">
+            <i class="bi bi-cloud-upload"></i> @Lang.T("رفع مستند")
+        </button>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (folders == null || folders.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-folder-x"></i>
+            <p>@Lang.T("لا توجد مستندات مرفوعة بعد")</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var folder in folders)
+        {
+            <div class="doc-folder">
+                <button class="folder-header" @onclick="() => ToggleFolder(folder.Category)">
+                    <div class="folder-title">
+                        <i class="bi bi-chevron-down chevron @(IsExpanded(folder.Category) ? "" : "collapsed")"></i>
+                        <i class="bi bi-folder"></i>
+                        <span>@Lang.T(CategoryLabel(folder.Category))</span>
+                    </div>
+                    <span class="folder-count">@folder.Documents.Count @Lang.T("ملف")</span>
+                </button>
+
+                @if (IsExpanded(folder.Category))
+                {
+                    <div class="doc-list">
+                        @foreach (var doc in folder.Documents)
+                        {
+                            <div class="doc-row @(doc.IsActive ? "" : "inactive")">
+                                <i class="bi @FileIcon(doc.FileType) doc-icon"></i>
+                                <div class="doc-info">
+                                    <strong>@doc.Title</strong>
+                                    <small>
+                                        @doc.FileName · @FormatSize(doc.FileSize)
+                                        @if (doc.JobTitleName != null)
+                                        {
+                                            <span> · @Lang.T("خاص بوظيفة") @doc.JobTitleName</span>
+                                        }
+                                        @if (doc.IsRequired)
+                                        {
+                                            <span class="required-badge">@Lang.T("مطلوب")</span>
+                                        }
+                                    </small>
+                                </div>
+                                <div class="doc-actions">
+                                    <!-- زر المعاينة -->
+                                    <a class="icon-action preview" title="@Lang.T("معاينة")"
+                                           href="/files/preview/@doc.Id" target="_blank">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <!-- زر التحميل -->
+                                    <a class="icon-action download" title="@Lang.T("تحميل")"
+                                           href="/files/company-documents/@doc.Id" target="_blank">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    <button class="icon-action" title="@(doc.IsActive ? Lang.T("تعطيل") : Lang.T("تفعيل"))"
+                                            @onclick="() => ToggleActive(doc)">
+                                        <i class="bi @(doc.IsActive ? "bi-eye-slash" : "bi-eye")"></i>
+                                    </button>
+                                    <button class="icon-action danger" title="@Lang.T("حذف")"
+                                            @onclick="() => RequestDelete(doc)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@if (showUploadModal)
+{
+    <div class="modal-overlay" @onclick="CloseUploadModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Lang.T("رفع مستند جديد")</h3>
+                <button class="icon-action" @onclick="CloseUploadModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("عنوان المستند")</label>
+                    <input class="search-input" @bind="uploadTitle" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("التصنيف")</label>
+                    <select class="select-input" @bind="uploadCategory">
+                        @foreach (DocumentCategory cat in Enum.GetValues<DocumentCategory>())
+                        {
+                            <option value="@cat">@Lang.T(CategoryLabel(cat))</option>
+                        }
+                    </select>
+                </div>
+                <div class="field">
+                    <label>@Lang.T("خاص بوظيفة معينة (اختياري)")</label>
+                    <select class="select-input" @bind="uploadJobTitleId">
+                        <option value="">@Lang.T("كل الوظائف")</option>
+                        @if (jobTitles != null)
+                        {
+                            @foreach (var j in jobTitles)
+                            {
+                                <option value="@j.Id">@j.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field checkbox">
+                    <InputCheckbox @bind-Value="uploadIsRequired" />
+                    <label>@Lang.T("مستند مطلوب (إلزامي)")</label>
+                </div>
+                <div class="field">
+                    <label>@Lang.T("الملف")</label>
+                    <InputFile OnChange="OnFileSelected" class="file-input" />
+                    @if (selectedFileName != null)
+                    {
+                        <small class="selected-file"><i class="bi bi-paperclip"></i> @selectedFileName</small>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseUploadModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitUpload" disabled="@uploading">
+                    @(uploading ? Lang.T("جاري الرفع...") : Lang.T("رفع"))
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (docToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body">
+                <p>@Lang.T("سيتم حذف") <strong>@docToDelete.Title</strong> @Lang.T("نهائيًا. هل أنت متأكد؟")</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<DocumentFolder>? folders;
+    List<(int Id, string Name)>? jobTitles;
+    HashSet<DocumentCategory> expandedFolders = new();
+    bool loading = true;
+
+    bool showUploadModal = false;
+    string uploadTitle = "";
+    DocumentCategory uploadCategory = DocumentCategory.Other;
+    string uploadJobTitleId = "";
+    bool uploadIsRequired = false;
+    IBrowserFile? selectedFile;
+    string? selectedFileName;
+    bool uploading = false;
+
+    CompanyDocumentItem? docToDelete;
+
+    const long MaxFileSize = 10 * 1024 * 1024; // 10 ميجا
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        jobTitles = lookups.JobTitles;
+        await LoadDocuments();
+    }
+
+    async Task LoadDocuments()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            folders = await DocSvc.GetGroupedAsync();
+            foreach (var f in folders) expandedFolders.Add(f.Category); // مفتوحة افتراضيًا
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل مستندات الشركة");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    bool IsExpanded(DocumentCategory cat) => expandedFolders.Contains(cat);
+    void ToggleFolder(DocumentCategory cat)
+    {
+        if (!expandedFolders.Add(cat)) expandedFolders.Remove(cat);
+    }
+
+    void OpenUploadModal()
+    {
+        uploadTitle = ""; uploadCategory = DocumentCategory.Other; uploadJobTitleId = "";
+        uploadIsRequired = false; selectedFile = null; selectedFileName = null;
+        showUploadModal = true;
+    }
+    void CloseUploadModal() => showUploadModal = false;
+
+    void OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file.Size > MaxFileSize)
+        {
+            Notify.ShowError(Lang.T("حجم الملف أكبر من الحد المسموح (10 ميجا)"));
+            return;
+        }
+        selectedFile = file;
+        selectedFileName = file.Name;
+    }
+
+    async Task SubmitUpload()
+    {
+        if (string.IsNullOrWhiteSpace(uploadTitle) || selectedFile == null)
+        {
+            Notify.ShowError(Lang.T("أدخل العنوان واختر ملفًا"));
+            return;
+        }
+
+        uploading = true;
+        StateHasChanged();
+        try
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var userId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+            int? jobTitleId = string.IsNullOrEmpty(uploadJobTitleId) ? null : int.Parse(uploadJobTitleId);
+
+            using var stream = selectedFile.OpenReadStream(MaxFileSize);
+            await DocSvc.UploadAsync(uploadTitle, uploadCategory, uploadIsRequired, jobTitleId, null,
+                userId, selectedFile.Name, Path.GetExtension(selectedFile.Name), stream);
+
+            Notify.ShowSuccess(Lang.T("تم رفع المستند بنجاح"));
+            showUploadModal = false;
+            await LoadDocuments();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء رفع مستند الشركة");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الرفع"));
+        }
+        finally
+        {
+            uploading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task ToggleActive(CompanyDocumentItem doc)
+    {
+        try
+        {
+            await DocSvc.ToggleActiveAsync(doc.Id);
+            await LoadDocuments();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تغيير حالة المستند {Id}", doc.Id);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    void RequestDelete(CompanyDocumentItem doc) => docToDelete = doc;
+    void CancelDelete() => docToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (docToDelete == null) return;
+        try
+        {
+            await DocSvc.DeleteAsync(docToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم حذف المستند"));
+            docToDelete = null;
+            await LoadDocuments();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حذف المستند {Id}", docToDelete?.Id);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+            docToDelete = null;
+        }
+    }
+
+    string CategoryLabel(DocumentCategory cat) => cat switch
+    {
+        DocumentCategory.JobDescription => "توصيف وظيفي",
+        DocumentCategory.CompanyPolicy => "سياسة الشركة",
+        DocumentCategory.HRManual => "دليل الموارد البشرية",
+        DocumentCategory.CodeOfConduct => "لائحة السلوك",
+        DocumentCategory.SafetyProcedure => "إجراءات السلامة",
+        DocumentCategory.Contract => "عقود",
+        _ => "أخرى"
+    };
+
+    string FileIcon(string ext) => ext.ToLower() switch
+    {
+        ".pdf" => "bi-file-earmark-pdf",
+        ".docx" or ".doc" => "bi-file-earmark-word",
+        ".xlsx" or ".xls" => "bi-file-earmark-excel",
+        ".png" or ".jpg" or ".jpeg" => "bi-file-earmark-image",
+        _ => "bi-file-earmark"
+    };
+
+    string FormatSize(long bytes) => bytes < 1024 * 1024
+        ? $"{bytes / 1024.0:F0} KB"
+        : $"{bytes / 1024.0 / 1024.0:F1} MB";
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

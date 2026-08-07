@@ -13,10 +13,10 @@ namespace Sho2on.Web.Services
                 Title = "الموظفين", Icon = "bi-people",
                 Children = new()
                 {
-                    new() { Title = "بيانات الموظفين", Url = "/employees" },
-                    new() { Title = "إضافة موظف", Url = "/employees/add" },
-                    new() { Title = "أرشيف الموظفين", Url = "/employees/archive" },
-                    new() { Title = "تقييم موظف", Url = "/employees/evaluation" },
+                    new() { Title = "بيانات الموظفين", Url = "/employees", Icon = "bi-person-lines-fill" },
+                    new() { Title = "إضافة موظف", Url = "/employees/add", Icon = "bi-person-plus" },
+                    new() { Title = "مستندات الموظفين", Url = "/employees/documents", Icon = "bi-file-earmark-person" },
+                    new() { Title = "تقييم موظف", Url = "/employees/evaluation", Icon = "bi-clipboard-check" },
                 }
             },
 
@@ -25,23 +25,26 @@ namespace Sho2on.Web.Services
                 Title = "الحضور و الانصراف", Icon = "bi-clock-history",
                 Children = new()
                 {
-                    new() { Title = "سجل الحضور", Url = "/attendance" },
-                    new() { Title = "التقرير الشهري", Url = "/attendance/monthly" },
-                    new() { Title = "تقرير شهر الموظف", Url = "/attendance/employee-report" },
-                    new() { Title = "تغيير الوردية", Url = "/attendance/shift-change" },
+                    new() { Title = "سجل الحضور", Url = "/attendance", Icon = "bi-calendar3" },
+                    new() { Title = "سجل البريك", Url = "/attendance/break", Icon = "bi-cup-hot" },
+                    new() { Title = "معالجة الحضور", Url = "/attendance/processing", Icon = "bi-gear" },
+                    new() { Title = "التقرير الشهري", Url = "/attendance/monthly", Icon = "bi-file-text" },
+                    new() { Title = "تقرير شهر الموظف", Url = "/attendance/employee-report", Icon = "bi-person-badge" },
+                    new() { Title = "تغيير الوردية", Url = "/attendance/shift-change", Icon = "bi-arrow-repeat" },
                 }
             },
 
             new()
             {
-                Title = "الإجازات والأذونات", Icon = "bi-calendar-check",
+                Title = "إدارة الطلبات", Icon = "bi-calendar-check",
                 Children = new()
                 {
-                    new() { Title = "طلب إجازة", Url = "/leaves/request" },
-                    new() { Title = "إدارة الإجازات", Url = "/leaves" },
-                    new() { Title = "أرصدة الإجازات", Url = "/leaves/balances" },
-                    new() { Title = "طلب إذن", Url = "/leaves/permission-request" },
-                    new() { Title = "إدارة الأذونات", Url = "/leaves/permissions" },
+                    new() { Title = "طلب إجازة", Url = "/leaves/request", Icon = "bi-send" },
+                    new() { Title = "إدارة الإجازات", Url = "/leaves", Icon = "bi-list-check" },
+                    new() { Title = "طلب إذن", Url = "/leaves/permission-request", Icon = "bi-clock" },
+                    new() { Title = "إدارة الأذونات", Url = "/leaves/permissions", Icon = "bi-check2-square" },
+                    new() { Title = "طلب مأمورية", Url = "/leaves/mission-request", Icon = "bi-briefcase" },
+                    new() { Title = "إدارة المأموريات", Url = "/leaves/missions", Icon = "bi-map" },
                 }
             },
 
@@ -50,25 +53,22 @@ namespace Sho2on.Web.Services
                 Title = "الرواتب", Icon = "bi-cash-coin",
                 Children = new()
                 {
-                    new() { Title = "كشف راتب موظف", Url = "/salaries/employee" },
-                    new() { Title = "كشوف الرواتب الشهرية", Url = "/salaries/monthly" },
-                    new() { Title = "استحقاقات واستقطاعات", Url = "/salaries/benefits-deductions" },
-                    new() { Title = "استقطاعات", Url = "/salaries/deductions" },
-                    new() { Title = "المأموريات", Url = "/salaries/missions" },
-                    new() { Title = "السلف", Url = "/salaries/loans" },
-                    new() { Title = "صرف المرتبات الجماعي", Url = "/salaries/bulk-payment" },
-                    new() { Title = "تقرير المرتبات", Url = "/salaries/report" },
-                    new() { Title = "تصدير الرواتب", Url = "/salaries/export" },
+                    new() { Title = "الرواتب", Url = "/salaries", Icon = "bi-cash-stack" },
+                    new() { Title = "تفاصيل مالية الموظف", Url = "/salaries/details", Icon = "bi-wallet2" },
+                    new() { Title = "استحقاقات واستقطاعات", Url = "/salaries/benefits-deductions", Icon = "bi-calculator" },
+                    new() { Title = "السلف", Url = "/loans", Icon = "bi-piggy-bank" },
+                    new() { Title = "صرف فوري للموظف", Url = "/salaries/off-cycle", Icon = "bi-lightning" },
+                    new() { Title = "أنواع الاستحقاقات", Url = "/settings/benefit-types", Icon = "bi-sliders" },
                 }
             },
 
             new()
             {
-                Title = "المحادثات والمهام", Icon = "bi-chat-dots",
+                Title = "المهام و الشات", Icon = "bi-list-task",
                 Children = new()
                 {
-                    new() { Title = "المحادثات", Url = "/conversations" },
-                    new() { Title = "المهام", Url = "/tasks" },
+                    new() { Title = "قائمة المهام", Url = "/tasks", Icon = "bi-person-check" },
+                    new() { Title = "قائمة الشات", Url = "/chat", Icon = "bi-chat-dots" },
                 }
             },
 
@@ -77,23 +77,11 @@ namespace Sho2on.Web.Services
                 Title = "الإعدادات", Icon = "bi-gear",
                 Children = new()
                 {
-                    new() { Title = "الفروع", Url = "/settings/branches" },
-                    new() { Title = "المناطق", Url = "/settings/areas" },
-                    new() { Title = "الإدارات", Url = "/settings/departments" },
-                    new() { Title = "الوظائف", Url = "/settings/jobs" },
-                    new() { Title = "القطاعات", Url = "/settings/degrees" },
-                    new() { Title = "المؤهلات", Url = "/settings/qualifications" },
-                    new() { Title = "الورديات", Url = "/settings/shifts" },
-                    new() { Title = "فترات الراحة", Url = "/settings/breaks" },
-                    new() { Title = "العطلات الأسبوعية", Url = "/settings/week-holidays" },
-                    new() { Title = "العطلات الرسمية", Url = "/settings/official-holidays" },
-                    new() { Title = "أنواع الإجازات", Url = "/settings/leave-types" },
-                    new() { Title = "الأدوار", Url = "/settings/roles" },
-                    new() { Title = "الصلاحيات", Url = "/settings/permissions" },
-                    new() { Title = "صلاحيات المستخدم", Url = "/settings/user-permissions" },
-                    new() { Title = "فروع المستخدم", Url = "/settings/user-branches" },
-                    new() { Title = "مستندات الشركة", Url = "/settings/company-documents" },
-                    new() { Title = "الإعدادات العامة", Url = "/settings/general" },
+                    new() { Title = "إعدادات عامة", Url = "/settings/general", Icon = "bi-sliders" },
+                    new() { Title = "البريك", Url = "/settings/breaks", Icon = "bi-cup-hot" },
+                    new() { Title = "مستندات الشركة", Url = "/settings/company-documents", Icon = "bi-building" },
+                    new() { Title = "أنواع الإجازات", Url = "/settings/leave-types", Icon = "bi-calendar-range" },
+                    new() { Title = "إعدادات الرواتب", Url = "/settings/salary", Icon = "bi-sliders" },
                 }
             },
         };

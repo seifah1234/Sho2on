@@ -7,15 +7,16 @@ namespace Sho2on.Web.Services;
 
 public class LeaveRequestService
 {
-    private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-    public LeaveRequestService(AppDbContext db)
+    public LeaveRequestService(IDbContextFactory<AppDbContext> dbFactory)
     {
-        _db = db;
+        _dbFactory = dbFactory;
     }
 
     public async Task<List<EmployeeLookup>> SearchEmployeesAsync(string? search)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var query = _db.Users
             .Where(x => !x.IsArchived)
             .AsNoTracking();
@@ -44,6 +45,7 @@ public class LeaveRequestService
 
     public async Task<List<LeaveTypeLookup>> GetActiveLeaveTypesAsync()
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         return await _db.LeaveTypes
             .Where(x => x.IsActive)
             .OrderBy(x => x.Name)
@@ -62,6 +64,7 @@ public class LeaveRequestService
 
     public async Task<BalanceInfo> GetBalanceAsync(int userId, int leaveTypeId)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var leaveType = await _db.LeaveTypes
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == leaveTypeId)
@@ -108,6 +111,7 @@ public class LeaveRequestService
         if (model.ReplacementUserId == model.UserId)
             throw new InvalidOperationException("لا يمكن اختيار الموظف نفسه كبديل");
 
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var employeeExists = await _db.Users.AnyAsync(x =>
             x.Id == model.UserId && !x.IsArchived);
 

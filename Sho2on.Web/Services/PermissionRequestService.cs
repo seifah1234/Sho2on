@@ -7,15 +7,16 @@ namespace Sho2on.Web.Services;
 
 public class PermissionRequestService
 {
-    private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-    public PermissionRequestService(AppDbContext db)
+    public PermissionRequestService(IDbContextFactory<AppDbContext> dbFactory)
     {
-        _db = db;
+        _dbFactory = dbFactory;
     }
 
     public async Task<List<EmployeeItem>> SearchEmployeesAsync(string? search)
     {
+        using var _db = await _dbFactory.CreateDbContextAsync();
         var query = _db.Users
             .Where(x => !x.IsArchived)
             .AsNoTracking();
@@ -58,6 +59,7 @@ public class PermissionRequestService
         if (model.Date.Value.Date < DateTime.Today)
             throw new InvalidOperationException("لا يمكن تقديم إذن بتاريخ سابق");
 
+        using var _db = await _dbFactory.CreateDbContextAsync();
         var employee = await _db.Users
             .FirstOrDefaultAsync(x => x.Id == model.UserId && !x.IsArchived)
             ?? throw new InvalidOperationException("الموظف غير موجود");

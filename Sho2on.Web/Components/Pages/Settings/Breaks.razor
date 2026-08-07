@@ -1,0 +1,218 @@
+﻿@page "/settings/breaks"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject BreakService BreakSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<Breaks> Logger
+@implements IDisposable
+
+<div class="breaks-page">
+    <div class="page-header">
+        <h2><i class="bi bi-cup-hot"></i> @Lang.T("فترات الراحة")</h2>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة نظام راحة")
+        </button>
+    </div>
+
+    @if (breaks == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الاسم")</th>
+                        <th>@Lang.T("النظام")</th>
+                        <th>@Lang.T("التفاصيل")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in breaks)
+                    {
+                        <tr>
+                            <td>@b.Name</td>
+                            <td>
+                                <span class="status-badge @(b.Type == BreakType.Fixed ? "status-checkin" : "status-pending")">
+                                    @Lang.T(b.Type == BreakType.Fixed ? "معاد ثابت" : "مدة مرنة")
+                                </span>
+                            </td>
+                            <td>
+                                @if (b.Type == BreakType.Fixed)
+                                {
+                                    <span>@b.StartTime?.ToString(@"hh\:mm") - @b.EndTime?.ToString(@"hh\:mm")</span>
+                                }
+                                else
+                                {
+                                    <span>@b.DurationMinutes @Lang.T("دقيقة، في أي وقت خلال الشيفت")</span>
+                                }
+                            </td>
+                            <td class="row-actions">
+                                <button class="icon-action" @onclick="() => OpenEditModal(b)"><i class="bi bi-pencil"></i></button>
+                                <button class="icon-action danger" @onclick="() => RequestDelete(b)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل نظام راحة") : Lang.T("نظام راحة جديد"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("الاسم")</label>
+                    <input class="search-input" @bind="formName" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("النظام")</label>
+                    <div class="scan-type-toggle">
+                        <button type="button" class="type-btn @(formType == BreakType.Fixed ? "active-in" : "")" @onclick="() => formType = BreakType.Fixed">
+                            <i class="bi bi-clock"></i> @Lang.T("معاد ثابت")
+                        </button>
+                        <button type="button" class="type-btn @(formType == BreakType.Flexible ? "active-out" : "")" @onclick="() => formType = BreakType.Flexible">
+                            <i class="bi bi-shuffle"></i> @Lang.T("مدة مرنة")
+                        </button>
+                    </div>
+                </div>
+
+                @if (formType == BreakType.Fixed)
+                {
+                    <div class="field">
+                        <label>@Lang.T("من الساعة")</label>
+                        <input type="time" class="search-input" @bind="formStartTime" />
+                    </div>
+                    <div class="field">
+                        <label>@Lang.T("إلى الساعة")</label>
+                        <input type="time" class="search-input" @bind="formEndTime" />
+                    </div>
+                }
+                else
+                {
+                    <div class="field">
+                        <label>@Lang.T("المدة المسموحة (بالدقائق)")</label>
+                        <input type="number" class="search-input" @bind="formDuration" />
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (breakToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من الحذف؟")</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<Break>? breaks;
+    bool showModal = false;
+    bool isEdit = false;
+    int? editingId;
+    string formName = "";
+    BreakType formType = BreakType.Fixed;
+    TimeOnly? formStartTime;
+    TimeOnly? formEndTime;
+    int formDuration = 30;
+    Break? breakToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await Load();
+
+    async Task Load()
+    {
+        try { breaks = await BreakSvc.GetAllAsync(); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء تحميل فترات الراحة"); Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات")); }
+    }
+
+    void OpenAddModal()
+    {
+        isEdit = false; editingId = null; formName = ""; formType = BreakType.Fixed;
+        formStartTime = null; formEndTime = null; formDuration = 30;
+        showModal = true;
+    }
+
+    void OpenEditModal(Break b)
+    {
+        isEdit = true; editingId = b.Id; formName = b.Name; formType = b.Type;
+        formStartTime = b.StartTime.HasValue ? TimeOnly.FromTimeSpan(b.StartTime.Value) : null;
+        formEndTime = b.EndTime.HasValue ? TimeOnly.FromTimeSpan(b.EndTime.Value) : null;
+        formDuration = b.DurationMinutes ?? 30;
+        showModal = true;
+    }
+
+    void CloseModal() => showModal = false;
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName))
+        {
+            Notify.ShowError(Lang.T("أدخل اسم نظام الراحة"));
+            return;
+        }
+        try
+        {
+            await BreakSvc.SaveAsync(editingId, formName, formType,
+                formStartTime?.ToTimeSpan(), formEndTime?.ToTimeSpan(), formDuration);
+            Notify.ShowSuccess(Lang.T("تم الحفظ بنجاح"));
+            showModal = false;
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حفظ نظام راحة");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    void RequestDelete(Break b) => breakToDelete = b;
+    void CancelDelete() => breakToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (breakToDelete == null) return;
+        try
+        {
+            await BreakSvc.DeleteAsync(breakToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم الحذف"));
+            breakToDelete = null;
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حذف نظام راحة");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+            breakToDelete = null;
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

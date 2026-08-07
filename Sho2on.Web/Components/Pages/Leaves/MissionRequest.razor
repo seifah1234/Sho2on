@@ -1,0 +1,264 @@
+﻿@page "/leaves/mission-request"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Forms
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+
+@inject MissionService MissionSvc
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject LocalizationService Lang
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="LeaveTabs.Items" />
+
+<div class="mission-request-page">
+    <div class="page-title">
+        <div>
+            <h2>@Lang.T("طلب مأمورية جديد")</h2>
+            <p>@Lang.T("أدخل بيانات المأمورية، وسيُرسل للاعتماد")</p>
+        </div>
+    </div>
+
+    <EditForm Model="form" OnValidSubmit="Submit">
+        <DataAnnotationsValidator />
+
+        <section class="form-card">
+            <h3>@Lang.T("بيانات الموظف")</h3>
+
+            <div class="employee-search">
+                <input class="search-input"
+                       placeholder="@Lang.T("ابحث باسم الموظف أو الكود")"
+                       @bind="employeeSearch"
+                       @bind:event="oninput" />
+
+                <button class="btn-secondary" type="button" @onclick="SearchEmployees">
+                    <i class="bi bi-search"></i>
+                    @Lang.T("بحث")
+                </button>
+            </div>
+
+            @if (employees.Count > 0)
+            {
+                <div class="employee-options">
+                    @foreach (var employee in employees)
+                    {
+                        <button type="button"
+                                class="employee-option @(form.UserId == employee.Id ? "selected" : "")"
+                                @onclick="() => SelectEmployee(employee)">
+                            <strong>@employee.FullName</strong>
+                            <span>@employee.Code</span>
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (selectedEmployee is not null)
+            {
+                <div class="selected-employee">
+                    <i class="bi bi-person-check"></i>
+                    <span>@selectedEmployee.FullName — @selectedEmployee.Code</span>
+                </div>
+            }
+
+            <ValidationMessage For="() => form.UserId" />
+        </section>
+
+        <section class="form-card">
+            <h3>@Lang.T("بيانات المأمورية")</h3>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>@Lang.T("من تاريخ")</label>
+                    <input type="datetime-local"
+                           class="form-control"
+                           @bind="form.StartDate"
+                           @bind:format="yyyy-MM-ddTHH:mm"
+                           @bind:event="oninput" />
+                    <ValidationMessage For="() => form.StartDate" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("إلى تاريخ")</label>
+                    <input type="datetime-local"
+                           class="form-control"
+                           @bind="form.EndDate"
+                           @bind:format="yyyy-MM-ddTHH:mm"
+                           @bind:event="oninput" />
+                    <ValidationMessage For="() => form.EndDate" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("المدة")</label>
+                    <input class="form-control"
+                           value="@($"{duration:F2} {Lang.T("ساعة")}")"
+                           readonly />
+                </div>
+            </div>
+
+            <div class="field" style="margin-top: 12px;">
+                <label>@Lang.T("الموافق على المأمورية")</label>
+                <div class="approver-select">
+                    <EmployeeSearchSelect SelectedUserId="form.ApproverId"
+                                          SelectedUserIdChanged="(id) => form.ApproverId = id"
+                                          Placeholder="@Lang.T("اختر الموافق على المأمورية")" />
+                </div>
+                <ValidationMessage For="() => form.ApproverId" />
+    
+                @if (selectedEmployee is not null && !string.IsNullOrEmpty(selectedEmployee.ManagerName))
+                {
+                    <div class="info-text">
+                        <i class="bi bi-info-circle"></i>
+                        @Lang.T("المدير المباشر") : @selectedEmployee.ManagerName
+            
+                        @if (form.ApproverId != selectedEmployee.ManagerId)
+                        {
+                            <button type="button" class="btn-link"
+                                    @onclick="() => form.ApproverId = selectedEmployee.ManagerId">
+                                @Lang.T("تعيين كموافق")
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="form-card">
+            <h3>@Lang.T("بيانات إضافية")</h3>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>@Lang.T("ملاحظات")</label>
+                    <textarea class="form-control" @bind="form.Notes" rows="4"></textarea>
+                </div>
+
+                @* قسم الإذن (مطابق لـ permission_check في WPF) *@
+                <div class="field">
+                    <label>
+                        <input type="checkbox" @bind="form.HasPermission" />
+                        @Lang.T("إذن صرف مبلغ")
+                    </label>
+                    @if (form.HasPermission)
+                    {
+                        <input type="number"
+                               class="form-control"
+                               @bind="form.PermissionValue"
+                               placeholder="@Lang.T("قيمة المبلغ")"
+                               step="0.01" />
+                    }
+                </div>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <button class="btn-primary" type="submit" disabled="@saving">
+                <i class="bi bi-plus-lg"></i>
+                @(saving ? @Lang.T("جاري الإرسال...") : @Lang.T("إضافة"))
+            </button>
+
+            <button class="btn-secondary" type="button" @onclick='() => Nav.NavigateTo("/leaves/missions")'>
+                @Lang.T("إلغاء")
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private MissionRequestFormModel form = new();
+    private List<MissionService.UserLookup> employees = [];
+    private List<MissionService.UserLookup> approvers = [];
+    private MissionService.UserLookup? selectedEmployee;
+    private string employeeSearch = "";
+    private double duration;
+    private bool saving;
+    private int currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        int.TryParse(authState.User.FindFirstValue("UserId"), out currentUserId);
+
+        await LoadApprovers();
+
+        // تحميل بيانات المستخدم الحالي
+        var currentUser = await MissionSvc.GetUserByCodeAsync(authState.User.FindFirstValue("Code") ?? "");
+        if (currentUser != null)
+        {
+            await SelectEmployee(currentUser);
+        }
+
+        UpdateDuration();
+    }
+
+    private async Task SearchEmployees()
+    {
+        employees = await MissionSvc.SearchEmployeesAsync(employeeSearch);
+    }
+
+    private async Task SelectEmployee(MissionService.UserLookup employee)
+    {
+        selectedEmployee = employee;
+        form.UserId = employee.Id;
+        form.UserCode = employee.Code;
+        form.UserName = employee.FullName;
+
+        // تعيين المدير المباشر كموافق افتراضي
+        if (employee.ManagerId.HasValue)
+        {
+            form.ApproverId = employee.ManagerId.Value;
+        }
+
+        employees = [];
+        UpdateDuration();
+    }
+
+    private void UpdateDuration()
+    {
+        if (!form.StartDate.HasValue || !form.EndDate.HasValue)
+        {
+            duration = 0;
+            return;
+        }
+
+        duration = (form.EndDate.Value - form.StartDate.Value).TotalHours;
+        if (duration < 0) duration = 0;
+    }
+
+    private async Task LoadApprovers()
+    {
+        approvers = await MissionSvc.GetApproversAsync();
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            saving = true;
+            await MissionSvc.CreateRequestAsync(form);
+            Nav.NavigateTo("/leaves/missions");
+        }
+        catch (InvalidOperationException ex)
+        {
+            // استخدام MessageBox مؤقت
+            await ShowMessage(ex.Message, "خطأ");
+        }
+        catch (Exception ex)
+        {
+            await ShowMessage($"حدث خطأ أثناء إرسال الطلب: {ex.Message}", "خطأ");
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+
+    private async Task ShowMessage(string message, string title)
+    {
+        // مؤقتاً نستخدم alert
+        await Task.Delay(1);
+    }
+}

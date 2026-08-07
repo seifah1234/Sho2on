@@ -1,0 +1,546 @@
+﻿/* ===== صفحة طلب السلفة ===== */
+.loan-request-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== رأس الصفحة ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .page-header h2 {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+/* ===== الأزرار ===== */
+.btn-primary {
+    background: var(--gradient-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 13px 28px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-light);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 13px 24px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--surface-hover);
+    }
+
+/* ===== حاوية النموذج ===== */
+.form-container {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+/* ===== تسميات الحقول ===== */
+.form-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.required {
+    color: var(--accent);
+}
+
+/* ===== حقول الإدخال ===== */
+.form-input {
+    padding: 13px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    width: 100%;
+    transition: all var(--transition);
+    background: var(--background);
+    color: var(--text);
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+.form-textarea {
+    padding: 13px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    width: 100%;
+    min-height: 100px;
+    font-family: inherit;
+    transition: all var(--transition);
+    resize: vertical;
+    background: var(--background);
+    color: var(--text);
+    box-sizing: border-box;
+}
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+/* ===== بطاقة معلومات الموظف ===== */
+.employee-info-card {
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+/* ===== خيارات الأقساط ===== */
+.installment-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.installment-option {
+    padding: 10px 20px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--surface);
+}
+
+    .installment-option:hover {
+        border-color: var(--primary);
+        background: var(--info-bg);
+    }
+
+    .installment-option.active {
+        border-color: var(--primary);
+        background: var(--gradient-primary);
+        color: #FFFFFF;
+        box-shadow: var(--shadow-sm);
+    }
+
+.installment-option-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .installment-option-custom span {
+        font-weight: 600;
+        color: var(--text-light);
+    }
+
+.form-input-sm {
+    padding: 8px 12px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    width: 80px;
+    text-align: center;
+    font-family: inherit;
+    transition: all var(--transition);
+}
+
+    .form-input-sm:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+    }
+
+/* ===== معاينة القسط ===== */
+.installment-preview {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.preview-card {
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    text-align: center;
+}
+
+.preview-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.preview-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.currency-sm {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-right: 4px;
+    font-weight: 600;
+}
+
+/* ===== رسائل التحقق ===== */
+::deep .validation-message {
+    font-size: 12px;
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.validation-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--warning);
+    background: var(--warning-bg);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(212, 137, 10, 0.2);
+}
+
+    .validation-warning i {
+        font-size: 16px;
+    }
+
+/* ===== أزرار الإجراءات ===== */
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 20px 16px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .employee-info-card {
+        grid-template-columns: 1fr;
+    }
+
+    .installment-preview {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+        .form-actions .btn-primary,
+        .form-actions .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+
+    .installment-options {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .installment-option {
+        text-align: center;
+    }
+}
+/* ===== صفحة طلب السلفة ===== */
+.loan-request-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ... باقي الكود كما هو ... */
+
+/* ===== حقول الإدخال ===== */
+.form-input {
+    padding: 13px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    width: 100%;
+    transition: all var(--transition);
+    background: var(--background);
+    color: var(--text);
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+/* ===== تنسيق InputTextArea ===== */
+.form-textarea {
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    width: 100%;
+    min-height: 110px;
+    font-family: inherit;
+    transition: all var(--transition);
+    resize: vertical;
+    background: var(--background);
+    color: var(--text);
+    box-sizing: border-box;
+    line-height: 1.7;
+}
+
+    .form-textarea:hover {
+        border-color: var(--border-hover);
+        background: var(--surface-hover);
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(45, 36, 102, 0.06);
+        background: var(--surface);
+    }
+
+    .form-textarea::placeholder {
+        color: var(--text-muted);
+        font-weight: 500;
+        font-size: 13px;
+    }
+
+    /* سكرول بار مخصص للـ textarea */
+    .form-textarea::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .form-textarea::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: var(--radius-sm);
+    }
+
+    .form-textarea::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: var(--radius-full);
+    }
+
+        .form-textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+
+/* ===== تنسيق InputTextArea باستخدام ::deep ===== */
+::deep .form-textarea,
+::deep textarea.form-textarea,
+.form-group ::deep textarea {
+    padding: 14px 16px !important;
+    border: 2px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 13.5px !important;
+    width: 100% !important;
+    min-height: 110px !important;
+    font-family: inherit !important;
+    transition: all var(--transition) !important;
+    resize: vertical !important;
+    background: var(--background) !important;
+    color: var(--text) !important;
+    box-sizing: border-box !important;
+    line-height: 1.7 !important;
+    outline: none !important;
+}
+
+    ::deep .form-textarea:hover,
+    ::deep textarea.form-textarea:hover,
+    .form-group ::deep textarea:hover {
+        border-color: var(--border-hover) !important;
+        background: var(--surface-hover) !important;
+    }
+
+    ::deep .form-textarea:focus,
+    ::deep textarea.form-textarea:focus,
+    .form-group ::deep textarea:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(45, 36, 102, 0.06) !important;
+        background: var(--surface) !important;
+    }
+
+    ::deep .form-textarea::placeholder,
+    ::deep textarea.form-textarea::placeholder,
+    .form-group ::deep textarea::placeholder {
+        color: var(--text-muted) !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+    }
+
+    /* سكرول بار مخصص للـ textarea */
+    ::deep .form-textarea::-webkit-scrollbar,
+    ::deep textarea.form-textarea::-webkit-scrollbar,
+    .form-group ::deep textarea::-webkit-scrollbar {
+        width: 6px !important;
+    }
+
+    ::deep .form-textarea::-webkit-scrollbar-track,
+    ::deep textarea.form-textarea::-webkit-scrollbar-track,
+    .form-group ::deep textarea::-webkit-scrollbar-track {
+        background: transparent !important;
+        border-radius: var(--radius-sm) !important;
+    }
+
+    ::deep .form-textarea::-webkit-scrollbar-thumb,
+    ::deep textarea.form-textarea::-webkit-scrollbar-thumb,
+    .form-group ::deep textarea::-webkit-scrollbar-thumb {
+        background: var(--border) !important;
+        border-radius: var(--radius-full) !important;
+    }
+
+        ::deep .form-textarea::-webkit-scrollbar-thumb:hover,
+        ::deep textarea.form-textarea::-webkit-scrollbar-thumb:hover,
+        .form-group ::deep textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover) !important;
+        }

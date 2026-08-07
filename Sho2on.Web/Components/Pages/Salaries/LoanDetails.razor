@@ -1,0 +1,387 @@
+﻿@page "/loans/details/{loanId:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject LoanService LoanSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<LoanDetails> Logger
+@implements IDisposable
+
+<div class="loan-details-page">
+    @if (loading)
+    {
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (loan == null)
+    {
+        <div class="empty-state">
+            <i class="bi bi-exclamation-triangle"></i>
+            <p>@Lang.T("السلفة غير موجودة")</p>
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/loans")'>
+                @Lang.T("العودة للقائمة")
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="page-header">
+            <div>
+                <h2>@Lang.T("تفاصيل السلفة") #@loan.Id</h2>
+                <div class="subtitle">
+                    <span>@Lang.T("الموظف")</span>
+                    <span class="employee-link" @onclick='() => Nav.NavigateTo($"/employees/edit/{loan.UserId}")'>
+                        @loan.UserName (@loan.UserCode)
+                    </span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/loans")'>
+                    <i class="bi bi-arrow-right"></i>
+                    @Lang.T("العودة للقائمة")
+                </button>
+                @if (loan.Status == "Pending")
+                {
+                    <button class="btn-approve" @onclick="ApproveLoan">
+                        <i class="bi bi-check-circle"></i>
+                        @Lang.T("موافقة")
+                    </button>
+                    <button class="btn-reject" @onclick="RejectLoan">
+                        <i class="bi bi-x-circle"></i>
+                        @Lang.T("رفض")
+                    </button>
+                }
+                @if (loan.Status == "Approved" || loan.Status == "PartiallyPaid")
+                {
+                    <button class="btn-pay" @onclick='() => Nav.NavigateTo($"/loans/pay/{loan.Id}")'>
+                        <i class="bi bi-cash"></i>
+                        @Lang.T("تسجيل دفعة")
+                    </button>
+                }
+                @if (loan.Status == "Pending")
+                {
+                    <button class="btn-danger" @onclick="DeleteLoan">
+                        <i class="bi bi-trash"></i>
+                        @Lang.T("حذف")
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- بطاقات الملخص -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-label">@Lang.T("المبلغ الإجمالي")</div>
+                <div class="summary-value">@loan.LoanAmount.ToString("N0") <span class="currency-sm">ج</span></div>
+            </div>
+            <div class="summary-card highlight-positive">
+                <div class="summary-label">@Lang.T("المدفوع")</div>
+                <div class="summary-value">@loan.AmountPaid.ToString("N0") <span class="currency-sm">ج</span></div>
+            </div>
+            <div class="summary-card highlight-negative">
+                <div class="summary-label">@Lang.T("المتبقي")</div>
+                <div class="summary-value">@loan.RemainingAmount.ToString("N0") <span class="currency-sm">ج</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">@Lang.T("القسط الشهري")</div>
+                <div class="summary-value">@loan.MonthlyInstallment.ToString("N0") <span class="currency-sm">ج</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">@Lang.T("عدد الأقساط")</div>
+                <div class="summary-value">@loan.InstallmentCount <span class="currency-sm">@Lang.T("شهر")</span></div>
+            </div>
+            <div class="summary-card total">
+                <div class="summary-label">@Lang.T("الحالة")</div>
+                <div class="summary-value">
+                    <span class="status-badge @loan.StatusClass" style="font-size:16px;">
+                        @loan.StatusDisplay
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- معلومات إضافية -->
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">@Lang.T("تاريخ الطلب")</span>
+                <span class="info-value">@loan.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">@Lang.T("تاريخ السلفة")</span>
+                <span class="info-value">@loan.LoanDate.ToString("dd/MM/yyyy")</span>
+            </div>
+            @if (loan.ExpectedPaybackDate.HasValue)
+            {
+                <div class="info-item">
+                    <span class="info-label">@Lang.T("تاريخ السداد المتوقع")</span>
+                    <span class="info-value">@loan.ExpectedPaybackDate.Value.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+            @if (loan.ActualPaybackDate.HasValue)
+            {
+                <div class="info-item">
+                    <span class="info-label">@Lang.T("تاريخ السداد الفعلي")</span>
+                    <span class="info-value">@loan.ActualPaybackDate.Value.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+            @if (loan.ApprovedDate.HasValue)
+            {
+                <div class="info-item">
+                    <span class="info-label">@Lang.T("تاريخ الموافقة")</span>
+                    <span class="info-value">@loan.ApprovedDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(loan.ApprovedByName))
+            {
+                <div class="info-item">
+                    <span class="info-label">@Lang.T("تمت الموافقة بواسطة")</span>
+                    <span class="info-value">@loan.ApprovedByName</span>
+                </div>
+            }
+            <div class="info-item full-width">
+                <span class="info-label">@Lang.T("سبب السلفة")</span>
+                <span class="info-value">@(string.IsNullOrEmpty(loan.Reason) ? "—" : loan.Reason)</span>
+            </div>
+            @if (!string.IsNullOrEmpty(loan.Notes))
+            {
+                <div class="info-item full-width">
+                    <span class="info-label">@Lang.T("ملاحظات")</span>
+                    <span class="info-value">@loan.Notes</span>
+                </div>
+            }
+        </div>
+
+        <!-- جدول الدفعات -->
+        <div class="payments-section">
+            <h3>@Lang.T("سجل الدفعات")</h3>
+            
+            @if (loan.Payments == null || loan.Payments.Count == 0)
+            {
+                <div class="empty-payments">
+                    <i class="bi bi-receipt"></i>
+                    <p>@Lang.T("لا توجد دفعات مسجلة")</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>@Lang.T("التاريخ")</th>
+                                <th>@Lang.T("المبلغ")</th>
+                                <th>@Lang.T("النوع")</th>
+                                <th>@Lang.T("ملاحظات")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in loan.Payments.OrderByDescending(p => p.PaymentDate))
+                            {
+                                <tr>
+                                    <td>@payment.Id</td>
+                                    <td>@payment.PaymentDate.ToString("dd/MM/yyyy")</td>
+                                    <td class="amount-positive">@payment.PaymentAmount.ToString("N0") <span class="currency-sm">ج</span></td>
+                                    <td>
+                                        <span class="payment-type-badge @GetPaymentTypeClass(payment.PaymentType)">
+                                            @GetPaymentTypeDisplay(payment.PaymentType)
+                                        </span>
+                                    </td>
+                                    <td>@(string.IsNullOrEmpty(payment.Notes) ? "—" : payment.Notes)</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2"><strong>@Lang.T("الإجمالي")</strong></td>
+                                <td><strong>@loan.AmountPaid.ToString("N0") <span class="currency-sm">ج</span></strong></td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="payment-progress">
+                    <div class="progress-label">
+                        <span>@Lang.T("نسبة السداد")</span>
+                        <span>@paymentPercentage.ToString("F0")%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: @paymentPercentage%;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int loanId { get; set; }
+
+    private LoanDto? loan;
+    private bool loading = true;
+    private decimal paymentPercentage => loan?.LoanAmount > 0 ? ((loan.AmountPaid / loan.LoanAmount) * 100) : 0;
+
+    protected override void OnInitialized()
+    {
+        Lang.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLoanDetails();
+    }
+
+    private async Task LoadLoanDetails()
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            loan = await LoanSvc.GetByIdAsync(loanId);
+            if (loan == null)
+            {
+                Notify.ShowError(Lang.T("السلفة غير موجودة"));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل تفاصيل السلفة {LoanId}", loanId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ApproveLoan()
+    {
+        if (!await ConfirmAsync(Lang.T("تأكيد الموافقة"), Lang.T("هل أنت متأكد من الموافقة على هذه السلفة؟")))
+            return;
+
+        try
+        {
+            // TODO: استخدم ID المستخدم الحالي بدلاً من 1
+            var (success, message) = await LoanSvc.ApproveLoanAsync(loanId, 1);
+            
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                await LoadLoanDetails();
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء الموافقة على السلفة {LoanId}", loanId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الموافقة"));
+        }
+    }
+
+    private async Task RejectLoan()
+    {
+        var reason = await PromptAsync(Lang.T("سبب الرفض"), Lang.T("يرجى إدخال سبب الرفض"));
+        if (reason == null) return;
+
+        try
+        {
+            var (success, message) = await LoanSvc.RejectLoanAsync(loanId, reason);
+            
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                await LoadLoanDetails();
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء رفض السلفة {LoanId}", loanId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الرفض"));
+        }
+    }
+
+    private async Task DeleteLoan()
+    {
+        if (!await ConfirmAsync(Lang.T("تأكيد الحذف"), Lang.T("هل أنت متأكد من حذف هذه السلفة؟ لا يمكن التراجع عن هذا الإجراء.")))
+            return;
+
+        try
+        {
+            var (success, message) = await LoanSvc.DeleteLoanAsync(loanId);
+            
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                Nav.NavigateTo("/loans");
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حذف السلفة {LoanId}", loanId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الحذف"));
+        }
+    }
+
+    private string GetPaymentTypeClass(string type)
+    {
+        return type switch
+        {
+            "Monthly" => "type-monthly",
+            "Partial" => "type-partial",
+            "Full" => "type-full",
+            _ => "type-monthly"
+        };
+    }
+
+    private string GetPaymentTypeDisplay(string type)
+    {
+        return type switch
+        {
+            "Monthly" => Lang.T("قسط شهري"),
+            "Partial" => Lang.T("دفعة جزئية"),
+            "Full" => Lang.T("سداد كامل"),
+            _ => type
+        };
+    }
+
+    // TODO: استبدل هذه الدوال بـ Modal حقيقي
+    private async Task<bool> ConfirmAsync(string title, string message)
+    {
+        // مؤقتاً - دايماً ترجع true
+        // هتستبدل بـ Modal مخصص
+        return true;
+    }
+
+    private async Task<string?> PromptAsync(string title, string message)
+    {
+        // مؤقتاً - ترجع سبب وهمي
+        // هتستبدل بـ Modal مخصص
+        return "سبب الرفض من المستخدم";
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+    }
+}

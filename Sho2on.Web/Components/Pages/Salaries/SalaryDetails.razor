@@ -1,0 +1,265 @@
+﻿@page "/salaries/details/{UserId:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Models.Sho2on.Web.Models
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject SalaryService SalarySvc
+@inject BenefitService BenefitSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="salary-details-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-receipt"></i> @Lang.T("تفاصيل الراتب")</h2>
+            <p class="page-subtitle">@Lang.T("عرض تفاصيل الراتب والاستحقاقات والاستقطاعات")</p>
+        </div>
+        <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/salaries")'>
+            <i class="bi bi-arrow-right"></i> @Lang.T("العودة للرواتب")
+        </button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state"><div class="spinner"></div><p>@Lang.T("جاري التحميل...")</p></div>
+    }
+    else if (details == null)
+    {
+        <div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>@Lang.T("التفاصيل غير متوفرة")</p></div>
+    }
+    else
+    {
+        <!-- معلومات الموظف -->
+        <div class="employee-info-card">
+            <div class="employee-avatar"><span>@details.EmployeeName?.Substring(0, 1)</span></div>
+            <div class="employee-details">
+                <h3>@details.EmployeeName</h3>
+                <span>@details.EmployeeCode · @details.BranchName</span>
+            </div>
+            <div class="payment-status">
+                <span class="status-badge @(details.IsPaid ? "status-paid" : "status-unpaid")">
+                    @(details.IsPaid ? Lang.T("مدفوع") : Lang.T("غير مدفوع"))
+                </span>
+                @if (details.IsOffCycle)
+                {
+                    <span class="off-cycle-badge">@Lang.T("صرف فوري")</span>
+                }
+            </div>
+        </div>
+
+        <!-- ملخص سريع -->
+        <div class="summary-cards">
+            <div class="summary-card total">
+                <div class="summary-label">@Lang.T("صافي الراتب")</div>
+                <div class="summary-value">@details.NetSalary.ToString("N2") @Lang.T("ج.م")</div>
+            </div>
+            <div class="summary-card highlight-positive">
+                <div class="summary-label">@Lang.T("إجمالي الاستحقاقات")</div>
+                <div class="summary-value">@details.TotalAdditions.ToString("N2")</div>
+            </div>
+            <div class="summary-card highlight-negative">
+                <div class="summary-label">@Lang.T("إجمالي الاستقطاعات")</div>
+                <div class="summary-value">@details.TotalDeductions.ToString("N2")</div>
+            </div>
+        </div>
+
+        <!-- تبويبات -->
+        <div class="tabs">
+            <button class="tab-btn @(activeTab == "benefits" ? "active" : "")" @onclick='() => SetTab("benefits")'>
+                <i class="bi bi-plus-circle"></i> @Lang.T("الاستحقاقات")
+            </button>
+            <button class="tab-btn @(activeTab == "deductions" ? "active" : "")" @onclick='() => SetTab("deductions")'>
+                <i class="bi bi-dash-circle"></i> @Lang.T("الاستقطاعات")
+            </button>
+        </div>
+
+        <div class="tab-content">
+            @if (activeTab == "benefits")
+            {
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn @(benefitFilter == "all" ? "active" : "")" @onclick='() => FilterBenefits("all")'>@Lang.T("الكل")</button>
+                    <button class="sub-tab-btn @(benefitFilter == "Monthly" ? "active" : "")" @onclick='() => FilterBenefits("Monthly")'>🔄 @Lang.T("ثابت")</button>
+                    <button class="sub-tab-btn @(benefitFilter == "Once" ? "active" : "")" @onclick='() => FilterBenefits("Once")'>1️⃣ @Lang.T("متغير")</button>
+                </div>
+
+
+                <div class="details-section additions">
+                    <div class="section-header">
+                        <i class="bi bi-plus-circle"></i>
+                        <h3>@Lang.T("الاستحقاقات")</h3>
+                        <span class="section-total">@filteredBenefits.Sum(b => b.Amount).ToString("N2") @Lang.T("ج.م")</span>
+                    </div>
+                    <div class="details-list">
+                        @if (filteredBenefits.Count == 0)
+                        {
+                            <p class="muted">@Lang.T("لا توجد استحقاقات")</p>
+                        }
+                        else
+                        {
+                            @foreach (var item in filteredBenefits)
+                            {
+                                <div class="detail-row">
+                                    <div class="detail-info">
+                                        <span>
+                                            @item.BenefitTypeName
+                                            <span class="frequency-tag @(item.Frequency == "Monthly" ? "tag-monthly" : "tag-once")">
+                                                @(item.Frequency == "Monthly" ? Lang.T("ثابت") : Lang.T("متغير"))
+                                            </span>
+                                        </span>
+                                        <small>@item.Date.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <span class="amount positive">+ @item.Amount.ToString("N2")</span>
+                                </div>
+                            }
+                        }
+                        <div class="detail-row total-row">
+                            <span><strong>@Lang.T("الإجمالي")</strong></span>
+                            <span class="amount total positive">@filteredBenefits.Sum(b => b.Amount).ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (activeTab == "deductions")
+            {
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn @(deductionFilter == "all" ? "active" : "")" @onclick='() => FilterDeductions("all")'>@Lang.T("الكل")</button>
+                    <button class="sub-tab-btn @(deductionFilter == "Monthly" ? "active" : "")" @onclick='() => FilterDeductions("Monthly")'>🔄 @Lang.T("ثابت")</button>
+                    <button class="sub-tab-btn @(deductionFilter == "Once" ? "active" : "")" @onclick='() => FilterDeductions("Once")'>1️⃣ @Lang.T("متغير")</button>
+                </div>
+
+
+                <div class="details-section deductions">
+                    <div class="section-header">
+                        <i class="bi bi-dash-circle"></i>
+                        <h3>@Lang.T("الاستقطاعات")</h3>
+                        <span class="section-total">@filteredDeductions.Sum(d => d.Amount).ToString("N2") @Lang.T("ج.م")</span>
+                    </div>
+                    <div class="details-list">
+                        @if (filteredDeductions.Count == 0)
+                        {
+                            <p class="muted">@Lang.T("لا توجد خصومات")</p>
+                        }
+                        else
+                        {
+                            @foreach (var item in filteredDeductions)
+                            {
+                                <div class="detail-row">
+                                    <div class="detail-info">
+                                        <span>
+                                            @item.BenefitTypeName
+                                            <span class="frequency-tag @(item.Frequency == "Monthly" ? "tag-monthly" : "tag-once")">
+                                                @(item.Frequency == "Monthly" ? Lang.T("ثابت") : Lang.T("متغير"))
+                                            </span>
+                                        </span>
+                                        <small>@item.Date.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <span class="amount negative">- @item.Amount.ToString("N2")</span>
+                                </div>
+                            }
+                        }
+                        <div class="detail-row total-row">
+                            <span><strong>@Lang.T("الإجمالي")</strong></span>
+                            <span class="amount total negative">@filteredDeductions.Sum(d => d.Amount).ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- معلومات الدفع -->
+        <div class="payment-info-card">
+            <h3><i class="bi bi-info-circle"></i> @Lang.T("معلومات الدفع")</h3>
+            <div class="info-grid">
+                <div class="info-item"><span class="info-label">@Lang.T("الشهر")</span><span class="info-value">@details.PeriodDisplay</span></div>
+                <div class="info-item"><span class="info-label">@Lang.T("نوع الدفع")</span><span class="info-value">@Lang.T(details.PaymentType)</span></div>
+                @if (details.PaymentDate.HasValue)
+                {
+                    <div class="info-item"><span class="info-label">@Lang.T("تاريخ الدفع")</span><span class="info-value">@details.PaymentDate.Value.ToString("dd/MM/yyyy")</span></div>
+                }
+                @if (details.ActualPaymentDate.HasValue)
+                {
+                    <div class="info-item"><span class="info-label">@Lang.T("تاريخ الصرف")</span><span class="info-value">@details.ActualPaymentDate.Value.ToString("dd/MM/yyyy HH:mm")</span></div>
+                }
+                @if (!string.IsNullOrEmpty(details.Notes))
+                {
+                    <div class="info-item full-width"><span class="info-label">@Lang.T("ملاحظات")</span><span class="info-value">@details.Notes</span></div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int UserId { get; set; }
+    [SupplyParameterFromQuery(Name = "month")] public int? Month { get; set; }
+    [SupplyParameterFromQuery(Name = "year")] public int? Year { get; set; }
+
+    private SalaryDetailsDto? details;
+    private bool loading = true;
+    private string activeTab = "benefits";
+    private string benefitFilter = "all";
+    private string deductionFilter = "all";
+    private List<BenefitDto> allBenefits = new();
+    private List<BenefitDto> filteredBenefits = new();
+    private List<BenefitDto> allDeductions = new();
+    private List<BenefitDto> filteredDeductions = new();
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync() => await LoadDetails();
+
+    void SetTab(string tab) { activeTab = tab; }
+
+	private void FilterBenefits(string filter) { 
+        benefitFilter = filter; 
+        
+        filteredBenefits = benefitFilter switch
+        {
+            "Monthly" => allBenefits.Where(b => b.Frequency == "Monthly").ToList(),
+            "Once" => allBenefits.Where(b => b.Frequency == "Once").ToList(),
+            _ => allBenefits
+        };
+    }
+
+    private void FilterDeductions(string filter) { 
+        deductionFilter = filter; 
+        
+        filteredDeductions = deductionFilter switch
+        {
+            "Monthly" => allDeductions.Where(d => d.Frequency == "Monthly").ToList(),
+            "Once" => allDeductions.Where(d => d.Frequency == "Once").ToList(),
+            _ => allDeductions
+        };
+	}
+
+    async Task LoadDetails()
+    {
+        loading = true; StateHasChanged();
+        try
+        {
+            int month = Month ?? DateTime.Now.Month;
+            int year = Year ?? DateTime.Now.Year;
+
+            // معاينة بتشتغل سواء اتصرف أو لسه، بدل الاعتماد على SalaryPayment وحده
+            details = await SalarySvc.GetSalaryPreviewAsync(UserId, month, year);
+            if (details != null)
+            {
+                var (b, d) = await BenefitSvc.GetEmployeeBenefitsForMonthAsync(
+                    UserId,
+                    details.Month, details.Year);
+                allBenefits = b;
+                allDeductions = d;
+				filteredBenefits = allBenefits;
+				filteredDeductions = allDeductions;
+            }
+        }
+        catch { allBenefits = new(); allDeductions = new(); }
+        finally { loading = false; StateHasChanged(); }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

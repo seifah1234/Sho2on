@@ -1,0 +1,373 @@
+﻿@page "/leaves/missions"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+
+@using System.Security.Claims
+@using Sho2on.Database.Models
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+
+@inject MissionService MissionSvc
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject LocalizationService Lang
+@inject CurrentUserService CurrentUserSvc
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="LeaveTabs.Items" />
+
+<div class="mission-management-page">
+    <div class="page-title">
+        <div>
+            <h2>@Lang.T("إدارة طلبات المأموريات")</h2>
+            <p>@Lang.T("عرض واعتماد طلبات المأموريات")</p>
+        </div>
+        <a class="btn-primary" href="/leaves/mission-request">
+            <i class="bi bi-plus-lg"></i>
+            @Lang.T("طلب مأمورية جديد")
+        </a>
+    </div>
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+
+                    <input class="search-input"
+                           placeholder="@Lang.T("كود الموظف")"
+                           @bind="filter.EmployeeCode"
+                           @bind:event="oninput" />
+
+                    <input class="search-input"
+                           placeholder="@Lang.T("اسم الموظف")"
+                           @bind="filter.EmployeeName"
+                           @bind:event="oninput" />
+
+                <div class="filter-group">
+                    <label>@Lang.T("من تاريخ")</label>
+                    <input type="date" class="search-input" @bind="filter.FromDate" />
+                </div>
+
+                <div class="filter-group">
+                    <label>@Lang.T("إلى تاريخ")</label>
+                    <input type="date" class="search-input" @bind="filter.ToDate" />
+                </div>
+
+                <div class="filter-group">
+                    <label>@Lang.T("الحالة")</label>
+                    <select class="select-input" @bind="filter.Status">
+                        <option value="">@Lang.T("كل الحالات")</option>
+                        <option value="Pending" selected>@Lang.T("قيد الانتظار")</option>
+                        <option value="UnderReview">@Lang.T("تحت المراجعة")</option>
+                        <option value="Approved">@Lang.T("موافق عليه")</option>
+                        <option value="Rejected">@Lang.T("مرفوض")</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn-primary" @onclick="LoadRequests">
+                    <i class="bi bi-search"></i>
+                    @Lang.T("بحث")
+                </button>
+                <button class="btn-secondary" @onclick="ClearFilters">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    @Lang.T("مسح")
+                </button>
+            </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (missions.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-suitcase"></i>
+            <p>@Lang.T("لا توجد طلبات مأمورية")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("القسم")</th>
+                        <th>@Lang.T("الوظيفة")</th>
+                        <th>@Lang.T("الفترة")</th>
+                        <th>@Lang.T("المدة")</th>
+                        <th>@Lang.T("الحالة")</th>
+                        <th>@Lang.T("تاريخ الطلب")</th>
+                        <th>@Lang.T("الموافق")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in missions)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.EmployeeName</strong>
+                                <small>@item.EmployeeCode</small>
+                            </td>
+                            <td>@item.EmployeeDepartment</td>
+                            <td>@item.EmployeeJobTitle</td>
+                            <td>
+                                @item.StartDateTime.ToString("yyyy/MM/dd HH:mm")
+                                <br />
+                                <small>@Lang.T("إلى")</small>
+                                @item.EndDateTime.ToString("yyyy/MM/dd HH:mm")
+                            </td>
+                            <td>@item.Duration @Lang.T("ساعة")</td>
+                            <td>
+                                <span class="status @GetStatusClass(item.Status)">
+                                    @item.StatusText
+                                </span>
+                            </td>
+                            <td>@item.CreatedAt.ToString("yyyy/MM/dd")</td>
+                            <td>@item.ApprovedByName</td>
+                            <td class="row-actions">
+                                @if ((isManager || isHR) && item.Status == "Pending")
+                                {
+                                    <button class="icon-action success"
+                                            title="@Lang.T("اعتماد")"
+                                            @onclick="() => Approve(item)">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+
+                                    <button class="icon-action danger"
+                                            title="@Lang.T("رفض")"
+                                            @onclick="() => Reject(item)">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                }
+                                else if (isHR && item.Status == "UnderReview")
+                                {
+                                    <button class="icon-action success"
+                                            title="@Lang.T("اعتماد نهائي")"
+                                            @onclick="() => Approve(item)">
+                                        <i class="bi bi-check2-all"></i>
+                                    </button>
+                                }
+
+                                <button class="icon-action info"
+                                        title="@Lang.T("تفاصيل")"
+                                        @onclick="() => ViewDetails(item)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (showDetails && selectedMission is not null)
+    {
+        <div class="modal-backdrop" @onclick="CloseDetails">
+            <div class="modal-card" @onclick:stopPropagation="true">
+                <div class="modal-header">
+                    <h3>@Lang.T("تفاصيل المأمورية")</h3>
+                    <button class="close-btn" @onclick="CloseDetails">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("الموظف")</span>
+                        <span class="detail-value">@selectedMission.EmployeeName</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("الكود")</span>
+                        <span class="detail-value">@selectedMission.EmployeeCode</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("القسم")</span>
+                        <span class="detail-value">@selectedMission.EmployeeDepartment</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("الوظيفة")</span>
+                        <span class="detail-value">@selectedMission.EmployeeJobTitle</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("من")</span>
+                        <span class="detail-value">@selectedMission.StartDateTime.ToString("yyyy/MM/dd HH:mm")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("إلى")</span>
+                        <span class="detail-value">@selectedMission.EndDateTime.ToString("yyyy/MM/dd HH:mm")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("المدة")</span>
+                        <span class="detail-value">@selectedMission.Duration @Lang.T("ساعة")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("الحالة")</span>
+                        <span class="detail-value">
+                            <span class="status @GetStatusClass(selectedMission.Status)">
+                                @selectedMission.StatusText
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">@Lang.T("الموافق")</span>
+                        <span class="detail-value">@selectedMission.ApprovedByName</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(selectedMission.Notes))
+                    {
+                        <div class="detail-row">
+                            <span class="detail-label">@Lang.T("ملاحظات")</span>
+                            <span class="detail-value">@selectedMission.Notes</span>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" @onclick="CloseDetails">@Lang.T("إغلاق")</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<MissionListItem> missions = [];
+    private MissionFilterModel filter = new();
+    private bool loading = true;
+    private int currentUserId;
+    private bool isManager;
+    private bool isHR;
+    private bool isEmployee;
+
+    private MissionListItem? selectedMission;
+    private bool showDetails;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        int.TryParse(authState.User.FindFirstValue("UserId"), out currentUserId);
+
+        var user = await GetCurrentUserAsync();
+        isManager = user?.JobTitle?.IsManager == true;
+        isHR = user?.Department?.IsHR == true;
+        isEmployee = !isManager && !isHR;
+
+        await LoadRequests();
+    }
+    private async Task<User?> GetCurrentUserAsync()
+    {
+        return await CurrentUserSvc.GetCurrentUserAsync();
+    }
+    private async Task<bool> IsManager(int userId)
+    {
+        // يمكنك تنفيذ هذا المنطق بناءً على بيانات المستخدم
+        return false; // مؤقت
+    }
+
+    private async Task<bool> IsHR(int userId)
+    {
+        // يمكنك تنفيذ هذا المنطق بناءً على بيانات المستخدم
+        return false; // مؤقت
+    }
+
+    private async Task LoadRequests()
+    {
+        try
+        {
+            loading = true;
+
+            if (isEmployee)
+            {
+                // الموظف العادي يشوف طلباته فقط
+                missions = await MissionSvc.GetMyRequestsAsync(currentUserId);
+            }
+            else
+            {
+                missions = await MissionSvc.GetRequestsAsync(
+                    employeeId: null,
+                    employeeName: filter.EmployeeName,
+                    employeeCode: filter.EmployeeCode,
+                    filter.FromDate,
+                    filter.ToDate,
+                    filter.Status);
+            }
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void ClearFilters()
+    {
+        filter = new MissionFilterModel();
+        StateHasChanged();
+    }
+
+    private bool CanApprove(MissionListItem item)
+    {
+        if (item.Status != "Pending") return false;
+
+        // المدير يمكنه الموافقة
+        if (isManager) return true;
+
+        // الموافقة المخصصة
+        if (item.ApprovedByName == "لم تتم الموافقة بعد") return false;
+
+        return false;
+    }
+
+    private async Task Approve(MissionListItem item)
+    {
+        try
+        {
+            await MissionSvc.ApproveAsync(item.Id, currentUserId);
+            await LoadRequests();
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+    }
+
+    private async Task Reject(MissionListItem item)
+    {
+        try
+        {
+            await MissionSvc.RejectAsync(item.Id, currentUserId);
+            await LoadRequests();
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+    }
+
+    private void ViewDetails(MissionListItem item)
+    {
+        selectedMission = item;
+        showDetails = true;
+    }
+
+    private void CloseDetails()
+    {
+        showDetails = false;
+        selectedMission = null;
+    }
+
+    private static string GetStatusClass(string status) => status switch
+    {
+        "Pending" => "pending",
+        "UnderReview" => "under-review",
+        "Approved" => "approved",
+        "Rejected" => "rejected",
+        _ => ""
+    };
+}

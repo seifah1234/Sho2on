@@ -7,12 +7,16 @@ namespace Sho2on.Web.Services
 {
     public class AttendanceService
     {
-        private readonly AppDbContext _db;
-        public AttendanceService(AppDbContext db) => _db = db;
+        private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public AttendanceService(IDbContextFactory<AppDbContext> dbFactory)
+        {
+            _dbFactory = dbFactory;
+        }
 
         public async Task<PagedResult<AttendanceListItem>> GetPagedListAsync(
             DateOnly date, int? branchId, string? search, int page, int pageSize)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var dayStart = date.ToDateTime(TimeOnly.MinValue);
             var dayEnd = dayStart.AddDays(1);
 
@@ -78,6 +82,7 @@ namespace Sho2on.Web.Services
 
         public async Task<EmployeeMonthlyReportResult?> GetEmployeeMonthlyReportAsync(int userId, int month, int year)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var user = await _db.Users
                 .Include(u => u.Branch)
                 .Include(u => u.Shift)
@@ -86,7 +91,7 @@ namespace Sho2on.Web.Services
 
             if (user == null) return null;
 
-            var(startDate, endDate) = GetMonthRange(month, year);
+            var(startDate, endDate) = await GetMonthRange(month, year);
             var startDt = startDate.ToDateTime(TimeOnly.MinValue);
             var endDt = endDate.ToDateTime(TimeOnly.MaxValue);
 
@@ -98,6 +103,14 @@ namespace Sho2on.Web.Services
             var byDate = attendances.ToDictionary(a => DateOnly.FromDateTime(a.AttendanceDate));
             var weekRestDays = GetWeeklyRestDayIndexes(user.WeekHoliday);
             var today = DateOnly.FromDateTime(DateTime.Today);
+
+            var breakLogs = await _db.BreakLogs
+        .Where(b => b.UserId == userId && b.StartTime >= startDt && b.StartTime <= endDt && b.EndTime != null)
+        .ToListAsync();
+
+            var breakByDay = breakLogs
+                .GroupBy(b => DateOnly.FromDateTime(b.StartTime))
+                .ToDictionary(g => g.Key, g => g.Sum(b => (b.EndTime!.Value - b.StartTime).TotalMinutes));
 
             var result = new EmployeeMonthlyReportResult
             {
@@ -130,6 +143,8 @@ namespace Sho2on.Web.Services
                         Overtime = att.Overtime,
                         TotalWorkHours = att.TotalWorkHours,
                         IsAbsence = att.IsAbsence,
+                        IsCheckInAutoFilled = att.IsCheckInAutoFilled,
+                        IsCheckOutAutoFilled = att.IsCheckOutAutoFilled,
                         IsHoliday = att.IsHoliday,
                         IsWeeklyRest = isWeeklyRest,
                         HasLeave = att.LeaveId.HasValue,
@@ -138,6 +153,17 @@ namespace Sho2on.Web.Services
                         ExemptEarlyEnter = att.ExemptEarlyEnter,
                         ExemptOvertime = att.ExemptOvertime
                     };
+
+                    if (att.TotalWorkHours.HasValue)
+                    {
+                        var breakMinutes = breakByDay.ContainsKey(d) ? breakByDay[d] : 0;
+                        day.ActualWorkHours = att.TotalWorkHours.Value - TimeSpan.FromMinutes(breakMinutes);
+
+                        // منع القيمة السالبة
+                        if (day.ActualWorkHours < TimeSpan.Zero)
+                            day.ActualWorkHours = TimeSpan.Zero;
+                    }
+
                     result.Days.Add(day);
                 }
                 else
@@ -174,6 +200,7 @@ namespace Sho2on.Web.Services
         public async Task SaveDayAsync(int userId, DateOnly date, TimeSpan? checkIn, TimeSpan? checkOut,
             bool isAbsence, bool isHoliday, bool exemptLate, bool exemptEarlyLeave, bool exemptEarlyEnter, bool exemptOvertime)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var user = await _db.Users.Include(u => u.Shift).FirstOrDefaultAsync(u => u.Id == userId)
                                    ?? throw new Exception("الموظف غير موجود");
     
@@ -228,6 +255,7 @@ namespace Sho2on.Web.Services
 
         public async Task ChangeShiftAsync(int userId, DateOnly date, int newShiftId)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var shift = await _db.Shifts.FindAsync(newShiftId) ?? throw new Exception("الوردية غير موجودة");
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("الموظف غير موجود");
     
@@ -261,6 +289,7 @@ namespace Sho2on.Web.Services
 
         public async Task<(int? ShiftId, string? ShiftName)> GetShiftForDateAsync(int userId, DateOnly date)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var dayStart = date.ToDateTime(TimeOnly.MinValue);
             var attendance = await _db.Attendances
                     .Include(a => a.Shift)
@@ -291,11 +320,40 @@ namespace Sho2on.Web.Services
             attendance.TotalWorkHours = clockOut - clockIn;
         }
 
+        private async Task<(int StartDay, int EndDay)> GetMonthSettingsAsync()
+        {
+            using var db = await _dbFactory.CreateDbContextAsync();
+            var settings = await db.Settings.FirstOrDefaultAsync();
+            return (
+                settings?.StartOfMonth ?? 26,
+                settings?.EndOfMonth ?? 25
+            );
+        }
+
+        private async Task<(DateOnly Start, DateOnly End)> GetMonthRange(int month, int year)
+        {
+            var (startDay, endDay) = await GetMonthSettingsAsync();
+
+            DateTime startDate = new DateTime(year, month, startDay);
+            DateTime endDate = new DateTime(year, month, endDay);
+
+            // لو بداية الشهر أكبر من 15 (يعني الشهر بيبدأ في الشهر اللي قبله)
+            if (startDay > endDay)
+            {
+
+                startDate = startDate.AddMonths(-1);
+            }
+
+
+            return (DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate));
+        }
+
         // ===================== التقرير الشهري (كل الموظفين) =====================
 
         public async Task<List<EmployeeMonthlySummaryItem>> GetMonthlySummaryAsync(int? branchId, string? search, int month, int year)
         {
-            var(startDate, endDate) = GetMonthRange(month, year);
+            using var _db = await _dbFactory.CreateDbContextAsync();
+            var (startDate, endDate) = await GetMonthRange(month, year);
             var startDt = startDate.ToDateTime(TimeOnly.MinValue);
             var endDt = endDate.ToDateTime(TimeOnly.MaxValue);
     
@@ -336,14 +394,6 @@ namespace Sho2on.Web.Services
         }
 
         // ===================== أدوات مساعدة =====================
-
-        static (DateOnly Start, DateOnly End) GetMonthRange(int month, int year)
-        {
-            var start = new DateOnly(year, month, 1);
-            var end = start.AddMonths(1).AddDays(-1);
-            return (start, end);
-        }
-
         static List<int> GetWeeklyRestDayIndexes(WeekHoliday? wh)
         {
             var list = new List<int>();

@@ -1,0 +1,94 @@
+﻿@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.EmployeeService
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@implements IDisposable
+
+<div class="employee-search" @onclick:stopPropagation="true">
+    <div class="search-input-wrapper">
+        <i class="bi bi-search"></i>
+        <input class="search-input"
+               placeholder="@(Placeholder ?? Lang.T("ابحث عن موظف"))"
+               value="@displayText"
+               @oninput="OnInput"
+               @onfocus="() => isOpen = true" />
+        @if (SelectedUserId.HasValue)
+        {
+            <button type="button" class="clear-btn" @onclick="Clear"><i class="bi bi-x-circle-fill"></i></button>
+        }
+    </div>
+
+    @if (isOpen && results.Count > 0)
+    {
+        <div class="search-dropdown">
+            @foreach (var item in results)
+            {
+                <button type="button" class="dropdown-item" @onclick="() => Select(item)">
+                    @item.Label
+                </button>
+            }
+        </div>
+    }
+    else if (isOpen && searched && results.Count == 0)
+    {
+        <div class="search-dropdown">
+            <div class="dropdown-empty">@Lang.T("لا يوجد نتائج")</div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int? SelectedUserId { get; set; }
+    [Parameter] public EventCallback<int?> SelectedUserIdChanged { get; set; }
+    [Parameter] public string? Placeholder { get; set; }
+
+    string displayText = "";
+    bool isOpen = false;
+    bool searched = false;
+    List<EmployeeSearchItem> results = new();
+    System.Timers.Timer? debounceTimer;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (SelectedUserId.HasValue && string.IsNullOrEmpty(displayText))
+        {
+            var match = await EmployeeSvc.SearchAsync(null, 1000);
+            var found = match.FirstOrDefault(m => m.Id == SelectedUserId.Value);
+            if (found != null) displayText = found.Label;
+        }
+    }
+
+    void OnInput(ChangeEventArgs e)
+    {
+        displayText = e.Value?.ToString() ?? "";
+        isOpen = true;
+
+        debounceTimer?.Stop();
+        debounceTimer = new System.Timers.Timer(300) { AutoReset = false };
+        debounceTimer.Elapsed += async (s, args) => await InvokeAsync(async () =>
+        {
+            results = await EmployeeSvc.SearchAsync(displayText);
+            searched = true;
+            StateHasChanged();
+        });
+        debounceTimer.Start();
+    }
+
+    async Task Select(EmployeeSearchItem item)
+    {
+        displayText = item.Label;
+        isOpen = false;
+        SelectedUserId = item.Id;
+        await SelectedUserIdChanged.InvokeAsync(item.Id);
+    }
+
+    async Task Clear()
+    {
+        displayText = "";
+        results.Clear();
+        SelectedUserId = null;
+        await SelectedUserIdChanged.InvokeAsync(null);
+    }
+
+    public void Dispose() => debounceTimer?.Dispose();
+}

@@ -1,0 +1,365 @@
+﻿@page "/chat"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject ChatService ChatSvc
+@inject ChatConnectionService ChatConn
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<ChatPage> Logger
+@implements IAsyncDisposable
+
+<div class="chat-page">
+    <div class="conversations-sidebar">
+        <div class="conv-header">
+            <h3>@Lang.T("المحادثات")</h3>
+            <div class="conv-header-actions">
+                <button class="icon-action" title="@Lang.T("محادثة جديدة")" @onclick="OpenNewChatModal"><i class="bi bi-person-plus"></i></button>
+                <button class="icon-action" title="@Lang.T("جروب جديد")" @onclick="OpenNewGroupModal"><i class="bi bi-people"></i></button>
+            </div>
+        </div>
+
+        <div class="conv-list">
+            @if (conversations == null)
+            {
+                <p class="muted">@Lang.T("جاري التحميل...")</p>
+            }
+            else if (conversations.Count == 0)
+            {
+                <p class="muted">@Lang.T("لا توجد محادثات بعد")</p>
+            }
+            else
+            {
+                @foreach (var conv in conversations)
+                {
+                    <button class="conv-item @(IsActive(conv) ? "active" : "")" @onclick="() => OpenConversation(conv)">
+                        <div class="conv-avatar @(conv.IsGroup ? "group" : "")">
+                            <i class="bi @(conv.IsGroup ? "bi-people-fill" : "bi-person-fill")"></i>
+                        </div>
+                        <div class="conv-info">
+                            <strong>@conv.DisplayName</strong>
+                            <small>@Truncate(conv.LastMessage, 34)</small>
+                        </div>
+                        @if (conv.UnreadCount > 0)
+                        {
+                            <span class="unread-badge">@conv.UnreadCount</span>
+                        }
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="chat-thread">
+        @if (selectedConversation == null)
+        {
+            <div class="empty-state">
+                <i class="bi bi-chat-dots"></i>
+                <p>@Lang.T("اختر محادثة من القائمة للبدء")</p>
+            </div>
+        }
+        else
+        {
+            <div class="thread-header">
+                <div class="conv-avatar @(selectedConversation.IsGroup ? "group" : "")">
+                    <i class="bi @(selectedConversation.IsGroup ? "bi-people-fill" : "bi-person-fill")"></i>
+                </div>
+                <strong>@selectedConversation.DisplayName</strong>
+            </div>
+
+            <div class="thread-messages" @ref="messagesContainer">
+                @if (messages == null)
+                {
+                    <p class="muted">@Lang.T("جاري التحميل...")</p>
+                }
+                else
+                {
+                    @foreach (var msg in messages)
+                    {
+                        <div class="message-bubble @(msg.SenderId == currentUserId ? "mine" : "theirs")">
+                            @if (selectedConversation.IsGroup && msg.SenderId != currentUserId)
+                            {
+                                <span class="sender-name">@msg.SenderName</span>
+                            }
+                            <p>@msg.Message</p>
+                            <span class="msg-time">@msg.SentAt.ToString("hh:mm tt")</span>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="thread-input">
+                <input class="search-input" placeholder="@Lang.T("اكتب رسالة...")"
+                       @bind="newMessage" @bind:event="oninput" @onkeyup="HandleKeyUp" />
+                <button class="send-btn" @onclick="SendMessage" disabled="@(string.IsNullOrWhiteSpace(newMessage) || !ChatConn.IsConnected)">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@if (showNewChatModal)
+{
+    <div class="modal-overlay" @onclick="CloseNewChatModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Lang.T("محادثة جديدة")</h3>
+                <button class="icon-action" @onclick="CloseNewChatModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("اختر زميل")</label>
+                    <EmployeeSearchSelect SelectedUserId="newChatUserId" SelectedUserIdChanged="(id) => newChatUserId = id" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseNewChatModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="StartNewChat">@Lang.T("بدء المحادثة")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showNewGroupModal)
+{
+    <div class="modal-overlay" @onclick="CloseNewGroupModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Lang.T("إنشاء جروب جديد")</h3>
+                <button class="icon-action" @onclick="CloseNewGroupModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("اسم الجروب")</label>
+                    <input class="search-input" @bind="newGroupName" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("الأعضاء")</label>
+                    <input class="search-input" placeholder="@Lang.T("ابحث عن موظف...")" @bind="memberSearchTerm" @bind:event="oninput" />
+                    <div class="member-checklist">
+                        @if (allEmployees != null)
+                        {
+                            @foreach (var emp in allEmployees.Where(e => string.IsNullOrEmpty(memberSearchTerm) || e.Name.Contains(memberSearchTerm)))
+                            {
+                                <label class="member-row">
+                                    <input type="checkbox" checked="@selectedMemberIds.Contains(emp.Id)"
+                                           @onchange="(e) => ToggleMember(emp.Id, (bool)e.Value!)" />
+                                    <span>@emp.Name</span>
+                                </label>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseNewGroupModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitNewGroup">@Lang.T("إنشاء")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<ConversationListItem>? conversations;
+    ConversationListItem? selectedConversation;
+    List<ChatMessageItem>? messages;
+    string newMessage = "";
+    int currentUserId;
+    Microsoft.AspNetCore.Components.ElementReference messagesContainer;
+
+    bool showNewChatModal = false;
+    int? newChatUserId;
+
+    bool showNewGroupModal = false;
+    string newGroupName = "";
+    string memberSearchTerm = "";
+    List<(int Id, string Name)>? allEmployees;
+    HashSet<int> selectedMemberIds = new();
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+
+        // محاولة الاتصال بالشات بدون ما توقف الصفحة
+        _ = Task.Run(async () =>
+        {
+            try { await ChatConn.ConnectAsync(currentUserId); }
+            catch { }
+        });
+
+        ChatConn.OnMessageReceived += HandleMessageReceived;
+        ChatConn.OnMessageSent += HandleMessageSent;
+        ChatConn.OnGroupMessageReceived += HandleGroupMessageReceived;
+
+        try
+        {
+            var lookups = await EmployeeSvc.GetLookupsAsync();
+            allEmployees = lookups.Managers;
+        }
+        catch { }
+
+        await LoadConversations();
+    }
+
+    async Task LoadConversations()
+    {
+        try
+        {
+            conversations = await ChatSvc.GetConversationsAsync(currentUserId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل المحادثات");
+        }
+        StateHasChanged();
+    }
+
+    bool IsActive(ConversationListItem c) => selectedConversation != null &&
+        selectedConversation.IsGroup == c.IsGroup &&
+        (c.IsGroup ? selectedConversation.Id == c.Id : selectedConversation.OtherUserId == c.OtherUserId);
+
+    async Task OpenConversation(ConversationListItem conv)
+    {
+        selectedConversation = conv;
+        conv.UnreadCount = 0;
+        try
+        {
+            messages = conv.IsGroup
+                ? await ChatSvc.GetGroupMessagesAsync(conv.Id, currentUserId)
+                : await ChatSvc.GetDirectMessagesAsync(currentUserId, conv.OtherUserId!.Value);
+
+            if (conv.IsGroup && ChatConn.IsConnected)
+                await ChatConn.JoinGroupAsync(conv.Id);
+        }
+        catch { }
+        StateHasChanged();
+    }
+
+    void HandleKeyUp(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newMessage) && ChatConn.IsConnected)
+            _ = SendMessage();
+    }
+
+    async Task SendMessage()
+    {
+        if (selectedConversation == null || string.IsNullOrWhiteSpace(newMessage) || !ChatConn.IsConnected) return;
+
+        var text = newMessage;
+        newMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            if (selectedConversation.IsGroup)
+                await ChatConn.SendGroupMessageAsync(selectedConversation.Id, text);
+            else
+                await ChatConn.SendMessageAsync(selectedConversation.OtherUserId!.Value, text);
+        }
+        catch { }
+    }
+
+    void HandleMessageReceived(int fromUserId, int toUserId, string message, DateTime sentAt, int id)
+    {
+        InvokeAsync(async () =>
+        {
+            if (selectedConversation != null && !selectedConversation.IsGroup && selectedConversation.OtherUserId == fromUserId)
+            {
+                messages?.Add(new ChatMessageItem { Id = id, SenderId = fromUserId, Message = message, SentAt = sentAt });
+            }
+            await LoadConversations();
+            StateHasChanged();
+        });
+    }
+
+    void HandleMessageSent(int toUserId, string message, DateTime sentAt, int id)
+    {
+        InvokeAsync(() =>
+        {
+            if (selectedConversation != null && !selectedConversation.IsGroup && selectedConversation.OtherUserId == toUserId)
+            {
+                messages?.Add(new ChatMessageItem { Id = id, SenderId = currentUserId, Message = message, SentAt = sentAt });
+            }
+            StateHasChanged();
+        });
+    }
+
+    void HandleGroupMessageReceived(int groupId, int fromUserId, string message, DateTime sentAt, int id)
+    {
+        InvokeAsync(async () =>
+        {
+            if (selectedConversation != null && selectedConversation.IsGroup && selectedConversation.Id == groupId)
+            {
+                messages?.Add(new ChatMessageItem { Id = id, SenderId = fromUserId, Message = message, SentAt = sentAt });
+            }
+            await LoadConversations();
+            StateHasChanged();
+        });
+    }
+
+    void OpenNewChatModal() { newChatUserId = null; showNewChatModal = true; }
+    void CloseNewChatModal() => showNewChatModal = false;
+
+    async Task StartNewChat()
+    {
+        if (newChatUserId == null) return;
+        showNewChatModal = false;
+        await LoadConversations();
+        var existing = conversations?.FirstOrDefault(c => !c.IsGroup && c.OtherUserId == newChatUserId.Value);
+        if (existing != null) { await OpenConversation(existing); return; }
+        await OpenConversation(new ConversationListItem { IsGroup = false, OtherUserId = newChatUserId.Value, DisplayName = "..." });
+    }
+
+    void OpenNewGroupModal()
+    {
+        newGroupName = ""; memberSearchTerm = ""; selectedMemberIds.Clear();
+        showNewGroupModal = true;
+    }
+    void CloseNewGroupModal() => showNewGroupModal = false;
+
+    void ToggleMember(int id, bool isChecked)
+    {
+        if (isChecked) selectedMemberIds.Add(id); else selectedMemberIds.Remove(id);
+    }
+
+    async Task SubmitNewGroup()
+    {
+        if (string.IsNullOrWhiteSpace(newGroupName) || selectedMemberIds.Count == 0)
+        {
+            Notify.ShowError(Lang.T("أدخل اسم الجروب واختر عضوًا واحدًا على الأقل"));
+            return;
+        }
+        try
+        {
+            var groupId = await ChatSvc.CreateGroupAsync(newGroupName, currentUserId, selectedMemberIds.ToList());
+            Notify.ShowSuccess(Lang.T("تم إنشاء الجروب بنجاح"));
+            showNewGroupModal = false;
+            await LoadConversations();
+            var newGroup = conversations?.FirstOrDefault(c => c.IsGroup && c.Id == groupId);
+            if (newGroup != null) await OpenConversation(newGroup);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء إنشاء جروب");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    string Truncate(string s, int max) => string.IsNullOrEmpty(s) ? "" : (s.Length <= max ? s : s.Substring(0, max) + "…");
+
+    public async ValueTask DisposeAsync()
+    {
+        Lang.OnChange -= StateHasChanged;
+        ChatConn.OnMessageReceived -= HandleMessageReceived;
+        ChatConn.OnMessageSent -= HandleMessageSent;
+        ChatConn.OnGroupMessageReceived -= HandleGroupMessageReceived;
+    }
+}

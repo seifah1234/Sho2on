@@ -1,0 +1,288 @@
+﻿@page "/tasks"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject TaskService TaskSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<TaskList> Logger
+@implements IDisposable
+
+<div class="tasks-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-list-task"></i> @Lang.T("المهام")</h2>
+        </div>
+        <button class="btn-primary" @onclick="OpenCreateModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("مهمة جديدة")
+        </button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn @(activeTab == "assigned-to-me" ? "active" : "")" @onclick='() => SwitchTab("assigned-to-me")'>
+            @Lang.T("مهامي")
+        </button>
+        <button class="tab-btn @(activeTab == "assigned-by-me" ? "active" : "")" @onclick='() => SwitchTab("assigned-by-me")'>
+            @Lang.T("مهام كلّفت بها")
+        </button>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (tasks == null || tasks.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-check2-circle"></i>
+            <p>@Lang.T("لا توجد مهام")</p>
+        </div>
+    }
+    else
+    {
+        <div class="task-list">
+            @foreach (var task in tasks)
+            {
+                <div class="task-card @(task.IsOverdue ? "overdue" : "")">
+                    <div class="task-main">
+                        <span class="task-type-badge">@Lang.T(task.Type == UserTaskType.Order ? "أمر" : "مهمة")</span>
+                        <p class="task-desc">@task.Description</p>
+                        <div class="task-meta">
+                            @if (activeTab == "assigned-to-me")
+                            {
+                                <span><i class="bi bi-person"></i> @Lang.T("من") @task.AssignedByName</span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-person"></i> @Lang.T("إلى") @task.AssignedToName</span>
+                            }
+                            @if (task.DueDate.HasValue)
+                            {
+                                <span class="@(task.IsOverdue ? "overdue-text" : "")">
+                                    <i class="bi bi-calendar-event"></i> @task.DueDate.Value.ToString("dd/MM/yyyy")
+                                    @if (task.IsOverdue)
+                                    {
+                                        <span> (@Lang.T("متأخرة"))</span>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="task-status-area">
+                        @if (activeTab == "assigned-to-me")
+                        {
+                            <select class="select-input status-select @StatusClass(task.Status)" value="@task.Status"
+                                    @onchange="(e) => ChangeStatus(task, e.Value)">
+                                <option value="@UserTaskStatus.Received">@Lang.T("مستلمة")</option>
+                                <option value="@UserTaskStatus.OnHold">@Lang.T("معلّقة")</option>
+                                <option value="@UserTaskStatus.InProgress">@Lang.T("جارية")</option>
+                                <option value="@UserTaskStatus.Completed">@Lang.T("مكتملة")</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <span class="status-badge @StatusClass(task.Status)">@Lang.T(StatusLabel(task.Status))</span>
+                            <button class="icon-action danger" title="@Lang.T("حذف")" @onclick="() => RequestDelete(task)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showCreateModal)
+{
+    <div class="modal-overlay" @onclick="CloseCreateModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Lang.T("مهمة جديدة")</h3>
+                <button class="icon-action" @onclick="CloseCreateModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("موجّهة لـ")</label>
+                    <EmployeeSearchSelect SelectedUserId="newTaskUserId" SelectedUserIdChanged="(id) => newTaskUserId = id" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("النوع")</label>
+                    <select class="select-input" @bind="newTaskType">
+                        <option value="@UserTaskType.Task">@Lang.T("مهمة")</option>
+                        <option value="@UserTaskType.Order">@Lang.T("طلب")</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>@Lang.T("الوصف")</label>
+                    <textarea class="search-input" rows="3" @bind="newTaskDescription"></textarea>
+                </div>
+                <div class="field">
+                    <label>@Lang.T("تاريخ الاستحقاق (اختياري)")</label>
+                    <input type="date" class="search-input" @bind="newTaskDueDate" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseCreateModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitCreate">@Lang.T("إرسال")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (taskToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل تريد حذف هذه المهمة؟")</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    string activeTab = "assigned-to-me";
+    List<TaskListItem>? tasks;
+    bool loading = true;
+    int currentUserId;
+
+    bool showCreateModal = false;
+    int? newTaskUserId;
+    UserTaskType newTaskType = UserTaskType.Task;
+    string newTaskDescription = "";
+    DateTime? newTaskDueDate;
+
+    TaskListItem? taskToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+        await LoadTasks();
+    }
+
+    async Task LoadTasks()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            tasks = activeTab == "assigned-to-me"
+                ? await TaskSvc.GetAssignedToMeAsync(currentUserId)
+                : await TaskSvc.GetAssignedByMeAsync(currentUserId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل المهام");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task SwitchTab(string tab)
+    {
+        activeTab = tab;
+        await LoadTasks();
+    }
+
+    void OpenCreateModal()
+    {
+        newTaskUserId = null; newTaskType = UserTaskType.Task;
+        newTaskDescription = ""; newTaskDueDate = null;
+        showCreateModal = true;
+    }
+    void CloseCreateModal() => showCreateModal = false;
+
+    async Task SubmitCreate()
+    {
+        if (newTaskUserId == null || string.IsNullOrWhiteSpace(newTaskDescription))
+        {
+            Notify.ShowError(Lang.T("اختر الموظف واكتب وصف المهمة"));
+            return;
+        }
+        try
+        {
+            await TaskSvc.CreateAsync(newTaskDescription, newTaskType, newTaskUserId.Value, currentUserId, newTaskDueDate);
+            Notify.ShowSuccess(Lang.T("تم إرسال المهمة بنجاح"));
+            showCreateModal = false;
+            await LoadTasks();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء إنشاء مهمة");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    async Task ChangeStatus(TaskListItem task, object? value)
+    {
+        if (value == null || !Enum.TryParse<UserTaskStatus>(value.ToString(), out var status)) return;
+        try
+        {
+            await TaskSvc.UpdateStatusAsync(task.Id, status);
+            task.Status = status;
+            Notify.ShowSuccess(Lang.T("تم تحديث الحالة"));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحديث حالة المهمة {Id}", task.Id);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    void RequestDelete(TaskListItem task) => taskToDelete = task;
+    void CancelDelete() => taskToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (taskToDelete == null) return;
+        try
+        {
+            await TaskSvc.DeleteAsync(taskToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم حذف المهمة"));
+            taskToDelete = null;
+            await LoadTasks();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حذف المهمة {Id}", taskToDelete?.Id);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+            taskToDelete = null;
+        }
+    }
+
+    string StatusClass(UserTaskStatus s) => s switch
+    {
+        UserTaskStatus.Completed => "status-checkin",
+        UserTaskStatus.InProgress => "status-pending",
+        UserTaskStatus.OnHold => "status-expiring",
+        _ => "status-checkout"
+    };
+
+    string StatusLabel(UserTaskStatus s) => s switch
+    {
+        UserTaskStatus.Sent => "مُرسلة",
+        UserTaskStatus.Received => "مستلمة",
+        UserTaskStatus.OnHold => "معلّقة",
+        UserTaskStatus.InProgress => "جارية",
+        UserTaskStatus.Completed => "مكتملة",
+        _ => ""
+    };
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

@@ -1,0 +1,225 @@
+﻿@page "/settings/salary"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Sho2on.Web.Services
+@using Sho2on.Database.Models
+@inject SalarySettingService SettingSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="settings-page">
+    <div class="page-header">
+        <h2>@Lang.T("إعدادات الرواتب")</h2>
+        <div class="header-actions">
+            <button class="btn-outline" @onclick="ResetToDefault">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                @Lang.T("إعادة تعيين")
+            </button>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else
+    {
+        <div class="form-container">
+            <EditForm Model="@settings" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="form-grid">
+                    <!-- الضرايب -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("نسبة الضريبة")</label>
+                        <div class="input-with-suffix">
+                            <InputNumber class="form-input" @bind-Value="settings.TaxPercentage" step="0.5" min="0" max="100" />
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("الحد الأدنى المعفى من الضريبة")</label>
+                        <div class="input-with-currency">
+                            <InputNumber class="form-input" @bind-Value="settings.TaxThreshold" step="100" min="0" />
+                            <span class="currency">@settings.Currency</span>
+                        </div>
+                    </div>
+
+                    <!-- التأمينات -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("نسبة التأمينات")</label>
+                        <div class="input-with-suffix">
+                            <InputNumber class="form-input" @bind-Value="settings.InsurancePercentage" step="0.5" min="0" max="100" />
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("الحد الأقصى للتأمينات")</label>
+                        <div class="input-with-currency">
+                            <InputNumber class="form-input" @bind-Value="settings.InsuranceMaxAmount" step="100" min="0" />
+                            <span class="currency">@settings.Currency</span>
+                        </div>
+                    </div>
+
+                    <!-- صندوق الزمالة -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("نسبة صندوق الزمالة")</label>
+                        <div class="input-with-suffix">
+                            <InputNumber class="form-input" @bind-Value="settings.FriendshipBoxPercentage" step="0.5" min="0" max="100" />
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+
+                    <!-- المشاركة الاجتماعية -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("المشاركة الاجتماعية")</label>
+                        <div class="input-with-currency">
+                            <InputNumber class="form-input" @bind-Value="settings.SocialParticipationAmount" step="10" min="0" />
+                            <span class="currency">@settings.Currency</span>
+                        </div>
+                    </div>
+
+                    <!-- الصرف الفوري -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("السماح بالصرف الفوري")</label>
+                        <div class="toggle-group">
+                            <label class="toggle-switch">
+                                <InputCheckbox @bind-Value="settings.AllowOffCycle" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">@(settings.AllowOffCycle ? Lang.T("مفعل") : Lang.T("غير مفعل"))</span>
+                        </div>
+                    </div>
+
+                    <!-- العملة -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("العملة")</label>
+                        <InputText class="form-input" @bind-Value="settings.Currency" placeholder="ج.م" />
+                    </div>
+
+                    <!-- ملاحظات -->
+                    <div class="form-group full-width">
+                        <label class="form-label">@Lang.T("ملاحظات")</label>
+                        <InputTextArea class="form-textarea" @bind-Value="settings.Notes" />
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" @onclick='() => Nav.NavigateTo("/settings")'>
+                        @Lang.T("إلغاء")
+                    </button>
+                    <button type="submit" class="btn-primary" disabled="@isSubmitting">
+                        <i class="bi bi-save"></i>
+                        @Lang.T("حفظ الإعدادات")
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    }
+</div>
+
+@code {
+    private SalarySetting settings = new();
+    private bool loading = true;
+    private bool isSubmitting = false;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettings();
+    }
+
+    private async Task LoadSettings()
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            settings = await SettingSvc.GetSettingsAsync();
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError($"حدث خطأ: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            var (success, message) = await SettingSvc.UpdateSettingsAsync(settings);
+            
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError($"حدث خطأ: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ResetToDefault()
+    {
+        if (!await ConfirmAsync(Lang.T("تأكيد"), Lang.T("هل أنت متأكد من إعادة تعيين الإعدادات للقيم الافتراضية؟")))
+            return;
+
+        try
+        {
+            var (success, message) = await SettingSvc.ResetToDefaultAsync();
+            
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                await LoadSettings();
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError($"حدث خطأ: {ex.Message}");
+        }
+    }
+
+    private async Task<bool> ConfirmAsync(string title, string message)
+    {
+        // TODO: Implement Modal
+        return true;
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+    }
+}

@@ -1,3 +1,5 @@
+
+
 * {
     margin: 0;
     padding: 0;
@@ -23,4 +25,306 @@ input {
 
 .page-content {
     padding: 30px;
+}
+
+
+/* ===== تنسيق عام لكل textarea في المشروع ===== */
+textarea {
+    padding: 14px 16px !important;
+    border: 2px solid #E4DFD6 !important;
+    border-radius: 12px !important;
+    font-size: 13.5px !important;
+    width: 100% !important;
+    min-height: 110px !important;
+    font-family: 'Tajawal', 'Segoe UI', sans-serif !important;
+    resize: vertical !important;
+    background: #FAF8F5 !important;
+    color: #1F1B3A !important;
+    line-height: 1.7 !important;
+    transition: all 0.2s ease !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+    textarea:hover {
+        border-color: #C9C2B4 !important;
+        background: #F5F2EC !important;
+    }
+
+    textarea:focus {
+        border-color: #211B4E !important;
+        box-shadow: 0 0 0 3px rgba(33, 27, 78, 0.06) !important;
+        background: #FFFFFF !important;
+    }
+
+    textarea::placeholder {
+        color: #A6A3C2 !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+    }
+
+    /* سكرول بار */
+    textarea::-webkit-scrollbar {
+        width: 6px !important;
+    }
+
+    textarea::-webkit-scrollbar-track {
+        background: transparent !important;
+        border-radius: 4px !important;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+        background: #E4DFD6 !important;
+        border-radius: 10px !important;
+    }
+
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #C9C2B4 !important;
+        }
+
+/* ===== تنسيق عام لكل حقول الإدخال ===== */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="month"],
+select,
+textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--background);
+    transition: all var(--transition);
+    outline: none;
+    box-sizing: border-box;
+}
+
+  input:hover,
+  select:hover,
+  textarea:hover {
+        border-color: var(--border-hover);
+        background: var(--surface-hover);
+    }
+
+   input:focus,
+   select:focus,
+   textarea:focus {
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+ input::placeholder,
+ textarea::placeholder {
+        color: var(--text-muted);
+        font-weight: 500;
+        font-size: 13px;
+    }
+
+    /* إخفاء أسهم InputNumber */
+ input[type="number"]::-webkit-inner-spin-button,
+ input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    text-align: left;
+    direction: ltr;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* تنسيق حقول التاريخ */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="month"] {
+    cursor: pointer;
+    min-height: 48px;
+}
+
+/* تنسيق select */
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23A9A3C4' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 01.753 1.659l-4.796 5.48a1 1 0 01-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 16px center;
+    padding-left: 40px;
+}
+
+/* تنسيق checkbox */
+input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* تنسيق textarea */
+textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+/* ===== تنسيق عام لجميع الجداول ===== */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+    /* هيدر الجدول */
+    .data-table thead th {
+        padding: 12px 16px;
+        text-align: right;
+        font-weight: 800;
+        color: var(--text-light);
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--border);
+        white-space: nowrap;
+        background: linear-gradient(180deg, var(--background) 0%, #F5F2EC 100%);
+    }
+
+    /* صفوف الجدول */
+    .data-table tbody td {
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+        vertical-align: middle;
+        font-size: 13.5px;
+    }
+
+    .data-table tbody tr:hover td {
+        background: var(--surface-hover);
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+/* ===== Responsive Tables ===== */
+@media (max-width: 1200px) {
+    .data-table {
+        min-width: 700px;
+        font-size: 13px;
+    }
+
+        .data-table thead th {
+            padding: 10px 14px;
+            font-size: 10.5px;
+        }
+
+        .data-table tbody td {
+            padding: 10px 14px;
+            font-size: 12.5px;
+        }
+}
+
+@media (max-width: 992px) {
+    .data-table {
+        min-width: 600px;
+        font-size: 12px;
+    }
+
+        .data-table thead th {
+            padding: 8px 10px;
+            font-size: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .data-table tbody td {
+            padding: 8px 10px;
+            font-size: 11.5px;
+        }
+
+        /* إخفاء بعض الأعمدة في الشاشات الصغيرة */
+        .data-table th.hide-md,
+        .data-table td.hide-md {
+            display: none;
+        }
+}
+
+@media (max-width: 768px) {
+    .data-table {
+        min-width: 500px;
+        font-size: 11px;
+    }
+
+        .data-table thead th {
+            padding: 6px 8px;
+            font-size: 9.5px;
+            letter-spacing: 0.2px;
+        }
+
+        .data-table tbody td {
+            padding: 6px 8px;
+            font-size: 10.5px;
+        }
+
+        /* إخفاء أعمدة أكثر في الموبايل */
+        .data-table th.hide-sm,
+        .data-table td.hide-sm {
+            display: none;
+        }
+
+    /* تصغير الأزرار */
+    .icon-action {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 12px !important;
+    }
+
+    .btn-sm {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 11px !important;
+    }
+
+    /* تصغير البادجات */
+    .status-badge {
+        padding: 3px 8px !important;
+        font-size: 10px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .data-table {
+        min-width: 400px;
+        font-size: 10px;
+    }
+
+        .data-table thead th {
+            padding: 5px 6px;
+            font-size: 8.5px;
+        }
+
+        .data-table tbody td {
+            padding: 5px 6px;
+            font-size: 9.5px;
+        }
+
+        /* إخفاء أعمدة أكتر */
+        .data-table th.hide-xs,
+        .data-table td.hide-xs {
+            display: none;
+        }
 }

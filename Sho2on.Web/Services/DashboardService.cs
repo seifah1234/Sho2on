@@ -6,14 +6,15 @@ namespace Sho2on.Web.Services
 {
     public partial class DashboardService
     {
-        private readonly AppDbContext _db;
-        public DashboardService(AppDbContext db) => _db = db;
+        private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public DashboardService(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         // ══ الشجرة الهرمية: الشركة → القطاعات (Degrees) → الفروع → الإدارات ══
 
         public async Task<DashboardStats> GetPersonalStatsAsync(int userId)
         {
             var stats = new DashboardStats();
+            using var _db = await _dbFactory.CreateDbContextAsync();
 
             var user = await _db.Users
                 .Include(u => u.JobTitle)
@@ -35,6 +36,7 @@ namespace Sho2on.Web.Services
 
         public async Task<DashboardTreeNode> GetCompanyTreeAsync()
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var companyName = await _db.Settings.Select(s => s.CompanyName).FirstOrDefaultAsync() ?? "الشركة";
             var sectors = await _db.Degrees.Include(d => d.Users).OrderBy(d => d.Name).ToListAsync();
             var branches = await _db.Branches.Include(b => b.Users).OrderBy(b => b.Name).ToListAsync();
@@ -46,6 +48,8 @@ namespace Sho2on.Web.Services
                 Type = "الشركة",
                 ChildrenType = "قطاعات",
                 TotalEmployees = sectors.Sum(s => s.Users.Count(u => !u.IsArchived)),
+                TotalBranches = branches.Count,
+                TotalDeparts = depts.Count,
                 TotalChildren = sectors.Count,
                 Children = sectors.Select(s => new DashboardTreeNode
                 {
@@ -82,6 +86,7 @@ namespace Sho2on.Web.Services
         {
             var data = new DashboardChartsData();
 
+            using var _db = await _dbFactory.CreateDbContextAsync();
             data.MaleCount = await _db.Users.Where(u => !u.IsArchived && u.Gender == 'M').CountAsync();
             data.FemaleCount = await _db.Users.Where(u => !u.IsArchived && u.Gender == 'F').CountAsync();
 
@@ -110,6 +115,7 @@ namespace Sho2on.Web.Services
         public async Task<List<DashboardAlert>> GetAlertsAsync()
         {
             var alerts = new List<DashboardAlert>();
+            using var _db = await _dbFactory.CreateDbContextAsync();
 
             var expiringDocs = await _db.Users
                 .Where(u => u.NationalIDExpiration.HasValue &&

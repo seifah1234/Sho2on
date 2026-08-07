@@ -28,6 +28,9 @@ namespace Sho2on.Database.Models
         public double? Longitude { get; set; }
         public string? LocationName { get; set; }
 
+        public bool? IsManualEntry { get; set; } = false;
+        public string? AddedByUsername { get; set; }
+
         [Required]
         public int BranchId { get; set; }
 

@@ -9,64 +9,108 @@
 
 <div class="login-page" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
 
+    <!-- ══ البانل الأيسر - GIF الخلفية ══ -->
     <div class="brand-panel">
-        <svg class="brand-pattern" viewBox="0 0 300 500" preserveAspectRatio="xMidYMid slice">
-            <g stroke="#FF6F59" stroke-width="1" fill="none">
-                <path d="M40 60 L60 40 L80 60 L60 80 Z" />
-                <path d="M180 20 L200 0 L220 20 L200 40 Z" />
-                <path d="M20 200 L40 180 L60 200 L40 220 Z" />
-                <path d="M240 150 L260 130 L280 150 L260 170 Z" />
-                <path d="M120 300 L140 280 L160 300 L140 320 Z" />
-                <path d="M60 400 L80 380 L100 400 L80 420 Z" />
-                <path d="M220 380 L240 360 L260 380 L240 400 Z" />
-            </g>
-        </svg>
+        <!-- GIF كخلفية -->
+        <div class="brand-background">
+            <img src="/images/Back.gif" alt="Background" class="bg-gif" />
+            <div class="bg-overlay"></div>
+        </div>
 
+        <!-- دوائر زخرفية -->
+        <div class="brand-decor">
+            <div class="decor-circle decor-1"></div>
+            <div class="decor-circle decor-2"></div>
+            <div class="decor-circle decor-3"></div>
+        </div>
+
+        <!-- المحتوى - فوق في النص -->
         <div class="brand-content">
-            <div class="brand-mark">S</div>
-            <h1>@Lang.T("نظام Sho2on")</h1>
+            <h1>@Lang.T("نظام RAKZ")</h1>
             <p>@Lang.T("إدارة الموظفين والحضور والرواتب في مكان واحد")</p>
         </div>
 
-        <p class="brand-footer">© Sho2on HR</p>
+        <p class="brand-footer">© Original IBS</p>
     </div>
 
+    <!-- ══ البانل الأيمن - كارت تسجيل الدخول ══ -->
     <div class="form-panel">
-        <button class="lang-toggle" @onclick="async ()=>
-            await Lang.Toggle()">
+        <button class="lang-toggle" @onclick="async () => await Lang.Toggle()">
+            <i class="bi bi-globe"></i>
             @(Lang.IsRtl ? "English" : "عربي")
         </button>
 
-        <div class="form-box">
-            <h3>@Lang.T("تسجيل الدخول")</h3>
-            <p>@Lang.T("أهلاً بك، سجّل دخولك للمتابعة")</p>
+        <div class="login-card">
+            <!-- هيدر الكارت - اللوجو مكان الأيقونة -->
+            <div class="card-header">
+                <div class="card-logo">
+                    <img src="/images/logo.png" alt="RAKZ" class="card-logo-img"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div class="card-logo-fallback" style="display:none;">
+                        <span>R</span>
+                    </div>
+                </div>
+                <h3>@Lang.T("تسجيل الدخول")</h3>
+                <p>@Lang.T("أهلاً بك، سجّل دخولك للمتابعة")</p>
+            </div>
 
+            <!-- الفورم -->
             <form method="post" action="/account/login" class="login-form">
-                <div class="field">
-                    <label for="username">@Lang.T("اسم المستخدم")</label>
-                    <input id="username" type="text" name="username" placeholder="@Lang.T("اسم المستخدم")" autocomplete="username" />
+                <div class="input-group">
+                    <label for="username">
+                        <i class="bi bi-person"></i>
+                        @Lang.T("اسم المستخدم")
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-person input-icon"></i>
+                        <input id="username" type="text" name="username"
+                               placeholder="@Lang.T("أدخل اسم المستخدم")"
+                               autocomplete="username" />
+                    </div>
                 </div>
 
-                <div class="field">
-                    <label for="password">@Lang.T("كلمة المرور")</label>
-                    <input id="password" type="password" name="password" placeholder="@Lang.T("كلمة المرور")" autocomplete="current-password" />
+                <div class="input-group">
+                    <label for="password">
+                        <i class="bi bi-key"></i>
+                        @Lang.T("كلمة المرور")
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="bi bi-lock input-icon"></i>
+                        <input id="password" type="password" name="password"
+                               placeholder="@Lang.T("أدخل كلمة المرور")"
+                               autocomplete="current-password" />
+                    </div>
                 </div>
 
-                <button type="submit" class="login-submit">@Lang.T("تسجيل الدخول")</button>
+                <button type="submit" class="login-submit">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    @Lang.T("تسجيل الدخول")
+                </button>
             </form>
 
+            <!-- رسائل الخطأ -->
             @if (ErrorType == "invalid")
             {
-                <div class="error-message">
-                    <i class="bi bi-exclamation-circle"></i>
-                    @Lang.T("اسم المستخدم أو كلمة المرور غير صحيحة")
+                <div class="error-message shake">
+                    <div class="error-icon">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </div>
+                    <div class="error-text">
+                        <strong>@Lang.T("فشل تسجيل الدخول")</strong>
+                        <span>@Lang.T("اسم المستخدم أو كلمة المرور غير صحيحة")</span>
+                    </div>
                 </div>
             }
             else if (ErrorType == "connection")
             {
-                <div class="error-message">
-                    <i class="bi bi-wifi-off"></i>
-                    @Lang.T("تعذر الاتصال بالخادم، برجاء المحاولة لاحقاً")
+                <div class="error-message shake">
+                    <div class="error-icon">
+                        <i class="bi bi-wifi-off"></i>
+                    </div>
+                    <div class="error-text">
+                        <strong>@Lang.T("خطأ في الاتصال")</strong>
+                        <span>@Lang.T("تعذر الاتصال بالخادم، برجاء المحاولة لاحقاً")</span>
+                    </div>
                 </div>
             }
         </div>

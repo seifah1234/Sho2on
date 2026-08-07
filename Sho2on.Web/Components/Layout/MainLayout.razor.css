@@ -1,6 +1,11 @@
+
+
+/* ===== التخطيط الرئيسي ===== */
 .layout {
     display: flex;
     min-height: 100vh;
+    background: var(--background);
+    position: relative;
 }
 
 .layout-body {
@@ -8,23 +13,28 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+    transition: margin var(--transition-slow);
+    margin-inline-start: var(--sidebar-width);
 }
 
-.page-content {
-    padding: 24px;
-}
-
+/* ===== الشريط الجانبي ===== */
 ::deep .sidebar {
-    width: 260px;
+    width: var(--sidebar-width);
     flex-shrink: 0;
-    position: sticky;
+    position: fixed;
     top: 0;
+    right: 0;
+    bottom: 0;
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-    transition: width 0.2s ease, opacity 0.15s ease;
+    transition: all var(--transition-slow);
+    z-index: 100;
+    border: none; /* إزالة أي حدود */
+    box-shadow: var(--shadow-lg); /* ظل فقط بدون حدود */
 }
 
+/* حالة الطي */
 .sidebar-collapsed ::deep .sidebar {
     width: 0;
     opacity: 0;
@@ -32,35 +42,93 @@
     border: none;
 }
 
-/* شكل الـ Scrollbar بسيط ومتماشي مع الهوية */
-::deep .sidebar::-webkit-scrollbar {
-    width: 5px;
+.sidebar-collapsed .layout-body {
+    margin-inline-start: 0; /* يرجع المحتوى لمكانه الطبيعي */
 }
 
-::deep .sidebar::-webkit-scrollbar-thumb {
-    background: #E4DFD6;
-    border-radius: 10px;
-}
-
+/* ===== صفحة الخطأ ===== */
 .error-fallback {
     text-align: center;
-    padding: 60px 20px;
-    color: #746F93;
+    padding: 80px 20px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    max-width: 500px;
+    margin: 40px auto;
 }
 
-    .error-fallback i {
-        font-size: 32px;
-        color: #FF6F59;
-        margin-bottom: 12px;
+.error-fallback i {
+    font-size: 48px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: block;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.error-fallback p {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 20px;
+}
+
+.error-fallback button {
+    background: var(--gradient-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 12px 28px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.error-fallback button:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+    .layout-body {
+        margin-inline-start: 0; /* في الموبايل المحتوى ياخد العرض كامل */
     }
 
-    .error-fallback button {
-        margin-top: 14px;
-        background: #211B4E;
-        color: #FFFFFF;
-        border: none;
-        border-radius: 8px;
-        padding: 9px 20px;
-        font-family: inherit;
-        cursor: pointer;
+    ::deep .sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 1000;
+        transform: translateX(100%);
+        box-shadow: var(--shadow-xl);
+        height: 100vh;
     }
+
+    .layout.sidebar-open ::deep .sidebar {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(27, 23, 53, 0.5);
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition);
+    }
+
+    .layout.sidebar-open .sidebar-overlay {
+        opacity: 1;
+        pointer-events: all;
+    }
+}

@@ -1,77 +1,377 @@
-﻿.sidebar {
+﻿/* ===== الشريط الجانبي ===== */
+.sidebar {
     width: var(--sidebar-width);
-    background: #fff;
-    border-inline-end: 1px solid var(--border);
+    background: linear-gradient(165deg, var(--primary-dark) 0%, var(--primary) 40%);
     display: flex;
     flex-direction: column;
     height: 100vh;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    transition: all var(--transition-slow);
+    overflow: hidden;
 }
 
+    /* ===== طبقات الزخارف ===== */
+    .sidebar::before {
+        content: '';
+        position: absolute;
+        top: -120px;
+        right: -80px;
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, rgba(200, 169, 81, 0.12) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: floatSlow 15s ease-in-out infinite;
+    }
+
+    .sidebar::after {
+        content: '';
+        position: absolute;
+        top: 40%;
+        left: -60px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(ellipse, rgba(45, 66, 99, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: floatSlow 12s ease-in-out infinite reverse;
+    }
+
+/* زخرفة 3: نقط متناثرة */
+.sidebar-decoration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+    .sidebar-decoration::before {
+        content: '';
+        position: absolute;
+        top: 20%;
+        right: 15%;
+        width: 80px;
+        height: 80px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 50%;
+        animation: floatSlow 10s ease-in-out infinite;
+    }
+
+    .sidebar-decoration::after {
+        content: '';
+        position: absolute;
+        bottom: 25%;
+        right: 10%;
+        width: 60px;
+        height: 60px;
+        border: 1px solid rgba(200, 169, 81, 0.08);
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        animation: morphShape 8s ease-in-out infinite;
+    }
+
+/* نقط صغيرة */
+.sidebar-dots {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dot {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+    .dot:nth-child(1) {
+        width: 4px;
+        height: 4px;
+        top: 15%;
+        right: 20%;
+        animation: twinkle 3s ease-in-out infinite;
+    }
+
+    .dot:nth-child(2) {
+        width: 3px;
+        height: 3px;
+        top: 35%;
+        right: 8%;
+        animation: twinkle 4s ease-in-out 0.5s infinite;
+    }
+
+    .dot:nth-child(3) {
+        width: 5px;
+        height: 5px;
+        top: 55%;
+        right: 25%;
+        background: rgba(200, 169, 81, 0.15);
+        animation: twinkle 3.5s ease-in-out 1s infinite;
+    }
+
+    .dot:nth-child(4) {
+        width: 3px;
+        height: 3px;
+        top: 70%;
+        right: 15%;
+        animation: twinkle 4.5s ease-in-out 1.5s infinite;
+    }
+
+    .dot:nth-child(5) {
+        width: 4px;
+        height: 4px;
+        top: 85%;
+        right: 30%;
+        background: rgba(200, 169, 81, 0.1);
+        animation: twinkle 3s ease-in-out 2s infinite;
+    }
+
+@keyframes floatSlow {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(-20px, 20px) scale(1.05);
+    }
+
+    50% {
+        transform: translate(15px, -15px) scale(0.95);
+    }
+
+    75% {
+        transform: translate(-15px, -20px) scale(1.02);
+    }
+}
+
+@keyframes morphShape {
+    0%, 100% {
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    }
+
+    25% {
+        border-radius: 50% 50% 30% 70% / 50% 50% 70% 30%;
+    }
+
+    50% {
+        border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+    }
+
+    75% {
+        border-radius: 30% 70% 50% 50% / 70% 30% 50% 50%;
+    }
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.8);
+    }
+}
+
+/* ===== هيدر الشريط ===== */
 .sidebar-header {
-    padding: 24px;
-    border-bottom: 1px solid var(--border);
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 100%);
 }
 
 .logo {
     display: flex;
     align-items: center;
     gap: 14px;
+    position: relative;
 }
 
 .logo-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: var(--primary);
-    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-accent);
+    color: var(--primary-dark);
     display: grid;
     place-items: center;
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 800;
+    box-shadow: 0 4px 20px rgba(200, 169, 81, 0.4);
+    letter-spacing: -0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+    .logo-icon::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+        transform: rotate(45deg);
+        animation: logoShine 4s ease-in-out infinite;
+    }
+
+@keyframes logoShine {
+    0%, 100% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+
+    50% {
+        transform: translateX(100%) rotate(45deg);
+    }
 }
 
 .logo-text h3 {
     margin: 0;
-    font-size: 20px;
-    color: var(--text);
+    font-size: 19px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.3px;
 }
 
 .logo-text span {
-    color: var(--text-light);
-    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    font-weight: 500;
+    display: block;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
+/* ===== خط فاصل مزخرف ===== */
+.sidebar-divider {
+    margin: 8px 20px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+    position: relative;
+    z-index: 1;
+}
+
+    .sidebar-divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6px;
+        height: 6px;
+        background: var(--accent);
+        border-radius: 50%;
+        opacity: 0.6;
+    }
+
+/* ===== القائمة ===== */
 .sidebar-menu {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    overflow-x: hidden;
+    padding: 16px 12px;
+    position: relative;
+    z-index: 1;
 }
 
-.submenu {
-    margin-top: 6px;
-    padding-inline-start: 18px;
-    border-inline-start: 2px solid #edf0f3;
-}
+    .sidebar-menu::-webkit-scrollbar {
+        width: 4px;
+    }
 
+    .sidebar-menu::-webkit-scrollbar-track {
+        background: transparent;
+        margin: 8px 0;
+    }
+
+    .sidebar-menu::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-full);
+    }
+
+        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+/* ===== فوتر الشريط ===== */
 .sidebar-footer {
-    border-top: 1px solid var(--border);
-    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
 }
 
 .user-card {
     display: flex;
     align-items: center;
     gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    transition: all var(--transition);
+    cursor: pointer;
+    border: 1px solid transparent;
+    position: relative;
 }
 
+    .user-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
 .avatar {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: var(--primary);
-    color: white;
+    background: var(--gradient-accent);
+    color: var(--primary-dark);
     display: grid;
     place-items: center;
-    font-weight: bold;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(200, 169, 81, 0.4);
+    position: relative;
+}
+
+    .avatar::after {
+        content: '';
+        position: absolute;
+        bottom: 1px;
+        right: 1px;
+        width: 10px;
+        height: 10px;
+        background: var(--success);
+        border: 2px solid var(--primary);
+        border-radius: 50%;
+        animation: pulseOnline 2s ease-in-out infinite;
+    }
+
+@keyframes pulseOnline {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(5, 150, 105, 0);
+    }
+}
+
+.user-card strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.3;
+}
+
+.user-card small {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+    margin-top: 1px;
 }

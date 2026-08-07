@@ -7,8 +7,11 @@
         public string Type { get; set; } = "";          // الشركة / قطاع / فرع / إدارة
         public string ChildrenType { get; set; } = "";   // قطاعات / فروع / إدارات
         public int TotalEmployees { get; set; }
+        public int TotalBranches { get; set; }
+        public int TotalDeparts { get; set; }
         public int TotalChildren { get; set; }
         public List<DashboardTreeNode> Children { get; set; } = new();
+        public bool IsExpanded { get; set; } = false;
     }
 
     public class DashboardAlert

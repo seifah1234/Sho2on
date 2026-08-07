@@ -17,7 +17,7 @@
         public TimeSpan? EarlyEnter { get; set; }
         public TimeSpan? Overtime { get; set; }
         public TimeSpan? TotalWorkHours { get; set; }
-
+        public TimeSpan? ActualWorkHours { get; set; }
         public bool IsAbsence { get; set; }
         public bool IsHoliday { get; set; }
         public bool IsWeeklyRest { get; set; }
@@ -27,7 +27,8 @@
         public bool ExemptEarlyLeave { get; set; }
         public bool ExemptEarlyEnter { get; set; }
         public bool ExemptOvertime { get; set; }
-
+        public bool? IsCheckInAutoFilled { get; set; }
+        public bool? IsCheckOutAutoFilled { get; set; }
         public string Status =>
 IsHoliday ? "عطلة" :
 HasLeave ? "إجازة" :

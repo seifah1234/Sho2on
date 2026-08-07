@@ -1,31 +1,246 @@
-﻿ ﻿.form-card {
-     background: #FFFFFF;
-     border: 1px solid #EDEAE3;
-     border-radius: 12px;
-     padding: 24px;
-     max-width: 480px;
-     display: flex;
-     flex-direction: column;
-     gap: 16px;
-    
+﻿/* ===== صفحة تغيير الوردية ===== */
+.shift-change-page {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
 }
 
-
- .current-shift-box {
-     background: #FAF8F5;
-     border: 1px solid #EDEAE3;
-     border-radius: 8px;
-     padding: 10px 14px;
-     display: flex;
-     justify-content: space-between;
-     font-size: 13.5px;
-     color: #4A4570;
-    
+/* ===== كارد النموذج ===== */
+.form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition);
+    animation: slideUp 0.4s ease;
 }
 
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
 
- .muted {
-     color: #A6A3C2;
-     font-size: 13.5px;
-    
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* ===== عنوان الصفحة (لو حبيت تضيفه) ===== */
+.form-card .form-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .form-card .form-title i {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--info-bg);
+        color: var(--primary);
+        border-radius: var(--radius-md);
+        font-size: 20px;
+    }
+
+/* ===== الحقول ===== */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .field label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+/* حقل البحث */
+.search-input {
+    width: 100%;
+    padding: 13px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--transition);
+    box-sizing: border-box;
+}
+
+    .search-input::placeholder {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .search-input:hover {
+        border-color: var(--border-hover);
+    }
+
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(45, 36, 102, 0.06);
+        background: var(--surface);
+    }
+
+/* حقل التاريخ */
+input[type="date"].search-input {
+    cursor: pointer;
+    color-scheme: light;
+}
+
+/* Select */
+.select-input {
+    width: 100%;
+    padding: 13px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-sizing: border-box;
+}
+
+    .select-input:hover {
+        border-color: var(--border-hover);
+    }
+
+    .select-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(45, 36, 102, 0.06);
+    }
+
+/* ===== صندوق الوردية الحالية ===== */
+.current-shift-box {
+    background: linear-gradient(135deg, var(--info-bg) 0%, var(--background) 100%);
+    border: 2px solid var(--primary-light);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+}
+
+    .current-shift-box::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        width: 80px;
+        height: 80px;
+        background: rgba(45, 36, 102, 0.03);
+        border-radius: 50%;
+    }
+
+    .current-shift-box span {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .current-shift-box strong {
+        color: var(--primary);
+        font-size: 16px;
+        font-weight: 800;
+        position: relative;
+        z-index: 1;
+    }
+
+/* ===== زر الحفظ ===== */
+.btn-primary {
+    background: var(--gradient-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 14px 28px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-primary i {
+        font-size: 18px;
+    }
+
+/* ===== رسالة تنبيه ===== */
+.muted {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 20px;
+    background: var(--background);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--border);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .shift-change-page {
+        padding: 16px;
+    }
+
+    .form-card {
+        padding: 24px 20px;
+        gap: 16px;
+    }
+
+    .current-shift-box {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
 }

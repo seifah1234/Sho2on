@@ -1,0 +1,226 @@
+﻿@page "/settings/general"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject SettingService SettingSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="settings-page">
+    <div class="page-header">
+        <h2><i class="bi bi-gear"></i> @Lang.T("الإعدادات العامة")</h2>
+        <p class="page-subtitle">@Lang.T("إعدادات النظام العامة وإعدادات الشهر")</p>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (settings != null)
+    {
+        <EditForm Model="@settings" OnValidSubmit="SaveSettings">
+            <DataAnnotationsValidator />
+
+            <div class="settings-grid">
+                
+                <!-- ══ معلومات الشركة ══ -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="bi bi-building"></i>
+                        <h3>@Lang.T("معلومات الشركة")</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>@Lang.T("اسم الشركة")</label>
+                            <InputText class="form-input" @bind-Value="settings.CompanyName"
+                                       placeholder="@Lang.T("أدخل اسم الشركة")" />
+                        </div>
+                        <div class="form-group">
+                            <label>@Lang.T("مسار تخزين المستندات المركزي")</label>
+                            <InputText class="form-input" @bind-Value="settings.CentralDocumentStoragePath"
+                                       placeholder="\\SERVER\HR_Documents" />
+                            <small class="field-hint">@Lang.T("مسار الشبكة لتخزين المستندات")</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ إعدادات الشهر ══ -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="bi bi-calendar-month"></i>
+                        <h3>@Lang.T("إعدادات الشهر")</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>@Lang.T("بداية الشهر")</label>
+                                <InputNumber class="form-input" @bind-Value="settings.StartOfMonth"
+                                             min="1" max="31" step="1" />
+                                <small class="field-hint">@Lang.T("مثلاً: 26")</small>
+                            </div>
+                            <div class="form-group">
+                                <label>@Lang.T("نهاية الشهر")</label>
+                                <InputNumber class="form-input" @bind-Value="settings.EndOfMonth"
+                                             min="1" max="31" step="1" />
+                                <small class="field-hint">@Lang.T("مثلاً: 25")</small>
+                            </div>
+                        </div>
+                        <div class="month-preview">
+                            <div class="preview-icon">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <div class="preview-text">
+                                <strong>@Lang.T("مثال للشهر الحالي:")</strong>
+                                <span>
+                                    @GetMonthPreview()
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ إعدادات التأخير والإضافي ══ -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="bi bi-clock-history"></i>
+                        <h3>@Lang.T("إعدادات التأخير والإضافي")</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>@Lang.T("طريقة حساب التأخير والإضافي")</label>
+                            <div class="toggle-options">
+                                <button type="button"
+                                        class="option-btn @(settings.LateOvertimeCalculationMode == 0 ? "active" : "")"
+                                        @onclick="() => settings.LateOvertimeCalculationMode = 0">
+                                    <i class="bi bi-percent"></i>
+                                    @Lang.T("نسبة من سعر الدقيقة")
+                                </button>
+                                <button type="button"
+                                        class="option-btn @(settings.LateOvertimeCalculationMode == 1 ? "active" : "")"
+                                        @onclick="() => settings.LateOvertimeCalculationMode = 1">
+                                    <i class="bi bi-cash"></i>
+                                    @Lang.T("مبلغ ثابت")
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>@Lang.T("عدد مرات التأخير المسموح بها")</label>
+                                <InputNumber class="form-input" @bind-Value="settings.LateRepeat"
+                                             min="0" step="1" />
+                                <small class="field-hint">@Lang.T("بعدها يتم تطبيق العقوبة")</small>
+                            </div>
+                            <div class="form-group">
+                                <label>@Lang.T("قيمة العقوبة")</label>
+                                <InputNumber class="form-input" @bind-Value="settings.LateValue"
+                                             min="0" step="0.5" />
+                                <small class="field-hint">
+                                    @(settings.LateOvertimeCalculationMode == 0 ? Lang.T("نسبة مضاعفة") : Lang.T("مبلغ ثابت"))
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- أزرار الحفظ -->
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" @onclick='() => Nav.NavigateTo("/")'>
+                    <i class="bi bi-arrow-right"></i>
+                    @Lang.T("العودة للرئيسية")
+                </button>
+                <button type="submit" class="btn-primary" disabled="@saving">
+                    <i class="bi bi-check-lg"></i>
+                    @(saving ? Lang.T("جاري الحفظ...") : Lang.T("حفظ الإعدادات"))
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Setting? settings;
+    private bool loading = true;
+    private bool saving = false;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettings();
+    }
+
+    private async Task LoadSettings()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            settings = await SettingSvc.GetSettingsAsync();
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل الإعدادات"));
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveSettings()
+    {
+        if (settings == null) return;
+
+        saving = true;
+        StateHasChanged();
+        try
+        {
+            var (success, message) = await SettingSvc.UpdateSettingsAsync(settings);
+            if (success)
+                Notify.ShowSuccess(message);
+            else
+                Notify.ShowError(message);
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("حدث خطأ أثناء حفظ الإعدادات"));
+        }
+        finally
+        {
+            saving = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetMonthPreview()
+    {
+        if (settings == null) return "";
+        
+        var now = DateTime.Now;
+        int startDay = settings.StartOfMonth;
+        int endDay = settings.EndOfMonth;
+
+        DateTime startDate = new DateTime(now.Year, now.Month, Math.Min(startDay, DateTime.DaysInMonth(now.Year, now.Month)));
+        DateTime endDate = new DateTime(now.Year, now.Month, Math.Min(endDay, DateTime.DaysInMonth(now.Year, now.Month)));
+
+        if (endDay < startDay)
+            endDate = endDate.AddMonths(1);
+
+        return $"{startDate:dd/MM/yyyy} → {endDate:dd/MM/yyyy}";
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

@@ -1,0 +1,418 @@
+﻿/* ===== صفحة الصرف الفوري ===== */
+.off-cycle-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== رأس الصفحة ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .page-header h2 {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+/* ===== الأزرار ===== */
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-light);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--surface-hover);
+        transform: translateY(-1px);
+    }
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 13px 28px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+/* ===== حاوية النموذج ===== */
+.form-container {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+.form-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.required {
+    color: var(--accent);
+}
+
+/* ===== تنسيق InputNumber (حقل المبلغ) ===== */
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+    /* استهداف InputNumber مباشر */
+    .amount-input-wrapper ::deep input,
+    ::deep .amount-input-wrapper input,
+    .form-group ::deep input[type="number"] {
+        width: 100% !important;
+        padding: 14px 55px 14px 16px !important;
+        border: 2px solid #E4DFD6 !important;
+        border-radius: 12px !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        font-family: 'Tajawal', 'Segoe UI', sans-serif !important;
+        background: #FAF8F5 !important;
+        color: #211B4E !important;
+        transition: all 0.2s ease !important;
+        outline: none !important;
+        box-sizing: border-box !important;
+        text-align: left !important;
+        direction: ltr !important;
+        height: 48px !important;
+        line-height: normal !important;
+    }
+
+        .amount-input-wrapper ::deep input:hover,
+        .form-group ::deep input[type="number"]:hover {
+            border-color: #C9C2B4 !important;
+            background: #F5F2EC !important;
+        }
+
+        .amount-input-wrapper ::deep input:focus,
+        .form-group ::deep input[type="number"]:focus {
+            border-color: #211B4E !important;
+            box-shadow: 0 0 0 3px rgba(33, 27, 78, 0.06) !important;
+            background: #FFFFFF !important;
+        }
+
+        /* إخفاء أسهم InputNumber */
+        .amount-input-wrapper ::deep input::-webkit-inner-spin-button,
+        .amount-input-wrapper ::deep input::-webkit-outer-spin-button,
+        .form-group ::deep input[type="number"]::-webkit-inner-spin-button,
+        .form-group ::deep input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+
+        .amount-input-wrapper ::deep input[type="number"],
+        .form-group ::deep input[type="number"] {
+            -moz-appearance: textfield !important;
+        }
+
+.currency-label {
+    position: absolute;
+    right: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #A6A3C2;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ===== تنسيق InputDate (حقل التاريخ) ===== */
+::deep input[type="date"] {
+    width: 100%;
+    padding: 14px 16px !important;
+    border: 2px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    background: var(--background) !important;
+    color: var(--text) !important;
+    cursor: pointer !important;
+    transition: all var(--transition) !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    min-height: 48px !important;
+}
+
+    ::deep input[type="date"]:hover {
+        border-color: var(--border-hover) !important;
+        background: var(--surface-hover) !important;
+    }
+
+    ::deep input[type="date"]:focus {
+        border-color: var(--primary) !important;
+        box-shadow: var(--focus-ring) !important;
+        background: var(--surface) !important;
+    }
+
+    /* أيقونة التقويم */
+    ::deep input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity var(--transition);
+    }
+
+    ::deep input[type="date"]:hover::-webkit-calendar-picker-indicator {
+        opacity: 1;
+    }
+
+/* ===== تنسيق textarea ===== */
+.form-textarea {
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    width: 100%;
+    min-height: 100px;
+    font-family: inherit;
+    transition: all var(--transition);
+    resize: vertical;
+    background: var(--background);
+    color: var(--text);
+    box-sizing: border-box;
+    line-height: 1.7;
+}
+
+    .form-textarea:hover {
+        border-color: var(--border-hover);
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+    .form-textarea::placeholder {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+/* ===== صندوق التحذير ===== */
+.warning-box {
+    background: var(--warning-bg);
+    border: 2px solid var(--warning);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--warning);
+    font-weight: 700;
+    font-size: 13.5px;
+}
+
+    .warning-box i {
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+/* ===== بطاقة معلومات الموظف ===== */
+.employee-info-card {
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+}
+
+    .employee-info-card h4 {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border);
+        position: relative;
+    }
+
+        .employee-info-card h4::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--gradient-accent);
+            border-radius: var(--radius-full);
+        }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .info-item.highlight {
+        background: var(--gradient-primary);
+        padding: 14px 18px;
+        border-radius: var(--radius-md);
+    }
+
+        .info-item.highlight .info-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item.highlight .info-value {
+            color: #FFFFFF;
+            font-size: 18px;
+        }
+
+.info-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+/* ===== رسائل التحقق ===== */
+::deep .validation-message {
+    font-size: 12px;
+    color: var(--danger);
+    font-weight: 600;
+}
+
+/* ===== أزرار الإجراءات ===== */
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .off-cycle-page {
+        padding: 16px;
+    }
+
+    .form-container {
+        padding: 20px 16px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+        .form-actions .btn-primary,
+        .form-actions .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+}
+
+@media (max-width: 480px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}

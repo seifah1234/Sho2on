@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sho2on.Database.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sho2on.Web.Models
 {
@@ -54,7 +55,38 @@ namespace Sho2on.Web.Models
         public bool ExemptOvertime { get; set; }
         public bool ExemptAbsence { get; set; }
         public bool ExemptEarlyEnter { get; set; }
+        public SalaryTypeEnum? SalaryType { get; set; } = SalaryTypeEnum.Fixed;
 
+        // الراتب الثابت
+        public decimal? FixedSalary { get; set; }
+
+        // سعر الساعة (للنظام الشهري واليومي)
+        public decimal? HourlyRate { get; set; }
+
+        // ساعات العمل الشهرية (للنظام الشهري)
+        public decimal? MonthlyWorkingHours { get; set; } = 208;
+
+        public decimal TotalSalary => (FixedSalary ?? 0) + (HourlyRate ?? 0);
+
+        public decimal MinuteRate
+        {
+            get
+            {
+                if (TotalSalary <= 0 || (MonthlyWorkingHours ?? 208) <= 0) return 0;
+                return TotalSalary / ((MonthlyWorkingHours ?? 208) * 60);
+            }
+        }
+
+        // ساعات العمل اليومية (للنظام اليومي)
+        public decimal? DailyWorkingHours { get; set; } = 8;
+
+        // أيام العمل في الشهر (للنظام اليومي)
+        public int? WorkingDaysPerMonth { get; set; } = 26;
+
+        // الراتب الشهري المتوقع (للأنظمة بالساعة)
+        public decimal? ExpectedMonthlySalary { get; set; }
+
+        public decimal? MonthlySalary { get; set; }
         // ── المستندات ──
         public DateOnly? NationalIDExpiration { get; set; }
         public DateOnly? DriverLicenseExpiration { get; set; }
@@ -74,6 +106,8 @@ namespace Sho2on.Web.Models
         public int? MaritalId { get; set; }
         public int? RecidenceId { get; set; }
         public int InsuredId { get; set; } = 0;
+
+        public List<int> SelectedBenefitTypeIds { get; set; } = new();
     }
 
     public class EmployeeLookups

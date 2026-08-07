@@ -1,0 +1,288 @@
+﻿@page "/loans"
+@page "/loans/{userId?}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject LoanService LoanSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<Loans> Logger
+@inject CurrentUserService CurrentUser
+
+@implements IDisposable
+
+<div class="loans-page">
+    <div class="page-header">
+        <h2>@Lang.T("إدارة السلف")</h2>
+        <button class="btn-primary" @onclick='() => Nav.NavigateTo("/loans/request")'>
+            <i class="bi bi-plus-circle"></i>
+            @Lang.T("طلب سلفة جديدة")
+        </button>
+    </div>
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <div class="filter-group">
+                <select class="select-input" @bind="selectedStatus" @bind:after="HandleFilterChanged">
+                    <option value="">@Lang.T("جميع الحالات")</option>
+                    <option value="Pending">@Lang.T("قيد الانتظار")</option>
+                    <option value="Approved">@Lang.T("معتمدة")</option>
+                    <option value="Rejected">@Lang.T("مرفوضة")</option>
+                    <option value="PartiallyPaid">@Lang.T("مسددة جزئياً")</option>
+                    <option value="Paid">@Lang.T("مسددة بالكامل")</option>
+                </select>
+
+                <input class="search-input" 
+                       placeholder="@Lang.T("ابحث باسم الموظف أو رقمه")"
+                       @bind="searchTerm" 
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearchKeyUp" />
+            </div>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (result == null || result.Items.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-file-earmark-minus"></i>
+            <p>@Lang.T("لا توجد سلف")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("رقم السلفة")</th>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("المبلغ")</th>
+                        <th>@Lang.T("المتبقي")</th>
+                        <th>@Lang.T("القسط الشهري")</th>
+                        <th>@Lang.T("تاريخ الطلب")</th>
+                        <th>@Lang.T("الحالة")</th>
+                        <th>@Lang.T("الإجراءات")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in result.Items)
+                    {
+                        <tr>
+                            <td>@loan.Id</td>
+                            <td>
+                                <div class="employee-info">
+                                    <span class="emp-code">@loan.UserCode</span>
+                                    <span class="emp-name">@loan.UserName</span>
+                                </div>
+                            </td>
+                            <td class="amount">@loan.LoanAmount.ToString("N0")</td>
+                            <td class="amount">@loan.RemainingAmount.ToString("N0")</td>
+                            <td class="amount">@loan.MonthlyInstallment.ToString("N0")</td>
+                            <td>@loan.CreatedAt.ToString("yyyy/MM/dd")</td>
+                            <td><span class="status-badge @loan.StatusClass">@loan.StatusDisplay</span></td>
+                            <td>
+                                <button class="btn-sm btn-outline" @onclick='() => Nav.NavigateTo($"/loans/details/{loan.Id}")'>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                @if (loan.Status == "Pending")
+                                {
+                                    <button class="btn-sm btn-approve" @onclick='() => ApproveLoan(loan.Id)'>
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                    <button class="btn-sm btn-reject" @onclick="() => RejectLoan(loan.Id)">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                }
+                                @if (loan.Status == "Approved" || loan.Status == "PartiallyPaid")
+                                {
+                                    <button class="btn-sm btn-pay" @onclick='() => Nav.NavigateTo($"/loans/pay/{loan.Id}")'>
+                                        <i class="bi bi-cash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (result.TotalPages > 1)
+        {
+            <div class="pagination">
+                <span class="pagination-info">
+                    @Lang.T("عرض") @((result.Page - 1) * result.PageSize + 1)-@(Math.Min(result.Page * result.PageSize, result.TotalCount))
+                    @Lang.T("من") @result.TotalCount
+                </span>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled="@(currentPage == 1)" @onclick="() => GoToPage(currentPage - 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    @for (int p = 1; p <= result.TotalPages; p++)
+                    {
+                        var pageNum = p;
+                        @if (pageNum == 1 || pageNum == result.TotalPages || Math.Abs(pageNum - currentPage) <= 1)
+                        {
+                            <button class="page-btn @(pageNum == currentPage ? "active" : "")" @onclick="() => GoToPage(pageNum)">
+                                @pageNum
+                            </button>
+                        }
+                        else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                        {
+                            <span class="page-dots">…</span>
+                        }
+                    }
+                    <button class="page-btn" disabled="@(currentPage == result.TotalPages)" @onclick="() => GoToPage(currentPage + 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public string? userId { get; set; }
+
+    private PagedResult<LoanDto>? result;
+    private string selectedStatus = "";
+    private string searchTerm = "";
+    private int currentPage = 1;
+    private int pageSize = 15;
+    private bool loading = true;
+    private System.Timers.Timer? debounceTimer;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(userId) && int.TryParse(userId, out int id))
+        {
+            // تصفية حسب المستخدم
+        }
+        await LoadLoans();
+    }
+
+    private async Task LoadLoans()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            int? parsedUserId = null;
+            if (!string.IsNullOrEmpty(userId) && int.TryParse(userId, out int id))
+                parsedUserId = id;
+
+            result = await LoanSvc.GetPagedListAsync(
+                parsedUserId,
+                string.IsNullOrEmpty(selectedStatus) ? null : selectedStatus,
+                searchTerm,
+                currentPage,
+                pageSize);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل قائمة السلف");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+            result = new();
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleFilterChanged()
+    {
+        currentPage = 1;
+        await LoadLoans();
+    }
+
+    private void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        currentPage = 1;
+        debounceTimer?.Stop();
+        debounceTimer = new System.Timers.Timer(400) { AutoReset = false };
+        debounceTimer.Elapsed += async (s, args) => await InvokeAsync(LoadLoans);
+        debounceTimer.Start();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        if (page < 1 || (result != null && page > result.TotalPages)) return;
+        currentPage = page;
+        await LoadLoans();
+    }
+
+    private async Task ApproveLoan(int loanId)
+    {
+        
+        var userId = await CurrentUser.GetCurrentUserIdAsync();
+        if (!userId.HasValue)
+        {
+            Notify.ShowError(Lang.T("يرجى تسجيل الدخول أولاً"));
+            return;
+        }
+
+        if (!await ConfirmAsync(Lang.T("تأكيد الموافقة"), Lang.T("هل أنت متأكد من الموافقة على هذه السلفة؟")))
+            return;
+            
+        var (success, message) = await LoanSvc.ApproveLoanAsync(loanId, userId.Value);
+        if (success)
+        {
+            Notify.ShowSuccess(message);
+            await LoadLoans();
+        }
+        else
+        {
+            Notify.ShowError(message);
+        }
+    }
+
+    private async Task RejectLoan(int loanId)
+    {
+        var reason = await PromptAsync(Lang.T("سبب الرفض"), Lang.T("يرجى إدخال سبب الرفض"));
+        if (reason == null) return;
+
+        var (success, message) = await LoanSvc.RejectLoanAsync(loanId, reason);
+        if (success)
+        {
+            Notify.ShowSuccess(message);
+            await LoadLoans();
+        }
+        else
+        {
+            Notify.ShowError(message);
+        }
+    }
+
+    // TODO: Implement ConfirmAsync and PromptAsync using Modal or SweetAlert
+    private async Task<bool> ConfirmAsync(string title, string message)
+    {
+        // مؤقتاً نرجع true
+        return true;
+    }
+
+    private async Task<string?> PromptAsync(string title, string message)
+    {
+        // مؤقتاً نرجع سبب وهمي
+        return "سبب الرفض من المستخدم";
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+        debounceTimer?.Dispose();
+    }
+}

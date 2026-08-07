@@ -7,11 +7,127 @@ namespace Sho2on.Web.Services
 {
     public class EmployeeService
     {
-        private readonly AppDbContext _db;
-        public EmployeeService(AppDbContext db) => _db = db;
+        private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public EmployeeService(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
+        public class EmployeeSearchItem
+        {
+            public int Id { get; set; }
+            public string Label { get; set; } = "";
+        }
+
+        public async Task<List<Branch>> GetBranchesAsync()
+        {
+            using var _db = await _dbFactory.CreateDbContextAsync();
+            return await _db.Branches
+                .OrderBy(b => b.Name)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// جلب أنواع الاستحقاقات المرتبطة بالموظف
+        /// </summary>
+        public async Task<List<int>> GetEmployeeBenefitTypeIdsAsync(int employeeId)
+        {
+            using var db = await _dbFactory.CreateDbContextAsync();
+            return await db.EmployeeBenefits
+                .Where(eb => eb.UserId == employeeId)
+                .Select(eb => eb.BenefitTypeId)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// حفظ أنواع الاستحقاقات المرتبطة بالموظف
+        /// </summary>
+        public async Task SaveEmployeeBenefitsAsync(int employeeId, List<int> benefitTypeIds)
+        {
+            using var db = await _dbFactory.CreateDbContextAsync();
+
+            // حذف القديم
+            var existing = await db.EmployeeBenefits
+                .Where(eb => eb.UserId == employeeId)
+                .ToListAsync();
+            db.EmployeeBenefits.RemoveRange(existing);
+
+            // إضافة الجديد
+            foreach (var typeId in benefitTypeIds)
+            {
+                db.EmployeeBenefits.Add(new EmployeeBenefit
+                {
+                    UserId = employeeId,
+                    BenefitTypeId = typeId,
+                    CreatedAt = DateTime.Now
+                });
+            }
+
+            await db.SaveChangesAsync();
+        }
+
+        public async Task<EmployeeDetailDto?> GetEmployeeDetailAsync(int userId)
+        {
+            using var db = await _dbFactory.CreateDbContextAsync();
+            var user = await db.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new EmployeeDetailDto
+                {
+                    Id = u.Id,
+                    Code = u.Code ?? "",
+                    FullName = u.FullName ?? "غير معروف",
+                    MainSalary = u.MainSalary ?? 0,
+                    FixedSalary = u.FixedSalary,    // ⬅️ جديد
+                    HourlyRate = u.HourlyRate,      // ⬅️ جديد
+                    MaxLoanAmount = u.MaxLoanAmount,
+                    CanTakeLoan = u.CanTakeLoan
+                })
+                .FirstOrDefaultAsync();
+
+            return user;
+        }
+
+        public async Task<EmployeeSalaryInfo?> GetEmployeeSalaryInfoAsync(int employeeId)
+        {
+            using var db = await _dbFactory.CreateDbContextAsync();
+
+            var employee = await db.Users
+                .Where(u => u.Id == employeeId)
+                .Select(u => new EmployeeSalaryInfo
+                {
+                    EmployeeId = u.Id,
+                    EmployeeName = u.FullName,
+                    EmployeeCode = u.Code,
+                    SalaryType = u.SalaryType,
+                    FixedSalary = u.FixedSalary,
+                    HourlyRate = u.HourlyRate,
+                    MonthlyWorkingHours = u.MonthlyWorkingHours,
+                    DailyWorkingHours = u.DailyWorkingHours,
+                    WorkingDaysPerMonth = u.WorkingDaysPerMonth,
+                    MainSalary = u.MainSalary,
+                    MinSalary = u.MinSalary,
+                    MaxLoanAmount = u.MaxLoanAmount,
+                    CanTakeLoan = u.CanTakeLoan
+                })
+                .FirstOrDefaultAsync();
+
+            return employee;
+        }
+
+        public async Task<List<EmployeeSearchItem>> SearchAsync(string? term, int limit = 15)
+        {
+            using var _db = await _dbFactory.CreateDbContextAsync();
+            var query = _db.Users.Where(u => !u.IsArchived).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(term))
+                query = query.Where(u => u.FullName.Contains(term) || u.Code.Contains(term));
+
+            return await query
+                .OrderBy(u => u.FullName)
+                .Take(limit)
+                .Select(u => new EmployeeSearchItem { Id = u.Id, Label = u.Code + " - " + u.FullName })
+                .ToListAsync();
+        }
         public async Task<EmployeeLookups> GetLookupsAsync()
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             return new EmployeeLookups
             {
                 Branches = await _db.Branches.Select(x => new ValueTuple<int, string>(x.Id, x.Name)).ToListAsync(),
@@ -30,6 +146,7 @@ namespace Sho2on.Web.Services
 
         public async Task<EmployeeFormModel?> GetByIdAsync(int id)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var u = await _db.Users.FindAsync(id);
             if (u == null) return null;
 
@@ -86,12 +203,19 @@ namespace Sho2on.Web.Services
                 MaritalId = u.MaritalId,
                 RecidenceId = u.RecidenceId,
                 InsuredId = u.InsuredId ?? 0,
+                FixedSalary = u.FixedSalary,
+                HourlyRate = u.HourlyRate,
+                MonthlyWorkingHours = u.MonthlyWorkingHours,
+                SalaryType = u.SalaryType,
+                DailyWorkingHours = u.DailyWorkingHours,
+                WorkingDaysPerMonth = u.WorkingDaysPerMonth
             };
         }
 
         public async Task SaveAsync(EmployeeFormModel m)
         {
             User u;
+            using var _db = await _dbFactory.CreateDbContextAsync();
             if (m.Id.HasValue)
             {
                 u = await _db.Users.FindAsync(m.Id.Value) ?? throw new Exception("الموظف غير موجود");
@@ -122,7 +246,56 @@ namespace Sho2on.Web.Services
             u.MaritalId = m.MaritalId; u.RecidenceId = m.RecidenceId; u.InsuredId = m.InsuredId;
             u.UpdatedAt = DateTime.Now;
 
+
+            u.SalaryType = m.SalaryType;
+            u.MonthlyWorkingHours = m.MonthlyWorkingHours;
+            u.DailyWorkingHours = m.DailyWorkingHours;
+            u.WorkingDaysPerMonth = m.WorkingDaysPerMonth;
+            u.FixedSalary = m.FixedSalary;
+            u.HourlyRate = m.HourlyRate;
+            u.MainSalary = m.TotalSalary; // إجمالي الراتب
+            u.MinSalary = m.MinuteRate; // سعر الدقيقة
+
+            if (m.SelectedBenefitTypeIds?.Count > 0)
+            {
+                // حذف القديم
+                var existingBenefits = await _db.EmployeeBenefits
+                    .Where(eb => eb.UserId == u.Id)
+                    .ToListAsync();
+                _db.EmployeeBenefits.RemoveRange(existingBenefits);
+
+                // إضافة الجديد
+                foreach (var typeId in m.SelectedBenefitTypeIds)
+                {
+                    _db.EmployeeBenefits.Add(new EmployeeBenefit
+                    {
+                        UserId = u.Id,
+                        BenefitTypeId = typeId,
+                        IsActive = true,
+                        CreatedAt = DateTime.Now
+                    });
+                }
+            }
+
             await _db.SaveChangesAsync();
+        }
+
+        private decimal CalculateMonthlySalary(EmployeeFormModel m)
+        {
+            return m.SalaryType switch
+            {
+                SalaryTypeEnum.Fixed => m.FixedSalary ?? 0,
+                SalaryTypeEnum.MonthlyHourly => (m.HourlyRate ?? 0) * (m.MonthlyWorkingHours ?? 208),
+                SalaryTypeEnum.DailyHourly => (m.HourlyRate ?? 0) * (m.DailyWorkingHours ?? 8) * (m.WorkingDaysPerMonth ?? 26),
+                _ => m.FixedSalary ?? m.MainSalary ?? 0
+            };
+        }
+
+        private decimal CalculateMinuteRate(decimal monthlySalary, decimal monthlyWorkingHours)
+        {
+            if (monthlySalary <= 0 || monthlyWorkingHours <= 0) return 0;
+            decimal totalMinutes = monthlyWorkingHours * 60;
+            return monthlySalary / totalMinutes;
         }
 
         public class EmployeeListItem
@@ -139,6 +312,7 @@ namespace Sho2on.Web.Services
 
         public async Task<List<EmployeeListItem>> GetListAsync(string? search, int? branchId, bool includeArchived)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var query = _db.Users
                 .Include(u => u.Branch)
                 .Include(u => u.Department)
@@ -172,6 +346,7 @@ namespace Sho2on.Web.Services
 
         public async Task ToggleArchiveAsync(int id)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var u = await _db.Users.FindAsync(id) ?? throw new Exception("الموظف غير موجود");
             u.IsArchived = !u.IsArchived;
             u.UpdatedAt = DateTime.Now;
@@ -181,6 +356,7 @@ namespace Sho2on.Web.Services
         public async Task<PagedResult<EmployeeListItem>> GetPagedListAsync(
             string? search, int? branchId, bool includeArchived, int page, int pageSize)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var query = _db.Users
                 .Include(u => u.Branch)
                 .Include(u => u.Department)

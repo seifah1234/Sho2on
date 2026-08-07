@@ -6,11 +6,15 @@ namespace Sho2on.Web.Services
 {
     public class AuthService
     {
-        private readonly AppDbContext _db;
-        public AuthService(AppDbContext db) => _db = db;
+        private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public AuthService(IDbContextFactory<AppDbContext> dbFactory)
+        {
+            _dbFactory = dbFactory;
+        }
 
         public async Task<(bool Success, User? User, string? Error, List<string>? roles, List<string>? rolePermissions)> LoginAsync(string username, string password)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync();
             var user = await _db.Users
                 .Include(u => u.JobTitle)
                 .Include(u => u.Department)
@@ -34,7 +38,11 @@ namespace Sho2on.Web.Services
 
             bool isValid;
 
-            if (user.PasswordHash.StartsWith("$2"))
+            if (user.PasswordHash == null)
+            {
+                isValid = false;
+            }
+            else if (user.PasswordHash.StartsWith("$2"))
             {
                 isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
             }

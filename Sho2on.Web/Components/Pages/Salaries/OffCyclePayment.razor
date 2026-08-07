@@ -1,0 +1,252 @@
+﻿@page "/salaries/off-cycle"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@using Sho2on.Database.Models
+@inject SalaryService SalarySvc
+@inject SalaryCalculationService SalaryCalcSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<OffCyclePayment> Logger
+@implements IDisposable
+
+<div class="off-cycle-page">
+    <div class="page-header">
+        <h2>@Lang.T("صرف فوري للموظف")</h2>
+        <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/salaries")'>
+            <i class="bi bi-arrow-right"></i>
+            @Lang.T("العودة للرواتب")
+        </button>
+    </div>
+
+    <div class="form-container">
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="form-grid">
+                <!-- الموظف -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("الموظف") <span class="required">*</span></label>
+                    <EmployeeSearchSelect SelectedUserId="selectedUserId" 
+                                         SelectedUserIdChanged="HandleEmployeeChanged"
+                                         Placeholder="@Lang.T("ابحث عن موظف")" />
+                    <ValidationMessage For="@(() => model.UserId)" />
+                </div>
+
+                <!-- المبلغ -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("المبلغ") <span class="required">*</span></label>
+                    <div class="input-with-currency">
+                        <InputNumber class="form-input" @bind-Value="model.Amount" step="10" min="0" />
+                        <span class="currency">ج.م</span>
+                    </div>
+                    <ValidationMessage For="@(() => model.Amount)" />
+                </div>
+
+                <!-- التاريخ -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("تاريخ الصرف") <span class="required">*</span></label>
+                    <InputDate class="form-input" @bind-Value="model.PaymentDate"/>
+                    <ValidationMessage For="@(() => model.PaymentDate)" />
+                </div>
+
+                <!-- ملاحظات -->
+                <div class="form-group full-width">
+                    <label class="form-label">@Lang.T("ملاحظات")</label>
+                    <InputTextArea class="form-textarea" @bind-Value="model.Notes" 
+                                   placeholder="@Lang.T("سبب الصرف الفوري...")" />
+                </div>
+
+                <!-- تحذير -->
+                <div class="warning-box full-width">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>@Lang.T("تنبيه: هذا المبلغ سيتم خصمه من راتب الموظف الشهري")</span>
+                </div>
+
+                <!-- معلومات الموظف ورصيده -->
+                @if (selectedUserId.HasValue && employeeInfo != null)
+                {
+                    <div class="employee-info-card full-width">
+                        <h4>@Lang.T("معلومات الموظف")</h4>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">@Lang.T("الاسم")</span>
+                                <span class="info-value">@employeeInfo.FullName</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">@Lang.T("الراتب الأساسي")</span>
+                                <span class="info-value">@employeeInfo.BasicSalary.ToString("N0") ج.م</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">@Lang.T("صافي الراتب المتوقع")</span>
+                                <span class="info-value">@employeeInfo.ExpectedNetSalary.ToString("N0") ج.م</span>
+                            </div>
+                            <div class="info-item highlight">
+                                <span class="info-label">@Lang.T("إجمالي الصرف الفوري هذا الشهر")</span>
+                                <span class="info-value @(employeeInfo.TotalOffCycleThisMonth > 0 ? "text-danger" : "")">
+                                    @employeeInfo.TotalOffCycleThisMonth.ToString("N0") ج.م
+                                </span>
+                            </div>
+                            <div class="info-item highlight">
+                                <span class="info-label">@Lang.T("المتبقي من الراتب")</span>
+                                <span class="info-value text-success">
+                                    @((employeeInfo.ExpectedNetSalary - employeeInfo.TotalOffCycleThisMonth).ToString("N0")) ج.م
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" @onclick='() => Nav.NavigateTo("/salaries")'>
+                    @Lang.T("إلغاء")
+                </button>
+                <button type="submit" class="btn-primary" disabled="@(!canSubmit)">
+                    <i class="bi bi-cash"></i>
+                    @Lang.T("تسجيل الصرف الفوري")
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private OffCyclePaymentDto model = new();
+    private int? selectedUserId;
+    private EmployeeOffCycleInfo? employeeInfo;
+    private bool isSubmitting = false;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        model.PaymentDate = DateTime.Now;
+    }
+
+    private async Task HandleEmployeeChanged(int? userId)
+    {
+        selectedUserId = userId;
+        model.UserId = userId ?? 0;
+
+        if (userId.HasValue)
+        {
+            await LoadEmployeeInfo(userId.Value);
+        }
+        else
+        {
+            employeeInfo = null;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task LoadEmployeeInfo(int userId)
+    {
+        try
+        {
+            var now = DateTime.Now;
+            var employee = await EmployeeSvc.GetEmployeeDetailAsync(userId);
+            var expectedSalary = await SalaryCalcSvc.CalculateEmployeeSalaryAsync(userId, now.Month, now.Year);
+            var totalOffCycle = await SalarySvc.GetTotalOffCyclePaymentsAsync(userId, now.Month, now.Year);
+
+            employeeInfo = new EmployeeOffCycleInfo
+            {
+                FullName = employee?.FullName ?? "",
+                BasicSalary = employee?.MainSalary ?? 0,
+                ExpectedNetSalary = expectedSalary.NetSalary,
+                TotalOffCycleThisMonth = totalOffCycle
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تحميل معلومات الموظف");
+            Notify.ShowError(Lang.T("حدث خطأ في تحميل معلومات الموظف"));
+        }
+    }
+
+    private bool canSubmit
+    {
+        get
+        {
+            if (isSubmitting) return false;
+            if (model.UserId <= 0) return false;
+            if (model.Amount <= 0) return false;
+            if (model.PaymentDate == default) return false;
+            return true;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (!canSubmit) return;
+
+        // تأكيد المستخدم
+        if (!await ConfirmAsync(
+            Lang.T("تأكيد الصرف"),
+            Lang.T($"هل أنت متأكد من صرف {model.Amount:N0} ج.م للموظف {employeeInfo?.FullName}؟")))
+            return;
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            var (success, message, paymentId) = await SalarySvc.ProcessOffCyclePaymentAsync(
+                model.UserId,
+                model.Amount,
+                model.Notes);
+
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                Nav.NavigateTo("/salaries");
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء الصرف الفوري");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الصرف"));
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task<bool> ConfirmAsync(string title, string message)
+    {
+        // TODO: Implement Modal
+        return true;
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+    }
+
+    public class OffCyclePaymentDto
+    {
+        public int UserId { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime PaymentDate { get; set; } = DateTime.Now;
+        public string? Notes { get; set; }
+    }
+
+    public class EmployeeOffCycleInfo
+    {
+        public string FullName { get; set; } = "";
+        public decimal BasicSalary { get; set; }
+        public decimal ExpectedNetSalary { get; set; }
+        public decimal TotalOffCycleThisMonth { get; set; }
+    }
+}

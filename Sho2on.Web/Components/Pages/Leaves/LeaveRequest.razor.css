@@ -1,70 +1,188 @@
-﻿.leave-request-page {
-    max-width: 1100px;
+﻿/* ===== صفحة طلب الإجازة ===== */
+.leave-request-page {
+    max-width: 1000px;
     margin: 0 auto;
+    animation: fadeIn 0.4s ease;
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== عنوان الصفحة ===== */
 .page-title {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
 }
 
     .page-title h2 {
         margin: 0;
-        color: #211b4e;
-        font-size: 22px;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.3px;
     }
 
     .page-title p {
         margin: 6px 0 0;
-        color: #746f93;
-        font-size: 13px;
+        color: var(--text-muted);
+        font-size: 13.5px;
+        font-weight: 500;
     }
 
+/* ===== كارد النموذج ===== */
 .form-card {
-    background: #fff;
-    border: 1px solid #edeae3;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition);
 }
 
-    .form-card h3 {
-        color: #211b4e;
-        font-size: 16px;
-        margin: 0 0 18px;
+    .form-card:hover {
+        box-shadow: var(--shadow-md);
     }
 
+    .form-card h3 {
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 800;
+        margin: 0 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--border);
+        position: relative;
+    }
+
+        .form-card h3::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--gradient-accent);
+            border-radius: var(--radius-full);
+        }
+
+/* ===== شبكة الحقول ===== */
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
 }
 
 .field {
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-    .field textarea {
-        width: 100%;
-        box-sizing: border-box;
-        min-height: 90px;
-        resize: vertical;
-        border: 1.5px solid #e4dfd6;
-        border-radius: 9px;
-        padding: 10px 14px;
-        font: inherit;
+    .field label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
+/* ===== حقول الإدخال ===== */
+.search-input,
+.select-input {
+    width: 100%;
+    padding: 13px 16px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--transition);
+    box-sizing: border-box;
+}
+
+    .search-input:focus,
+    .select-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(45, 36, 102, 0.06);
+        background: var(--surface);
+    }
+
+.field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 90px;
+    resize: vertical;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    transition: all var(--transition);
+}
+
+    .field textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(45, 36, 102, 0.06);
+        background: var(--surface);
+        outline: none;
+    }
+
+.field input[readonly] {
+    background: var(--info-bg);
+    color: var(--primary);
+    font-weight: 700;
+    text-align: center;
+    cursor: default;
+}
+
+/* ===== بحث الموظف ===== */
 .employee-search {
     display: flex;
     gap: 10px;
-    max-width: 580px;
+    max-width: 600px;
 }
 
+.btn-secondary {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+
+    .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--surface-hover);
+    }
+
+/* ===== خيارات الموظف ===== */
 .employee-options {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 8px;
-    margin-top: 14px;
+    gap: 10px;
+    margin-top: 16px;
 }
 
 .employee-option {
@@ -72,94 +190,197 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
-    padding: 11px 13px;
-    background: #fff;
-    border: 1px solid #edeae3;
-    border-radius: 8px;
-    color: #1f1b3a;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
     font-family: inherit;
     text-align: right;
     cursor: pointer;
+    transition: all var(--transition);
 }
 
+    .employee-option strong {
+        font-size: 14px;
+    }
+
     .employee-option span {
-        color: #a6a3c2;
+        color: var(--text-muted);
         font-size: 12px;
-        direction: ltr;
+        font-weight: 600;
     }
 
-    .employee-option:hover,
+    .employee-option:hover {
+        border-color: var(--primary);
+        background: var(--info-bg);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
     .employee-option.selected {
-        border-color: #211b4e;
-        background: #faf8f5;
+        border-color: var(--success);
+        background: var(--success-bg);
+        color: var(--success);
     }
 
+/* ===== الموظف المختار ===== */
 .selected-employee {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 14px;
-    padding: 11px 14px;
-    color: #1f7a47;
-    background: #e7f6ec;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 13px;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 14px 18px;
+    color: var(--success);
+    background: var(--success-bg);
+    border: 2px solid var(--success);
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 14px;
 }
 
+    .selected-employee i {
+        font-size: 20px;
+    }
+
+/* ===== معلومات الإجازة ===== */
 .leave-info,
 .balance-summary {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin: 16px 0;
+    margin: 20px 0;
 }
-
-    .leave-info span,
-    .balance-summary span {
-        padding: 8px 10px;
-        border-radius: 7px;
-        font-size: 12.5px;
-    }
 
     .leave-info span {
-        color: #4a4570;
-        background: #f5f3ef;
+        padding: 10px 16px;
+        border-radius: var(--radius-md);
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--primary);
+        background: var(--info-bg);
+        border: 1px solid rgba(45, 36, 102, 0.1);
     }
 
     .balance-summary span {
-        color: #211b4e;
-        background: #f1effa;
+        padding: 10px 16px;
+        border-radius: var(--radius-md);
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--text);
+        background: var(--background);
+        border: 1px solid var(--border);
     }
 
+        .balance-summary span strong {
+            color: var(--primary);
+        }
+
+/* ===== رسائل التحقق ===== */
+::deep .validation-message {
+    font-size: 11px;
+    color: var(--danger);
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* ===== أزرار الإجراءات ===== */
 .form-actions {
     display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 14px 32px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
     gap: 10px;
-    margin-top: 20px;
 }
 
-@media (max-width: 900px) {
-    .form-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .btn-primary:hover:not(:disabled) {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
     }
+
+    .btn-primary:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-primary i {
+        font-size: 18px;
+    }
+
+.form-actions .btn-secondary {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 32px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition);
 }
 
-@media (max-width: 600px) {
+    .form-actions .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--surface-hover);
+    }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
     .form-card {
-        padding: 16px;
+        padding: 20px 16px;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .employee-search {
         flex-direction: column;
     }
 
-    .form-actions .btn-primary,
-    .form-actions .btn-secondary {
-        flex: 1;
-        justify-content: center;
+    .employee-options {
+        grid-template-columns: 1fr;
     }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+        .form-actions .btn-primary,
+        .form-actions .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+
+    .leave-info,
+    .balance-summary {
+        flex-direction: column;
+    }
+
+        .leave-info span,
+        .balance-summary span {
+            text-align: center;
+        }
 }

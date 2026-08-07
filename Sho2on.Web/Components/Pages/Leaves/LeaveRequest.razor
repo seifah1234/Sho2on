@@ -145,14 +145,9 @@
                 <div class="form-grid">
                     <div class="field">
                         <label>@Lang.T("المسؤول عن الاعتماد")</label>
-                        <InputSelect class="select-input" @bind-Value="form.ApproverId">
-                            <option value="">@Lang.T("اختر المسؤول")</option>
-
-                            @foreach (var employee in allEmployees.Where(x => x.Id != form.UserId))
-                            {
-                                <option value="@employee.Id">@employee.FullName — @employee.Code</option>
-                            }
-                        </InputSelect>
+                        <EmployeeSearchSelect SelectedUserId="form.ApproverId"
+                                              SelectedUserIdChanged="(id) => form.ApproverId = id"
+                                              Placeholder="@Lang.T("اختر المسؤول عن الاعتماد")" />
                     </div>
 
                     <div class="field">
@@ -216,8 +211,14 @@
         selectedEmployee = employee;
         form.UserId = employee.Id;
 
-        // مدير الموظف الافتراضي هو المسؤول عن الاعتماد إن وُجد.
-        form.ApproverId = employee.ManagerId;
+        if (employee.ManagerId > 0)
+        {
+            form.ApproverId = employee.ManagerId;
+        }
+        else
+        {
+            form.ApproverId = null;
+        }
 
         employees = [];
         await LoadBalance();

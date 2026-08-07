@@ -4,12 +4,16 @@
 @layout MainLayout
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
+@using Sho2on.Database.Models
 @using Sho2on.Web.Models
 @using Sho2on.Web.Services
 @using Sho2on.Web.Components.Layout
 @inject EmployeeService EmployeeSvc
+@inject BenefitTypeService BenefitTypeSvc
 @inject LocalizationService Lang
 @inject NavigationManager Nav
+@inject EmployeeDocumentService DocSvc
+@inject AuthenticationStateProvider AuthProvider
 @inject NotificationService Notify
 @implements IDisposable
 
@@ -125,13 +129,10 @@
                         </div>
                         <div class="field">
                             <label>@Lang.T("المدير المباشر")</label>
-                            <select @bind="model!.ManagerId" class="select-input">
-                                <option value="">@Lang.T("بدون")</option>
-                                @foreach (var m in lookups.Managers)
-                                {
-                                    <option value="@m.Id">@m.Name</option>
-                                }
-                            </select>
+                            <EmployeeSearchSelect SelectedUserId="model!.ManagerId"
+                                                  SelectedUserIdChanged="HandleManagerChanged"
+                                                  Placeholder="@Lang.T("ابحث عن المدير المباشر...")" />
+                          
                         </div>
                         <div class="field">
                             <label>@Lang.T("الوردية")</label>
@@ -197,15 +198,107 @@
                     </div>
                 }
                 else if (activeTab == "الراتب والسلف")
-                {
-                    <div class="form-grid">
-                        <div class="field"><label>@Lang.T("الراتب الأساسي")</label><InputNumber @bind-Value="model!.MainSalary" /></div>
-                        <div class="field"><label>@Lang.T("الحد الأدنى للراتب")</label><InputNumber @bind-Value="model!.MinSalary" /></div>
-                        <div class="field"><label>@Lang.T("الحد الأقصى للسلفة")</label><InputNumber @bind-Value="model!.MaxLoanAmount" /></div>
-                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.CanTakeLoan" /><label>@Lang.T("يمكنه طلب سلفة")</label></div>
+{
+    <div class="form-grid">
+        @if (Id.HasValue && model != null)
+        {
+            <div class="field full">
+                <div class="salary-info-card">
+                    <div class="salary-card-header">
+                        <i class="bi bi-cash-stack"></i>
+                        <span>@Lang.T("معلومات المرتب")</span>
                     </div>
-                }
-                else if (activeTab == "الحضور والإعفاءات")
+                    <div class="salary-card-body">
+                        <div class="salary-info-item">
+                            <span class="salary-label">@Lang.T("الراتب الثابت")</span>
+                            <span class="salary-value">@(model.FixedSalary?.ToString("N0") ?? "0") @Lang.T("ج.م")</span>
+                        </div>
+                        <div class="salary-info-item">
+                            <span class="salary-label">@Lang.T("الراتب المتغير")</span>
+                            <span class="salary-value">@(model.HourlyRate?.ToString("N0") ?? "0") @Lang.T("ج.م")</span>
+                        </div>
+                        <div class="salary-info-item highlight">
+                            <span class="salary-label">@Lang.T("إجمالي الراتب")</span>
+                            <span class="salary-value">@((model.FixedSalary + model.HourlyRate ?? 0).ToString("N0")) @Lang.T("ج.م")</span>
+                        </div>
+                        <div class="salary-info-item">
+                            <span class="salary-label">@Lang.T("سعر الدقيقة للخصم")</span>
+                            <span class="salary-value">@model!.MinuteRate.ToString("N4") @Lang.T("ج.م")</span>
+                        </div>
+                        <div class="salary-info-item">
+                            <span class="salary-label">@Lang.T("الحد الأقصى للسلفة")</span>
+                            <span class="salary-value">@(model.MaxLoanAmount.ToString("N0") ?? "0") @Lang.T("ج.م")</span>
+                        </div>
+                        <div class="salary-info-item">
+                            <span class="salary-label">@Lang.T("يمكنه طلب سلفة")</span>
+                            <span class="salary-value @(model.CanTakeLoan ? "text-success" : "text-danger")">
+                                @(model.CanTakeLoan ? Lang.T("نعم") : Lang.T("لا"))
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- ═══ الراتب الثابت ═══ -->
+        <div class="field">
+            <label>@Lang.T("الراتب الثابت")</label>
+            <div class="input-with-currency">
+                <InputNumber @bind-Value="model!.FixedSalary" />
+                <span class="currency">@Lang.T("ج.م")</span>
+            </div>
+            <small class="field-hint">@Lang.T("الراتب الأساسي الذي يحصل عليه الموظف شهرياً")</small>
+        </div>
+
+        <!-- ═══ الراتب المتغير ═══ -->
+        <div class="field">
+            <label>@Lang.T("الراتب المتغير")</label>
+            <div class="input-with-currency">
+                <InputNumber @bind-Value="model!.HourlyRate" />
+                <span class="currency">@Lang.T("ج.م")</span>
+            </div>
+            <small class="field-hint">@Lang.T("الراتب المتغير حسب ساعات العمل (يحسب من الحضور والانصراف)")</small>
+        </div>
+
+        <!-- ═══ إجمالي الراتب ═══ -->
+        <div class="field">
+            <label>@Lang.T("إجمالي الراتب الشهري")</label>
+            <div class="calculated-field">
+                <span>@((model!.FixedSalary + model.HourlyRate ?? 0).ToString("N0"))</span>
+                <small>@Lang.T("ج.م/شهرياً")</small>
+            </div>
+        </div>
+
+        <!-- ═══ سعر الدقيقة ═══ -->
+        <div class="field">
+            <label>@Lang.T("سعر الدقيقة للخصم")</label>
+            <div class="calculated-field warning">
+                <span>@model!.MinuteRate.ToString("N4")</span>
+                <small>@Lang.T("ج.م/دقيقة")</small>
+            </div>
+        </div>
+
+        <!-- ═══ ساعات العمل الشهرية ═══ -->
+        <div class="field">
+            <label>@Lang.T("ساعات العمل الشهرية")</label>
+            <InputNumber @bind-Value="model!.MonthlyWorkingHours" />
+        </div>
+
+        <!-- ═══ حقول مشتركة ═══ -->
+        <div class="field">
+            <label>@Lang.T("الحد الأقصى للسلفة")</label>
+            <div class="input-with-currency">
+                <InputNumber @bind-Value="model!.MaxLoanAmount" />
+                <span class="currency">@Lang.T("ج.م")</span>
+            </div>
+        </div>
+        <div class="field checkbox">
+            <InputCheckbox @bind-Value="model!.CanTakeLoan" />
+            <label>@Lang.T("يمكنه طلب سلفة")</label>
+        </div>
+    </div>
+}
+else if (activeTab == "الحضور والإعفاءات")
                 {
                     <div class="form-grid">
                         <div class="field"><label>@Lang.T("رصيد الإجازات")</label><InputNumber @bind-Value="model!.HolidayBalance" /></div>
@@ -216,7 +309,7 @@
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptEarlyEnter" /><label>@Lang.T("إعفاء من الحضور المبكر")</label></div>
                     </div>
                 }
-                else if (activeTab == "المستندات")
+                else if (activeTab == "اخرى")
                 {
                     <div class="form-grid">
                         <div class="field"><label>@Lang.T("تاريخ انتهاء الرقم القومي")</label><InputDate @bind-Value="model!.NationalIDExpiration" /></div>
@@ -241,6 +334,241 @@
                         }
                     </div>
                 }
+                else if (activeTab == "الاستحقاقات والاستقطاعات")
+                {
+                    <div class="form-grid">
+                        <div class="field full">
+                            <div class="section-info-card">
+                                <div class="section-info-header">
+                                    <i class="bi bi-info-circle"></i>
+                                    <span>@Lang.T("الاستحقاقات والاستقطاعات الشهرية")</span>
+                                </div>
+                                <p>@Lang.T("حدد أنواع الاستحقاقات والاستقطاعات الشهرية التي تنطبق على هذا الموظف. النسب تحسب تلقائياً من الراتب.")</p>
+                            </div>
+                        </div>
+
+                        @if (monthlyBenefitTypes == null || monthlyBenefitTypes.Count == 0)
+                        {
+                            <div class="field full">
+                                <div class="empty-state small">
+                                    <i class="bi bi-inbox"></i>
+                                    <p>@Lang.T("لا توجد أنواع شهرية مضافة. أضفها من إعدادات أنواع الاستحقاقات.")</p>
+                                    <a class="btn-primary" href="/settings/benefit-types">
+                                        <i class="bi bi-gear"></i> @Lang.T("إدارة الأنواع")
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- الاستحقاقات الشهرية -->
+                            <div class="field full">
+                                <h4 class="section-title">
+                                    <i class="bi bi-plus-circle text-success"></i>
+                                    @Lang.T("الاستحقاقات الشهرية")
+                                </h4>
+                                <div class="benefit-checklist">
+                                    @foreach (var type in monthlyBenefitTypes.Where(t => t.Type == "Benefit"))
+                                    {
+                                        <div class="benefit-check-item @(selectedBenefitTypeIds.Contains(type.Id) ? "selected" : "")"
+                                             @onclick="() => ToggleBenefitType(type.Id)">
+                                            <div class="check-box">
+                                                <i class="bi @(selectedBenefitTypeIds.Contains(type.Id) ? "bi-check-square-fill" : "bi-square")"></i>
+                                            </div>
+                                            <div class="check-info">
+                                                <strong>@type.Name</strong>
+                                                <small>@type.Percentage.ToString("N2")% @Lang.T("من") @GetTargetDisplay(type.SalaryTarget)</small>
+                                            </div>
+                                            @if (selectedBenefitTypeIds.Contains(type.Id))
+                                            {
+                                                <span class="badge-selected">@Lang.T("محدد")</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- الخصومات الشهرية -->
+                            <div class="field full">
+                                <h4 class="section-title">
+                                    <i class="bi bi-dash-circle text-danger"></i>
+                                    @Lang.T("الخصومات الشهرية")
+                                </h4>
+                                <div class="benefit-checklist">
+                                    @foreach (var type in monthlyBenefitTypes.Where(t => t.Type == "Deduction"))
+                                    {
+                                        <div class="benefit-check-item @(selectedBenefitTypeIds.Contains(type.Id) ? "selected" : "")"
+                                             @onclick="() => ToggleBenefitType(type.Id)">
+                                            <div class="check-box">
+                                                <i class="bi @(selectedBenefitTypeIds.Contains(type.Id) ? "bi-check-square-fill" : "bi-square")"></i>
+                                            </div>
+                                            <div class="check-info">
+                                                <strong>@type.Name</strong>
+                                                <small>@type.Percentage.ToString("N2")% @Lang.T("من") @GetTargetDisplay(type.SalaryTarget)</small>
+                                            </div>
+                                            @if (selectedBenefitTypeIds.Contains(type.Id))
+                                            {
+                                                <span class="badge-selected">@Lang.T("محدد")</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- ملخص سريع -->
+                            @if (selectedBenefitTypeIds.Count > 0 && model!.FixedSalary > 0)
+                            {
+                                <div class="field full">
+                                    <div class="preview-card">
+                                        <h4><i class="bi bi-calculator"></i> @Lang.T("تأثير الاستحقاقات والاستقطاعات على الراتب")</h4>
+                                        <div class="preview-grid">
+                                            <div class="preview-item">
+                                                <span class="preview-label">@Lang.T("اجمالي الراتب")</span>
+                                                <span class="preview-value">@model.TotalSalary.ToString("N2") @Lang.T("ج.م")</span>
+                                            </div>
+                                            @{
+                                                var totalMonthlyBenefits = CalculateMonthlyBenefits();
+                                                var totalMonthlyDeductions = CalculateMonthlyDeductions();
+                                            }
+                                            <div class="preview-item highlight success">
+                                                <span class="preview-label">@Lang.T("إجمالي الاستحقاقات الشهرية")</span>
+                                                <span class="preview-value text-success">+ @totalMonthlyBenefits.ToString("N2") @Lang.T("ج.م")</span>
+                                            </div>
+                                            <div class="preview-item highlight danger">
+                                                <span class="preview-label">@Lang.T("إجمالي الاستقطاعات الشهرية")</span>
+                                                <span class="preview-value text-danger">- @totalMonthlyDeductions.ToString("N2") @Lang.T("ج.م")</span>
+                                            </div>
+                                            <div class="preview-item highlight total">
+                                                <span class="preview-label">@Lang.T("صافي الراتب المتوقع")</span>
+                                                <span class="preview-value" style="font-size: 20px; font-weight: 800;">
+                                                    @((model.TotalSalary + totalMonthlyBenefits - totalMonthlyDeductions).ToString("N2")) @Lang.T("ج.م")
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else if (activeTab == "المستندات")
+                {
+
+                    <!-- ══ القسم الجديد: إدارة الملفات الفعلية ══ -->
+                    <div class="doc-section">
+                        @if (!Id.HasValue)
+                        {
+                            <div class="doc-placeholder">
+                                <div class="placeholder-icon">
+                                    <i class="bi bi-shield-lock"></i>
+                                </div>
+                                <h4>@Lang.T("حفظ البيانات أولاً")</h4>
+                                <p>@Lang.T("احفظ بيانات الموظف الأساسية أولاً، بعدها هتقدر ترفع مستنداته")</p>
+                            </div>
+                        }
+                        else if (loadingDocs)
+                        {
+                            <div class="loading-docs">
+                                <div class="spinner"></div>
+                                <p>@Lang.T("جاري تحميل المستندات...")</p>
+                            </div>
+                        }
+                        else if (docsSummary != null)
+                        {
+                            <div class="doc-section-header">
+                                <h4>
+                                    <i class="bi bi-files"></i>
+                                    <span>@Lang.T("مستندات الموظف")</span>
+                                    <span class="doc-count">@docsSummary.Documents.Count @Lang.T("ملف")</span>
+                                </h4>
+                                <button type="button" class="btn-upload" @onclick="OpenDocUploadModal">
+                                    <i class="bi bi-cloud-upload"></i>
+                                    @Lang.T("رفع مستند")
+                                </button>
+                            </div>
+
+                            @if (docsSummary.RequiredDocuments.Count > 0)
+                            {
+                                <div class="required-section">
+                                    <h5><i class="bi bi-exclamation-triangle"></i> @Lang.T("مستندات مطلوبة")</h5>
+                                    <div class="required-list">
+                                        @foreach (var req in docsSummary.RequiredDocuments)
+                                        {
+                                            <div class="required-item @(req.IsUploaded ? "done" : "missing")">
+                                                <i class="bi @(req.IsUploaded ? "bi-check-circle-fill" : "bi-exclamation-circle")"></i>
+                                                <span>@req.Title</span>
+                                                @if (!req.IsUploaded)
+                                                {
+                                                    <span class="missing-tag">@Lang.T("ناقص")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="done-tag">@Lang.T("مكتمل")</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            @if (docsSummary.Documents.Count == 0)
+                            {
+                                <div class="doc-empty">
+                                    <i class="bi bi-file-earmark-arrow-up"></i>
+                                    <h4>@Lang.T("لا توجد مستندات")</h4>
+                                    <p>@Lang.T("لم يتم رفع أي مستندات لهذا الموظف بعد")</p>
+                                    <button type="button" class="btn-upload" @onclick="OpenDocUploadModal">
+                                        <i class="bi bi-cloud-upload"></i>
+                                        @Lang.T("رفع أول مستند")
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="doc-list">
+                                    @foreach (var doc in docsSummary.Documents)
+                                    {
+                                        <div class="doc-row">
+                                            <div class="doc-icon-wrapper @DocFileColor(doc.FileType)">
+                                                <i class="bi @DocFileIcon(doc.FileType)"></i>
+                                            </div>
+                                            <div class="doc-info">
+                                                <strong>@doc.Title</strong>
+                                                <small>
+                                                    <span class="doc-meta">
+                                                        <i class="bi bi-file-earmark"></i> @doc.FileName
+                                                    </span>
+                                                    <span class="doc-meta">
+                                                        <i class="bi bi-hdd"></i> @DocFormatSize(doc.FileSize)
+                                                    </span>
+                                                    <span class="doc-meta">
+                                                        <i class="bi bi-calendar3"></i> @doc.UploadDate.ToString("dd/MM/yyyy")
+                                                    </span>
+                                                </small>
+                                            </div>
+                                            <div class="doc-actions">
+                                                <!-- زر المعاينة -->
+                                                <a class="icon-action preview" title="@Lang.T("معاينة")"
+                                                       href="/files/preview/@doc.Id" target="_blank">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <!-- زر التحميل -->
+                                                <a class="icon-action download" title="@Lang.T("تحميل")"
+                                                       href="/files/employee-documents/@doc.Id" target="_blank">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                                <button type="button" class="icon-action delete" title="@Lang.T("حذف")"
+                                                        @onclick="() => RequestDeleteDoc(doc)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
             </div>
 
             <div class="form-actions">
@@ -251,17 +579,99 @@
     }
 </div>
 
+@if (showDocUploadModal)
+{
+    <div class="modal-overlay" @onclick="CloseDocUploadModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Lang.T("رفع مستند")</h3>
+                <button type="button" class="icon-action" @onclick="CloseDocUploadModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("عنوان المستند")</label>
+                    <input class="search-input" @bind="docUploadTitle" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("وصف المستند")</label>
+                    <textarea class="search-input" @bind="docUploadDescription" rows="3"
+                              placeholder="@Lang.T("وصف مختصر للمستند...")"></textarea>
+                </div>
+                <div class="field">
+                    <label>@Lang.T("نوع المستند")</label>
+                    <select class="select-input" @bind="docUploadType">
+                        <option value="@Sho2on.Database.Models.EmployeeDocumentType.SignedCompanyDocument">@Lang.T("مستند شركة موقّع")</option>
+                        <option value="@Sho2on.Database.Models.EmployeeDocumentType.TrainingCertificate">@Lang.T("شهادة تدريب")</option>
+                        <option value="@Sho2on.Database.Models.EmployeeDocumentType.WorkPermit">@Lang.T("تصريح عمل")</option>
+                        <option value="@Sho2on.Database.Models.EmployeeDocumentType.Other">@Lang.T("أخرى")</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>@Lang.T("تاريخ الانتهاء (اختياري)")</label>
+                    <input type="date" class="search-input" @bind="docExpiryDate" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("الملف")</label>
+                    <InputFile OnChange="OnDocFileSelected" class="file-input" />
+                    @if (docSelectedFileName != null)
+                    {
+                        <small class="selected-file"><i class="bi bi-paperclip"></i> @docSelectedFileName</small>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" @onclick="CloseDocUploadModal">@Lang.T("إلغاء")</button>
+                <button type="button" class="btn-primary" @onclick="SubmitDocUpload" disabled="@docUploading">
+                    @(docUploading ? Lang.T("جاري الرفع...") : Lang.T("رفع"))
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (docToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDeleteDoc">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("سيتم حذف") <strong>@docToDelete.Title</strong> @Lang.T("نهائيًا. هل أنت متأكد؟")</p></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" @onclick="CancelDeleteDoc">@Lang.T("إلغاء")</button>
+                <button type="button" class="btn-danger" @onclick="ConfirmDeleteDoc">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public int? Id { get; set; }
 
     EmployeeFormModel? model;
     EmployeeLookups? lookups;
     string activeTab = "بيانات شخصية";
+    Sho2on.Web.Models.EmployeeDocumentsSummary? docsSummary;
+    bool loadingDocs = false;
+
+    bool showDocUploadModal = false;
+    string docUploadTitle = "";
+    Sho2on.Database.Models.EmployeeDocumentType docUploadType = Sho2on.Database.Models.EmployeeDocumentType.Other;
+    string docLinkedCompanyDocId = "";
+    string docUploadDescription = "";
+    DateTime? docExpiryDate;
+    string docUploadNotes = "";
+    IBrowserFile? docSelectedFile;
+    string? docSelectedFileName;
+    bool docUploading = false;
+    Sho2on.Web.Models.EmployeeDocumentItem? docToDelete;
+    const long MaxDocFileSize = 10 * 1024 * 1024;
+    List<BenefitTypeDto> monthlyBenefitTypes = new();
+    HashSet<int> selectedBenefitTypeIds = new();
+    HashSet<int> savedBenefitTypeIds = new();
 
     readonly string[] tabTitles = {
-        "بيانات شخصية", "بيانات الوظيفة", "الراتب والسلف",
-        "الحضور والإعفاءات", "المستندات", "إعدادات الحساب"
-    };
+    "بيانات شخصية", "بيانات الوظيفة", "الراتب والسلف",
+    "الحضور والإعفاءات", "الاستحقاقات والاستقطاعات", "المستندات", "إعدادات الحساب", "اخرى"
+};
 
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
@@ -269,13 +679,315 @@
     {
         lookups = await EmployeeSvc.GetLookupsAsync();
         model = Id.HasValue ? await EmployeeSvc.GetByIdAsync(Id.Value) : new EmployeeFormModel();
+
+        await LoadMonthlyBenefitTypes();
+
+        if (Id.HasValue)
+        {
+            await LoadDocuments();
+            await LoadEmployeeBenefits();
+        }
     }
+
+    async Task LoadMonthlyBenefitTypes()
+    {
+        try
+        {
+            var allTypes = await BenefitTypeSvc.GetAllAsync();
+            monthlyBenefitTypes = allTypes.Where(t => t.Frequency == "Monthly" && t.IsActive).ToList();
+        }
+        catch { }
+    }
+
+    async Task LoadEmployeeBenefits()
+    {
+        if (!Id.HasValue) return;
+        try
+        {
+            // جلب الاستحقاقات المرتبطة بالموظف من جدول Benefits أو من جدول EmployeeBenefits
+            var employeeBenefits = await EmployeeSvc.GetEmployeeBenefitTypeIdsAsync(Id.Value);
+            selectedBenefitTypeIds = new HashSet<int>(employeeBenefits);
+            savedBenefitTypeIds = new HashSet<int>(employeeBenefits);
+        }
+        catch { }
+    }
+
+    void ToggleBenefitType(int benefitTypeId)
+    {
+        if (selectedBenefitTypeIds.Contains(benefitTypeId))
+            selectedBenefitTypeIds.Remove(benefitTypeId);
+        else
+            selectedBenefitTypeIds.Add(benefitTypeId);
+        
+        StateHasChanged();
+    }
+
+    decimal CalculateMonthlyBenefits()
+    {
+        if (model == null) return 0;
+        decimal total = 0;
+        foreach (var id in selectedBenefitTypeIds)
+        {
+            var type = monthlyBenefitTypes.FirstOrDefault(t => t.Id == id);
+            if (type != null && type.Type == "Benefit")
+            {
+                decimal baseSalary = type.SalaryTarget switch
+                {
+                    "Fixed" => model.FixedSalary ?? 0,
+                    "Variable" => model.HourlyRate ?? 0,
+                    "Total" => (model.FixedSalary ?? 0) + (model.HourlyRate ?? 0),
+                    _ => (model.FixedSalary ?? 0) + (model.HourlyRate ?? 0)
+                };
+                total += baseSalary * (type.Percentage / 100);
+            }
+        }
+        return total;
+    }
+
+    decimal CalculateMonthlyDeductions()
+    {
+        if (model == null) return 0;
+        decimal total = 0;
+        foreach (var id in selectedBenefitTypeIds)
+        {
+            var type = monthlyBenefitTypes.FirstOrDefault(t => t.Id == id);
+            if (type != null && type.Type == "Deduction")
+            {
+                decimal baseSalary = type.SalaryTarget switch
+                {
+                    "Fixed" => model.FixedSalary ?? 0,
+                    "Variable" => model.HourlyRate ?? 0,
+                    "Total" => (model.FixedSalary ?? 0) + (model.HourlyRate ?? 0),
+                    _ => (model.FixedSalary ?? 0) + (model.HourlyRate ?? 0)
+                };
+                total += baseSalary * (type.Percentage / 100);
+            }
+        }
+        return total;
+    }
+
+    string GetTargetDisplay(string target) => target switch
+    {
+        "Fixed" => Lang.T("الراتب الثابت"),
+        "Variable" => Lang.T("الراتب المتغير"),
+        "Total" => Lang.T("إجمالي الراتب"),
+        _ => target
+    };
+
+    async Task LoadDocuments()
+    {
+        loadingDocs = true;
+        StateHasChanged();
+        try
+        {
+            docsSummary = await DocSvc.GetSummaryAsync(Id!.Value);
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل المستندات"));
+        }
+        finally
+        {
+            loadingDocs = false;
+            StateHasChanged();
+        }
+    }
+
+
+    void CloseDocUploadModal() => showDocUploadModal = false;
+
+    void OnDocFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file.Size > MaxDocFileSize)
+        {
+            Notify.ShowError(Lang.T("حجم الملف أكبر من الحد المسموح (10 ميجا)"));
+            return;
+        }
+        docSelectedFile = file;
+        docSelectedFileName = file.Name;
+    }
+
+    void OpenDocUploadModal()
+    {
+        docUploadTitle = "";
+        docUploadDescription = ""; // إعادة تعيين الوصف
+        docUploadType = Sho2on.Database.Models.EmployeeDocumentType.Other;
+        docLinkedCompanyDocId = "";
+        docExpiryDate = null;
+        docUploadNotes = "";
+        docSelectedFile = null;
+        docSelectedFileName = null;
+        showDocUploadModal = true;
+    }
+
+    decimal CalculateHourlyRate()
+    {
+        if (model?.MonthlySalary > 0 && model?.MonthlyWorkingHours > 0)
+        {
+            return model.MonthlySalary.Value / model.MonthlyWorkingHours.Value;
+        }
+        return 0;
+    }
+    
+    async Task SubmitDocUpload()
+    {
+        if (string.IsNullOrWhiteSpace(docUploadTitle) || docSelectedFile == null || !Id.HasValue)
+        {
+            Notify.ShowError(Lang.T("أدخل العنوان واختر ملفًا"));
+            return;
+        }
+
+        docUploading = true;
+        StateHasChanged();
+        try
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var userId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+            int? linkedId = string.IsNullOrEmpty(docLinkedCompanyDocId) ? null : int.Parse(docLinkedCompanyDocId);
+
+            // تأكد إن الوصف مش null - استخدم string.Empty لو فاضي
+            var description = string.IsNullOrWhiteSpace(docUploadDescription) ? "" : docUploadDescription;
+
+            using var stream = docSelectedFile.OpenReadStream(MaxDocFileSize);
+            await DocSvc.UploadAsync(
+                Id.Value,
+                docUploadTitle,
+                docUploadType,
+                linkedId,
+                docExpiryDate,
+                docUploadNotes,
+                userId,
+                docSelectedFile.Name,
+                Path.GetExtension(docSelectedFile.Name),
+                stream,
+                description); 
+
+            Notify.ShowSuccess(Lang.T("تم رفع المستند بنجاح"));
+            showDocUploadModal = false;
+            await LoadDocuments();
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الرفع"));
+        }
+        finally
+        {
+            docUploading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task HandleManagerChanged(int? managerId)
+    {
+        if (model != null)
+        {
+            model.ManagerId = managerId;
+        }
+    }
+
+    void RequestDeleteDoc(Sho2on.Web.Models.EmployeeDocumentItem doc) => docToDelete = doc;
+    void CancelDeleteDoc() => docToDelete = null;
+
+    string GetSalaryTypeDisplay(SalaryTypeEnum? type) => type switch
+    {
+        SalaryTypeEnum.Fixed => Lang.T("راتب ثابت"),
+        SalaryTypeEnum.MonthlyHourly => Lang.T("ساعة شهرية"),
+        SalaryTypeEnum.DailyHourly => Lang.T("ساعة يومية"),
+        _ => Lang.T("غير محدد")
+    };
+
+    string GetSalaryTypeClass(SalaryTypeEnum? type) => type switch
+    {
+        SalaryTypeEnum.Fixed => "salary-type-fixed",
+        SalaryTypeEnum.MonthlyHourly => "salary-type-monthly",
+        SalaryTypeEnum.DailyHourly => "salary-type-daily",
+        _ => ""
+    };
+
+    decimal CalculateMonthlySalary()
+{
+    return model?.SalaryType switch
+    {
+        SalaryTypeEnum.Fixed => model.FixedSalary ?? 0,
+        SalaryTypeEnum.MonthlyHourly => (model.HourlyRate ?? 0) * (model.MonthlyWorkingHours ?? 0),
+        SalaryTypeEnum.DailyHourly => (model.HourlyRate ?? 0) * (model.DailyWorkingHours ?? 0) * (model.WorkingDaysPerMonth ?? 0),
+        _ => model?.MainSalary ?? 0
+    };
+}
+
+    decimal CalculateDailySalary()
+    {
+        if (model?.HourlyRate > 0 && model?.DailyWorkingHours > 0)
+        {
+            return model.HourlyRate.Value * model.DailyWorkingHours.Value;
+        }
+        return 0;
+    }
+
+    decimal CalculateExpectedMonthlySalary()
+    {
+        if (model?.HourlyRate > 0 && model?.DailyWorkingHours > 0 && model?.WorkingDaysPerMonth > 0)
+        {
+            return model.HourlyRate.Value * model.DailyWorkingHours.Value * model.WorkingDaysPerMonth.Value;
+        }
+        return 0;
+    }
+
+    async Task ConfirmDeleteDoc()
+    {
+        if (docToDelete == null) return;
+        try
+        {
+            await DocSvc.DeleteAsync(docToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم حذف المستند"));
+            docToDelete = null;
+            await LoadDocuments();
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+            docToDelete = null;
+        }
+    }
+
+    string DocFileColor(string ext) => ext?.ToLower() switch
+    {
+        ".pdf" => "pdf",
+        ".docx" or ".doc" => "word",
+        ".xlsx" or ".xls" => "excel",
+        ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" => "image",
+        _ => "other"
+    };
+
+    string DocFileIcon(string ext) => ext?.ToLower() switch
+    {
+        ".pdf" => "bi-file-earmark-pdf",
+        ".docx" or ".doc" => "bi-file-earmark-word",
+        ".xlsx" or ".xls" => "bi-file-earmark-excel",
+        ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" => "bi-file-earmark-image",
+        _ => "bi-file-earmark"
+    };
+
+    string DocFormatSize(long bytes) => bytes < 1024 * 1024
+        ? $"{bytes / 1024.0:F0} KB"
+        : $"{bytes / 1024.0 / 1024.0:F1} MB";
 
     async Task HandleSave()
     {
         try
         {
+            // حفظ الاستحقاقات المرتبطة بالموظف
+            model!.SelectedBenefitTypeIds = selectedBenefitTypeIds.ToList();
+            
             await EmployeeSvc.SaveAsync(model!);
+            
+            // حفظ علاقة الموظف بالاستحقاقات
+            if (Id.HasValue)
+            {
+                await EmployeeSvc.SaveEmployeeBenefitsAsync(Id.Value, selectedBenefitTypeIds.ToList());
+            }
+            
             Notify.ShowSuccess(Lang.T("تم حفظ بيانات الموظف بنجاح"));
             Nav.NavigateTo("/employees");
         }

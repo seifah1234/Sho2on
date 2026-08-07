@@ -1,0 +1,706 @@
+﻿@page "/attendance/processing"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject AttendanceProcessingService ProcessingSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<AttendanceProcessing> Logger
+@implements IDisposable
+@inject AuthenticationStateProvider AuthProvider
+
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="AttendanceTabs.Items" />
+
+<div class="processing-page">
+    <div class="panel">
+        <div class="panel-header"><i class="bi bi-magic"></i><h3>@Lang.T("معالجة الحضور التلقائية")</h3></div>
+
+        <div class="processing-filters">
+            <div class="field">
+                <label>@Lang.T("الفرع")</label>
+                <select class="select-input" @bind="selectedBranchId" @bind:after="OnFilterChanged">
+                    <option value="">@Lang.T("كل الفروع")</option>
+                    @if (branches != null)
+                    {
+                        @foreach (var b in branches)
+                        {
+                            <option value="@b.Id">@b.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="field">
+                <label>@Lang.T("موظف محدد")</label>
+                <EmployeeSearchSelect SelectedUserId="selectedUserIdInt" SelectedUserIdChanged="OnEmployeeSelected" />
+            </div>
+            <div class="field">
+                <label>@Lang.T("الشهر")</label>
+                <select class="select-input" @bind="selectedMonth" @bind:after="OnMonthChanged">
+                    @for (int m = 1; m <= 12; m++)
+                    {
+                        <option value="@m">@Lang.T(arabicMonths[m - 1])</option>
+                    }
+                </select>
+            </div>
+            <div class="field">
+                <label>@Lang.T("السنة")</label>
+                <select class="select-input" @bind="selectedYear" @bind:after="OnMonthChanged">
+                    @for (int y = DateTime.Today.Year - 2; y <= DateTime.Today.Year + 1; y++)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </div>
+            <button class="btn-primary" @onclick="RunProcessing" disabled="@processing">
+                @if (processing)
+                {
+                    <span>@Lang.T("جاري المعالجة...")</span>
+                }
+                else
+                {
+                    <i class="bi bi-play-fill"></i><span>@Lang.T("معالجة تلقائية")</span>
+                }
+            </button>
+            <button class="btn-primary" @onclick="PullEmployeeScans" disabled="@processing" style="background: var(--gradient-accent);">
+                <i class="bi bi-download"></i>
+                <span>@Lang.T("سحب البصمات")</span>
+            </button>
+            <button class="btn-primary" @onclick="ResetAndPullScans" disabled="@processing"
+                    style="background: var(--gradient-warning);"
+                    title="@Lang.T("حذف البصمات القديمة وسحبها من جهاز البصمة")">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>@Lang.T("إعادة تعيين")</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <i class="bi bi-fingerprint"></i>
+            <h3>@Lang.T("البصمات الخام قبل المعالجة")</h3>
+            <span class="scan-count">@(rawScans?.TotalCount ?? 0) @Lang.T("بصمة")</span>
+            <button class="btn-small" @onclick="OpenAddModal">
+                <i class="bi bi-plus-lg"></i> @Lang.T("إضافة بصمة")
+            </button>
+        </div>
+
+        @if (loadingScans)
+        {
+            <p class="muted">@Lang.T("جاري التحميل...")</p>
+        }
+        else if (rawScans == null || rawScans.Items.Count == 0)
+        {
+            <p class="muted">@Lang.T("لا توجد بصمات في الفترة المحددة")</p>
+        }
+        else
+        {
+            <div class="table-wrapper scans-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>@Lang.T("الكود")</th>
+                            <th>@Lang.T("الموظف")</th>
+                            <th>@Lang.T("وقت البصمة")</th>
+                            <th>@Lang.T("النوع")</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var scan in rawScans!.Items)
+                        {
+                            <tr @ondblclick="() => ToggleScanStatus(scan)"
+                                style="cursor: pointer;"
+                                title="@Lang.T("نقر مزدوج لتغيير الحالة")">
+                                <td>@scan.EmployeeCode</td>
+                                <td>@scan.EmployeeName</td>
+                                <td>@scan.ScanTime.ToString("dd/MM/yyyy - hh:mm tt")</td>
+                                <td>
+                                    <span class="status-badge @(scan.IsCheckIn ? "status-checkin" : "status-checkout")">
+                                        <i class="bi @(scan.IsCheckIn ? "bi-box-arrow-in-right" : "bi-box-arrow-right")"></i>
+                                        @(scan.IsCheckIn ? Lang.T("حضور") : Lang.T("انصراف"))
+                                    </span>
+                                </td>
+                                <td class="row-actions">
+                                    <button class="icon-action" title="@Lang.T("تعديل")" @onclick="() => OpenEditModal(scan)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="icon-action danger" title="@Lang.T("حذف")" @onclick="() => OpenDeleteConfirm(scan)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    @if (scan.IsManualEntry)
+                                    {
+                                        <span class="manual-badge" title="@Lang.T("تمت إضافتها يدويًا")"><i class="bi bi-hand-index-thumb"></i></span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    @if (rawScans != null && rawScans.TotalPages > 1)
+    {
+        <div class="pagination">
+            <span class="pagination-info">
+                @Lang.T("عرض") @((rawScans.Page - 1) * rawScans.PageSize + 1)-@(Math.Min(rawScans.Page * rawScans.PageSize, rawScans.TotalCount))
+                @Lang.T("من") @rawScans.TotalCount
+            </span>
+
+            <div class="pagination-controls">
+                <button class="page-btn" disabled="@(currentPage == 1)" @onclick="() => GoToPage(currentPage - 1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+
+                @for (int p = 1; p <= rawScans.TotalPages; p++)
+                {
+                    var pageNum = p;
+                    @if (pageNum == 1 || pageNum == rawScans.TotalPages || Math.Abs(pageNum - currentPage) <= 1)
+                    {
+                        <button class="page-btn @(pageNum == currentPage ? "active" : "")" @onclick="() => GoToPage(pageNum)">
+                            @pageNum
+                        </button>
+                    }
+                    else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                    {
+                        <span class="page-dots">…</span>
+                    }
+                }
+
+                <button class="page-btn" disabled="@(currentPage == rawScans.TotalPages)" @onclick="() => GoToPage(currentPage + 1)">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            </div>
+        </div>
+    }
+
+    @if (result != null)
+    {
+        <div class="processing-result-alert success">
+            <i class="bi bi-magic"></i>
+            <div>
+                <strong>@Lang.T("تمت المعالجة التلقائية بالكامل")</strong>
+                <span>
+                    @result.EmployeesProcessed @Lang.T("موظف") ·
+                    @result.DaysAutoResolved @Lang.T("يوم") ·
+                    @result.SingleScanDaysAutoResolved @Lang.T("يوم بصمة واحدة تم حسمه تلقائيًا") ·
+                    @result.StatusesAutoCorrected @Lang.T("حالة تم تصحيح ترتيبها") ·
+                    @result.DuplicateScansRemoved @Lang.T("بصمة مكررة تم حذفها")
+                </span>
+            </div>
+        </div>
+
+        @if (result.NeedsReview.Count > 0)
+        {
+            <div class="panel">
+                <div class="panel-header"><i class="bi bi-flag"></i><h3>@Lang.T("حالات تحتاج مراجعة")</h3></div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>@Lang.T("الموظف")</th>
+                                <th>@Lang.T("التاريخ")</th>
+                                <th>@Lang.T("وقت البصمة")</th>
+                                <th>@Lang.T("افترضها النظام")</th>
+                                <th>@Lang.T("السبب")</th>
+                                <th>@Lang.T("التأكيد")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in result.NeedsReview)
+                            {
+                                <tr>
+                                    <td>@item.EmployeeCode - @item.EmployeeName</td>
+                                    <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.ScanTime.ToString("hh:mm tt")</td>
+                                    <td><span class="status-badge @(item.GuessedAs == "حضور" ? "status-checkin" : "status-checkout")">@Lang.T(item.GuessedAs)</span></td>
+                                    <td class="muted-cell">@Lang.T(item.Reason)</td>
+                                    <td class="row-actions">
+                                        <button class="icon-action" title="@Lang.T("تأكيد كحضور")" @onclick="() => Resolve(item, true, false)">
+                                            <i class="bi bi-box-arrow-in-right"></i>
+                                        </button>
+                                        <button class="icon-action" title="@Lang.T("تأكيد كانصراف")" @onclick="() => Resolve(item, false, true)">
+                                            <i class="bi bi-box-arrow-right"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@* مودال تأكيد إعادة التعيين *@
+@if (showResetConfirm)
+{
+    <div class="modal-overlay" @onclick="CancelReset">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>
+                    <i class="bi bi-exclamation-triangle" style="color: var(--warning);"></i>
+                    @Lang.T("تأكيد إعادة التعيين")
+                </h3>
+                <button class="icon-action" @onclick="CancelReset">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon warning-icon">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <p class="confirm-text">
+                    @Lang.T("هل أنت متأكد من إعادة تعيين بصمات الموظف؟")
+                </p>
+                <div class="confirm-details">
+                    <div class="detail-item">
+                        <i class="bi bi-person"></i>
+                        <span>@Lang.T("الموظف"): <strong>@resetEmployeeName</strong></span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="bi bi-calendar-range"></i>
+                        <span>@Lang.T("الفترة"): <strong>@fromDate.ToString("dd/MM/yyyy") - @toDate.ToString("dd/MM/yyyy")</strong></span>
+                    </div>
+                </div>
+                <div class="warning-message">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <div>
+                        <strong>@Lang.T("تحذير")</strong>
+                        <p>@Lang.T("سيتم حذف جميع بصمات الموظف في هذه الفترة من قاعدة البيانات واستبدالها ببصمات من جهاز البصمة. لا يمكن التراجع عن هذا الإجراء.")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelReset">
+                    <i class="bi bi-x-circle"></i> @Lang.T("إلغاء")
+                </button>
+                <button class="btn-danger" @onclick="ConfirmReset">
+                    <i class="bi bi-arrow-repeat"></i> @Lang.T("نعم، إعادة تعيين")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showScanModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEditMode ? Lang.T("تعديل بصمة") : Lang.T("إضافة بصمة يدوية"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <div class="modal-body">
+                @if (!isEditMode)
+                {
+                    <div class="field">
+                        <label>@Lang.T("الموظف")</label>
+                        <EmployeeSearchSelect SelectedUserId="formUserIdNullable" SelectedUserIdChanged="(id) => formUserId = id ?? 0" />
+                    </div>
+                }
+                else
+                {
+                    <div class="field">
+                        <label>@Lang.T("الموظف")</label>
+                        <input class="search-input" value="@editingEmployeeLabel" disabled />
+                    </div>
+                }
+
+                <div class="field">
+                    <label>@Lang.T("وقت البصمة")</label>
+                    <input type="datetime-local" class="search-input" @bind="formDateTime" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("نوع البصمة")</label>
+                    <div class="scan-type-toggle">
+                        <button type="button" class="type-btn @(formIsCheckIn ? "active-in" : "")" @onclick="() => formIsCheckIn = true">
+                            <i class="bi bi-box-arrow-in-right"></i> @Lang.T("حضور")
+                        </button>
+                        <button type="button" class="type-btn @(!formIsCheckIn ? "active-out" : "")" @onclick="() => formIsCheckIn = false">
+                            <i class="bi bi-box-arrow-right"></i> @Lang.T("انصراف")
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SaveScan">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showDeleteConfirm)
+{
+    <div class="modal-overlay" @onclick="CloseDeleteConfirm">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من حذف هذه البصمة؟ لا يمكن التراجع عن هذا الإجراء.")</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseDeleteConfirm">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<(int Id, string Name)>? branches;
+    string selectedBranchId = "";
+    int selectedMonth = DateTime.Today.Month;
+    int selectedYear = DateTime.Today.Year;
+    DateOnly fromDate;
+    DateOnly toDate;
+    bool processing = false;
+    AttendanceProcessingResult? result;
+    PagedResult<RawScanItem>? rawScans;
+    
+    int currentPage = 1;
+    int pageSize = 30;
+    bool loadingScans = true;
+    List<(int Id, string Name)>? allEmployees;
+    bool showScanModal = false;
+    bool isEditMode = false;
+    int? scanIdBeingEdited;
+    int formUserId;
+    DateTime formDateTime = DateTime.Now;
+    bool formIsCheckIn = true;
+    string editingEmployeeLabel = "";
+    string selectedUserId = "";
+    int? selectedUserIdInt;
+    bool showDeleteConfirm = false;
+    RawScanItem? scanBeingDeleted;
+    int? formUserIdNullable => formUserId == 0 ? null : formUserId;
+    bool showResetConfirm = false;
+    string resetEmployeeName = "";
+    readonly string[] arabicMonths = { "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        branches = lookups.Branches;
+        allEmployees = lookups.Managers;
+        await LoadMonthSettings();
+        await LoadRawScans();
+    }
+
+    // دالة تأكيد بسيطة
+    async Task<bool> ConfirmAsync(string title, string message)
+    {
+        // TODO: استبدلها بمودال حقيقي
+        return true;
+    }
+
+    async Task LoadMonthSettings()
+    {
+        // جلب إعدادات بداية ونهاية الشهر
+        var settings = await ProcessingSvc.GetMonthSettingsAsync();
+        int startDay = settings.StartDay;
+        int endDay = settings.EndDay;
+
+        // حساب fromDate و toDate حسب إعدادات الشهر
+        fromDate = CalculateMonthStart(selectedMonth, selectedYear, startDay, endDay);
+        toDate = CalculateMonthEnd(selectedMonth, selectedYear, endDay);
+    }
+
+    DateOnly CalculateMonthStart(int month, int year, int startDay, int endDay)
+    {
+        var date = new DateOnly(year, month, Math.Min(endDay, DateTime.DaysInMonth(year, month)));
+        if (endDay < startDay)
+            date = date.AddMonths(-11);
+        return date;
+    }
+
+    DateOnly CalculateMonthEnd(int month, int year, int endDay)
+    {
+        var date = new DateOnly(year, month, Math.Min(endDay, DateTime.DaysInMonth(year, month)));
+        return date;
+    }
+
+    void OpenAddModal()
+    {
+        isEditMode = false; scanIdBeingEdited = null; formUserId = 0;
+        formDateTime = DateTime.Now; formIsCheckIn = true; showScanModal = true;
+    }
+
+    void OpenEditModal(RawScanItem scan)
+    {
+        isEditMode = true; scanIdBeingEdited = scan.Id;
+        editingEmployeeLabel = $"{scan.EmployeeCode} - {scan.EmployeeName}";
+        formDateTime = scan.ScanTime; formIsCheckIn = scan.IsCheckIn; showScanModal = true;
+    }
+
+    void CloseModal() => showScanModal = false;
+
+    async Task SaveScan()
+    {
+        try
+        {
+            if (isEditMode && scanIdBeingEdited.HasValue)
+            {
+                await ProcessingSvc.UpdateScanAsync(scanIdBeingEdited.Value, formDateTime, formIsCheckIn);
+                Notify.ShowSuccess(Lang.T("تم تعديل البصمة"));
+            }
+            else
+            {
+                if (formUserId == 0) { Notify.ShowError(Lang.T("اختر الموظف أولاً")); return; }
+                var authState = await AuthProvider.GetAuthenticationStateAsync();
+                var addedBy = authState.User.Identity?.Name ?? "system";
+                await ProcessingSvc.AddManualScanAsync(formUserId, formDateTime, formIsCheckIn, addedBy);
+                Notify.ShowSuccess(Lang.T("تمت إضافة البصمة"));
+            }
+            showScanModal = false;
+            await LoadRawScans();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ"); Notify.ShowError(Lang.T("حدث خطأ")); }
+    }
+
+    void OpenDeleteConfirm(RawScanItem scan) { scanBeingDeleted = scan; showDeleteConfirm = true; }
+    void CloseDeleteConfirm() => showDeleteConfirm = false;
+
+    async Task ConfirmDelete()
+    {
+        if (scanBeingDeleted == null) return;
+        try { await ProcessingSvc.DeleteScanAsync(scanBeingDeleted.Id); Notify.ShowSuccess(Lang.T("تم حذف البصمة")); showDeleteConfirm = false; await LoadRawScans(); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ"); Notify.ShowError(Lang.T("حدث خطأ")); }
+    }
+
+    async Task OnEmployeeSelected(int? userId) { selectedUserIdInt = userId; selectedUserId = userId?.ToString() ?? ""; currentPage = 1; await LoadRawScans(); }
+
+    /// <summary>
+    /// عند النقر المزدوج:
+    /// 1. يغير الصف الحالي للعكس
+    /// 2. بعد التغيير، لو الصف اللي بعده بقى نفس الحالة الجديدة، يغيره هو كمان
+    /// </summary>
+    async Task ToggleScanStatus(RawScanItem scan)
+    {
+        if (rawScans == null || rawScans.Items.Count == 0) return;
+
+        try
+        {
+            var items = rawScans.Items;
+            int currentIndex = items.IndexOf(scan);
+            if (currentIndex < 0) return;
+
+            bool newStatus = !scan.IsCheckIn; // الحالة الجديدة (العكس)
+            int changedCount = 1;
+
+            // ═══ 1. تغيير العنصر الحالي ═══
+            await ProcessingSvc.UpdateScanAsync(scan.Id, scan.ScanTime, newStatus);
+            scan.IsCheckIn = newStatus;
+
+            // ═══ 2. بعد التغيير، لو الصف اللي بعده بقى نفس الحالة، غيّره ═══
+            if (currentIndex + 1 < items.Count)
+            {
+                var nextItem = items[currentIndex + 1];
+            
+                // هل العنصر اللي بعده بقى نفس الحالة الجديدة؟
+                if (nextItem.IsCheckIn == newStatus)
+                {
+                    // غيّره للعكس
+                    bool oppositeOfNew = !newStatus;
+                    await ProcessingSvc.UpdateScanAsync(nextItem.Id, nextItem.ScanTime, oppositeOfNew);
+                    nextItem.IsCheckIn = oppositeOfNew;
+                    changedCount++;
+                }
+            }
+
+            string newStatusName = newStatus ? Lang.T("حضور") : Lang.T("انصراف");
+            Notify.ShowSuccess(Lang.T($"تم تغيير {changedCount} بصمة"));
+        
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تغيير حالة البصمة");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تغيير الحالة"));
+        }
+    }
+
+    async Task LoadRawScans()
+    {
+        loadingScans = true;
+        StateHasChanged();
+        try
+        {
+            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
+            int? userId = string.IsNullOrEmpty(selectedUserId) ? null : int.Parse(selectedUserId);
+        
+            // إعادة تحميل البيانات من الصفر
+            rawScans = await ProcessingSvc.GetRawScansPagedAsync(branchId, userId, fromDate, toDate, currentPage, pageSize);
+        
+            // لو الصفحة الحالية فاضية بعد الحذف، ارجع للصفحة الأولى
+            if (rawScans.Items.Count == 0 && currentPage > 1)
+            {
+                currentPage = 1;
+                rawScans = await ProcessingSvc.GetRawScansPagedAsync(branchId, userId, fromDate, toDate, currentPage, pageSize);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل البصمات الخام");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+        finally
+        {
+            loadingScans = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task GoToPage(int page) { if (page < 1 || (rawScans != null && page > rawScans.TotalPages)) return; currentPage = page; await LoadRawScans(); }
+
+    async Task OnFilterChanged() { currentPage = 1; await LoadRawScans(); }
+
+    async Task OnMonthChanged()
+    {
+        await LoadMonthSettings();
+        currentPage = 1;
+        await LoadRawScans();
+    }
+
+    async Task RunProcessing()
+    {
+        processing = true;
+        StateHasChanged();
+        try
+        {
+            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
+            int? userId = string.IsNullOrEmpty(selectedUserId) ? null : int.Parse(selectedUserId);
+        
+            result = await ProcessingSvc.ProcessAsync(branchId, userId, fromDate, toDate);
+        
+            Notify.ShowSuccess(Lang.T($"تمت المعالجة بنجاح - تم حذف {result.DuplicateScansRemoved} بصمة مكررة"));
+        
+            // ═══ تحديث جدول البصمات بعد المعالجة ═══
+            await LoadRawScans();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء معالجة الحضور التلقائية");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء المعالجة"));
+        }
+        finally
+        {
+            processing = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task PullEmployeeScans()
+    {
+        processing = true;
+        StateHasChanged();
+        try
+        {
+            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
+            int? userId = string.IsNullOrEmpty(selectedUserId) ? null : int.Parse(selectedUserId);
+        
+            result = await ProcessingSvc.PullEmployeesScansAsync(branchId, userId, fromDate, toDate);
+            Notify.ShowSuccess(Lang.T($"تم سحب البصمات بنجاح - {result.EmployeesProcessed} موظف - {result.DaysAutoResolved} يوم"));
+        
+            // ═══ تحديث جدول البصمات بعد السحب ═══
+            await LoadRawScans();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء سحب البصمات");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء سحب البصمات"));
+        }
+        finally
+        {
+            processing = false;
+            StateHasChanged();
+        }
+    }
+
+
+    async Task ResetAndPullScans()
+    {
+        if (!selectedUserIdInt.HasValue)
+        {
+            Notify.ShowError(Lang.T("يرجى اختيار موظف أولاً"));
+            return;
+        }
+
+        // جلب اسم الموظف للعرض في المودال
+        var employee = allEmployees?.FirstOrDefault(e => e.Id == selectedUserIdInt.Value);
+        resetEmployeeName = employee?.Name ?? $"كود: {selectedUserIdInt.Value}";
+    
+        // إظهار مودال التأكيد
+        showResetConfirm = true;
+    }
+
+    void CancelReset()
+    {
+        showResetConfirm = false;
+        resetEmployeeName = "";
+    }
+
+    async Task ConfirmReset()
+    {
+        showResetConfirm = false;
+    
+        if (!selectedUserIdInt.HasValue) return;
+
+        processing = true;
+        StateHasChanged();
+    
+        try
+        {
+            var (success, message) = await ProcessingSvc.ResetAndPullScansFromMachineAsync(
+                selectedUserIdInt.Value, fromDate, toDate);
+        
+            if (success)
+                Notify.ShowSuccess(message);
+            else
+                Notify.ShowWarning(message);
+
+            await LoadRawScans();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء إعادة تعيين البصمات");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء إعادة تعيين البصمات"));
+        }
+        finally
+        {
+            processing = false;
+            resetEmployeeName = "";
+            StateHasChanged();
+        }
+    }
+
+    async Task Resolve(AttendanceReviewItem item, bool isCheckIn, bool isCheckOut)
+    {
+        try
+        {
+            await ProcessingSvc.ResolveAsync(item.AttendanceId, isCheckIn, isCheckOut);
+            result!.NeedsReview.Remove(item);
+            Notify.ShowSuccess(Lang.T("تم التأكيد"));
+        
+            // ═══ تحديث الجدول بعد الحل ═══
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ");
+            Notify.ShowError(Lang.T("حدث خطأ"));
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

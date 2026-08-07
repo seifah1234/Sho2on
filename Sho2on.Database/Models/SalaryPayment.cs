@@ -1,5 +1,4 @@
-﻿// SalaryPayment.cs
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sho2on.Database.Models
@@ -10,68 +9,82 @@ namespace Sho2on.Database.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        /// <summary>
+        /// الموظف
+        /// </summary>
         [Required]
         public int UserId { get; set; }
 
+        /// <summary>
+        /// الشهر
+        /// </summary>
         [Required]
-        public int Month { get; set; } // الشهر (1-12)
+        public int Month { get; set; }
 
+        /// <summary>
+        /// السنة
+        /// </summary>
         [Required]
-        public int Year { get; set; } // السنة
+        public int Year { get; set; }
 
-        [Required]
-        public decimal BasicSalary { get; set; } // الراتب الأساسي
+        /// <summary>
+        /// إجمالي الراتب الأساسي (ثابت + متغير)
+        /// </summary>
+        public decimal BasicSalary { get; set; }
 
-        public decimal HousingAllowance { get; set; } = 0; // بدل سكن
-        public decimal TransportationAllowance { get; set; } = 0; // بدل انتقال
-        public decimal ManagementAllowance { get; set; } = 0; // بدل إدارة
-        public decimal NatureAllowance { get; set; } = 0; // بدل طبيعة عمل
-        public decimal OvertimeAmount { get; set; } = 0; // إضافي
-        public decimal Rewards { get; set; } = 0; // مكافآت
-        public decimal TargetCommission { get; set; } = 0; // عمولات تحقيق
-        public decimal ExternalCommission { get; set; } = 0; // عمولات خارجية
+        /// <summary>
+        /// إجمالي الاستحقاقات (Monthly + Once)
+        /// </summary>
+        public decimal TotalAdditions { get; set; }
 
-        // الاستقطاعات
-        public decimal AbsenceDeduction { get; set; } = 0; // خصم الغياب
-        public decimal LateDeduction { get; set; } = 0; // خصم التأخير
-        public decimal LoanDeduction { get; set; } = 0; // خصم السلف
-        public decimal PenaltyDeduction { get; set; } = 0; // خصم جزاءات
-        public decimal TaxDeduction { get; set; } = 0; // ضريبة كسب العمل
-        public decimal InsuranceDeduction { get; set; } = 0; // تأمينات الموظف
-        public decimal SocialParticipation { get; set; } = 0; // مشاركة اجتماعية
+        /// <summary>
+        /// إجمالي الخصومات (Monthly + Once)
+        /// </summary>
+        public decimal TotalDeductions { get; set; }
 
-        // صندوق الزمالة
-        public decimal FriendshipBoxDeduction { get; set; } = 0; // خصم صندوق الزمالة
+        /// <summary>
+        /// صافي الراتب
+        /// </summary>
+        public decimal NetSalary { get; set; }
 
+        /// <summary>
+        /// هل تم الدفع؟
+        /// </summary>
+        public bool IsPaid { get; set; }
 
+        /// <summary>
+        /// هل هو صرف فوري (Off-Cycle)؟
+        /// </summary>
+        public bool IsOffCycle { get; set; } = false;
 
-        // الإجماليات
-        [Required]
-        public decimal TotalAdditions { get; set; } // إجمالي الإضافات
+        /// <summary>
+        /// تاريخ الدفع
+        /// </summary>
+        public DateTime? PaymentDate { get; set; }
 
-        [Required]
-        public decimal TotalDeductions { get; set; } // إجمالي الاستقطاعات
+        /// <summary>
+        /// تاريخ الصرف الفعلي
+        /// </summary>
+        public DateTime? ActualPaymentDate { get; set; }
 
-        [Required]
-        public decimal NetSalary { get; set; } // صافي الراتب
-
-        [Required]
-        public DateTime PaymentDate { get; set; } // تاريخ الصرف
-
-        public bool IsPaid { get; set; } = false; // تم الصرف أم لا
-
-        public DateTime? ActualPaymentDate { get; set; } // تاريخ الصرف الفعلي
-
+        /// <summary>
+        /// ملاحظات
+        /// </summary>
         [MaxLength(500)]
         public string? Notes { get; set; }
 
-        [Required]
+        /// <summary>
+        /// تاريخ الإنشاء
+        /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        /// <summary>
+        /// تاريخ التحديث
+        /// </summary>
+        public DateTime? UpdatedAt { get; set; }
 
-        // العلاقات
-        [ForeignKey(nameof(UserId))]
-        public User? User { get; set; }
+        // ═══ العلاقات ═══
+        [ForeignKey("UserId")]
+        public virtual User? User { get; set; }
     }
 }

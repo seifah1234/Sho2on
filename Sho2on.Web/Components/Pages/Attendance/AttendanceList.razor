@@ -11,6 +11,9 @@
 @inject ILogger<AttendanceList> Logger
 @implements IDisposable
 
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="AttendanceTabs.Items" />
 <div class="attendance-page">
 
     <div class="page-toolbar">
@@ -30,6 +33,8 @@
 
             <input class="search-input" placeholder="@Lang.T("ابحث باسم الموظف")"
                    @bind="searchTerm" @bind:event="oninput" @onkeyup="HandleSearchKeyUp" />
+
+
         </div>
     </div>
 

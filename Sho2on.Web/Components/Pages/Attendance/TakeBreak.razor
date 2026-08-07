@@ -1,0 +1,101 @@
+﻿@page "/attendance/break"
+@using Sho2on.Database.Models
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@inject BreakService BreakSvc
+@inject AuthenticationStateProvider AuthProvider
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@implements IDisposable
+
+<div class="break-page">
+    <div class="break-card">
+        <h2><i class="bi bi-cup-hot"></i> @Lang.T("فترة الراحة")</h2>
+        
+        <div class="break-status">
+            @if (hasOpenBreak)
+            {
+                <div class="alert warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>@Lang.T("بريك مفتوح منذ") @openBreakTime?.ToString("HH:mm")</span>
+                </div>
+                <button class="btn-primary end-break" @onclick="EndBreak">
+                    <i class="bi bi-stop-circle"></i> @Lang.T("إنهاء الراحة")
+                </button>
+            }
+            else
+            {
+                <div class="alert success">
+                    <i class="bi bi-check-circle"></i>
+                    <span>@Lang.T("يمكنك بدء الراحة الآن")</span>
+                </div>
+                <button class="btn-primary start-break" @onclick="StartBreak">
+                    <i class="bi bi-play-circle"></i> @Lang.T("بدء الراحة")
+                </button>
+            }
+        </div>
+
+        @if (todayLogs?.Count > 0)
+        {
+            <div class="break-logs">
+                <h3>@Lang.T("سجل الراحة اليوم")</h3>
+                @foreach (var log in todayLogs)
+                {
+                    <div class="log-item @(log.ExceededLimit ? "exceeded" : "ok")">
+                        <span>@log.StartTime.ToString("HH:mm") - @(log.EndTime?.ToString("HH:mm") ?? "---")</span>
+                        <span>@((log.EndTime - log.StartTime)?.TotalMinutes / @log.Break.DurationMinutes) @Lang.T("دقيقة")</span>
+                        @if (log.ExceededLimit)
+                        {
+                            <span class="badge danger">@Lang.T("تجاوز")</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    bool hasOpenBreak = false;
+    DateTime? openBreakTime;
+    List<BreakLog>? todayLogs;
+    int currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+        await LoadStatus();
+    }
+
+    async Task LoadStatus()
+    {
+        try
+        {
+            todayLogs = await BreakSvc.GetEmployeeBreakLogsAsync(currentUserId, DateTime.Today);
+            var open = todayLogs.FirstOrDefault(b => b.EndTime == null);
+            hasOpenBreak = open != null;
+            openBreakTime = open?.StartTime;
+        }
+        catch { }
+    }
+
+    async Task StartBreak()
+    {
+        var (success, message) = await BreakSvc.StartBreakAsync(currentUserId);
+        if (success) Notify.ShowSuccess(message); else Notify.ShowError(message);
+        await LoadStatus();
+        StateHasChanged();
+    }
+
+    async Task EndBreak()
+    {
+        var (success, message) = await BreakSvc.EndBreakAsync(currentUserId);
+        if (success) Notify.ShowSuccess(message); else Notify.ShowError(message);
+        await LoadStatus();
+        StateHasChanged();
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

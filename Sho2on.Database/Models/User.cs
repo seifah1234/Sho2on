@@ -47,8 +47,38 @@ namespace Sho2on.Database.Models
 
         public decimal MaxLoanAmount { get; set; } = 0; // الحد الأقصى للسلفة المسموح بها
         public decimal CurrentLoanBalance { get; set; } = 0; // رصيد السلف الحالي
-
+        public decimal? HousingAllowance { get; set; }      // بدل سكن
+        public decimal? TransportationAllowance { get; set; } // بدل انتقال
+        public decimal? ManagementAllowance { get; set; }    // بدل إدارة
+        public decimal? NatureAllowance { get; set; }        // بدل طبيعة عمل
         public bool CanTakeLoan { get; set; } = true; // هل يمكن أخذ سلفة أم لا
+
+
+        public SalaryTypeEnum? SalaryType { get; set; }
+
+        // الراتب الثابت
+        public decimal? FixedSalary { get; set; }
+
+        // سعر الساعة
+        public decimal? HourlyRate { get; set; }
+
+        // ساعات العمل الشهرية
+        public decimal? MonthlyWorkingHours { get; set; } = 208;
+
+        // ساعات العمل اليومية
+        public decimal? DailyWorkingHours { get; set; } = 8;
+
+        // أيام العمل في الشهر
+        public int? WorkingDaysPerMonth { get; set; } = 26;
+
+        // ══ خاصية محسوبة للراتب الشهري ══
+        public decimal MonthlySalary => SalaryType switch
+        {
+            SalaryTypeEnum.Fixed => FixedSalary ?? 0,
+            SalaryTypeEnum.MonthlyHourly => (HourlyRate ?? 0) * (MonthlyWorkingHours ?? 0),
+            SalaryTypeEnum.DailyHourly => (HourlyRate ?? 0) * (DailyWorkingHours ?? 0) * (WorkingDaysPerMonth ?? 0),
+            _ => MainSalary ?? 0
+        };
 
         // Work Information
         [ForeignKey(nameof(Area))]
@@ -155,6 +185,7 @@ namespace Sho2on.Database.Models
         public ICollection<SalaryPayment>? SalaryPayments { get; internal set; }
         public ICollection<EmployeePermission>? EmployeePermissions { get; internal set; }
 
+        public virtual ICollection<EmployeeBenefit>? EmployeeBenefits { get; set; }
         public ICollection<User>? MyEmployees { get; internal set; }
 
         public ICollection<UserTask>? AssignedByTasks { get; internal set; }
@@ -162,5 +193,12 @@ namespace Sho2on.Database.Models
 
         public ICollection<Chat>? SenderChats { get; internal set; }
         public ICollection<Chat>? ReceiverChats { get; internal set; }
+    }
+
+    public enum SalaryTypeEnum
+    {
+        Fixed = 1,
+        MonthlyHourly = 2,
+        DailyHourly = 3
     }
 }

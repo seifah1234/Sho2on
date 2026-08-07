@@ -1,0 +1,306 @@
+﻿@page "/loans/request"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject LoanService LoanSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<LoanRequest> Logger
+@implements IDisposable
+
+<div class="loan-request-page">
+    <div class="page-header">
+        <h2>@Lang.T("طلب سلفة جديدة")</h2>
+        <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/loans")'>
+            <i class="bi bi-arrow-right"></i>
+            @Lang.T("العودة للقائمة")
+        </button>
+    </div>
+
+    <div class="form-container">
+        <EditForm Model="@request" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-grid">
+                <!-- اختيار الموظف -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("الموظف") <span class="required">*</span></label>
+                    <EmployeeSearchSelect SelectedUserId="selectedEmployeeId" 
+                                         SelectedUserIdChanged="HandleEmployeeChanged"
+                                         Placeholder="@Lang.T("ابحث عن موظف")" />
+                    <ValidationMessage For="@(() => request.UserId)" />
+                </div>
+
+                <!-- معلومات الموظف -->
+                @if (selectedEmployee != null)
+                {
+                    <div class="employee-info-card">
+                        <div class="info-row">
+                            <span class="info-label">@Lang.T("الكود")</span>
+                            <span class="info-value">@selectedEmployee.Code</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">@Lang.T("الاسم")</span>
+                            <span class="info-value">@selectedEmployee.FullName</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">@Lang.T("الراتب الأساسي")</span>
+                            <span class="info-value">@(selectedEmployee.MainSalary?.ToString("N0") ?? "—")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">@Lang.T("الحد الأقصى للسلف")</span>
+                            <span class="info-value">@(selectedEmployee.MaxLoanAmount?.ToString("N0") ?? "—")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">@Lang.T("السلف النشطة الحالية")</span>
+                            <span class="info-value @(activeLoanTotal > selectedEmployee.MaxLoanAmount ? "text-danger" : "")">
+                                @activeLoanTotal.ToString("N0")
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">@Lang.T("المتبقي للحد الأقصى")</span>
+                            <span class="info-value @(remainingLimit <= 0 ? "text-danger" : "")">
+                                @remainingLimit.ToString("N0")
+                            </span>
+                        </div>
+                    </div>
+                }
+
+                <!-- مبلغ السلفة -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("مبلغ السلفة") <span class="required">*</span></label>
+                    <div class="input-with-currency">
+                        <InputNumber class="form-input" @bind-Value="request.LoanAmount" 
+                                     @oninput="OnLoanAmountChanged"
+                                     step="100" min="0" />
+                    </div>
+                    <ValidationMessage For="@(() => request.LoanAmount)" />
+                    @if (remainingLimit > 0 && request.LoanAmount > remainingLimit)
+                    {
+                        <div class="validation-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            @Lang.T("المبلغ المطلوب يتجاوز الحد المتبقي")
+                        </div>
+                    }
+                </div>
+
+                <!-- عدد الأقساط -->
+                <div class="form-group">
+                    <label class="form-label">@Lang.T("عدد الأقساط") <span class="required">*</span></label>
+                    <div class="installment-options">
+                        <div class="installment-option @(request.InstallmentCount == 1 ? "active" : "")" 
+                             @onclick="() => { request.InstallmentCount = 1; CalculateInstallment(); }">
+                            <span>@Lang.T("مرة واحدة")</span>
+                        </div>
+                        <div class="installment-option @(request.InstallmentCount == 3 ? "active" : "")" 
+                             @onclick="() => { request.InstallmentCount = 3; CalculateInstallment(); }">
+                            <span>3 @Lang.T("شهور")</span>
+                        </div>
+                        <div class="installment-option @(request.InstallmentCount == 6 ? "active" : "")" 
+                             @onclick="() => { request.InstallmentCount = 6; CalculateInstallment(); }">
+                            <span>6 @Lang.T("شهور")</span>
+                        </div>
+                        <div class="installment-option @(request.InstallmentCount == 12 ? "active" : "")" 
+                             @onclick="() => { request.InstallmentCount = 12; CalculateInstallment(); }">
+                            <span>12 @Lang.T("شهر")</span>
+                        </div>
+                        <div class="installment-option-custom">
+                            <input type="number" class="form-input-sm" 
+                                   placeholder="@Lang.T("عدد")"
+                                   @bind="customInstallmentCount"
+                                   @bind:event="oninput"
+                                   @onchange="OnCustomInstallmentChange" />
+                            <span>@Lang.T("شهر")</span>
+                        </div>
+                    </div>
+                    <ValidationMessage For="@(() => request.InstallmentCount)" />
+                </div>
+
+                <!-- عرض القسط الشهري -->
+                @if (request.InstallmentCount > 0 && request.LoanAmount > 0)
+                {
+                    <div class="installment-preview">
+                        <div class="preview-card">
+                            <div class="preview-label">@Lang.T("القسط الشهري")</div>
+                            <div class="preview-value">@monthlyInstallment.ToString("N0") <span class="currency-sm">ج</span></div>
+                        </div>
+                        <div class="preview-card">
+                            <div class="preview-label">@Lang.T("إجمالي المبلغ")</div>
+                            <div class="preview-value">@request.LoanAmount.ToString("N0") <span class="currency-sm">ج</span></div>
+                        </div>
+                    </div>
+                }
+
+                <!-- سبب السلفة -->
+                <div class="form-group full-width">
+                    <label class="form-label">@Lang.T("سبب السلفة")</label>
+                    <InputTextArea class="form-textarea"
+                                   @bind-Value="request.Reason"
+                                   placeholder="@Lang.T("أدخل سبب السلفة...")"
+                                   rows="4" />
+                    <ValidationMessage For="@(() => request.Reason)" />
+                </div>
+
+                <!-- ملاحظات -->
+                <div class="form-group full-width">
+                    <label class="form-label">@Lang.T("ملاحظات")</label>
+                    <InputTextArea class="form-textarea"
+                                   @bind-Value="request.Notes"
+                                   placeholder="@Lang.T("ملاحظات إضافية (اختياري)...")"
+                                   rows="3" />
+                    <ValidationMessage For="@(() => request.Notes)" />
+                </div>
+            </div>
+
+            <!-- أزرار الإجراءات -->
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" @onclick='() => Nav.NavigateTo("/loans")'>
+                    @Lang.T("إلغاء")
+                </button>
+                <button type="submit" class="btn-primary" disabled="@(!canSubmit)">
+                    <i class="bi bi-send"></i>
+                    @Lang.T("تقديم الطلب")
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private LoanRequestDto request = new();
+    private int? selectedEmployeeId;
+    private EmployeeDetailDto? selectedEmployee;
+    private decimal activeLoanTotal = 0;
+    private decimal remainingLimit = 0;
+    private decimal monthlyInstallment = 0;
+    private int? customInstallmentCount;
+    private bool isSubmitting = false;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    private async Task HandleEmployeeChanged(int? id)
+    {
+        selectedEmployeeId = id;
+        if (id.HasValue)
+        {
+            await LoadEmployeeData(id.Value);
+            request.UserId = id.Value;
+        }
+        else
+        {
+            selectedEmployee = null;
+            request.UserId = 0;
+            activeLoanTotal = 0;
+            remainingLimit = 0;
+        }
+        CalculateInstallment();
+        StateHasChanged();
+    }
+
+    private async Task LoadEmployeeData(int userId)
+    {
+        try
+        {
+            // جلب بيانات الموظف
+            var employee = await EmployeeSvc.GetEmployeeDetailAsync(userId);
+            selectedEmployee = employee;
+
+            // جلب إحصائيات السلف
+            var stats = await LoanSvc.GetStatisticsAsync(userId);
+            activeLoanTotal = stats.TotalRemaining; // المبلغ المتبقي للسلف النشطة
+
+            var maxLoan = employee.MaxLoanAmount ?? 0;
+            remainingLimit = maxLoan - activeLoanTotal;
+            if (remainingLimit < 0) remainingLimit = 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل بيانات الموظف {UserId}", userId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل بيانات الموظف"));
+        }
+    }
+
+    private void OnLoanAmountChanged()
+    {
+        CalculateInstallment();
+        StateHasChanged();
+    }
+
+    private void OnCustomInstallmentChange()
+    {
+        if (customInstallmentCount.HasValue && customInstallmentCount.Value > 0)
+        {
+            request.InstallmentCount = customInstallmentCount.Value;
+            CalculateInstallment();
+        }
+    }
+
+    private void CalculateInstallment()
+    {
+        if (request.LoanAmount > 0 && request.InstallmentCount > 0)
+        {
+            monthlyInstallment = request.LoanAmount / request.InstallmentCount;
+        }
+        else
+        {
+            monthlyInstallment = 0;
+        }
+    }
+
+    private bool canSubmit
+    {
+        get
+        {
+            if (isSubmitting) return false;
+            if (!selectedEmployeeId.HasValue) return false;
+            if (request.LoanAmount <= 0) return false;
+            if (request.InstallmentCount <= 0) return false;
+            if (request.LoanAmount > remainingLimit) return false;
+            if (!selectedEmployee?.CanTakeLoan ?? false) return false;
+            return true;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (!canSubmit) return;
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            var (success, message, loanId) = await LoanSvc.RequestLoanAsync(request);
+            
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                Nav.NavigateTo($"/loans/details/{loanId}");
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تقديم طلب سلفة");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تقديم الطلب"));
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+    }
+}

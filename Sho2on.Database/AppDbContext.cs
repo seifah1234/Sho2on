@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Sho2on.Database.Models;
 using System;
 using System.Net;
@@ -20,6 +21,7 @@ namespace Sho2on.Database
     public class AppDbContext : DbContext
     {
         private static string _connectionString;
+        private readonly string _explicitConnectionString;
 
         public static string CentralStoragePath
         {
@@ -239,19 +241,21 @@ namespace Sho2on.Database
 
 
         public AppDbContext(string connectionString) : base(
-                new DbContextOptionsBuilder<AppDbContext>()
-                    .UseSqlServer(connectionString, sqlServerOptions =>
-                    {
-                        sqlServerOptions.EnableRetryOnFailure(
-                            maxRetryCount: 5,
-                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
-                    })
-                    .Options)
-            {
-                _connectionString = connectionString;
-            }
+            new DbContextOptionsBuilder<AppDbContext>()
+                .UseSqlServer(connectionString, sqlServerOptions =>
+                {
+                    sqlServerOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null);
+                })
+                .Options)
+        {
+            _explicitConnectionString = connectionString;
+            _connectionString = connectionString;
+        }
 
+        [ActivatorUtilitiesConstructor]
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
@@ -259,18 +263,24 @@ namespace Sho2on.Database
 
             // DbSets
             public DbSet<Area> Areas { get; set; }
+            public DbSet<BreakLog> BreakLogs { get; set; }
+            public DbSet<AbsenceTier> AbsenceTiers { get; set; }
             public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatAttachment> ChatAttachments { get; set; }
-
+        public DbSet<EmployeeBenefit> EmployeeBenefits { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
             public DbSet<UserTask> UserTasks { get; set; }
             public DbSet<Branch> Branches { get; set; }
+            public DbSet<Benefit> Benefits { get; set; }
+            public DbSet<BenefitType> BenefitTypes { get; set; }
             public DbSet<Break> Breaks { get; set; }
             public DbSet<Degree> Degrees { get; set; }
             public DbSet<Department> Departments { get; set; }
             public DbSet<JobTitle> JobTitles { get; set; }
             public DbSet<Shift> Shifts { get; set; }
             public DbSet<User> Users { get; set; }
+            public DbSet<Commission> Commissions { get; set; }
+            public DbSet<Penalty> Penalties { get; set; }
             public DbSet<Role> Roles { get; set; }
             public DbSet<Permission> Permissions { get; set; }
             public DbSet<RolePermission> RolePermissions { get; set; }
@@ -299,6 +309,7 @@ namespace Sho2on.Database
         public DbSet<Loan> Loans { get; set; }
 
         public DbSet<LoanPayment> LoanPayments { get; set; }
+        public DbSet<SalarySetting> SalarySettings { get; set; }
 
         public DbSet<SalaryPayment> SalaryPayments { get; set; }
 
@@ -318,28 +329,26 @@ namespace Sho2on.Database
         public DbSet<Offical> Officals { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured && !string.IsNullOrEmpty(_explicitConnectionString))
             {
-                if (!optionsBuilder.IsConfigured && !string.IsNullOrEmpty(_connectionString))
+                optionsBuilder.UseSqlServer(_explicitConnectionString, sqlServerOptions =>
                 {
-                    optionsBuilder.UseSqlServer(_connectionString, sqlServerOptions =>
-                    {
-                        // إضافة EnableRetryOnFailure هنا
-                        sqlServerOptions.EnableRetryOnFailure(
-                            maxRetryCount: 5,
-                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
-
-                        sqlServerOptions.CommandTimeout(180); // 3 دقائق
-                    });
-
-                    // لتسهيل التشخيص (يمكن إزالتها في Production)
-                    optionsBuilder.LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuting });
-                    optionsBuilder.EnableSensitiveDataLogging();
-                    optionsBuilder.EnableDetailedErrors();
-                }
+                    sqlServerOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);
+                    sqlServerOptions.CommandTimeout(180);
+                });
             }
+            else if (!optionsBuilder.IsConfigured && !string.IsNullOrEmpty(_connectionString))
+            {
+                optionsBuilder.UseSqlServer(_connectionString, sqlServerOptions =>
+                {
+                    sqlServerOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);
+                    sqlServerOptions.CommandTimeout(180);
+                });
+            }
+        }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
@@ -536,6 +545,21 @@ namespace Sho2on.Database
 
                 entity.Property(e => e.EditedAt)
                       .HasDefaultValueSql("GETDATE()");
+            });
+
+            modelBuilder.Entity<EmployeeBenefit>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.EmployeeBenefits)
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.BenefitType)
+                      .WithMany()
+                      .HasForeignKey(e => e.BenefitTypeId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // =======================

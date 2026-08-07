@@ -10,6 +10,7 @@
 
 @inject LeaveTypeService LeaveTypeSvc
 @inject NotificationService Notify
+@inject LocalizationService Lang
 @inject ILogger<LeaveTypes> Logger
 
 @using Sho2on.Web.Models.Navigation
@@ -20,34 +21,37 @@
     <div class="page-toolbar">
         <div class="search-filter">
             <input class="search-input"
-                   placeholder="ابحث بالاسم أو الكود"
+                   placeholder="@Lang.T("ابحث بالاسم أو الكود")"
                    @bind="searchTerm"
                    @bind:event="oninput"
                    @onkeyup="HandleSearchKeyUp" />
 
             <button class="btn-secondary" @onclick="LoadItems">
                 <i class="bi bi-search"></i>
-                بحث
+                @Lang.T("بحث")
             </button>
         </div>
 
         <button class="btn-primary" @onclick="StartCreate">
             <i class="bi bi-plus-lg"></i>
-            إضافة نوع إجازة
+            @Lang.T("إضافة نوع إجازة")
         </button>
     </div>
 
-    <div class="leave-types-layout">
+    <div class="leave-types-layout @(!showForm ? "full-width" : "")">
         <section class="table-wrapper">
             @if (loading)
             {
-                <p class="empty-state">جاري التحميل...</p>
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>@Lang.T("جاري التحميل...")</p>
+                </div>
             }
             else if (items.Count == 0)
             {
                 <div class="empty-state">
                     <i class="bi bi-calendar-x"></i>
-                    <p>لا توجد أنواع إجازات</p>
+                    <p>@Lang.T("لا توجد أنواع إجازات")</p>
                 </div>
             }
             else
@@ -55,12 +59,12 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>الاسم</th>
-                            <th>الكود</th>
-                            <th>الرصيد الافتراضي</th>
-                            <th>الحالة</th>
-                            <th>الخصم من الرصيد</th>
-                            <th>الموافقة</th>
+                            <th>@Lang.T("الاسم")</th>
+                            <th>@Lang.T("الكود")</th>
+                            <th class="hide-sm">@Lang.T("الرصيد الافتراضي")</th>
+                            <th>@Lang.T("الحالة")</th>
+                            <th class="hide-md">@Lang.T("الخصم")</th>
+                            <th class="hide-md">@Lang.T("الموافقة")</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -70,23 +74,23 @@
                             <tr class="@(!item.IsActive ? "inactive-row" : "")">
                                 <td>@item.Name</td>
                                 <td><span class="code-badge">@item.Code</span></td>
-                                <td>@item.DefaultBalance يوم</td>
+                                <td class="hide-sm">@item.DefaultBalance @Lang.T("يوم")</td>
                                 <td>
                                     <span class="status @(item.IsActive ? "active" : "inactive")">
-                                        @(item.IsActive ? "نشط" : "غير نشط")
+                                        @(item.IsActive ? Lang.T("نشط") : Lang.T("غير نشط"))
                                     </span>
                                 </td>
-                                <td>@(item.DeductFromBalance ? "يخصم" : "لا يخصم")</td>
-                                <td>@(item.RequiresApproval ? "يتطلب موافقة" : "مباشر")</td>
+                                <td class="hide-md">@(item.DeductFromBalance ? Lang.T("يخصم") : Lang.T("لا يخصم"))</td>
+                                <td class="hide-md">@(item.RequiresApproval ? Lang.T("يتطلب موافقة") : Lang.T("مباشر"))</td>
                                 <td class="row-actions">
                                     <button class="icon-action"
-                                            title="تعديل"
+                                            title="@Lang.T("تعديل")"
                                             @onclick="() => StartEdit(item.Id)">
                                         <i class="bi bi-pencil"></i>
                                     </button>
 
                                     <button class="icon-action danger"
-                                            title="حذف"
+                                            title="@Lang.T("حذف")"
                                             @onclick="() => Delete(item)">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -102,9 +106,9 @@
         {
             <aside class="form-card">
                 <div class="form-title">
-                    <h3>@(form.Id.HasValue ? "تعديل نوع إجازة" : "نوع إجازة جديد")</h3>
+                    <h3>@(form.Id.HasValue ? Lang.T("تعديل نوع إجازة") : Lang.T("نوع إجازة جديد"))</h3>
 
-                    <button class="icon-action" title="إغلاق" @onclick="CloseForm">
+                    <button class="icon-action" title="@Lang.T("إغلاق")" @onclick="CloseForm">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
@@ -113,53 +117,53 @@
                     <DataAnnotationsValidator />
 
                     <div class="field">
-                        <label>اسم نوع الإجازة</label>
+                        <label>@Lang.T("اسم نوع الإجازة")</label>
                         <InputText @bind-Value="form.Name" />
                         <ValidationMessage For="() => form.Name" />
                     </div>
 
                     <div class="field">
-                        <label>الكود</label>
+                        <label>@Lang.T("الكود")</label>
                         <InputText @bind-Value="form.Code" />
                         <ValidationMessage For="() => form.Code" />
                     </div>
 
                     <div class="field">
-                        <label>الرصيد الافتراضي (بالأيام)</label>
+                        <label>@Lang.T("الرصيد الافتراضي (بالأيام)")</label>
                         <InputNumber @bind-Value="form.DefaultBalance" />
                         <ValidationMessage For="() => form.DefaultBalance" />
                     </div>
 
                     <div class="field">
-                        <label>الحد الأقصى للأيام المتتالية</label>
+                        <label>@Lang.T("الحد الأقصى للأيام المتتالية")</label>
                         <InputNumber @bind-Value="form.MaxConsecutiveDays" />
-                        <small>اتركه فارغًا إذا لم يوجد حد.</small>
+                        <small>@Lang.T("اتركه فارغًا إذا لم يوجد حد.")</small>
                         <ValidationMessage For="() => form.MaxConsecutiveDays" />
                     </div>
 
                     <div class="field checkbox">
                         <label>
                             <InputCheckbox @bind-Value="form.IsActive" />
-                            نوع الإجازة نشط
+                            @Lang.T("نوع الإجازة نشط")
                         </label>
                     </div>
 
                     <div class="field checkbox">
                         <label>
                             <InputCheckbox @bind-Value="form.DeductFromBalance" />
-                            يخصم من رصيد الموظف
+                            @Lang.T("يخصم من رصيد الموظف")
                         </label>
                     </div>
 
                     <div class="field checkbox">
                         <label>
                             <InputCheckbox @bind-Value="form.RequiresApproval" />
-                            يتطلب موافقة المدير
+                            @Lang.T("يتطلب موافقة المدير")
                         </label>
                     </div>
 
                     <div class="field">
-                        <label>ملاحظات</label>
+                        <label>@Lang.T("ملاحظات")</label>
                         <InputTextArea @bind-Value="form.Notes" rows="4" />
                         <ValidationMessage For="() => form.Notes" />
                     </div>
@@ -167,11 +171,11 @@
                     <div class="form-actions">
                         <button class="btn-primary" type="submit" disabled="@saving">
                             <i class="bi bi-floppy"></i>
-                            @(saving ? "جاري الحفظ..." : "حفظ")
+                            @(saving ? Lang.T("جاري الحفظ...") : Lang.T("حفظ"))
                         </button>
 
                         <button class="btn-secondary" type="button" @onclick="CloseForm">
-                            إلغاء
+                            @Lang.T("إلغاء")
                         </button>
                     </div>
                 </EditForm>
@@ -188,6 +192,8 @@
     private bool saving;
     private bool showForm;
 
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadItems();
@@ -198,16 +204,18 @@
         try
         {
             loading = true;
+            StateHasChanged();
             items = await LeaveTypeSvc.GetListAsync(searchTerm);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load leave types");
-            Notify.ShowError("تعذر تحميل أنواع الإجازات");
+            Notify.ShowError(Lang.T("تعذر تحميل أنواع الإجازات"));
         }
         finally
         {
             loading = false;
+            StateHasChanged();
         }
     }
 
@@ -229,7 +237,7 @@
 
         if (result is null)
         {
-            Notify.ShowError("نوع الإجازة غير موجود");
+            Notify.ShowError(Lang.T("نوع الإجازة غير موجود"));
             return;
         }
 
@@ -242,13 +250,14 @@
         try
         {
             saving = true;
+            StateHasChanged();
 
             var isEdit = form.Id.HasValue;
             await LeaveTypeSvc.SaveAsync(form);
 
             Notify.ShowSuccess(isEdit
-                ? "تم تعديل نوع الإجازة بنجاح"
-                : "تم إضافة نوع الإجازة بنجاح");
+                ? Lang.T("تم تعديل نوع الإجازة بنجاح")
+                : Lang.T("تم إضافة نوع الإجازة بنجاح"));
 
             CloseForm();
             await LoadItems();
@@ -260,11 +269,12 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to save leave type");
-            Notify.ShowError("حدث خطأ أثناء حفظ نوع الإجازة");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء حفظ نوع الإجازة"));
         }
         finally
         {
             saving = false;
+            StateHasChanged();
         }
     }
 
@@ -273,7 +283,7 @@
         try
         {
             await LeaveTypeSvc.DeleteAsync(item.Id);
-            Notify.ShowSuccess("تم حذف نوع الإجازة بنجاح");
+            Notify.ShowSuccess(Lang.T("تم حذف نوع الإجازة بنجاح"));
             await LoadItems();
         }
         catch (InvalidOperationException ex)
@@ -283,7 +293,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to delete leave type {Id}", item.Id);
-            Notify.ShowError("حدث خطأ أثناء حذف نوع الإجازة");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء حذف نوع الإجازة"));
         }
     }
 
@@ -292,4 +302,6 @@
         form = new LeaveTypeFormModel();
         showForm = false;
     }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
 }

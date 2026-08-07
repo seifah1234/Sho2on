@@ -19,7 +19,6 @@
 
     @if (!isManagement)
     {
-        <!-- داشبورد الموظف العادي: زي ما عملنا قبل كده -->
         <div class="stat-grid">
             <div class="stat-card accent">
                 <span class="stat-label">@Lang.T("رصيد إجازاتك")</span>
@@ -33,19 +32,125 @@
     }
     else
     {
-        <!-- ══ الشجرة الهرمية ══ -->
-        <div class="panel">
-            <div class="panel-header">
-                <i class="bi bi-diagram-3"></i>
-                <h3>@Lang.T("الهيكل التنظيمي")</h3>
-            </div>
-            @if (tree != null)
-            {
-                <div class="tree-wrapper">
-                    <DashboardTreeNode Node="tree" />
+        @if (tree != null)
+        {
+            <!-- ══ الشجرة الهرمية - تصميم WPF ══ -->
+            <div class="org-tree">
+                <!-- Root Card -->
+                <div class="root-card">
+                    <div class="root-header">
+                        <div class="root-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div class="root-info">
+                            <h2>@tree.Name</h2>
+                        </div>
+                    </div>
+                    <div class="root-stats">
+                        <div class="root-stat">
+                            <i class="bi bi-people"></i>
+                            <span>@Lang.T("الموظفين")</span>
+                            <strong>@tree.TotalEmployees</strong>
+                        </div>
+                        @if (tree.TotalChildren > 0)
+                        {
+                            <div class="root-stat">
+                                <i class="bi bi-diagram-3"></i>
+                                <span>@Lang.T("القطاعات")</span>
+                                <strong>@tree.TotalChildren</strong>
+                            </div>
+                        }
+                        <div class="root-stat">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>@Lang.T("الفروع")</span>
+                            <strong>@tree.TotalBranches</strong>
+                        </div>
+                        <div class="root-stat">
+                            <i class="bi bi-building"></i>
+                            <span>@Lang.T("الإدارات")</span>
+                            <strong>@tree.TotalDeparts</strong>
+                        </div>
+                    </div>
                 </div>
-            }
-        </div>
+
+                <!-- Level 1 Cards (Sectors) -->
+                <div class="sectors-grid">
+                    @foreach (var sector in tree.Children)
+                    {
+                        <div class="sector-card @(sector.IsExpanded ? "expanded" : "")">
+                            <div class="sector-header" @onclick="() => ToggleSector(sector)">
+                                <div class="sector-icon">
+                                    <i class="bi bi-pie-chart"></i>
+                                </div>
+                                <div class="sector-info">
+                                    <h4>@sector.Name</h4>
+                                    <span>@sector.Type</span>
+                                </div>
+                                <div class="sector-stats">
+                                    <span class="stat-badge employees">
+                                        <i class="bi bi-people"></i> @sector.TotalEmployees
+                                    </span>
+                                    @if (sector.TotalChildren > 0)
+                                    {
+                                        <span class="stat-badge branches">
+                                            <i class="bi bi-geo-alt"></i> @sector.TotalChildren @sector.ChildrenType
+                                        </span>
+                                    }
+                                </div>
+                                <i class="bi bi-chevron-down expand-icon"></i>
+                            </div>
+
+                            <div class="sector-body" style="@(sector.IsExpanded ? "" : "display:none")">
+                                @foreach (var branch in sector.Children)
+                                {
+                                    <div class="branch-card @(branch.IsExpanded ? "expanded" : "")">
+                                        <div class="branch-header" @onclick="() => ToggleBranch(branch)">
+                                            <div class="branch-icon">
+                                                <i class="bi bi-geo-alt"></i>
+                                            </div>
+                                            <div class="branch-info">
+                                                <h5>@branch.Name</h5>
+                                                <span>@branch.Type</span>
+                                            </div>
+                                            <div class="branch-stats">
+                                                <span class="stat-badge employees">
+                                                    <i class="bi bi-people"></i> @branch.TotalEmployees
+                                                </span>
+                                                @if (branch.TotalChildren > 0)
+                                                {
+                                                    <span class="stat-badge depts">
+                                                        <i class="bi bi-building"></i> @branch.TotalChildren @branch.ChildrenType
+                                                    </span>
+                                                }
+                                            </div>
+                                            <i class="bi bi-chevron-down expand-icon"></i>
+                                        </div>
+
+                                        <div class="branch-body" style="@(branch.IsExpanded ? "" : "display:none")">
+                                            @foreach (var dept in branch.Children)
+                                            {
+                                                <div class="dept-item">
+                                                    <div class="dept-icon">
+                                                        <i class="bi bi-building"></i>
+                                                    </div>
+                                                    <div class="dept-info">
+                                                        <span>@dept.Name</span>
+                                                        <small>@dept.Type</small>
+                                                    </div>
+                                                    <div class="dept-employees">
+                                                        <i class="bi bi-people"></i> @dept.TotalEmployees
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
 
         <!-- ══ إجراءات سريعة + تنبيهات ══ -->
         <div class="two-col">
@@ -55,14 +160,12 @@
                     <h3>@Lang.T("إجراءات سريعة")</h3>
                 </div>
                 <div class="quick-actions">
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries")'>@Lang.T("تقرير المرتبات")</button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/employees")'>@Lang.T("إدارة الموظفين")</button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/monthly")'>
-                        @Lang.T("الحضور الشهري")
-                    </button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries/pay")'>@Lang.T("صرف المرتبات")</button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/leaves")'>@Lang.T("الأذونات")</button>
-                    <button class="qa-btn">@Lang.T("نسخة احتياطية")</button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries")'><span>@Lang.T("تقرير المرتبات")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/employees")'><span>@Lang.T("إدارة الموظفين")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/monthly")'><span>@Lang.T("الحضور الشهري")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries/pay")'><span>@Lang.T("صرف المرتبات")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/leaves")'><span>@Lang.T("الأذونات")</span></button>
+                    <button class="qa-btn"><span>@Lang.T("نسخة احتياطية")</span></button>
                 </div>
             </div>
 
@@ -151,6 +254,16 @@
         }
     }
 
+    void ToggleSector(Sho2on.Web.Models.DashboardTreeNode sector)
+    {
+        sector.IsExpanded = !sector.IsExpanded;
+    }
+
+    void ToggleBranch(Sho2on.Web.Models.DashboardTreeNode branch)
+    {
+        branch.IsExpanded = !branch.IsExpanded;
+    }
+
     bool chartsRendered = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -166,17 +279,17 @@
     {
         await JS.InvokeVoidAsync("renderPieChart", "genderChart",
             new[] { "ذكور", "إناث" }, new[] { charts!.MaleCount, charts.FemaleCount },
-            new[] { "#211B4E", "#FF6F59" });
+            new[] { "#2D2466", "#FF6B4A" });
 
         await JS.InvokeVoidAsync("renderPieChart", "deptChart",
             charts.DepartmentLabels, charts.DepartmentCounts,
-            new[] { "#211B4E", "#FF6F59", "#4A4570", "#F2B134", "#2DD4BF", "#B8B3DE", "#746F93", "#0F3D3E" });
+            new[] { "#2D2466", "#FF6B4A", "#4A417F", "#F0A732", "#1EC97A", "#A29BFE", "#6B5FA3", "#0F3D3E" });
 
         await JS.InvokeVoidAsync("renderBarChart", "branchChart",
-            charts.BranchLabels, charts.BranchCounts, "#FF6F59");
+            charts.BranchLabels, charts.BranchCounts, "#FF6B4A");
 
         await JS.InvokeVoidAsync("renderBarChart", "sectorChart",
-            charts.SectorLabels, charts.SectorCounts, "#211B4E");
+            charts.SectorLabels, charts.SectorCounts, "#2D2466");
     }
 
     public void Dispose()

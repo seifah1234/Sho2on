@@ -7,15 +7,16 @@ namespace Sho2on.Web.Services;
 
 public class LeaveBalanceService
 {
-    private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-    public LeaveBalanceService(AppDbContext db)
+    public LeaveBalanceService(IDbContextFactory<AppDbContext> dbFactory)
     {
-        _db = db;
+        _dbFactory = dbFactory;
     }
 
     public async Task<List<EmployeeOption>> SearchEmployeesAsync(string? search)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var query = _db.Users
             .Include(x => x.Branch)
             .Include(x => x.Department)
@@ -47,6 +48,7 @@ public class LeaveBalanceService
 
     public async Task<List<LeaveBalanceItem>> GetBalancesAsync(int userId)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var leaveTypes = await _db.LeaveTypes
             .Where(x => x.IsActive)
             .OrderBy(x => x.Name)
@@ -87,6 +89,7 @@ public class LeaveBalanceService
 
     public async Task SaveBalancesAsync(int userId, List<LeaveBalanceItem> items)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var activeTypeIds = await _db.LeaveTypes
             .Where(x => x.IsActive)
             .Select(x => x.Id)

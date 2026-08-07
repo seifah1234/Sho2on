@@ -7,15 +7,16 @@ namespace Sho2on.Web.Services;
 
 public class LeaveTypeService
 {
-    private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-    public LeaveTypeService(AppDbContext db)
+    public LeaveTypeService(IDbContextFactory<AppDbContext> dbFactory)
     {
-        _db = db;
+        _dbFactory = dbFactory;
     }
 
     public async Task<List<LeaveTypeListItem>> GetListAsync(string? search = null)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var query = _db.LeaveTypes.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -46,6 +47,7 @@ public class LeaveTypeService
 
     public async Task<LeaveTypeFormModel?> GetByIdAsync(int id)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         return await _db.LeaveTypes
             .AsNoTracking()
             .Where(x => x.Id == id)
@@ -66,6 +68,7 @@ public class LeaveTypeService
 
     public async Task SaveAsync(LeaveTypeFormModel model)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var name = model.Name.Trim();
         var code = model.Code.Trim().ToUpperInvariant();
 
@@ -110,6 +113,7 @@ public class LeaveTypeService
 
     public async Task DeleteAsync(int id)
     {
+            using var _db = await _dbFactory.CreateDbContextAsync();
         var entity = await _db.LeaveTypes
             .Include(x => x.Leaves)
             .Include(x => x.LeaveBalances)

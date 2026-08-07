@@ -9,9 +9,9 @@ var connStr = builder.Configuration.GetConnectionString("Sho2onDB");
 typeof(AppDbContext)
     .GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
     ?.SetValue(null, connStr);
-// Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connStr, sql => sql.EnableRetryOnFailure(5)));
+
+builder.Services.AddDbContextFactory<AppDbContext>(options =>
+    options.UseSqlServer(connStr));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -25,6 +25,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
+// جميع الخدمات
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<LocalizationService>();
 builder.Services.AddScoped<NavigationService>();
@@ -39,17 +40,36 @@ builder.Services.AddScoped<LeaveRequestService>();
 builder.Services.AddScoped<LeaveManagementService>();
 builder.Services.AddScoped<PermissionRequestService>();
 builder.Services.AddScoped<PermissionManagementService>();
+builder.Services.AddScoped<MissionService>();
+builder.Services.AddScoped<AttendanceProcessingService>();
+builder.Services.AddScoped<SalaryAttendanceCalculationService>();
+builder.Services.AddScoped<LoanService>();
+builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<BenefitService>();
+builder.Services.AddScoped<SalaryCalculationService>();
+builder.Services.AddScoped<SalaryService>();
+builder.Services.AddScoped<SalarySettingService>();
+builder.Services.AddScoped<FileStorageService>();
+builder.Services.AddScoped<CompanyDocumentService>();
+builder.Services.AddScoped<EmployeeDocumentService>();
+builder.Services.AddScoped<EvaluationService>();
+builder.Services.AddScoped<TaskService>();
+builder.Services.AddSingleton<ChatTokenService>();
+builder.Services.AddScoped<ChatConnectionService>();
+builder.Services.AddScoped<ChatService>();
+builder.Services.AddScoped<LateOvertimeService>();
+builder.Services.AddScoped<SettingService>();
+builder.Services.AddScoped<BreakService>();
+builder.Services.AddScoped<BenefitTypeService>();
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
+builder.Logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -57,9 +77,11 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapAuthEndpoints();
+app.MapDocumentEndpoints();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+app.UseDeveloperExceptionPage();
 
 app.MapRazorComponents<Sho2on.Web.Components.App>()
     .AddInteractiveServerRenderMode();

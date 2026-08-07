@@ -1,32 +1,440 @@
-﻿.status-badge {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
+﻿/* ===== صفحة الحضور ===== */
+.attendance-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
+/* ===== شريط الأدوات ===== */
+.page-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition);
+}
+
+    .page-toolbar:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+.search-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    flex: 1;
+}
+
+    /* حقل التاريخ */
+    .search-filter input[type="date"] {
+        padding: 12px 16px;
+        font-family: inherit;
+        font-size: 13.5px;
+        color: var(--text);
+        background: var(--background);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-md);
+        outline: none;
+        cursor: pointer;
+        transition: all var(--transition);
+        min-width: 160px;
+    }
+
+        .search-filter input[type="date"]:hover {
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+        }
+
+        .search-filter input[type="date"]:focus {
+            border-color: var(--primary);
+            box-shadow: var(--focus-ring);
+        }
+
+/* حقل البحث */
+.search-input {
+    min-width: 260px;
+    padding: 12px 40px 12px 16px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--transition);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A9A3C4' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+    .search-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .search-input:hover {
+        border-color: var(--border-hover);
+        background-color: var(--surface-hover);
+    }
+
+    .search-input:focus {
+        background-color: var(--surface);
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+    }
+
+/* Select */
+.select-input {
+    min-width: 180px;
+    padding: 12px 16px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+    .select-input:hover {
+        border-color: var(--border-hover);
+        background-color: var(--surface-hover);
+    }
+
+    .select-input:focus {
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+    }
+
+/* ===== الجدول ===== */
+.table-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition);
+}
+
+    .table-wrapper:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .data-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .data-table th {
+        text-align: right;
+        padding: 14px 18px;
+        background: linear-gradient(180deg, var(--background) 0%, #F5F2EC 100%);
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        border-bottom: 2px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 14px 18px;
+        font-size: 13.5px;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+        transition: background var(--transition-fast);
+    }
+
+    .data-table tbody tr {
+        transition: all var(--transition-fast);
+    }
+
+        .data-table tbody tr:hover td {
+            background: var(--surface-hover);
+            transform: scale(1.001);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+/* ===== بادجات الحالة ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+    .status-badge::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+/* حاضر */
 .status-present {
-    background: #E9F7EF;
-    color: #1F7A47;
+    background: var(--success-bg);
+    color: var(--success);
 }
 
+    .status-present::before {
+        background: var(--success);
+    }
+
+/* غائب */
 .status-absent {
-    background: #FBEAEA;
-    color: #A13636;
+    background: var(--danger-bg);
+    color: var(--danger);
 }
 
+    .status-absent::before {
+        background: var(--danger);
+    }
+
+/* إجازة */
 .status-leave {
-    background: #EFF0FA;
-    color: #4A4570;
+    background: var(--info-bg);
+    color: var(--primary);
 }
 
+    .status-leave::before {
+        background: var(--primary);
+    }
+
+/* عطلة */
 .status-holiday {
-    background: #FFF4E5;
-    color: #B8730C;
+    background: var(--warning-bg);
+    color: var(--warning);
 }
 
+    .status-holiday::before {
+        background: var(--warning);
+    }
+
+/* قيد الانتظار */
 .status-pending {
-    background: #F5F3EF;
-    color: #A6A3C2;
+    background: var(--background);
+    color: var(--text-muted);
 }
+
+    .status-pending::before {
+        background: var(--text-muted);
+    }
+
+/* ===== حالة التحميل ===== */
+.muted {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+    .muted::before {
+        content: '';
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        border: 2.5px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== الحالة الفارغة ===== */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+        opacity: 0.5;
+        color: var(--text-muted);
+    }
+
+    .empty-state p {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-light);
+    }
+
+/* ===== الترقيم ===== */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--surface);
+    padding: 16px 20px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.pagination-info {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .page-btn:hover:not(:disabled) {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: rgba(45, 36, 102, 0.04);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-xs);
+    }
+
+    .page-btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .page-btn.active {
+        background: var(--gradient-primary);
+        border-color: transparent;
+        color: #FFFFFF;
+        box-shadow: var(--shadow-sm);
+    }
+
+        .page-btn.active:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+    .page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+.page-dots {
+    color: var(--text-muted);
+    padding: 0 6px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .page-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+    }
+
+    .search-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .search-filter input[type="date"],
+        .search-input,
+        .select-input {
+            min-width: 100%;
+        }
+
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .pagination {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .pagination-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* سكرول بار للجدول */
+.table-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: var(--background);
+    border-radius: var(--radius-sm);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: var(--radius-sm);
+}
+
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+    }

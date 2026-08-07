@@ -1,0 +1,341 @@
+﻿@page "/loans/pay/{loanId:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject LoanService LoanSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<LoanPayment> Logger
+@implements IDisposable
+
+<div class="loan-payment-page">
+    @if (loading)
+    {
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (loan == null)
+    {
+        <div class="empty-state">
+            <i class="bi bi-exclamation-triangle"></i>
+            <p>@Lang.T("السلفة غير موجودة")</p>
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/loans")'>
+                @Lang.T("العودة للقائمة")
+            </button>
+        </div>
+    }
+    else if (loan.Status != "Approved" && loan.Status != "PartiallyPaid")
+    {
+        <div class="empty-state">
+            <i class="bi bi-exclamation-circle"></i>
+            <p>@Lang.T("لا يمكن تسجيل دفعة لسلفة بحالة") @loan.StatusDisplay</p>
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo($"/loans/details/{loan.Id}")'>
+                @Lang.T("العودة للتفاصيل")
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="page-header">
+            <h2>@Lang.T("تسجيل دفعة سلفة")</h2>
+            <button class="btn-secondary" @onclick='() => Nav.NavigateTo($"/loans/details/{loan.Id}")'>
+                <i class="bi bi-arrow-right"></i>
+                @Lang.T("العودة للتفاصيل")
+            </button>
+        </div>
+
+        <!-- معلومات السلفة -->
+        <div class="loan-info-card">
+            <div class="info-row">
+                <span class="info-label">@Lang.T("رقم السلفة")</span>
+                <span class="info-value">#@loan.Id</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">@Lang.T("الموظف")</span>
+                <span class="info-value">@loan.UserName (@loan.UserCode)</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">@Lang.T("المبلغ الإجمالي")</span>
+                <span class="info-value">@loan.LoanAmount.ToString("N0")</span>
+            </div>
+            <div class="info-row highlight">
+                <span class="info-label">@Lang.T("المبلغ المتبقي")</span>
+                <span class="info-value amount-remaining">@(loan.RemainingAmount.ToString("N0"))</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">@Lang.T("القسط الشهري")</span>
+                <span class="info-value">@loan.MonthlyInstallment.ToString("N0")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">@Lang.T("عدد الأقساط")</span>
+                <span class="info-value">@loan.InstallmentCount @Lang.T("شهر")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">@Lang.T("المدفوع حتى الآن")</span>
+                <span class="info-value">@loan.AmountPaid.ToString("N0")</span>
+            </div>
+        </div>
+
+        <!-- فورم الدفعة -->
+        <div class="form-container">
+            <EditForm Model="@payment" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-grid">
+                    <!-- مبلغ الدفعة -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("مبلغ الدفعة") <span class="required">*</span></label>
+                        <div class="input-with-currency">
+                            <InputNumber class="form-input" @bind-Value="payment.PaymentAmount"
+                                         @oninput="OnPaymentAmountChanged"
+                                         step="10" min="0" max="@loan.RemainingAmount" />
+                        </div>
+                        <ValidationMessage For="@(() => payment.PaymentAmount)" />
+                        @if (payment.PaymentAmount > loan.RemainingAmount)
+                        {
+                            <div class="validation-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                @Lang.T("المبلغ exceeds المتبقي")
+                            </div>
+                        }
+                        @if (payment.PaymentAmount > 0 && payment.PaymentAmount < loan.MonthlyInstallment && loan.RemainingAmount > loan.MonthlyInstallment)
+                        {
+                            <div class="validation-info">
+                                <i class="bi bi-info-circle"></i>
+                                @Lang.T("المبلغ أقل من القسط الشهري. هذا سيتم تسجيله كدفعة جزئية.")
+                            </div>
+                        }
+                    </div>
+
+                    <!-- نوع الدفعة -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("نوع الدفعة") <span class="required">*</span></label>
+                        <div class="payment-type-options">
+                            <div class="payment-option @(payment.PaymentType == "Monthly" ? "active" : "")"
+                                 @onclick='() => { payment.PaymentType = "Monthly"; SetDefaultAmount(); }'>
+                                <i class="bi bi-calendar-check"></i>
+                                <span>@Lang.T("قسط شهري")</span>
+                                <small>@loan.MonthlyInstallment.ToString("N0")</small>
+                            </div>
+                            <div class="payment-option @(payment.PaymentType == "Partial" ? "active" : "")"
+                                 @onclick='() => { payment.PaymentType = "Partial"; }'>
+                                <i class="bi bi-cash-stack"></i>
+                                <span>@Lang.T("دفعة جزئية")</span>
+                                <small>@Lang.T("مبلغ مخصص")</small>
+                            </div>
+                            @if (loan.RemainingAmount == loan.LoanAmount)
+                            {
+                                <div class="payment-option @(payment.PaymentType == "Full" ? "active" : "")"
+                                     @onclick='() => { payment.PaymentType = "Full"; payment.PaymentAmount = loan.RemainingAmount; }'>
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>@Lang.T("سداد كامل")</span>
+                                    <small>@loan.RemainingAmount.ToString("N0")</small>
+                                </div>
+                            }
+                        </div>
+                        <ValidationMessage For="@(() => payment.PaymentType)" />
+                    </div>
+
+                    <!-- تاريخ الدفعة -->
+                    <div class="form-group">
+                        <label class="form-label">@Lang.T("تاريخ الدفعة") <span class="required">*</span></label>
+                        <InputDate class="form-input" @bind-Value="payment.PaymentDate" />
+                        <ValidationMessage For="@(() => payment.PaymentDate)" />
+                    </div>
+
+                    <!-- ملاحظات -->
+                    <div class="form-group full-width">
+                        <label class="form-label">@Lang.T("ملاحظات")</label>
+                        <InputTextArea class="form-textarea" @bind-Value="payment.Notes"
+                                       placeholder="@Lang.T("ملاحظات إضافية (اختياري)...")" />
+                        <ValidationMessage For="@(() => payment.Notes)" />
+                    </div>
+                </div>
+
+                <!-- ملخص الدفعة -->
+                @if (payment.PaymentAmount > 0)
+                {
+                    <div class="payment-summary">
+                        <div class="summary-row">
+                            <span>@Lang.T("المبلغ المدفوع")</span>
+                            <span class="amount">@payment.PaymentAmount.ToString("N0")</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>@Lang.T("المبلغ المتبقي بعد الدفعة")</span>
+                            <span class="amount remaining">@((loan.RemainingAmount - payment.PaymentAmount).ToString("N0"))</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>@Lang.T("نسبة السداد بعد الدفعة")</span>
+                            <span class="amount">@(((loan.AmountPaid + payment.PaymentAmount) / loan.LoanAmount * 100).ToString("F1"))%</span>
+                        </div>
+                        @if (Math.Abs(loan.RemainingAmount - payment.PaymentAmount) < 0.01m)
+                        {
+                            <div class="summary-row success">
+                                <span>✅ @Lang.T("سيتم تسديد السلفة بالكامل")</span>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- أزرار الإجراءات -->
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" @onclick='() => Nav.NavigateTo($"/loans/details/{loan.Id}")'>
+                        @Lang.T("إلغاء")
+                    </button>
+                    <button type="submit" class="btn-primary" disabled="@(!canSubmit)">
+                        <i class="bi bi-check-circle"></i>
+                        @Lang.T("تسجيل الدفعة")
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int loanId { get; set; }
+
+    private LoanDto? loan;
+    private LoanPaymentDto payment = new();
+    private bool loading = true;
+    private bool isSubmitting = false;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLoanData();
+    }
+
+    private async Task LoadLoanData()
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            loan = await LoanSvc.GetByIdAsync(loanId);
+            if (loan == null)
+            {
+                Notify.ShowError(Lang.T("السلفة غير موجودة"));
+                return;
+            }
+
+            // تهيئة الدفعة
+            payment = new LoanPaymentDto
+            {
+                LoanId = loanId,
+                PaymentDate = DateTime.Now,
+                PaymentType = "Monthly",
+                PaymentAmount = loan.MonthlyInstallment
+            };
+
+            // إذا كان المتبقي أقل من القسط الشهري
+            if (loan.RemainingAmount < loan.MonthlyInstallment)
+            {
+                payment.PaymentAmount = loan.RemainingAmount;
+                payment.PaymentType = "Full";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل بيانات السلفة {LoanId}", loanId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnPaymentAmountChanged()
+    {
+        StateHasChanged();
+    }
+
+    private void SetDefaultAmount()
+    {
+        if (payment.PaymentType == "Monthly")
+        {
+            payment.PaymentAmount = loan?.MonthlyInstallment ?? 0;
+            if (loan != null && payment.PaymentAmount > loan.RemainingAmount)
+            {
+                payment.PaymentAmount = loan.RemainingAmount;
+            }
+        }
+    }
+
+    private bool canSubmit
+    {
+        get
+        {
+            if (isSubmitting) return false;
+            if (loan == null) return false;
+            if (payment.PaymentAmount <= 0) return false;
+            if (payment.PaymentAmount > loan.RemainingAmount) return false;
+            if (string.IsNullOrEmpty(payment.PaymentType)) return false;
+            if (payment.PaymentDate == default) return false;
+            return true;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (!canSubmit) return;
+
+        // تأكيد المستخدم
+        string confirmMessage = payment.PaymentAmount >= loan!.RemainingAmount
+            ? Lang.T("سيتم تسديد السلفة بالكامل. هل أنت متأكد؟")
+            : Lang.T($"هل أنت متأكد من تسجيل دفعة بقيمة {payment.PaymentAmount:N0}");
+
+        if (!await ConfirmAsync(Lang.T("تأكيد تسجيل الدفعة"), confirmMessage))
+            return;
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            payment.LoanId = loanId;
+            var (success, message) = await LoanSvc.RecordPaymentAsync(payment);
+
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                Nav.NavigateTo($"/loans/details/{loanId}");
+            }
+            else
+            {
+                Notify.ShowError(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تسجيل دفعة للسلفة {LoanId}", loanId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تسجيل الدفعة"));
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    // TODO: Implement ConfirmAsync using a Modal component
+    private async Task<bool> ConfirmAsync(string title, string message)
+    {
+        return true; // مؤقتاً
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+    }
+}

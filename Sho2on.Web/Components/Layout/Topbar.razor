@@ -3,36 +3,65 @@
 @inject LocalizationService Lang
 @inject UiStateService UiState
 @inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
 
 <header class="topbar">
     <div class="topbar-left">
-        <button class="icon-btn" @onclick="UiState.ToggleSidebar">
+        <button class="icon-btn" @onclick="UiState.ToggleSidebar" title="@Lang.T("القائمة")">
             <i class="bi bi-list"></i>
         </button>
         <div class="page-info">
-            <h2>@Lang.T("لوحة التحكم")</h2>
-            <span>@Lang.T("مرحباً بك فى نظام Sho2on")</span>
+            <h2>@GetPageTitle()</h2>
+            <span>@Lang.T("مرحباً بك فى نظام RAKZ")</span>
         </div>
     </div>
 
     <div class="topbar-right">
-        <button class="icon-btn" @onclick="Lang.Toggle">
+        <button class="icon-btn" @onclick="Lang.Toggle" title="@Lang.T("تغيير اللغة")">
             <i class="bi bi-translate"></i>
         </button>
-        <button class="icon-btn">
-            <i class="bi bi-moon"></i>
+        <button class="icon-btn theme-toggle" title="@Lang.T("الوضع الليلي")">
+            <i class="bi bi-moon-stars"></i>
         </button>
-        <button class="icon-btn notification">
+        <button class="icon-btn notification" title="@Lang.T("الإشعارات")">
             <i class="bi bi-bell"></i>
             <span class="badge">5</span>
         </button>
-        <div class="user-menu">
+        
+        <!-- قائمة المستخدم مع Logout -->
+        <div class="user-menu" @onclick="ToggleUserMenu">
             <div class="avatar">@initials</div>
             <div class="user-info">
                 <strong>@userName</strong>
                 <small>@userRole</small>
             </div>
             <i class="bi bi-chevron-down"></i>
+            
+            @if (showUserMenu)
+            {
+                <div class="user-dropdown" @onclick:stopPropagation="true">
+                    <div class="dropdown-header">
+                        <div class="dropdown-avatar">@initials</div>
+                        <div>
+                            <strong>@userName</strong>
+                            <small>@userRole</small>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/account/profile">
+                        <i class="bi bi-person"></i> @Lang.T("الملف الشخصي")
+                    </a>
+                    <a class="dropdown-item" href="/account/settings">
+                        <i class="bi bi-gear"></i> @Lang.T("الإعدادات")
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <form method="post" action="/account/logout" class="logout-form">
+                        <button type="submit" class="dropdown-item logout">
+                            <i class="bi bi-box-arrow-right"></i> @Lang.T("تسجيل الخروج")
+                        </button>
+                    </form>
+                </div>
+            }
         </div>
     </div>
 </header>
@@ -41,6 +70,7 @@
     string userName = "";
     string userRole = "";
     string initials = "?";
+    bool showUserMenu = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,5 +79,25 @@
         userName = user.FindFirst("FullName")?.Value ?? user.Identity?.Name ?? "";
         userRole = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
         if (!string.IsNullOrEmpty(userName)) initials = userName.Trim()[0].ToString().ToUpper();
+    }
+
+    void ToggleUserMenu()
+    {
+        showUserMenu = !showUserMenu;
+    }
+
+    string GetPageTitle()
+    {
+        var uri = new Uri(Nav.Uri).AbsolutePath;
+        return uri switch
+        {
+            "/" => Lang.T("لوحة التحكم"),
+            "/employees" => Lang.T("الموظفين"),
+            "/employees/add" => Lang.T("إضافة موظف"),
+            "/attendance" => Lang.T("الحضور والانصراف"),
+            "/leaves" => Lang.T("الإجازات"),
+            "/salaries" => Lang.T("الرواتب"),
+            _ => Lang.T("لوحة التحكم")
+        };
     }
 }

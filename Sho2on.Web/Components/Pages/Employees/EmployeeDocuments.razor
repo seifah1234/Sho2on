@@ -1,0 +1,386 @@
+﻿@page "/employees/documents"
+@page "/employees/documents/{EmployeeId:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject EmployeeDocumentService DocSvc
+@inject CompanyDocumentService CompanyDocSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<EmployeeDocuments> Logger
+@implements IDisposable
+
+<div class="documents-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-person-vcard"></i> @Lang.T("مستندات الموظف")</h2>
+            <p class="page-subtitle">@Lang.T("اختر موظفًا لعرض وإدارة مستنداته")</p>
+        </div>
+    </div>
+
+    <div class="employee-picker">
+        <EmployeeSearchSelect SelectedUserId="EmployeeId" SelectedUserIdChanged="OnEmployeeSelected" Placeholder="@Lang.T("ابحث عن موظف لعرض مستنداته")" />
+    </div>
+
+    @if (EmployeeId == null)
+    {
+        <div class="empty-state">
+            <i class="bi bi-person-lines-fill"></i>
+            <p>@Lang.T("اختر موظفًا من القائمة أعلاه للبدء")</p>
+        </div>
+    }
+    else if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (summary != null)
+    {
+        <div class="employee-doc-header">
+            <div>
+                <strong>@summary.EmployeeCode - @summary.EmployeeName</strong>
+            </div>
+            <button class="btn-primary" @onclick="OpenUploadModal">
+                <i class="bi bi-cloud-upload"></i> @Lang.T("رفع مستند")
+            </button>
+        </div>
+
+        @if (summary.RequiredDocuments.Count > 0)
+        {
+            <div class="panel">
+                <div class="panel-header"><i class="bi bi-list-check"></i><h3>@Lang.T("المستندات المطلوبة")</h3></div>
+                <div class="required-list">
+                    @foreach (var req in summary.RequiredDocuments)
+                    {
+                        <div class="required-item @(req.IsUploaded ? "done" : "missing")">
+                            <i class="bi @(req.IsUploaded ? "bi-check-circle-fill" : "bi-exclamation-circle")"></i>
+                            <span>@req.Title</span>
+                            @if (!req.IsUploaded)
+                            {
+                                <span class="missing-tag">@Lang.T("ناقص")</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="panel">
+            <div class="panel-header"><i class="bi bi-files"></i><h3>@Lang.T("كل المستندات")</h3></div>
+
+            @if (summary.Documents.Count == 0)
+            {
+                <p class="muted">@Lang.T("لا توجد مستندات مرفوعة لهذا الموظف")</p>
+            }
+            else
+            {
+                <div class="doc-list">
+                    @foreach (var doc in summary.Documents)
+                    {
+                        <div class="doc-row">
+                            <i class="bi @FileIcon(doc.FileType) doc-icon"></i>
+                            <div class="doc-info">
+                                <strong>@doc.Title</strong>
+                                <small>
+                                    @doc.FileName · @FormatSize(doc.FileSize) · @doc.UploadDate.ToString("dd/MM/yyyy")
+                                    @if (doc.ExpiryDate.HasValue)
+                                    {
+                                        <span> · @Lang.T("ينتهي في") @doc.ExpiryDate.Value.ToString("dd/MM/yyyy")</span>
+                                    }
+                                </small>
+                            </div>
+                            <span class="status-badge @StatusClass(doc)">@Lang.T(StatusLabel(doc))</span>
+                            <div class="doc-actions">
+                                <!-- زر المعاينة -->
+                                <a class="icon-action preview" title="@Lang.T("معاينة")"
+                                       href="/files/preview/@doc.Id" target="_blank">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <!-- زر التحميل -->
+                                <a class="icon-action download" title="@Lang.T("تحميل")"
+                                       href="/files/employee-documents/@doc.Id" target="_blank">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                                <button class="icon-action" title="@Lang.T("أرشفة")" @onclick="() => Archive(doc)">
+                                    <i class="bi bi-archive"></i>
+                                </button>
+                                <button class="icon-action danger" title="@Lang.T("حذف")" @onclick="() => RequestDelete(doc)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showUploadModal)
+{
+    <div class="modal-overlay" @onclick="CloseUploadModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Lang.T("رفع مستند للموظف")</h3>
+                <button class="icon-action" @onclick="CloseUploadModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("عنوان المستند")</label>
+                    <input class="search-input" @bind="uploadTitle" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("نوع المستند")</label>
+                    <select class="select-input" @bind="uploadType">
+                        <option value="@EmployeeDocumentType.SignedCompanyDocument">@Lang.T("مستند شركة موقّع")</option>
+                        <option value="@EmployeeDocumentType.TrainingCertificate">@Lang.T("شهادة تدريب")</option>
+                        <option value="@EmployeeDocumentType.WorkPermit">@Lang.T("تصريح عمل")</option>
+                        <option value="@EmployeeDocumentType.Other">@Lang.T("أخرى")</option>
+                    </select>
+                </div>
+                @if (uploadType == EmployeeDocumentType.SignedCompanyDocument && requiredDocsForLink != null)
+                {
+                    <div class="field">
+                        <label>@Lang.T("مرتبط بمستند شركة (اختياري)")</label>
+                        <select class="select-input" @bind="linkedCompanyDocId">
+                            <option value="">@Lang.T("بدون ربط")</option>
+                            @foreach (var d in requiredDocsForLink)
+                            {
+                                <option value="@d.CompanyDocumentId">@d.Title</option>
+                            }
+                        </select>
+                    </div>
+                }
+                <div class="field">
+                    <label>@Lang.T("تاريخ الانتهاء (اختياري)")</label>
+                    <input type="date" class="search-input" @bind="expiryDate" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("ملاحظات")</label>
+                    <input class="search-input" @bind="uploadNotes" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("الملف")</label>
+                    <InputFile OnChange="OnFileSelected" class="file-input" />
+                    @if (selectedFileName != null)
+                    {
+                        <small class="selected-file"><i class="bi bi-paperclip"></i> @selectedFileName</small>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseUploadModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitUpload" disabled="@uploading">
+                    @(uploading ? Lang.T("جاري الرفع...") : Lang.T("رفع"))
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (docToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body">
+                <p>@Lang.T("سيتم حذف") <strong>@docToDelete.Title</strong> @Lang.T("نهائيًا. هل أنت متأكد؟")</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int? EmployeeId { get; set; }
+    [Inject] NavigationManager Nav { get; set; } = default!;
+
+    EmployeeDocumentsSummary? summary;
+    List<RequiredDocumentStatus>? requiredDocsForLink;
+    bool loading = false;
+
+    bool showUploadModal = false;
+    string uploadTitle = "";
+    EmployeeDocumentType uploadType = EmployeeDocumentType.Other;
+    string linkedCompanyDocId = "";
+    DateTime? expiryDate;
+    string uploadNotes = "";
+    IBrowserFile? selectedFile;
+    string? selectedFileName;
+    bool uploading = false;
+
+    EmployeeDocumentItem? docToDelete;
+    const long MaxFileSize = 10 * 1024 * 1024;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (EmployeeId.HasValue) await LoadSummary();
+    }
+
+    async Task OnEmployeeSelected(int? id)
+    {
+        EmployeeId = id;
+        Nav.NavigateTo(id.HasValue ? $"/employees/documents/{id}" : "/employees/documents");
+        if (id.HasValue) await LoadSummary();
+    }
+
+    async Task LoadSummary()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            summary = await DocSvc.GetSummaryAsync(EmployeeId!.Value);
+            requiredDocsForLink = summary.RequiredDocuments.Where(r => !r.IsUploaded).ToList();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل مستندات الموظف {Id}", EmployeeId);
+            Notify.ShowError(Lang.T($"حدث خطأ أثناء تحميل البيانات: {ex.Message}"));
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    void OpenUploadModal()
+    {
+        uploadTitle = ""; uploadType = EmployeeDocumentType.Other; linkedCompanyDocId = "";
+        expiryDate = null; uploadNotes = ""; selectedFile = null; selectedFileName = null;
+        showUploadModal = true;
+    }
+    void CloseUploadModal() => showUploadModal = false;
+
+    void OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file.Size > MaxFileSize)
+        {
+            Notify.ShowError(Lang.T("حجم الملف أكبر من الحد المسموح (10 ميجا)"));
+            return;
+        }
+        selectedFile = file;
+        selectedFileName = file.Name;
+    }
+
+    async Task SubmitUpload()
+    {
+        if (string.IsNullOrWhiteSpace(uploadTitle) || selectedFile == null || EmployeeId == null)
+        {
+            Notify.ShowError(Lang.T("أدخل العنوان واختر ملفًا"));
+            return;
+        }
+
+        uploading = true;
+        StateHasChanged();
+        try
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var userId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+            int? linkedId = string.IsNullOrEmpty(linkedCompanyDocId) ? null : int.Parse(linkedCompanyDocId);
+
+            using var stream = selectedFile.OpenReadStream(MaxFileSize);
+            await DocSvc.UploadAsync(EmployeeId.Value, uploadTitle, uploadType, linkedId, expiryDate, uploadNotes,
+                userId, selectedFile.Name, Path.GetExtension(selectedFile.Name), stream);
+
+            Notify.ShowSuccess(Lang.T("تم رفع المستند بنجاح"));
+            showUploadModal = false;
+            await LoadSummary();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء رفع مستند للموظف {Id}", EmployeeId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء الرفع"));
+        }
+        finally
+        {
+            uploading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task Archive(EmployeeDocumentItem doc)
+    {
+        try
+        {
+            await DocSvc.ArchiveAsync(doc.Id);
+            Notify.ShowSuccess(Lang.T("تمت الأرشفة"));
+            await LoadSummary();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء أرشفة المستند {Id}", doc.Id);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    void RequestDelete(EmployeeDocumentItem doc) => docToDelete = doc;
+    void CancelDelete() => docToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (docToDelete == null) return;
+        try
+        {
+            await DocSvc.DeleteAsync(docToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم حذف المستند"));
+            docToDelete = null;
+            await LoadSummary();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حذف المستند {Id}", docToDelete?.Id);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+            docToDelete = null;
+        }
+    }
+
+    string StatusClass(EmployeeDocumentItem doc)
+    {
+        if (doc.IsExpired) return "status-expired";
+        if (doc.IsExpiringSoon) return "status-expiring";
+        return doc.Status switch
+        {
+            DocumentStatus.Signed => "status-checkin",
+            DocumentStatus.Rejected => "status-checkout",
+            DocumentStatus.Archived => "status-pending",
+            _ => "status-checkin"
+        };
+    }
+
+    string StatusLabel(EmployeeDocumentItem doc)
+    {
+        if (doc.IsExpired) return "منتهي";
+        if (doc.IsExpiringSoon) return "قريب الانتهاء";
+        return doc.Status switch
+        {
+            DocumentStatus.Signed => "موقّع",
+            DocumentStatus.Rejected => "مرفوض",
+            DocumentStatus.Archived => "مؤرشف",
+            _ => "نشط"
+        };
+    }
+
+    string FileIcon(string ext) => ext.ToLower() switch
+    {
+        ".pdf" => "bi-file-earmark-pdf",
+        ".docx" or ".doc" => "bi-file-earmark-word",
+        ".xlsx" or ".xls" => "bi-file-earmark-excel",
+        ".png" or ".jpg" or ".jpeg" => "bi-file-earmark-image",
+        _ => "bi-file-earmark"
+    };
+
+    string FormatSize(long bytes) => bytes < 1024 * 1024 ? $"{bytes / 1024.0:F0} KB" : $"{bytes / 1024.0 / 1024.0:F1} MB";
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

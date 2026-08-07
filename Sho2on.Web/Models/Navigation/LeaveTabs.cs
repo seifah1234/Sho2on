@@ -39,6 +39,18 @@ public static class LeaveTabs
             Title = "طلب إذن جديد",
             Url = "/leaves/permission-request",
             Icon = "bi bi-clock-plus"
+        },
+        new()
+        {
+            Title = "إدارة المأموريات",
+            Url = "/leaves/missions",
+            Icon = "bi bi-briefcase"
+        },
+        new()
+        {
+            Title = "طلب مأمورية جديدة",
+            Url = "/leaves/mission-request",
+            Icon = "bi bi-briefcase-plus"
         }
     ];
 }

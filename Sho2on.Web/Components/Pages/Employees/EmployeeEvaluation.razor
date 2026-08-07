@@ -1,0 +1,396 @@
+﻿@page "/employees/evaluation"
+@page "/employees/evaluation/{EmployeeId:int}"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@inject EmployeeService EmployeeSvc
+@inject EvaluationService EvaluationSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject ILogger<EmployeeEvaluation> Logger
+@implements IDisposable
+
+<div class="evaluation-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-clipboard-check"></i> @Lang.T("تقييم الموظفين")</h2>
+            <p class="page-subtitle">@Lang.T("تقييم أداء الموظفين وإدارة المعايير")</p>
+        </div>
+    </div>
+
+    <!-- اختيار الموظف -->
+    <div class="employee-picker-card">
+        <div class="picker-icon">
+            <i class="bi bi-person-badge"></i>
+        </div>
+        <div class="picker-content">
+            <label>@Lang.T("اختر الموظف للتقييم")</label>
+            <EmployeeSearchSelect SelectedUserId="selectedEmployeeId"
+                                  SelectedUserIdChanged="HandleEmployeeChanged"
+                                  Placeholder="@Lang.T("ابحث عن موظف...")" />
+        </div>
+    </div>
+
+    @if (selectedEmployee != null)
+    {
+        <!-- معلومات الموظف -->
+        <div class="employee-info-card">
+            <div class="employee-avatar">
+                <span>@selectedEmployee.FullName?.Substring(0, 1)</span>
+            </div>
+            <div class="employee-details">
+                <h3>@selectedEmployee.FullName</h3>
+                <span>@selectedEmployee.Code</span>
+            </div>
+        </div>
+
+        <!-- أقسام التقييم -->
+        <div class="evaluation-sections">
+            <!-- التقييم الإداري -->
+            <div class="evaluation-column">
+                <div class="section-header administrative">
+                    <i class="bi bi-clipboard-data"></i>
+                    <h3>@Lang.T("التقييم الإداري")</h3>
+                    <span class="criteria-count">@administrativeCriteria.Count @Lang.T("معيار")</span>
+                </div>
+
+                <div class="section-body">
+                    @foreach (var item in administrativeCriteria)
+                    {
+                        <div class="criteria-card @(item.IsSuccessful == true ? "success" : item.IsSuccessful == false ? "fail" : "")">
+                            <div class="criteria-header">
+                                <input class="criteria-name" @bind="item.Name" @bind:event="oninput"
+                                       placeholder="@Lang.T("اسم المعيار")" />
+                                <button class="btn-delete" @onclick="() => RemoveCriteria(item, true)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            <div class="criteria-body">
+                                <div class="toggle-group">
+                                    <button class="toggle-btn success @(item.IsSuccessful == true ? "active" : "")"
+                                            @onclick="() => SetCriteriaResult(item, true)">
+                                        <i class="bi bi-check-circle"></i> @Lang.T("ناجح")
+                                    </button>
+                                    <button class="toggle-btn fail @(item.IsSuccessful == false ? "active" : "")"
+                                            @onclick="() => SetCriteriaResult(item, false)">
+                                        <i class="bi bi-x-circle"></i> @Lang.T("غير ناجح")
+                                    </button>
+                                </div>
+                                <div class="percentage-input">
+                                    <input type="number" @bind="item.Percentage" @bind:event="oninput"
+                                           min="0" max="100" placeholder="0-100" />
+                                    <span>%</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <button class="btn-add-criteria" @onclick="() => AddCriteria(true)">
+                        <i class="bi bi-plus-circle"></i> @Lang.T("إضافة معيار إداري")
+                    </button>
+                </div>
+
+                <div class="section-summary">
+                    <div class="summary-stat">
+                        <span class="stat-label">@Lang.T("عدد المعايير")</span>
+                        <span class="stat-value">@administrativeCriteria.Count</span>
+                    </div>
+                    <div class="summary-stat success">
+                        <span class="stat-label">@Lang.T("ناجح")</span>
+                        <span class="stat-value">@administrativeCriteria.Count(c => c.IsSuccessful == true)</span>
+                    </div>
+                    <div class="summary-stat fail">
+                        <span class="stat-label">@Lang.T("غير ناجح")</span>
+                        <span class="stat-value">@administrativeCriteria.Count(c => c.IsSuccessful == false)</span>
+                    </div>
+                    <div class="summary-stat total">
+                        <span class="stat-label">@Lang.T("النسبة")</span>
+                        <span class="stat-value">@GetAveragePercentage(administrativeCriteria).ToString("F1")%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- التقييم الفني -->
+            <div class="evaluation-column">
+                <div class="section-header technical">
+                    <i class="bi bi-gear"></i>
+                    <h3>@Lang.T("التقييم الفني")</h3>
+                    <span class="criteria-count">@technicalCriteria.Count @Lang.T("معيار")</span>
+                </div>
+
+                <div class="section-body">
+                    @foreach (var item in technicalCriteria)
+                    {
+                        <div class="criteria-card @(item.IsSuccessful == true ? "success" : item.IsSuccessful == false ? "fail" : "")">
+                            <div class="criteria-header">
+                                <input class="criteria-name" @bind="item.Name" @bind:event="oninput"
+                                       placeholder="@Lang.T("اسم المعيار")" />
+                                <button class="btn-delete" @onclick="() => RemoveCriteria(item, false)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            <div class="criteria-body">
+                                <div class="toggle-group">
+                                    <button class="toggle-btn success @(item.IsSuccessful == true ? "active" : "")"
+                                            @onclick="() => SetCriteriaResult(item, true)">
+                                        <i class="bi bi-check-circle"></i> @Lang.T("ناجح")
+                                    </button>
+                                    <button class="toggle-btn fail @(item.IsSuccessful == false ? "active" : "")"
+                                            @onclick="() => SetCriteriaResult(item, false)">
+                                        <i class="bi bi-x-circle"></i> @Lang.T("غير ناجح")
+                                    </button>
+                                </div>
+                                <div class="percentage-input">
+                                    <input type="number" @bind="item.Percentage" @bind:event="oninput"
+                                           min="0" max="100" placeholder="0-100" />
+                                    <span>%</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <button class="btn-add-criteria" @onclick="() => AddCriteria(false)">
+                        <i class="bi bi-plus-circle"></i> @Lang.T("إضافة معيار فني")
+                    </button>
+                </div>
+
+                <div class="section-summary">
+                    <div class="summary-stat">
+                        <span class="stat-label">@Lang.T("عدد المعايير")</span>
+                        <span class="stat-value">@technicalCriteria.Count</span>
+                    </div>
+                    <div class="summary-stat success">
+                        <span class="stat-label">@Lang.T("ناجح")</span>
+                        <span class="stat-value">@technicalCriteria.Count(c => c.IsSuccessful == true)</span>
+                    </div>
+                    <div class="summary-stat fail">
+                        <span class="stat-label">@Lang.T("غير ناجح")</span>
+                        <span class="stat-value">@technicalCriteria.Count(c => c.IsSuccessful == false)</span>
+                    </div>
+                    <div class="summary-stat total">
+                        <span class="stat-label">@Lang.T("النسبة")</span>
+                        <span class="stat-value">@GetAveragePercentage(technicalCriteria).ToString("F1")%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- النتيجة النهائية -->
+        <div class="final-result-card">
+            <div class="result-header">
+                <h3><i class="bi bi-trophy"></i> @Lang.T("النتيجة النهائية")</h3>
+            </div>
+            <div class="result-body">
+                <div class="overall-percentage @(finalPercentage >= 50 ? "success" : "fail")">
+                    <span class="percentage-number">@finalPercentage.ToString("F1")</span>
+                    <span class="percentage-sign">%</span>
+                </div>
+                <div class="result-toggle">
+                    <label>@Lang.T("النتيجة الإجمالية")</label>
+                    <div class="toggle-group large">
+                        <button class="toggle-btn success @(finalResult == true ? "active" : "")"
+                                @onclick="() => finalResult = true">
+                            <i class="bi bi-emoji-smile"></i> @Lang.T("ناجح")
+                        </button>
+                        <button class="toggle-btn fail @(finalResult == false ? "active" : "")"
+                                @onclick="() => finalResult = false">
+                            <i class="bi bi-emoji-frown"></i> @Lang.T("غير ناجح")
+                        </button>
+                    </div>
+                </div>
+                <div class="notes-section">
+                    <label>@Lang.T("ملاحظات عامة")</label>
+                    <textarea class="notes-input" @bind="generalNotes" rows="3"
+                              placeholder="@Lang.T("ملاحظات عامة عن التقييم...")"></textarea>
+                </div>
+                <div class="notes-section">
+                    <label>@Lang.T("ملاحظات إدارية")</label>
+                    <textarea class="notes-input" @bind="adminNotes" rows="2"
+                              placeholder="@Lang.T("ملاحظات التقييم الإداري...")"></textarea>
+                </div>
+                <div class="notes-section">
+                    <label>@Lang.T("ملاحظات فنية")</label>
+                    <textarea class="notes-input" @bind="techNotes" rows="2"
+                              placeholder="@Lang.T("ملاحظات التقييم الفني...")"></textarea>
+                </div>
+            </div>
+            <div class="result-actions">
+                <button class="btn-secondary" @onclick="ResetEvaluation">
+                    <i class="bi bi-arrow-counterclockwise"></i> @Lang.T("إعادة تعيين")
+                </button>
+                <button class="btn-primary" @onclick="SaveEvaluation" disabled="@saving">
+                    <i class="bi bi-check-lg"></i>
+                    @(saving ? Lang.T("جاري الحفظ...") : Lang.T("حفظ التقييم"))
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int? EmployeeId { get; set; }
+
+    private int? selectedEmployeeId;
+    private EmployeeDetailDto? selectedEmployee;
+    private List<EvaluationCriteriaModel> administrativeCriteria = new();
+    private List<EvaluationCriteriaModel> technicalCriteria = new();
+    private bool? finalResult;
+    private string generalNotes = "";
+    private string adminNotes = "";
+    private string techNotes = "";
+    private bool saving = false;
+
+    private decimal adminPercentage => GetAveragePercentage(administrativeCriteria);
+    private decimal techPercentage => GetAveragePercentage(technicalCriteria);
+    private decimal finalPercentage => (adminPercentage + techPercentage) / 2;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (EmployeeId.HasValue)
+        {
+            selectedEmployeeId = EmployeeId;
+            await LoadEmployee();
+        }
+    }
+
+    private async Task HandleEmployeeChanged(int? id)
+    {
+        selectedEmployeeId = id;
+        if (id.HasValue)
+        {
+            Nav.NavigateTo($"/employees/evaluation/{id}");
+            await LoadEmployee();
+        }
+    }
+
+    private async Task LoadEmployee()
+    {
+        if (!selectedEmployeeId.HasValue) return;
+        try
+        {
+            selectedEmployee = await EmployeeSvc.GetEmployeeDetailAsync(selectedEmployeeId.Value);
+            await LoadExistingEvaluation();
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("خطأ في تحميل بيانات الموظف"));
+        }
+    }
+
+    private async Task LoadExistingEvaluation()
+    {
+        if (!selectedEmployeeId.HasValue) return;
+        try
+        {
+            var evaluation = await EvaluationSvc.GetLatestAsync(selectedEmployeeId.Value);
+            if (evaluation != null)
+            {
+                administrativeCriteria = evaluation.AdministrativeCriteria.Select(c => new EvaluationCriteriaModel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    IsSuccessful = c.IsSuccessful,
+                    Percentage = c.Percentage,
+                    Notes = c.Notes
+                }).ToList();
+
+                technicalCriteria = evaluation.TechnicalCriteria.Select(c => new EvaluationCriteriaModel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    IsSuccessful = c.IsSuccessful,
+                    Percentage = c.Percentage,
+                    Notes = c.Notes
+                }).ToList();
+
+                finalResult = evaluation.FinalResult == EvaluationResult.Successful;
+                generalNotes = evaluation.GeneralNotes ?? "";
+                adminNotes = evaluation.AdministrativeNotes ?? "";
+                techNotes = evaluation.TechnicalNotes ?? "";
+            }
+        }
+        catch { }
+    }
+
+    private void AddCriteria(bool isAdministrative)
+    {
+        var list = isAdministrative ? administrativeCriteria : technicalCriteria;
+        list.Add(new EvaluationCriteriaModel { Id = list.Count + 1, Name = "" });
+    }
+
+    private void RemoveCriteria(EvaluationCriteriaModel item, bool fromAdministrative)
+    {
+        var list = fromAdministrative ? administrativeCriteria : technicalCriteria;
+        list.Remove(item);
+    }
+
+    private void SetCriteriaResult(EvaluationCriteriaModel item, bool isSuccessful)
+    {
+        item.IsSuccessful = isSuccessful;
+        if (!item.Percentage.HasValue)
+            item.Percentage = isSuccessful ? 80 : 30;
+    }
+
+    private decimal GetAveragePercentage(List<EvaluationCriteriaModel> list)
+    {
+        if (list.Count == 0) return 0;
+        var withScores = list.Where(c => c.Percentage.HasValue).ToList();
+        return withScores.Count > 0 ? withScores.Average(c => c.Percentage!.Value) : 0;
+    }
+
+    private void ResetEvaluation()
+    {
+        administrativeCriteria.Clear();
+        technicalCriteria.Clear();
+        finalResult = null;
+        generalNotes = "";
+        adminNotes = "";
+        techNotes = "";
+    }
+
+    private async Task SaveEvaluation()
+    {
+        if (!selectedEmployeeId.HasValue) return;
+
+        saving = true;
+        StateHasChanged();
+        try
+        {
+            var adminScore = GetAveragePercentage(administrativeCriteria);
+            var techScore = GetAveragePercentage(technicalCriteria);
+            var finalScore = (adminScore + techScore) / 2;
+
+            var model = new SaveEvaluationModel
+            {
+                EmployeeId = selectedEmployeeId.Value,
+                AdministrativeCriteria = administrativeCriteria,
+                TechnicalCriteria = technicalCriteria,
+                FinalResult = finalResult == true ? EvaluationResult.Successful : EvaluationResult.Unsuccessful,
+                GeneralNotes = generalNotes,
+                AdministrativeNotes = adminNotes,
+                TechnicalNotes = techNotes,
+                AdministrativeScore = adminScore,
+                TechnicalScore = techScore,
+                TotalScore = finalScore
+            };
+
+            await EvaluationSvc.SaveAsync(model);
+            Notify.ShowSuccess(Lang.T("تم حفظ التقييم بنجاح"));
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("خطأ في حفظ التقييم"));
+        }
+        finally
+        {
+            saving = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

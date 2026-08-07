@@ -1,0 +1,295 @@
+﻿@page "/settings/benefit-types"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@inject BenefitTypeService BenefitTypeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@implements IDisposable
+
+<div class="benefit-types-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-sliders"></i> @Lang.T("أنواع الاستحقاقات والاستقطاعات")</h2>
+            <p class="page-subtitle">@Lang.T("إدارة أنواع الاستحقاقات والاستقطاعات ونسبها")</p>
+        </div>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة نوع جديد")
+        </button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (items == null || items.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>@Lang.T("لا توجد أنواع مضافة")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الاسم")</th>
+                        <th>@Lang.T("النوع")</th>
+                        <th>@Lang.T("النسبة %")</th>
+                        <th>@Lang.T("يطبق على")</th>
+                        <th>@Lang.T("الحالة")</th>
+                        <th>@Lang.T("التكرار")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Name</strong>
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <small>@item.Description</small>
+                                }
+                            </td>
+                            <td>
+                                <span class="status-badge @(item.Type == "Benefit" ? "status-benefit" : "status-deduction")">
+                                    @(item.Type == "Benefit" ? Lang.T("استحقاق") : Lang.T("استقطاع"))
+                                </span>
+                            </td>
+                            <td>
+                                <span class="percentage-value">@item.Percentage.ToString("N2")%</span>
+                            </td>
+                            <td>
+                                <span class="salary-target-badge @GetTargetClass(item.SalaryTarget)">
+                                    @GetTargetDisplay(item.SalaryTarget)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge @(item.IsActive ? "status-active" : "status-inactive")">
+                                    @(item.IsActive ? Lang.T("نشط") : Lang.T("غير نشط"))
+                                </span>
+                            </td>
+                            <td>
+                                <span class="frequency-badge @(item.Frequency == "Monthly" ? "frequency-monthly" : "frequency-once")">
+                                    <i class="bi @(item.Frequency == "Monthly" ? "bi-arrow-repeat" : "bi-1-circle")"></i>
+                                    @(item.Frequency == "Monthly" ? Lang.T("ثابت") : Lang.T("متغير"))
+                                </span>
+                            </td>
+                            <td class="row-actions">
+                                <button class="icon-action" title="@Lang.T("تعديل")" @onclick="() => OpenEditModal(item)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="icon-action danger" title="@Lang.T("حذف")" @onclick="() => RequestDelete(item)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box wide" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل نوع") : Lang.T("نوع جديد"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <!-- الاسم -->
+                    <div class="field">
+                        <label>@Lang.T("الاسم")</label>
+                        <input class="search-input" @bind="formName" placeholder="@Lang.T("مثال: بدل سكن، تأمينات...")" />
+                    </div>
+                    
+                    <!-- النوع -->
+                    <div class="field">
+                        <label>@Lang.T("النوع")</label>
+                        <div class="toggle-options">
+                            <button type="button" class="option-btn @(formType == "Benefit" ? "active success" : "")" @onclick='() => formType = "Benefit"'>
+                                <i class="bi bi-plus-circle"></i> @Lang.T("استحقاق")
+                            </button>
+                            <button type="button" class="option-btn @(formType == "Deduction" ? "active danger" : "")" @onclick='() => formType = "Deduction"'>
+                                <i class="bi bi-dash-circle"></i> @Lang.T("استقطاع")
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row three-cols">
+                    <!-- النسبة -->
+                    <div class="field">
+                        <label>@Lang.T("النسبة %")</label>
+                        <div class="input-with-suffix">
+                            <input type="number" class="search-input" @bind="formPercentage" step="0.01" min="0" max="100" />
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+
+                    <!-- يطبق على -->
+                    <div class="field">
+                        <label>@Lang.T("يطبق على")</label>
+                        <select class="select-input" @bind="formSalaryTarget">
+                            <option value="Fixed">@Lang.T("الراتب الثابت")</option>
+                            <option value="Variable">@Lang.T("الراتب المتغير")</option>
+                            <option value="Total">@Lang.T("إجمالي الراتب")</option>
+                        </select>
+                    </div>
+
+                    <!-- التكرار -->
+                    <div class="field">
+                        <label>@Lang.T("التكرار")</label>
+                        <div class="toggle-options">
+                            <button type="button" class="option-btn @(formFrequency == "Monthly" ? "active primary" : "")" @onclick='() => formFrequency = "Monthly"'>
+                                <i class="bi bi-arrow-repeat"></i> @Lang.T("ثابت")
+                            </button>
+                            <button type="button" class="option-btn @(formFrequency == "Once" ? "active warning" : "")" @onclick='() => formFrequency = "Once"'>
+                                <i class="bi bi-1-circle"></i> @Lang.T("متغير")
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الوصف -->
+                <div class="field">
+                    <label>@Lang.T("الوصف (اختياري)")</label>
+                    <textarea class="search-input" @bind="formDescription" rows="2" placeholder="@Lang.T("وصف مختصر...")"></textarea>
+                </div>
+
+                @if (isEdit)
+                {
+                    <div class="field checkbox">
+                        <label>
+                            <input type="checkbox" @bind="formIsActive" />
+                            @Lang.T("نشط")
+                        </label>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (itemToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body">
+                <p>@Lang.T("هل أنت متأكد من حذف") <strong>@itemToDelete.Name</strong>؟</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<BenefitTypeDto>? items;
+    bool loading = true;
+    bool showModal = false;
+    bool isEdit = false;
+    int? editingId;
+    string formName = "";
+    string formType = "Benefit";
+    decimal formPercentage = 0;
+    string formSalaryTarget = "Total";
+    string formDescription = "";
+    bool formIsActive = true;
+    BenefitTypeDto? itemToDelete;
+    string formFrequency = "Monthly";
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    async Task LoadData()
+    {
+        loading = true; StateHasChanged();
+        try { items = await BenefitTypeSvc.GetAllAsync(); }
+        catch { Notify.ShowError(Lang.T("حدث خطأ")); }
+        finally { loading = false; StateHasChanged(); }
+    }
+
+    void OpenAddModal()
+    {
+        isEdit = false; editingId = null;
+        formName = ""; formType = "Benefit"; formPercentage = 0;
+        formSalaryTarget = "Total"; formDescription = ""; formIsActive = true;
+        formFrequency = "Monthly";
+        showModal = true;
+    }
+
+    void OpenEditModal(BenefitTypeDto item)
+    {
+        isEdit = true; editingId = item.Id;
+        formName = item.Name; formType = item.Type; formPercentage = item.Percentage;
+        formSalaryTarget = item.SalaryTarget; formDescription = item.Description ?? "";
+        formIsActive = item.IsActive;
+        formFrequency = item.Frequency;
+        showModal = true;
+    }
+
+    void CloseModal() => showModal = false;
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName)) { Notify.ShowError(Lang.T("أدخل الاسم")); return; }
+        try
+        {
+            await BenefitTypeSvc.SaveAsync(editingId, formName, formType, formPercentage,
+            formSalaryTarget, formFrequency, formDescription, formIsActive);
+            Notify.ShowSuccess(Lang.T("تم الحفظ"));
+            showModal = false;
+            await LoadData();
+        }
+        catch { Notify.ShowError(Lang.T("حدث خطأ")); }
+    }
+
+    void RequestDelete(BenefitTypeDto item) => itemToDelete = item;
+    void CancelDelete() => itemToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (itemToDelete == null) return;
+        try { await BenefitTypeSvc.DeleteAsync(itemToDelete.Id); Notify.ShowSuccess(Lang.T("تم الحذف")); itemToDelete = null; await LoadData(); }
+        catch { Notify.ShowError(Lang.T("حدث خطأ")); itemToDelete = null; }
+    }
+
+    string GetTargetDisplay(string target) => target switch
+    {
+        "Fixed" => Lang.T("الراتب الثابت"),
+        "Variable" => Lang.T("الراتب المتغير"),
+        "Total" => Lang.T("إجمالي الراتب"),
+        _ => target
+    };
+
+    string GetTargetClass(string target) => target switch
+    {
+        "Fixed" => "target-fixed",
+        "Variable" => "target-variable",
+        "Total" => "target-total",
+        _ => ""
+    };
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

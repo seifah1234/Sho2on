@@ -11,9 +11,16 @@
 @inject ILogger<ShiftChange> Logger
 @implements IDisposable
 
-<div class="shift-change-page">
+@using Sho2on.Web.Models.Navigation
 
+<ModuleTabs Tabs="AttendanceTabs.Items" />
+
+<div class="shift-change-page">
     <div class="form-card">
+        <div class="form-title">
+            <i class="bi bi-arrow-repeat"></i>
+            <span>@Lang.T("تغيير الوردية")</span>
+        </div>
 
         <div class="field">
             <label>@Lang.T("الموظف")</label>
@@ -38,7 +45,7 @@
         @if (selectedEmployee != null)
         {
             <div class="current-shift-box">
-                <span>@Lang.T("الوردية الحالية"):</span>
+                <span>@Lang.T("الوردية الحالية")</span>
                 <strong>@(currentShiftName ?? Lang.T("غير محددة"))</strong>
             </div>
 
@@ -57,15 +64,22 @@
             </div>
 
             <button class="btn-primary" disabled="@(selectedShiftId == 0 || saving)" @onclick="SaveShift">
-                <i class="bi bi-check-lg"></i> @Lang.T("حفظ")
+                @if (saving)
+                {
+                    <span>@Lang.T("جاري الحفظ...")</span>
+                }
+                else
+                {
+                    <i class="bi bi-check-lg"></i>
+                    <span>@Lang.T("حفظ التغيير")</span>
+                }
             </button>
         }
         else
         {
-            <p class="muted">@Lang.T("اختر الموظف أولاً")</p>
+            <p class="muted">@Lang.T("اختر الموظف أولاً لعرض الوردية الحالية")</p>
         }
     </div>
-
 </div>
 
 @code {
@@ -118,6 +132,7 @@
         if (selectedEmployee == null || selectedShiftId == 0) return;
 
         saving = true;
+        StateHasChanged();
         try
         {
             await AttendanceSvc.ChangeShiftAsync(selectedEmployee.Id, selectedDate, selectedShiftId);
@@ -133,6 +148,7 @@
         finally
         {
             saving = false;
+            StateHasChanged();
         }
     }
 

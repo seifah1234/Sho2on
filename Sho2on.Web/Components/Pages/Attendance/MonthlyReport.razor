@@ -12,14 +12,18 @@
 @inject ILogger<MonthlyReport> Logger
 @implements IDisposable
 
+@using Sho2on.Web.Models.Navigation
+
+<ModuleTabs Tabs="AttendanceTabs.Items" />
+
 <div class="monthly-overview-page">
 
     <div class="page-toolbar">
         <div class="search-filter">
             <input class="search-input" placeholder="@Lang.T("ابحث بالاسم أو الكود")"
-                    @bind="searchTerm" @bind:event="oninput" />
+                   @bind="searchTerm" @bind:event="oninput" />
 
-            <select class="select-input" @bind="selectedBranchId">
+            <select class="select-input" @bind="selectedBranchId" @bind:after="OnFilterChanged">
                 <option value="">@Lang.T("كل الفروع")</option>
                 @if (branches != null)
                 {
@@ -30,15 +34,15 @@
                 }
             </select>
 
-            <select class="select-input" @bind="selectedMonth">
+            <select class="select-input" @bind="selectedMonth" @bind:after="OnFilterChanged">
                 @for (int m = 1; m <= 12; m++)
                 {
                     var mm = m;
-                    <option value="@mm">@arabicMonths[mm - 1]</option>
+                    <option value="@mm">@Lang.T(arabicMonths[mm - 1])</option>
                 }
             </select>
 
-            <select class="select-input" @bind="selectedYear">
+            <select class="select-input" @bind="selectedYear" @bind:after="OnFilterChanged">
                 @for (int y = DateTime.Today.Year; y >= DateTime.Today.Year - 5; y--)
                 {
                     var yy = y;
@@ -73,13 +77,13 @@
                         <th>@Lang.T("أيام الغياب")</th>
                         <th>@Lang.T("أيام العطلة")</th>
                         <th>@Lang.T("التأخير")</th>
-                        <th>@Lang.T("الاضافي")</th>
+                        <th>@Lang.T("الإضافي")</th>
                         <th>@Lang.T("ساعات العمل")</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var it in items)
+                    @foreach (var it in pagedItems)
                     {
                         <tr>
                             <td>@it.EmployeeCode</td>
@@ -101,7 +105,38 @@
                 </tbody>
             </table>
         </div>
-        <p class="results-count">@Lang.T("عدد الموظفين"): @items.Count</p>
+
+        <div class="pagination">
+            <span class="pagination-info">
+                @Lang.T("عرض") @((currentPage - 1) * pageSize + 1)-@(Math.Min(currentPage * pageSize, items.Count))
+                @Lang.T("من") @items.Count @Lang.T("موظف")
+            </span>
+
+            <div class="pagination-controls">
+                <button class="page-btn" disabled="@(currentPage == 1)" @onclick="() => GoToPage(currentPage - 1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+
+                @for (int p = 1; p <= totalPages; p++)
+                {
+                    var pageNum = p;
+                    @if (pageNum == 1 || pageNum == totalPages || Math.Abs(pageNum - currentPage) <= 1)
+                    {
+                        <button class="page-btn @(pageNum == currentPage ? "active" : "")" @onclick="() => GoToPage(pageNum)">
+                            @pageNum
+                        </button>
+                    }
+                    else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                    {
+                        <span class="page-dots">…</span>
+                    }
+                }
+
+                <button class="page-btn" disabled="@(currentPage == totalPages)" @onclick="() => GoToPage(currentPage + 1)">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            </div>
+        </div>
     }
 </div>
 
@@ -115,6 +150,11 @@
     int selectedMonth = DateTime.Today.Month;
     int selectedYear = DateTime.Today.Year;
     bool loading = false;
+
+    int currentPage = 1;
+    int pageSize = 15;
+    int totalPages => items == null ? 1 : (int)Math.Ceiling(items.Count / (double)pageSize);
+    List<EmployeeMonthlySummaryItem> pagedItems => items?.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList() ?? new();
 
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
@@ -133,6 +173,7 @@
         {
             int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
             items = await AttendanceSvc.GetMonthlySummaryAsync(branchId, searchTerm, selectedMonth, selectedYear);
+            currentPage = 1;
         }
         catch (Exception ex)
         {
@@ -146,12 +187,24 @@
         }
     }
 
+    async Task OnFilterChanged()
+    {
+        currentPage = 1;
+        await LoadReport();
+    }
+
+    void GoToPage(int page)
+    {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+    }
+
     void ViewDetails(EmployeeMonthlySummaryItem it)
     {
         Nav.NavigateTo($"/attendance/employee-report?employeeId={it.UserId}&month={selectedMonth}&year={selectedYear}");
     }
 
-    string FormatSpan(TimeSpan span) => $"{(int)span.TotalHours:00}:{span.Minutes:00}";
+    string FormatSpan(TimeSpan span) => $"{(int)span.TotalHours:D2}:{span.Minutes:D2}";
 
     public void Dispose() => Lang.OnChange -= StateHasChanged;
 }

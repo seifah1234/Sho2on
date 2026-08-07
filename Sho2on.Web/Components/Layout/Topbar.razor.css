@@ -1,135 +1,441 @@
-﻿.topbar {
+﻿/* ===== الشريط العلوي ===== */
+.topbar {
     height: var(--topbar-height);
-    background: white;
-    border-bottom: 1px solid var(--border);
+    background: linear-gradient(165deg, var(--primary) 0%, var(--primary-dark) 100%);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-inline: 30px;
-    gap: 30px;
+    padding-inline: 28px;
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
 }
 
+    /* زخرفة خلفية - يسار */
+    .topbar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 400px;
+        height: 100%;
+        background: radial-gradient(ellipse at top left, var(--decor-accent) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* زخرفة خلفية - يمين */
+    .topbar::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background: radial-gradient(ellipse at bottom right, var(--decor-primary) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+/* ===== الجانب الأيمن ===== */
 .topbar-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 18px;
+    position: relative;
+    z-index: 1;
 }
 
-.page-info h2 {
-    margin: 0;
-    font-size: 24px;
-    color: var(--text);
-}
-
-.page-info span {
-    color: var(--text-light);
-    font-size: 13px;
-}
-
-.topbar-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-}
-
-.search-box {
-    width: 420px;
-    height: 46px;
-    background: #f5f7fb;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    padding-inline: 16px;
-    gap: 10px;
-}
-
-    .search-box input {
-        flex: 1;
-        border: none;
-        background: transparent;
-        outline: none;
-        font-size: 14px;
-    }
-
-    .search-box i {
-        color: gray;
-    }
-
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
+/* زر القائمة الجانبية */
 .icon-btn {
     width: 42px;
     height: 42px;
-    border: none;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: .25s;
+    transition: all var(--transition);
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
 }
 
     .icon-btn:hover {
-        background: #f5f7fb;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent);
+        color: #FFFFFF;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .icon-btn:active {
+        transform: translateY(0);
     }
 
     .icon-btn i {
-        font-size: 18px;
+        font-size: 20px;
+        transition: transform var(--transition);
     }
 
-.notification {
+    .icon-btn:hover i {
+        transform: scale(1.1);
+    }
+
+/* معلومات الصفحة */
+.page-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+    .page-info h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: #FFFFFF;
+        letter-spacing: -0.3px;
+        line-height: 1.3;
+    }
+
+    .page-info span {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12.5px;
+        font-weight: 500;
+    }
+
+/* ===== الجانب الأيسر ===== */
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+/* زر الإشعارات */
+.icon-btn.notification {
     position: relative;
 }
 
 .badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 18px;
-    height: 18px;
+    top: -4px;
+    left: -4px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: #ef4444;
-    color: white;
+    background: var(--gradient-accent);
+    color: var(--primary-dark);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 800;
+    border: 2px solid var(--primary);
+    box-shadow: var(--shadow-md);
+    animation: badgePulse 2s ease-in-out infinite;
 }
 
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+/* ===== قائمة المستخدم ===== */
 .user-menu {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-inline: 10px;
+    padding: 6px 14px;
+    padding-inline-end: 10px;
     cursor: pointer;
+    border-radius: var(--radius-lg);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition);
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
 }
 
+    .user-menu:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .user-menu:active {
+        transform: scale(0.98);
+    }
+
+/* صورة المستخدم */
 .avatar {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: var(--primary);
-    color: white;
+    background: var(--gradient-accent);
+    color: var(--primary-dark);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+    position: relative;
 }
 
+    /* نقطة أونلاين */
+    .avatar::after {
+        content: '';
+        position: absolute;
+        bottom: 1px;
+        left: 1px;
+        width: 10px;
+        height: 10px;
+        background: var(--success);
+        border: 2px solid var(--primary);
+        border-radius: 50%;
+        animation: onlinePulse 2s ease-in-out infinite;
+    }
+
+@keyframes onlinePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 var(--success);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px transparent;
+    }
+}
+
+/* معلومات المستخدم */
 .user-info {
     display: flex;
     flex-direction: column;
+    gap: 1px;
+    text-align: start;
 }
 
     .user-info strong {
-        font-size: 14px;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #FFFFFF;
+        line-height: 1.3;
     }
 
     .user-info small {
-        color: gray;
-        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 11.5px;
+        font-weight: 500;
     }
+
+/* سهم القائمة المنسدلة */
+.user-menu > i:last-child {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    transition: transform var(--transition);
+    margin-inline-end: 4px;
+}
+
+.user-menu:hover > i:last-child {
+    color: var(--accent);
+    transform: translateY(2px);
+}
+
+/* ===== القائمة المنسدلة للمستخدم ===== */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+    animation: dropdownSlide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* هيدر القائمة */
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background: var(--background);
+}
+
+.dropdown-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.dropdown-header strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.dropdown-header small {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* فاصل */
+.dropdown-divider {
+    height: 1px;
+    background: var(--border);
+}
+
+/* عناصر القائمة */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 20px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    transition: all var(--transition);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    font-family: inherit;
+    text-align: start;
+}
+
+    .dropdown-item:hover {
+        background: var(--surface-hover);
+        color: var(--primary);
+        padding-inline-start: 24px;
+    }
+
+    .dropdown-item i {
+        font-size: 17px;
+        width: 22px;
+        text-align: center;
+        color: var(--text-muted);
+        transition: all var(--transition);
+    }
+
+    .dropdown-item:hover i {
+        color: var(--primary);
+    }
+
+    /* زر تسجيل الخروج */
+    .dropdown-item.logout {
+        color: var(--danger);
+    }
+
+        .dropdown-item.logout:hover {
+            background: var(--danger-bg);
+            color: var(--danger);
+            padding-inline-start: 24px;
+        }
+
+        .dropdown-item.logout i {
+            color: var(--danger);
+        }
+
+.logout-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== أزرار الوضع الليلي والترجمة ===== */
+.icon-btn.theme-toggle {
+    position: relative;
+    overflow: hidden;
+}
+
+    .icon-btn.theme-toggle::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--decor-accent);
+        opacity: 0;
+        transition: opacity var(--transition);
+        border-radius: var(--radius-md);
+    }
+
+    .icon-btn.theme-toggle:hover::before {
+        opacity: 1;
+    }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .topbar {
+        padding-inline: 16px;
+        gap: 12px;
+    }
+
+    .page-info h2 {
+        font-size: 16px;
+    }
+
+    .page-info span {
+        display: none;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .user-menu {
+        padding: 6px 8px;
+    }
+
+    .topbar-right {
+        gap: 6px;
+    }
+
+    .icon-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+        .icon-btn i {
+            font-size: 18px;
+        }
+
+    .user-dropdown {
+        width: 240px;
+        right: 0;
+        left: auto;
+    }
+}

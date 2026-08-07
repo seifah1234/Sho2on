@@ -7,16 +7,28 @@
 @inject AuthenticationStateProvider AuthProvider
 @implements IDisposable
 
-<div class="sidebar">
+<div class="sidebar" style="position: fixed; top: 0; right: 0; bottom: 0; height: 100vh;">
+    <!-- الزخارف -->
+    <div class="sidebar-decoration"></div>
+    <div class="sidebar-dots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+
     <div class="sidebar-header">
         <div class="logo">
-            <div class="logo-icon">S</div>
+            <div class="logo-icon">R</div>
             <div class="logo-text">
-                <h3>Sho2on</h3>
+                <h3>RAKZ</h3>
                 <span>@Lang.T("نظام الموارد البشرية")</span>
             </div>
         </div>
     </div>
+
+    <div class="sidebar-divider"></div>
 
     <div class="sidebar-menu">
         @foreach (var item in Navigation.GetMenu())

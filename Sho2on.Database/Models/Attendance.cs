@@ -53,6 +53,9 @@ namespace Sho2on.Database.Models
 
         public bool ExemptOvertime { get; set; }
 
+        public bool? IsCheckInAutoFilled { get; set; }
+        public bool? IsCheckOutAutoFilled { get; set; }
+
         public bool ExemptEarlyEnter { get; set; }
         // في نموذج Attendance
         public int? CheckInFingerPrintId { get; set; }

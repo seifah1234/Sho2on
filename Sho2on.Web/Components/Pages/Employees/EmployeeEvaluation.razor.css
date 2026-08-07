@@ -1,0 +1,629 @@
+﻿.evaluation-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* رأس الصفحة */
+.page-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+}
+
+    .page-header h2 i {
+        font-size: 24px;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--info-bg);
+        color: var(--primary);
+        border-radius: var(--radius-md);
+    }
+
+.page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 4px 0 0;
+}
+
+/* بطاقة اختيار الموظف */
+.employee-picker-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.picker-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--info-bg);
+    color: var(--primary);
+    border-radius: var(--radius-md);
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.picker-content {
+    flex: 1;
+}
+
+    .picker-content label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+/* بطاقة معلومات الموظف */
+.employee-info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.employee-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.employee-details h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.employee-details span {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* أقسام التقييم */
+.evaluation-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.evaluation-column {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+}
+
+    .section-header.administrative {
+        background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+    }
+
+    .section-header.technical {
+        background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+    }
+
+    .section-header i {
+        font-size: 20px;
+    }
+
+    .section-header.administrative i {
+        color: #2563EB;
+    }
+
+    .section-header.technical i {
+        color: #EA580C;
+    }
+
+    .section-header h3 {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+    }
+
+.criteria-count {
+    margin-inline-start: auto;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+}
+
+.section-header.administrative .criteria-count {
+    background: #DBEAFE;
+    color: #2563EB;
+}
+
+.section-header.technical .criteria-count {
+    background: #FFEDD5;
+    color: #EA580C;
+}
+
+/* جسم القسم */
+.section-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* بطاقة المعيار */
+.criteria-card {
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    transition: all var(--transition);
+}
+
+    .criteria-card.success {
+        border-color: var(--success);
+        background: var(--success-bg);
+    }
+
+    .criteria-card.fail {
+        border-color: var(--danger);
+        background: var(--danger-bg);
+    }
+
+.criteria-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.criteria-name {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    background: var(--surface);
+    color: var(--text);
+    transition: all var(--transition);
+}
+
+    .criteria-name:focus {
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+
+.btn-delete {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .btn-delete:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: var(--danger-bg);
+    }
+
+.criteria-body {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* أزرار التبديل */
+.toggle-group {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: var(--surface);
+    color: var(--text-light);
+}
+
+    .toggle-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .toggle-btn.success.active {
+        background: var(--success);
+        color: #fff;
+        border-color: var(--success);
+    }
+
+    .toggle-btn.fail.active {
+        background: var(--danger);
+        color: #fff;
+        border-color: var(--danger);
+    }
+
+/* إدخال النسبة */
+.percentage-input {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    width: 90px;
+}
+
+    .percentage-input input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        font-family: inherit;
+        outline: none;
+    }
+
+    .percentage-input span {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+
+/* زر إضافة معيار */
+.btn-add-criteria {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+    .btn-add-criteria:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--info-bg);
+    }
+
+/* ملخص القسم */
+.section-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    padding: 14px 16px;
+    gap: 8px;
+    background: var(--background);
+}
+
+.summary-stat {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.summary-stat.success .stat-value {
+    color: var(--success);
+}
+
+.summary-stat.fail .stat-value {
+    color: var(--danger);
+}
+
+.summary-stat.total .stat-value {
+    color: var(--primary);
+}
+
+/* النتيجة النهائية */
+.final-result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.result-header {
+    padding: 20px 24px;
+    background: var(--gradient-primary);
+}
+
+    .result-header h3 {
+        color: #fff;
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+.result-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.overall-percentage {
+    text-align: center;
+    padding: 24px;
+    border-radius: var(--radius-xl);
+}
+
+    .overall-percentage.success {
+        background: var(--success-bg);
+    }
+
+    .overall-percentage.fail {
+        background: var(--danger-bg);
+    }
+
+.percentage-number {
+    font-size: 56px;
+    font-weight: 800;
+}
+
+.overall-percentage.success .percentage-number {
+    color: var(--success);
+}
+
+.overall-percentage.fail .percentage-number {
+    color: var(--danger);
+}
+
+.percentage-sign {
+    font-size: 24px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.result-toggle label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    display: block;
+    margin-bottom: 10px;
+}
+
+.toggle-group.large {
+    gap: 10px;
+}
+
+    .toggle-group.large .toggle-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+/* ملاحظات */
+.notes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .notes-section label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+.notes-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    resize: vertical;
+    min-height: 60px;
+    transition: all var(--transition);
+    box-sizing: border-box;
+}
+
+    .notes-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+/* أزرار الإجراءات */
+.result-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--background);
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 13px 28px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-light);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 13px 24px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+/* سكرول بار */
+.section-body::-webkit-scrollbar {
+    width: 5px;
+}
+
+.section-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.section-body::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .evaluation-sections {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .result-actions {
+        flex-direction: column-reverse;
+    }
+
+        .result-actions button {
+            width: 100%;
+            justify-content: center;
+        }
+
+    .overall-percentage {
+        padding: 16px;
+    }
+
+    .percentage-number {
+        font-size: 40px;
+    }
+}

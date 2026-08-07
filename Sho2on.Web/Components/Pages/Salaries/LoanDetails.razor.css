@@ -1,0 +1,613 @@
+﻿/* ===== صفحة تفاصيل السلفة ===== */
+.loan-details-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== رأس الصفحة ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--surface);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+    .page-header h2 {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+.subtitle {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.employee-link {
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: all var(--transition);
+}
+
+    .employee-link:hover {
+        color: var(--accent);
+    }
+
+/* ===== أزرار الإجراءات ===== */
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-light);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 11px 20px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--surface-hover);
+        transform: translateY(-1px);
+    }
+
+.btn-approve {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 2px solid var(--success);
+    border-radius: var(--radius-md);
+    padding: 11px 20px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-approve:hover {
+        background: var(--success);
+        color: #FFFFFF;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+.btn-reject {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 2px solid var(--danger);
+    border-radius: var(--radius-md);
+    padding: 11px 20px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-reject:hover {
+        background: var(--danger);
+        color: #FFFFFF;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+.btn-pay {
+    background: var(--info-bg);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: 11px 20px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-pay:hover {
+        background: var(--primary);
+        color: #FFFFFF;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+.btn-danger {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 11px 20px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-danger:hover {
+        border-color: var(--danger);
+        transform: translateY(-1px);
+    }
+
+/* ===== بطاقات الملخص ===== */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+}
+
+.summary-card {
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transition: transform var(--transition);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+        .summary-card:hover::before {
+            transform: scaleX(1);
+        }
+
+.summary-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.summary-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.currency-sm {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.summary-card.highlight-positive .summary-value {
+    color: var(--success);
+}
+
+.summary-card.highlight-negative .summary-value {
+    color: var(--danger);
+}
+
+.summary-card.total {
+    background: var(--gradient-primary);
+    border-color: transparent;
+}
+
+    .summary-card.total .summary-label {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .summary-card.total .summary-value {
+        color: #FFFFFF;
+    }
+
+/* ===== بادج الحالة ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+    .status-badge::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+.status-pending {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+    .status-pending::before {
+        background: var(--warning);
+    }
+
+.status-approved {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+    .status-approved::before {
+        background: var(--success);
+    }
+
+.status-rejected {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+    .status-rejected::before {
+        background: var(--danger);
+    }
+
+.status-partial {
+    background: var(--info-bg);
+    color: var(--primary);
+}
+
+    .status-partial::before {
+        background: var(--primary);
+    }
+
+.status-paid {
+    background: #D5E8D5;
+    color: #1F6A1F;
+}
+
+    .status-paid::before {
+        background: #1F6A1F;
+    }
+
+/* ===== شبكة المعلومات ===== */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    background: var(--surface);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .info-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .info-item .info-label {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-item .info-value {
+        font-size: 14px;
+        color: var(--text);
+        font-weight: 600;
+    }
+
+/* ===== قسم الدفعات ===== */
+.payments-section {
+    background: var(--surface);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+    .payments-section h3 {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0 0 20px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--border);
+        position: relative;
+    }
+
+        .payments-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--gradient-accent);
+            border-radius: var(--radius-full);
+        }
+
+/* ===== جدول الدفعات ===== */
+.table-wrapper {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+    .data-table thead {
+        background: linear-gradient(180deg, var(--background) 0%, #F5F2EC 100%);
+    }
+
+    .data-table th {
+        padding: 14px 18px;
+        text-align: right;
+        font-weight: 800;
+        color: var(--text-light);
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px solid var(--border);
+    }
+
+    .data-table td {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+    }
+
+    .data-table tbody tr:hover td {
+        background: var(--surface-hover);
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .data-table tfoot tr.total-row {
+        background: var(--background);
+        font-weight: 700;
+        border-top: 2px solid var(--primary);
+    }
+
+.amount-positive {
+    color: var(--success);
+    font-weight: 700;
+}
+
+/* ===== بادج نوع الدفعة ===== */
+.payment-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 700;
+}
+
+.type-monthly {
+    background: var(--info-bg);
+    color: var(--primary);
+}
+
+.type-partial {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.type-full {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+/* ===== شريط التقدم ===== */
+.payment-progress {
+    background: var(--background);
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-full);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ===== حالات التحميل والفارغ ===== */
+.loading-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+}
+
+    .loading-state i,
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+    }
+
+.empty-payments {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+    color: var(--text-muted);
+    background: var(--background);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--border);
+}
+
+    .empty-payments i {
+        font-size: 40px;
+        margin-bottom: 12px;
+        opacity: 0.3;
+    }
+
+    .empty-payments p {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-actions {
+        flex-direction: column;
+    }
+
+        .header-actions button {
+            width: 100%;
+            justify-content: center;
+        }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .summary-value {
+        font-size: 20px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+}

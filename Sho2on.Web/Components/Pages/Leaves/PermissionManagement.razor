@@ -4,6 +4,7 @@
 @attribute [Authorize]
 
 @using System.Security.Claims
+@using Sho2on.Database.Models
 @using Sho2on.Web.Models.Navigation
 @using Sho2on.Web.Services
 @using static Sho2on.Web.Services.PermissionManagementService
@@ -12,6 +13,7 @@
 @inject AuthenticationStateProvider AuthProvider
 @inject LocalizationService Lang
 @inject NotificationService Notify
+@inject CurrentUserService CurrentUserSvc
 
 <div class="permission-management-page">
 
@@ -26,7 +28,7 @@
 
             <select class="select-input" @bind="selectedStatus">
                 <option value="">@Lang.T("كل الحالات")</option>
-                <option value="Pending">@Lang.T("قيد الانتظار")</option>
+                <option value="Pending" selected>@Lang.T("قيد الانتظار")</option>
                 <option value="Approved">@Lang.T("معتمد")</option>
                 <option value="Rejected">@Lang.T("مرفوض")</option>
             </select>
@@ -95,7 +97,7 @@
                             </td>
                             <td>@(string.IsNullOrWhiteSpace(item.ApproverName) ? "-" : item.ApproverName)</td>
                             <td class="row-actions">
-                                @if (item.Status == "Pending")
+                                @if ((isManager || isHR) && item.Status == "Pending")
                                 {
                                     <button class="icon-action success"
                                             title="@Lang.T("اعتماد")"
@@ -109,6 +111,13 @@
                                         <i class="bi bi-x-lg"></i>
                                     </button>
                                 }
+    
+                                @* الموظف العادي يشوف التفاصيل فقط *@
+                                <button class="icon-action info"
+                                        title="@Lang.T("تفاصيل")"
+                                        @onclick="() => ViewDetails(item)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
                             </td>
                         </tr>
                     }
@@ -141,14 +150,84 @@
     }
 </div>
 
+@* مودال التفاصيل *@
+@if (showDetails && selectedPermission != null)
+{
+    <div class="modal-backdrop" @onclick="CloseDetails">
+        <div class="modal-card" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@Lang.T("تفاصيل طلب الإذن")</h3>
+                <button class="close-btn" @onclick="CloseDetails">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("الموظف")</span>
+                    <span class="detail-value">@selectedPermission.EmployeeName</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("الكود")</span>
+                    <span class="detail-value">@selectedPermission.EmployeeCode</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("نوع الإذن")</span>
+                    <span class="detail-value">@GetPermissionTypeText(selectedPermission.PermissionType)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("التاريخ")</span>
+                    <span class="detail-value">@selectedPermission.StartDateTime.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("من وقت")</span>
+                    <span class="detail-value">@selectedPermission.StartDateTime.ToString("HH:mm")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("إلى وقت")</span>
+                    <span class="detail-value">@selectedPermission.EndDateTime.ToString("HH:mm")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("المدة")</span>
+                    <span class="detail-value">@selectedPermission.Duration.ToString("0.##") @Lang.T("ساعة")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("الحالة")</span>
+                    <span class="detail-value">
+                        <span class="status @GetStatusClass(selectedPermission.Status)">
+                            @GetStatusText(selectedPermission.Status)
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("السبب")</span>
+                    <span class="detail-value">@(string.IsNullOrWhiteSpace(selectedPermission.Reason) ? "-" : selectedPermission.Reason)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">@Lang.T("المسؤول")</span>
+                    <span class="detail-value">@(string.IsNullOrWhiteSpace(selectedPermission.ApproverName) ? "-" : selectedPermission.ApproverName)</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseDetails">@Lang.T("إغلاق")</button>
+            </div>
+        </div>
+    </div>
+}
+
+
 @code {
+    
     private List<PermissionListItem> requests = [];
     private PermissionListItem? rejectingRequest;
     private string searchTerm = "";
-    private string selectedStatus = "";
+    private string selectedStatus = "Pending";
     private string rejectionReason = "";
     private int currentUserId;
+    private bool isManager;
+    private bool isHR;
     private bool loading = true;
+    private bool showDetails = false;
+    private PermissionListItem? selectedPermission;
 
     protected override async Task OnInitializedAsync()
     {
@@ -158,18 +237,43 @@
             authState.User.FindFirstValue("UserId"),
             out currentUserId);
 
+            
+        var user = await GetCurrentUserAsync();
+        isManager = user?.JobTitle?.IsManager == true;
+        isHR = user?.Department?.IsHR == true;
+
         await LoadRequests();
     }
+    private void ViewDetails(PermissionListItem item)
+    {
+        selectedPermission = item;
+        showDetails = true;
+    }
 
+    private void CloseDetails()
+    {
+        showDetails = false;
+        selectedPermission = null;
+    }
+
+    private async Task<User?> GetCurrentUserAsync()
+    {
+        return await CurrentUserSvc.GetCurrentUserAsync();
+    }
     private async Task LoadRequests()
     {
         loading = true;
-
         try
         {
-            requests = await PermissionMgmtSvc.GetRequestsAsync(
-                selectedStatus,
-                searchTerm);
+            if (!isManager && !isHR)
+            {
+                // الموظف العادي يشوف طلباته فقط
+                requests = await PermissionMgmtSvc.GetRequestsByEmployeeAsync(currentUserId);
+            }
+            else
+            {
+                requests = await PermissionMgmtSvc.GetRequestsAsync(selectedStatus, searchTerm);
+            }
         }
         catch
         {

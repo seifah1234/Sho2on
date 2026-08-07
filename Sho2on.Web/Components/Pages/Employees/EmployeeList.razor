@@ -85,7 +85,7 @@
                                 </button>
                                 <button class="icon-action @(emp.IsArchived ? "restore" : "danger")"
                                         title="@(emp.IsArchived ? Lang.T("استعادة") : Lang.T("أرشفة"))"
-                                        @onclick='() => ToggleArchive(emp)'>
+                                        @onclick='() => ConfirmToggleArchive(emp)'>
                                     <i class="bi @(emp.IsArchived ? "bi-arrow-counterclockwise" : "bi-archive")"></i>
                                 </button>
                             </td>
@@ -131,6 +131,60 @@
     }
 </div>
 
+@* مودال تأكيد الأرشفة/الاستعادة *@
+@if (showArchiveConfirm)
+{
+    <div class="modal-overlay" @onclick="CancelArchive">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>
+                    <i class="bi @(employeeToToggle?.IsArchived == true ? "bi-arrow-counterclockwise" : "bi-archive")"></i>
+                    @(employeeToToggle?.IsArchived == true ? Lang.T("تأكيد الاستعادة") : Lang.T("تأكيد الأرشفة"))
+                </h3>
+                <button class="icon-action" @onclick="CancelArchive">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon @(employeeToToggle?.IsArchived == true ? "restore" : "archive")">
+                    <i class="bi @(employeeToToggle?.IsArchived == true ? "bi-arrow-counterclockwise" : "bi-archive")"></i>
+                </div>
+                <p class="confirm-text">
+                    @if (employeeToToggle?.IsArchived == true)
+                    {
+                        @Lang.T("هل أنت متأكد من استعادة الموظف")
+                    }
+                    else
+                    {
+                        @Lang.T("هل أنت متأكد من أرشفة الموظف")
+                    }
+                    <strong>@employeeToToggle?.FullName</strong>؟
+                </p>
+                <p class="confirm-hint">
+                    @if (employeeToToggle?.IsArchived == true)
+                    {
+                        @Lang.T("سيتم إعادة الموظف إلى القائمة النشطة ويمكن الوصول لبياناته بشكل طبيعي.")
+                    }
+                    else
+                    {
+                        @Lang.T("سيتم إخفاء الموظف من القائمة الرئيسية ويمكن الوصول إليه من قسم الأرشيف.")
+                    }
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelArchive">
+                    <i class="bi bi-x-circle"></i> @Lang.T("إلغاء")
+                </button>
+                <button class="btn-primary @(employeeToToggle?.IsArchived == true ? "btn-restore" : "btn-archive")"
+                        @onclick="ExecuteToggleArchive">
+                    <i class="bi @(employeeToToggle?.IsArchived == true ? "bi-arrow-counterclockwise" : "bi-archive")"></i>
+                    @(employeeToToggle?.IsArchived == true ? Lang.T("استعادة") : Lang.T("أرشفة"))
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     PagedResult<EmployeeListItem>? result;
     int currentPage = 1;
@@ -141,6 +195,10 @@
     bool includeArchived = false;
     bool loading = true;
     System.Timers.Timer? debounceTimer;
+
+    // متغيرات المودال
+    bool showArchiveConfirm = false;
+    EmployeeListItem? employeeToToggle;
 
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
@@ -189,19 +247,40 @@
         debounceTimer.Start();
     }
 
-    async Task ToggleArchive(EmployeeListItem emp)
+    void ConfirmToggleArchive(EmployeeListItem emp)
     {
+        employeeToToggle = emp;
+        showArchiveConfirm = true;
+    }
+
+    void CancelArchive()
+    {
+        employeeToToggle = null;
+        showArchiveConfirm = false;
+    }
+
+    async Task ExecuteToggleArchive()
+    {
+        if (employeeToToggle == null) return;
+
+        showArchiveConfirm = false;
         try
         {
             currentPage = 1;
-            await EmployeeSvc.ToggleArchiveAsync(emp.Id);
-            Notify.ShowSuccess(emp.IsArchived ? Lang.T("تم استعادة الموظف") : Lang.T("تم أرشفة الموظف"));
+            await EmployeeSvc.ToggleArchiveAsync(employeeToToggle.Id);
+            Notify.ShowSuccess(employeeToToggle.IsArchived
+                ? Lang.T("تم استعادة الموظف بنجاح")
+                : Lang.T("تم أرشفة الموظف بنجاح"));
             await LoadEmployees();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "خطأ أثناء تغيير حالة أرشفة الموظف {Id}", emp.Id);
+            Logger.LogError(ex, "خطأ أثناء تغيير حالة أرشفة الموظف {Id}", employeeToToggle.Id);
             Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+        finally
+        {
+            employeeToToggle = null;
         }
     }
 

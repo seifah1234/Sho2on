@@ -6,22 +6,57 @@ namespace Sho2on.Web.Services;
 
 public class PermissionManagementService
 {
-    private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly CurrentUserService _currentUserService;
 
-    public PermissionManagementService(AppDbContext db)
+
+    public PermissionManagementService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUserService)
     {
-        _db = db;
+        _dbFactory = dbFactory;
+        _currentUserService = currentUserService;
+    }
+    public async Task<List<PermissionListItem>> GetRequestsByEmployeeAsync(int employeeId)
+    {
+        using var _db = await _dbFactory.CreateDbContextAsync();
+
+        return await _db.EmployeePermissions
+            .Include(x => x.User)
+            .Include(x => x.ApprovedBy)
+            .Where(x => x.UserId == employeeId)
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new PermissionListItem
+            {
+                Id = x.Id,
+                EmployeeName = x.User!.FullName,
+                EmployeeCode = x.User.Code,
+                PermissionType = x.PermissionType,
+                StartDateTime = x.StartDateTime,
+                EndDateTime = x.EndDateTime,
+                Duration = x.Duration,
+                Status = x.Status,
+                Reason = x.Reason,
+                ApproverName = x.ApprovedBy != null ? x.ApprovedBy.FullName : ""
+            })
+            .ToListAsync();
     }
 
     public async Task<List<PermissionListItem>> GetRequestsAsync(
         string? status,
         string? search)
     {
+        using var _db = await _dbFactory.CreateDbContextAsync();
+        var user = await _currentUserService.GetCurrentUserAsync();
+
         var query = _db.EmployeePermissions
             .Include(x => x.User)
             .Include(x => x.ApprovedBy)
             .AsNoTracking()
             .AsQueryable();
+
+        if (user != null && user.JobTitle != null && (!user.JobTitle.IsHR.HasValue || !user.JobTitle.IsHR.Value))
+        {
+            query = query.Where(x => x.ApprovedByUserId == user.Id || x.UserId == user.Id);
+        }
 
         if (!string.IsNullOrWhiteSpace(status))
             query = query.Where(x => x.Status == status);
@@ -55,6 +90,7 @@ public class PermissionManagementService
 
     public async Task ApproveAsync(int permissionId, int currentUserId)
     {
+        using var _db = await _dbFactory.CreateDbContextAsync();
         var permission = await _db.EmployeePermissions
             .Include(x => x.User)
             .FirstOrDefaultAsync(x => x.Id == permissionId)
@@ -86,6 +122,7 @@ public class PermissionManagementService
         if (string.IsNullOrWhiteSpace(rejectionReason))
             throw new InvalidOperationException("سبب الرفض مطلوب");
 
+        using var _db = await _dbFactory.CreateDbContextAsync();
         var permission = await _db.EmployeePermissions
             .FirstOrDefaultAsync(x => x.Id == permissionId)
             ?? throw new InvalidOperationException("طلب الإذن غير موجود");
@@ -111,6 +148,7 @@ public class PermissionManagementService
     {
         var date = permission.StartDateTime.Date;
 
+        using var _db = await _dbFactory.CreateDbContextAsync();
         var attendance = await _db.Attendances.FirstOrDefaultAsync(x =>
             x.UserId == permission.UserId &&
             x.AttendanceDate == date);

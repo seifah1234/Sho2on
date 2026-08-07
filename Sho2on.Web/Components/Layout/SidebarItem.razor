@@ -14,17 +14,11 @@
         <i class="bi @Item.Icon"></i>
     }
 
-    <span>
-
-        @Lang.T(Item.Title)
-
-    </span>
+    <span>@Lang.T(Item.Title)</span>
 
 </NavLink>
 
 @code {
-
     [Parameter]
     public NavigationItem Item { get; set; } = default!;
-
 }

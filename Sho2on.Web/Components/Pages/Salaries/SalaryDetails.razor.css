@@ -1,0 +1,651 @@
+﻿/* ===== صفحة تفاصيل الراتب ===== */
+.salary-details-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== رأس الصفحة ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .page-header h2 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+        .page-header h2 i {
+            font-size: 24px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--info-bg);
+            color: var(--primary);
+            border-radius: var(--radius-md);
+        }
+
+.page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 4px 0 0;
+    font-weight: 500;
+}
+
+/* ===== الأزرار ===== */
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-light);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--surface-hover);
+        transform: translateY(-1px);
+    }
+
+/* ===== بطاقة معلومات الموظف ===== */
+.employee-info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.employee-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.employee-details {
+    flex: 1;
+}
+
+    .employee-details h3 {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 2px;
+    }
+
+    .employee-details span {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+.payment-status {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* ===== بادج الحالة ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+    .status-badge::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+.status-paid {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+    .status-paid::before {
+        background: var(--success);
+    }
+
+.status-unpaid {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+    .status-unpaid::before {
+        background: var(--danger);
+    }
+
+.off-cycle-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+/* ===== بطاقات الملخص ===== */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.summary-card {
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transition: transform var(--transition);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+        .summary-card:hover::before {
+            transform: scaleX(1);
+        }
+
+.summary-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.summary-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 6px;
+}
+
+.summary-card.highlight-positive .summary-value {
+    color: var(--success);
+}
+
+.summary-card.highlight-negative .summary-value {
+    color: var(--danger);
+}
+
+.summary-card.total {
+    background: var(--gradient-primary);
+    border-color: transparent;
+}
+
+    .summary-card.total .summary-label {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .summary-card.total .summary-value {
+        color: #FFFFFF;
+    }
+
+/* ===== تفاصيل الإضافات والخصومات ===== */
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.details-section {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--border);
+}
+
+.details-section.additions .section-header {
+    background: var(--success-bg);
+}
+
+    .details-section.additions .section-header i {
+        color: var(--success);
+        font-size: 18px;
+    }
+
+    .details-section.additions .section-header h3 {
+        color: var(--success);
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+.details-section.deductions .section-header {
+    background: var(--danger-bg);
+}
+
+    .details-section.deductions .section-header i {
+        color: var(--danger);
+        font-size: 18px;
+    }
+
+    .details-section.deductions .section-header h3 {
+        color: var(--danger);
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+.details-list {
+    padding: 12px 20px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    transition: all var(--transition);
+}
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-row:hover {
+        background: var(--surface-hover);
+        margin: 0 -8px;
+        padding: 12px 8px;
+        border-radius: var(--radius-sm);
+    }
+
+    .detail-row span:first-child {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .detail-row .amount {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 14px;
+    }
+
+.details-section.additions .detail-row .amount {
+    color: var(--success);
+}
+
+.details-section.deductions .detail-row .amount {
+    color: var(--danger);
+}
+
+/* ===== معلومات الدفع ===== */
+.payment-info-card {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+    .payment-info-card h3 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 20px;
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        background: var(--background);
+        border-bottom: 2px solid var(--border);
+    }
+
+        .payment-info-card h3 i {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .info-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+.info-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ===== حالات التحميل والفارغ ===== */
+.loading-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-state p,
+.empty-state p {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.empty-state i {
+    font-size: 48px;
+    opacity: 0.4;
+    margin-bottom: 16px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .employee-info-card {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .payment-status {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .summary-value {
+        font-size: 20px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== تبويبات ===== */
+.tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    padding: 6px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 13px 20px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    border-radius: var(--radius-lg);
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+    .tab-btn:hover {
+        color: var(--primary);
+        background: var(--surface-hover);
+    }
+
+    .tab-btn.active {
+        background: var(--gradient-primary);
+        color: #fff;
+        font-weight: 700;
+        box-shadow: var(--shadow-md);
+    }
+
+.tab-content {
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* تبويبات فرعية */
+.sub-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding: 6px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+}
+
+.sub-tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+    .sub-tab-btn:hover {
+        color: var(--primary);
+        background: var(--surface-hover);
+    }
+
+    .sub-tab-btn.active {
+        background: var(--primary);
+        color: #fff;
+        font-weight: 700;
+    }
+
+/* تاج التكرار */
+.frequency-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 700;
+    margin-inline-start: 6px;
+}
+
+.tag-monthly {
+    background: var(--info-bg);
+    color: var(--primary);
+}
+
+.tag-once {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+/* هيدر القسم */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--border);
+}
+
+    .section-header i {
+        font-size: 18px;
+    }
+
+    .section-header h3 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0;
+        flex: 1;
+    }
+
+.section-total {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.details-section.additions .section-total {
+    color: var(--success);
+}
+
+.details-section.deductions .section-total {
+    color: var(--danger);
+}

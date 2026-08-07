@@ -9,6 +9,7 @@
 
 @inject LeaveBalanceService BalanceSvc
 @inject NotificationService Notify
+@inject LocalizationService Lang
 @inject ILogger<LeaveBalances> Logger
 
 @using Sho2on.Web.Models.Navigation
@@ -19,14 +20,14 @@
     <div class="page-toolbar">
         <div class="search-filter">
             <input class="search-input"
-                   placeholder="ابحث باسم الموظف أو الكود"
+                   placeholder="@Lang.T("ابحث باسم الموظف أو الكود")"
                    @bind="searchTerm"
                    @bind:event="oninput"
                    @onkeyup="HandleSearchKeyUp" />
 
             <button class="btn-secondary" @onclick="SearchEmployees">
                 <i class="bi bi-search"></i>
-                بحث
+                @Lang.T("بحث")
             </button>
         </div>
     </div>
@@ -34,7 +35,7 @@
     @if (employees.Count > 0)
     {
         <div class="employee-results">
-            <p>اختر الموظف:</p>
+            <p>@Lang.T("اختر الموظف")</p>
 
             @foreach (var employee in employees)
             {
@@ -59,7 +60,7 @@
             <div>
                 <h2>@selectedEmployee.FullName</h2>
                 <p>
-                    كود: @selectedEmployee.Code
+                    @Lang.T("كود"): @selectedEmployee.Code
                     @if (!string.IsNullOrWhiteSpace(selectedEmployee.DepartmentName))
                     {
                         <span> — @selectedEmployee.DepartmentName</span>
@@ -73,21 +74,21 @@
 
             <button class="btn-primary" @onclick="SaveBalances" disabled="@saving">
                 <i class="bi bi-floppy"></i>
-                @(saving ? "جاري الحفظ..." : "حفظ الأرصدة")
+                @(saving ? Lang.T("جاري الحفظ...") : Lang.T("حفظ الأرصدة"))
             </button>
         </div>
 
         @if (loadingBalances)
         {
             <div class="empty-state">
-                <p>جاري تحميل الأرصدة...</p>
+                <p>@Lang.T("جاري تحميل الأرصدة...")</p>
             </div>
         }
         else if (balances.Count == 0)
         {
             <div class="empty-state">
                 <i class="bi bi-calendar-x"></i>
-                <p>لا توجد أنواع إجازات نشطة.</p>
+                <p>@Lang.T("لا توجد أنواع إجازات نشطة")</p>
             </div>
         }
         else
@@ -96,11 +97,11 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>نوع الإجازة</th>
-                            <th>الكود</th>
-                            <th>الإجمالي</th>
-                            <th>المستخدم</th>
-                            <th>المتبقي</th>
+                            <th>@Lang.T("نوع الإجازة")</th>
+                            <th>@Lang.T("الكود")</th>
+                            <th>@Lang.T("الإجمالي")</th>
+                            <th>@Lang.T("المستخدم")</th>
+                            <th>@Lang.T("المتبقي")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,10 +115,10 @@
                                            min="0"
                                            @bind="balance.TotalBalance" />
                                 </td>
-                                <td>@balance.UsedBalance يوم</td>
+                                <td>@balance.UsedBalance @Lang.T("يوم")</td>
                                 <td>
                                     <span class="remaining @(GetBalanceClass(balance))">
-                                        @balance.RemainingBalance يوم
+                                        @balance.RemainingBalance @Lang.T("يوم")
                                     </span>
                                 </td>
                             </tr>
@@ -127,7 +128,7 @@
             </div>
 
             <p class="balance-note">
-                الرصيد المستخدم محسوب تلقائيًا من طلبات الإجازة المعتمدة، ولا يمكن تعديله من هذه الشاشة.
+                @Lang.T("الرصيد المستخدم محسوب تلقائيًا من طلبات الإجازة المعتمدة، ولا يمكن تعديله من هذه الشاشة")
             </p>
         }
     }
@@ -135,7 +136,7 @@
     {
         <div class="empty-state">
             <i class="bi bi-person-search"></i>
-            <p>ابحث واختر موظفًا لعرض أرصدة إجازاته.</p>
+            <p>@Lang.T("ابحث واختر موظفًا لعرض أرصدة إجازاته")</p>
         </div>
     }
 </div>
