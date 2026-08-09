@@ -9,11 +9,13 @@ namespace Sho2on.Web.Services
     {
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
         private readonly ILogger<LoanService> _logger;
+        private readonly NotificationCenterService _notify;
 
-        public LoanService(IDbContextFactory<AppDbContext> dbFactory, ILogger<LoanService> logger)
+        public LoanService(IDbContextFactory<AppDbContext> dbFactory, ILogger<LoanService> logger, NotificationCenterService notify)
         {
             _dbFactory = dbFactory;
             _logger = logger;
+            _notify = notify;
         }
 
         /// <summary>
@@ -185,6 +187,16 @@ namespace Sho2on.Web.Services
                 };
 
                 _db.Loans.Add(loan);
+                var employee = await _db.Users.FindAsync(request.UserId);
+                var managers = await _db.Users.Where(u => u.Id == employee!.ManagerId).Select(u => u.Id).ToListAsync();
+                if (managers.Count > 0)
+                {
+                    await _notify.CreateForApproversAsync(managers,
+                        "طلب سلفة جديد",
+                        $"{employee!.FullName} طلب سلفة بقيمة {request.LoanAmount:N0} ج.م",
+                        "bi-cash-stack",
+                        "/loans");
+                }
                 await _db.SaveChangesAsync();
 
                 return (true, "تم تقديم طلب السلفة بنجاح", loan.Id);

@@ -14,6 +14,7 @@
 
         public void ShowError(string message) => Show(message, "error");
         public void ShowSuccess(string message) => Show(message, "success");
+        public void ShowInfo(string message) => Show(message, "info");
         public void ShowWarning(string message) => Show(message, "warning");
 
         void Show(string message, string type)

@@ -11,7 +11,8 @@ typeof(AppDbContext)
     ?.SetValue(null, connStr);
 
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
-    options.UseSqlServer(connStr));
+    options.UseSqlServer(connStr,
+        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -61,6 +62,8 @@ builder.Services.AddScoped<LateOvertimeService>();
 builder.Services.AddScoped<SettingService>();
 builder.Services.AddScoped<BreakService>();
 builder.Services.AddScoped<BenefitTypeService>();
+builder.Services.AddScoped<NotificationCenterService>();
+builder.Services.AddHttpClient<InternalNotifyClient>();
 
 builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
 builder.Logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);

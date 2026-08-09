@@ -15,6 +15,7 @@ namespace Sho2on.Web.Services
         public event Action<int, int, string, DateTime, int>? OnMessageReceived;
         public event Action<int, string, DateTime, int>? OnMessageSent;
         public event Action<int, int, string, DateTime, int>? OnGroupMessageReceived;
+        public event Action<string, string, string, string?>? OnNotificationReceived;
 
         public ChatConnectionService(ChatTokenService tokenService, IConfiguration config, ILogger<ChatConnectionService> logger)
         {
@@ -64,6 +65,21 @@ namespace Sho2on.Web.Services
 
                 _connection.On<int, int, string, DateTime, int>("ReceiveGroupMessage", (groupId, from, msg, sentAt, id) =>
                     OnGroupMessageReceived?.Invoke(groupId, from, msg, sentAt, id));
+
+                // في ChatConnectionService.cs
+                _connection.On<string, string, string, string?>("ReceiveNotification", (title, message, icon, url) =>
+                {
+                    // استخدم SynchronizationContext لو موجود
+                    var context = SynchronizationContext.Current;
+                    if (context != null)
+                    {
+                        context.Post(_ => OnNotificationReceived?.Invoke(title, message, icon, url), null);
+                    }
+                    else
+                    {
+                        OnNotificationReceived?.Invoke(title, message, icon, url);
+                    }
+                });
 
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
                 await _connection.StartAsync(cts.Token);

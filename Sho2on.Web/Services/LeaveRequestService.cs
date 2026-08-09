@@ -8,10 +8,12 @@ namespace Sho2on.Web.Services;
 public class LeaveRequestService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly NotificationCenterService _notify;
 
-    public LeaveRequestService(IDbContextFactory<AppDbContext> dbFactory)
+    public LeaveRequestService(IDbContextFactory<AppDbContext> dbFactory, NotificationCenterService notify)
     {
         _dbFactory = dbFactory;
+        _notify = notify;
     }
 
     public async Task<List<EmployeeLookup>> SearchEmployeesAsync(string? search)
@@ -204,6 +206,21 @@ public class LeaveRequestService
                 balance.UsedBalance += duration;
                 balance.UpdatedAt = DateTime.Now;
             }
+        }
+
+        var employee = await _db.Users.FindAsync(model.UserId);
+        var managers = await _db.Users
+            .Where(u => u.Id == employee!.ManagerId)
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        if (managers.Count > 0)
+        {
+            await _notify.CreateForApproversAsync(managers,
+                "طلب إجازة جديد",
+                $"{employee!.FullName} قدّم طلب إجازة يحتاج موافقتك",
+                "bi-calendar-check",
+                "/leaves");
         }
 
         await _db.SaveChangesAsync();

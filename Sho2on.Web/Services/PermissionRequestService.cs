@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using Sho2on.Web.Models;
@@ -8,10 +9,12 @@ namespace Sho2on.Web.Services;
 public class PermissionRequestService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly NotificationCenterService _notify;
 
-    public PermissionRequestService(IDbContextFactory<AppDbContext> dbFactory)
+    public PermissionRequestService(IDbContextFactory<AppDbContext> dbFactory, NotificationCenterService notify)
     {
         _dbFactory = dbFactory;
+        _notify = notify;
     }
 
     public async Task<List<EmployeeItem>> SearchEmployeesAsync(string? search)
@@ -104,6 +107,16 @@ public class PermissionRequestService
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now
         });
+
+        var managers = await _db.Users.Where(u => u.Id == employee!.ManagerId).Select(u => u.Id).ToListAsync();
+        if (managers.Count > 0)
+        {
+            await _notify.CreateForApproversAsync(managers,
+                "طلب إذن جديد",
+                $"{employee!.FullName} قدّم طلب إذن يحتاج موافقتك",
+                "bi-cash-stack",
+                "/leaves/permissions");
+        }
 
         await _db.SaveChangesAsync();
     }

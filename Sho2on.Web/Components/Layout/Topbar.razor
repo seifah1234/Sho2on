@@ -4,6 +4,7 @@
 @inject UiStateService UiState
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Nav
+@inject ChatConnectionService ChatConn
 
 <header class="topbar">
     <div class="topbar-left">
@@ -23,10 +24,52 @@
         <button class="icon-btn theme-toggle" title="@Lang.T("الوضع الليلي")">
             <i class="bi bi-moon-stars"></i>
         </button>
-        <button class="icon-btn notification" title="@Lang.T("الإشعارات")">
-            <i class="bi bi-bell"></i>
-            <span class="badge">5</span>
-        </button>
+        @inject NotificationCenterService NotifyCenter
+        @inject NavigationManager Nav
+        @implements IAsyncDisposable
+
+        <div class="notification-wrapper">
+            <button class="icon-btn notification" @onclick="ToggleDropdown">
+                <i class="bi bi-bell"></i>
+                @if (unreadCount > 0)
+                {
+                    <span class="badge">@(unreadCount > 9 ? "9+" : unreadCount.ToString())</span>
+                }
+            </button>
+
+            @if (dropdownOpen)
+            {
+                <div class="notification-dropdown">
+                    <div class="dropdown-header">
+                        <strong>@Lang.T("الإشعارات")</strong>
+                        @if (unreadCount > 0)
+                        {
+                            <button class="mark-all-btn" @onclick="MarkAllRead">@Lang.T("تعليم الكل كمقروء")</button>
+                        }
+                    </div>
+
+                    @if (notifications.Count == 0)
+                    {
+                        <p class="empty-notifications">@Lang.T("لا توجد إشعارات")</p>
+                    }
+                    else
+                    {
+                        @foreach (var n in notifications)
+                        {
+                            <button class="notification-item @(n.IsRead ? "" : "unread")" @onclick="() => OpenNotification(n)">
+                                <i class="bi @n.Icon"></i>
+                                <div class="notif-info">
+                                    <strong>@n.Title</strong>
+                                    <small>@n.Message</small>
+                                    <span class="notif-time">@TimeAgo(n.CreatedAt)</span>
+                                </div>
+                            </button>
+                        }
+                    }
+                </div>
+            }
+        </div>
+
         
         <!-- قائمة المستخدم مع Logout -->
         <div class="user-menu" @onclick="ToggleUserMenu">
@@ -71,6 +114,11 @@
     string userRole = "";
     string initials = "?";
     bool showUserMenu = false;
+    int unreadCount = 0;
+    bool dropdownOpen = false;
+    List<Sho2on.Database.Models.Notification> notifications = new();
+    System.Threading.Timer? pollTimer;
+    int currentUserId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,6 +127,51 @@
         userName = user.FindFirst("FullName")?.Value ?? user.Identity?.Name ?? "";
         userRole = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
         if (!string.IsNullOrEmpty(userName)) initials = userName.Trim()[0].ToString().ToUpper();
+        currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+
+        await RefreshCount();
+
+        // تحديث العدد كل 30 ثانية تلقائيًا من غير ما المستخدم يعمل Refresh
+        pollTimer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(async () => { await RefreshCount(); StateHasChanged(); });
+        }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+        ChatConn.OnNotificationReceived += async (t, m, i, u) => await InvokeAsync(async () => { await RefreshCount(); StateHasChanged(); });
+    }
+
+    async Task RefreshCount() => unreadCount = await NotifyCenter.GetUnreadCountAsync(currentUserId);
+
+    async Task ToggleDropdown()
+    {
+        dropdownOpen = !dropdownOpen;
+        if (dropdownOpen) notifications = await NotifyCenter.GetRecentAsync(currentUserId);
+    }
+
+    async Task OpenNotification(Sho2on.Database.Models.Notification n)
+    {
+        if (!n.IsRead)
+        {
+            await NotifyCenter.MarkAsReadAsync(n.Id);
+            await RefreshCount();
+        }
+        dropdownOpen = false;
+        if (!string.IsNullOrEmpty(n.Url)) Nav.NavigateTo(n.Url);
+    }
+
+    async Task MarkAllRead()
+    {
+        await NotifyCenter.MarkAllAsReadAsync(currentUserId);
+        notifications = await NotifyCenter.GetRecentAsync(currentUserId);
+        await RefreshCount();
+    }
+
+    string TimeAgo(DateTime dt)
+    {
+        var diff = DateTime.Now - dt;
+        if (diff.TotalMinutes < 1) return "الآن";
+        if (diff.TotalMinutes < 60) return $"منذ {(int)diff.TotalMinutes} دقيقة";
+        if (diff.TotalHours < 24) return $"منذ {(int)diff.TotalHours} ساعة";
+        return $"منذ {(int)diff.TotalDays} يوم";
     }
 
     void ToggleUserMenu()
@@ -99,5 +192,10 @@
             "/salaries" => Lang.T("الرواتب"),
             _ => Lang.T("لوحة التحكم")
         };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (pollTimer != null) await pollTimer.DisposeAsync();
     }
 }

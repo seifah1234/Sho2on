@@ -9,18 +9,21 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ?? ≈⁄œ«œ«  «·”Ì—›— ??
+var connStr = builder.Configuration.GetConnectionString("Sho2onDB");
+typeof(AppDbContext)
+    .GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+    ?.SetValue(null, connStr);
+
+// ?? ??????? ??????? ??
 var useAllInterfaces = builder.Configuration.GetValue<bool>("ServerSettings:UseAllInterfaces", true);
 var apiPort = builder.Configuration.GetValue<int>("ServerSettings:ApiPort", 7001);
 
-// «” Œœ«„ ﬂ· «·‹ Interfaces
 var urls = new List<string>
 {
     $"http://0.0.0.0:{apiPort}",
     $"http://localhost:{apiPort}"
 };
 
-// ≈÷«›… «·‹ IP «·„Õ·Ì
 var localIPs = GetLocalIPAddresses();
 foreach (var ip in localIPs.Where(ip => ip != "127.0.0.1" && ip != "0.0.0.0"))
 {
@@ -29,7 +32,7 @@ foreach (var ip in localIPs.Where(ip => ip != "127.0.0.1" && ip != "0.0.0.0"))
 
 builder.WebHost.UseUrls(urls.Distinct().ToArray());
 
-Console.WriteLine($"?? SignalR Hub starting on:");
+Console.WriteLine("SignalR Hub starting on:");
 foreach (var url in urls.Distinct())
 {
     Console.WriteLine($"   {url}/chatHub");
@@ -42,7 +45,7 @@ builder.Services.AddSignalR(options =>
     options.MaximumReceiveMessageSize = 512 * 1024; // 512 KB
 });
 
-// ?? CORS - «·”„«Õ ··ﬂ· ??
+// ?? CORS ??
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -55,13 +58,13 @@ builder.Services.AddCors(options =>
 });
 
 // ?? Database ??
-var connStr = builder.Configuration.GetConnectionString("Sho2onDB");
-typeof(AppDbContext)
-    .GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-    ?.SetValue(null, connStr);
 
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseSqlServer(connStr));
+
+// ?? ????? ???? ??? ???? ó ???? AppDbContext ??????? ???? Factory ??
+builder.Services.AddScoped<AppDbContext>(sp =>
+    sp.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
 
 // ?? JWT Authentication ??
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -78,7 +81,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true
         };
 
-        // SignalR »Ì»⁄  «· Êﬂ‰ ⁄»— query string
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -101,15 +103,25 @@ builder.Services.AddSingleton<IUserIdProvider, NameIdentifierUserIdProvider>();
 
 var app = builder.Build();
 
-// ?? Middleware ??
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ?? Map Hub ??
 app.MapHub<ChatHubAPI.ChatHub>("/chatHub").RequireAuthorization();
 
-// ?? Health Check ??
+// ?? Endpoint ????????? ??????? ó ???????? ???? ??????? ??
+app.MapPost("/api/notify", async (NotifyRequest req, IHubContext<ChatHubAPI.ChatHub> hubContext, HttpContext http, IConfiguration config) =>
+{
+    var apiKey = http.Request.Headers["X-Internal-Key"].ToString();
+    if (apiKey != config["InternalApiKey"])
+        return Results.Unauthorized();
+
+    await hubContext.Clients.User(req.UserId.ToString())
+        .SendAsync("ReceiveNotification", req.Title, req.Message, req.Icon, req.Url);
+
+    return Results.Ok();
+});
+
 app.MapGet("/", () => Results.Ok(new
 {
     Status = "Running",
@@ -120,7 +132,6 @@ app.MapGet("/", () => Results.Ok(new
 
 app.Run();
 
-// ?? Helper: «·Õ’Ê· ⁄·Ï ﬂ· «·‹ IPs «·„Õ·Ì… ??
 static List<string> GetLocalIPAddresses()
 {
     var ips = new List<string>();
@@ -141,7 +152,8 @@ static List<string> GetLocalIPAddresses()
     return ips;
 }
 
-// ?? UserId Provider ??
+record NotifyRequest(int UserId, string Title, string Message, string Icon, string? Url);
+
 public class NameIdentifierUserIdProvider : IUserIdProvider
 {
     public string GetUserId(HubConnectionContext connection)
@@ -149,3 +161,6 @@ public class NameIdentifierUserIdProvider : IUserIdProvider
         return connection.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
     }
 }
+
+
+

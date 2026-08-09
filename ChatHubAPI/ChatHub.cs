@@ -93,7 +93,15 @@ namespace ChatHubAPI
             foreach (var groupId in myGroups)
                 await Groups.AddToGroupAsync(Context.ConnectionId, $"group-{groupId}");
 
+            var userId = Context.UserIdentifier;
+            Console.WriteLine($"User connected: {userId}");
             await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            Console.WriteLine($"User disconnected: {Context.UserIdentifier}");
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

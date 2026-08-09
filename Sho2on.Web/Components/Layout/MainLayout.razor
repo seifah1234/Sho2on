@@ -2,12 +2,31 @@
 @inject UiStateService UiState
 @inject LocalizationService Lang
 @inject NavigationManager Nav
-@implements IDisposable
+@inject ChatConnectionService ChatConn
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@implements IAsyncDisposable
+@inject IJSRuntime JS
 
 <div class="layout @(UiState.SidebarCollapsed ? "sidebar-collapsed" : "")" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
     <Sidebar />
     <div class="layout-body">
         <Topbar />
+        @if (_showPermissionBanner)
+        {
+            <div class="notification-permission-banner">
+                <div class="banner-content">
+                    <i class="bi bi-bell-fill"></i>
+                    <span>فعل الإشعارات والصوت لتلقي التنبيهات فوراً</span>
+                    <button @onclick="ActivateNotifications" class="btn btn-primary btn-sm">
+                        تفعيل
+                    </button>
+                    <button @onclick="() => _showPermissionBanner = false" class="btn btn-secondary btn-sm">
+                        لاحقاً
+                    </button>
+                </div>
+            </div>
+        }
         <main class="page-content">
             <ErrorBoundary>
                 <ChildContent>
@@ -28,17 +47,104 @@
 <ToastContainer />
 
 @code {
+    private bool _showPermissionBanner = true;
+    private bool _audioInitialized = false;
+
     protected override void OnInitialized()
     {
         UiState.OnChange += StateHasChanged;
         Lang.OnChange += StateHasChanged;
+        ChatConn.OnNotificationReceived += HandleNotification;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var userId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+        if (userId > 0)
+        {
+            try
+            {
+                await ChatConn.ConnectAsync(userId);
+            }
+            catch { }
+        }
+        await PreloadSounds();
+    }
+
+    private async Task PreloadSounds()
+    {
+        try
+        {
+            // تحميل الأصوات في الخلفية
+            await JS.InvokeVoidAsync("eval", @"
+                if (window.notificationService) {
+                    window.notificationService.initAudio();
+                    window.notificationService.preloadSound('default', '/sounds/notification.wav');
+                    window.notificationService.preloadSound('urgent', '/sounds/urgent.mp3');
+                    window.notificationService.preloadSound('message', '/sounds/message.mp3');
+                }
+            ");
+        }
+        catch { }
+    }
+
+    private async Task ActivateNotifications()
+    {
+        try
+        {
+            // تفعيل AudioContext (ده ضروري عشان الصوت يشتغل)
+            await JS.InvokeVoidAsync("notificationService.initAudio");
+
+            // طلب إذن الإشعارات
+            var granted = await JS.InvokeAsync<bool>("notificationService.requestPermission");
+
+            if (granted)
+            {
+                _audioInitialized = true;
+                _showPermissionBanner = false;
+                Console.WriteLine("Notifications and audio activated");
+            }
+            else
+            {
+                Console.WriteLine("Notifications denied");
+                _showPermissionBanner = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error activating notifications: {ex.Message}");
+        }
+    }
+
+
+    async void HandleNotification(string title, string message, string icon, string? url)
+    {
+        // تحديث UI (الـ Toast مش هيظهر لو minimized، لكن الصوت والإشعار هيشتغلوا)
+        await InvokeAsync(() =>
+        {
+            Notify.ShowInfo($"{title}: {message}");
+            StateHasChanged();
+        });
+
+        // تشغيل الصوت وإظهار System Notification (هيشتغل حتى لو minimized)
+        try
+        {
+            await JS.InvokeVoidAsync("notificationService.showNotification",
+                title, message, icon, url, "urgent");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error showing notification: {ex.Message}");
+        }
     }
 
     void Reload() => Nav.NavigateTo(Nav.Uri, forceLoad: true);
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         UiState.OnChange -= StateHasChanged;
         Lang.OnChange -= StateHasChanged;
+        ChatConn.OnNotificationReceived -= HandleNotification;
     }
 }

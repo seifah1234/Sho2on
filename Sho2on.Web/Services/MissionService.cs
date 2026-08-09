@@ -10,11 +10,13 @@ public class MissionService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
     private readonly CurrentUserService _currentUserService;
+    private readonly NotificationCenterService _notify;
 
-    public MissionService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUserService)
+    public MissionService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUserService, NotificationCenterService notify)
     {
         _dbFactory = dbFactory;
         _currentUserService = currentUserService;
+        _notify = notify;
     }
 
     public async Task<List<MissionListItem>> GetRequestsAsync(
@@ -192,6 +194,22 @@ public class MissionService
         };
 
         _context.Procedures.Add(procedure);
+
+        var employee = await _context.Users.FindAsync(model.UserId);
+        var managers = await _context.Users
+            .Where(u => u.Id == employee!.ManagerId)
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        if (managers.Count > 0)
+        {
+            await _notify.CreateForApproversAsync(managers,
+                "طلب مأمورية جديد",
+                $"{employee!.FullName} قدّم طلب مأمورية يحتاج موافقتك",
+                "bi-calendar-check",
+                "/leaves/missions");
+        }
+
         await _context.SaveChangesAsync();
 
         return true;

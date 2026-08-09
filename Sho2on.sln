@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sho2on.Database", "Sho2on.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sho2on.Web", "Sho2on.Web\Sho2on.Web.csproj", "{8A25C05E-9F7E-4EB2-AA24-F107B9AEF133}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatHubAPI", "ChatHubAPI\ChatHubAPI.csproj", "{2202271D-B13D-0EF1-A6DF-E612449ED754}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8A25C05E-9F7E-4EB2-AA24-F107B9AEF133}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A25C05E-9F7E-4EB2-AA24-F107B9AEF133}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A25C05E-9F7E-4EB2-AA24-F107B9AEF133}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2202271D-B13D-0EF1-A6DF-E612449ED754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2202271D-B13D-0EF1-A6DF-E612449ED754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2202271D-B13D-0EF1-A6DF-E612449ED754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2202271D-B13D-0EF1-A6DF-E612449ED754}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

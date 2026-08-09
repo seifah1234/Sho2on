@@ -14,12 +14,15 @@
     <link rel="stylesheet" href="css/tables.css" />
     <link rel="stylesheet" href="Sho2on.Web.styles.css" />
     <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/notifications.css" />
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
     <Routes @rendermode="InteractiveServer" />
+    <ToastContainer /> <!-- هنا مش في MainLayout -->
     <script src="_framework/blazor.web.js"></script>
+    <script src="js/notifications.js"></script>
 </body>
 
 </html>
