@@ -422,7 +422,7 @@ namespace Sho2on.Web.Services
             var settings = await GetMonthSettingsAsync();
             var (startDate, endDate) = GetCustomMonthDates(month, year, settings);
 
-            var user = await db.Users.Include(u => u.Branch).FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await db.Users.Include(u => u.JobTitle).Include(u => u.Branch).FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return null;
 
             var attendanceSummary = await _attendanceCalcSvc.CalculateAsync(userId, month, year);
@@ -466,8 +466,9 @@ namespace Sho2on.Web.Services
                 Id = existingPayment?.Id ?? 0,
                 UserId = user.Id,
                 EmployeeName = user.FullName,
-                EmployeeCode = user.Code ?? "",
-                BranchName = user.Branch?.Name ?? "",
+                EmployeeJob = user?.JobTitle?.Name ?? "Unkown",
+                EmployeeCode = user?.Code ?? "",
+                BranchName = user?.Branch?.Name ?? "",
                 BasicSalary = basicSalary,
                 TotalAdditions = adds,
                 TotalDeductions = deds,

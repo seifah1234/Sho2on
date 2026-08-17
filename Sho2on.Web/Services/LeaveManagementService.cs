@@ -8,11 +8,13 @@ public class LeaveManagementService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
     private readonly CurrentUserService _currentUserService;
+    private readonly NotificationCenterService _notify;
 
-    public LeaveManagementService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUserService)
+    public LeaveManagementService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUserService, NotificationCenterService notify)
     {
         _dbFactory = dbFactory;
         _currentUserService = currentUserService;
+        _notify = notify;
     }
 
     public async Task<List<LeaveListItem>> GetRequestsByEmployeeAsync(int employeeId)
@@ -194,6 +196,18 @@ public class LeaveManagementService
 
         await ApplyLeaveToAttendanceAsync(leave);
 
+        var manager = await _db.Users.FindAsync(currentUserId);
+
+
+        if (manager != null)
+        {
+            await _notify.CreateAsync(leave.UserId,
+                "مراجعة طلب إجازة",
+                $"{manager.FullName} تم الموافقة على طلب الإجازة من",
+                "bi-calendar-check",
+                "/leaves");
+        }
+
         await _db.SaveChangesAsync();
     }
 
@@ -215,6 +229,17 @@ public class LeaveManagementService
         leave.Status = 3;
         leave.RejectionReason = reason.Trim();
         leave.ApprovalDate = DateTime.Now;
+
+        var manager = await _db.Users.FindAsync(currentUserId);
+
+        if (manager != null)
+        {
+            await _notify.CreateAsync(leave.UserId,
+                "مراجعة طلب إجازة",
+                $"{manager.FullName} تم رفض طلب الإجازة من",
+                "bi-calendar-check",
+                "/leaves");
+        }
 
         await _db.SaveChangesAsync();
     }

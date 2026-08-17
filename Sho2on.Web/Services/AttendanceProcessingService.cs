@@ -101,7 +101,7 @@ namespace Sho2on.Web.Services
                 .Include(u => u.Shift)
                 .Include(u => u.WeekHoliday)
                 .FirstOrDefaultAsync(u => u.Id == userId);
-
+            var officialHolidays = await GetOfficialHolidayDatesAsync(db, startDate, endDate); // ← جديد
             if (user == null || user.Shift == null)
                 return (false, "الموظف أو الوردية غير موجودة");
 
@@ -129,7 +129,7 @@ namespace Sho2on.Web.Services
             for (var day = startDate; day <= endDate; day = day.AddDays(1))
             {
                 var dayIndex = (int)day.ToDateTime(TimeOnly.MinValue).DayOfWeek;
-                bool isHoliday = weekHoliDays[dayIndex];
+                bool isHoliday = weekHoliDays[dayIndex] || officialHolidays.Contains(day);
                 scansByDay.TryGetValue(day, out var dayScans);
 
                 // حذف سجل الحضور القديم لنفس اليوم
@@ -204,6 +204,7 @@ namespace Sho2on.Web.Services
                 .Include(u => u.Shift)
                 .Include(u => u.WeekHoliday)
                 .Where(u => !u.IsArchived);
+            var officialHolidays = await GetOfficialHolidayDatesAsync(db, startDate, endDate);
 
             if (userId.HasValue)
                 usersQuery = usersQuery.Where(u => u.Id == userId.Value);
@@ -239,7 +240,7 @@ namespace Sho2on.Web.Services
                 for (var day = startDate; day <= endDate; day = day.AddDays(1))
                 {
                     var dayIndex = (int)day.ToDateTime(TimeOnly.MinValue).DayOfWeek;
-                    bool isHoliday = weekHoliDays[dayIndex];
+                    bool isHoliday = weekHoliDays[dayIndex] || officialHolidays.Contains(day);
                     scansByDay.TryGetValue(day, out var dayScans);
 
                     var attendance = new Attendance
@@ -408,6 +409,7 @@ namespace Sho2on.Web.Services
             else if (branchId.HasValue) usersQuery = usersQuery.Where(u => u.BranchId == branchId.Value);
 
             var users = await usersQuery.ToListAsync();
+            var officialHolidays = await GetOfficialHolidayDatesAsync(db, startDate, endDate);
 
             foreach (var user in users)
             {
@@ -442,7 +444,7 @@ namespace Sho2on.Web.Services
                 for (var day = startDate; day <= endDate; day = day.AddDays(1))
                 {
                     var dayIndex = (int)day.ToDateTime(TimeOnly.MinValue).DayOfWeek;
-                    bool isHoliday = weekHoliDays[dayIndex];
+                    bool isHoliday = weekHoliDays[dayIndex] || officialHolidays.Contains(day);
                     scansByDay.TryGetValue(day, out var dayScans);
 
                     DateTime? checkIn = dayScans?.FirstOrDefault(s => s.Status == 1)?.FingerPrintDate;
@@ -500,7 +502,7 @@ namespace Sho2on.Web.Services
                 var timeDiff = (scans[i].FingerPrintDate - scans[i - 1].FingerPrintDate).Duration();
 
                 // لو الفرق أقل من 30 ثانية، تجاهل البصمة
-                if (timeDiff.TotalHours < 1)
+                if (timeDiff.TotalMinutes < 15)
                 {
                     // نحتفظ بالبصمة الأحدث
                     result[result.Count - 1] = scans[i];
@@ -557,7 +559,7 @@ namespace Sho2on.Web.Services
                 .FirstOrDefaultAsync(a => a.UserId == userId && a.AttendanceDate == date.ToDateTime(TimeOnly.MinValue));
             if (existingAttendance != null)
                 db.Attendances.Remove(existingAttendance);
-
+            var officialHolidays = await GetOfficialHolidayDatesAsync(db, date, date);
             var attendance = new Attendance
             {
                 UserId = userId,
@@ -565,7 +567,7 @@ namespace Sho2on.Web.Services
                 ShiftId = shift.Id,
                 CheckInBranchId = user.BranchId,
                 CheckOutBranchId = user.BranchId,
-                IsHoliday = IsWeeklyRestDay(date.DayOfWeek, user.WeekHoliday)
+                IsHoliday = IsWeeklyRestDay(date.DayOfWeek, user.WeekHoliday) || officialHolidays.Contains(date)
             };
 
             if (deduplicatedScans.Count == 1)
@@ -787,6 +789,29 @@ namespace Sho2on.Web.Services
 
             // خارج نطاق الوردية تماماً (نادر) => سيبها على يومها التقويمي
             return DateOnly.FromDateTime(scanTime);
+        }
+
+        /// <summary>
+        /// يرجّع كل تواريخ العطلات الرسمية (موسّعة من Date لحد EndDate) في نطاق زمني معين، كـ HashSet للبحث السريع
+        /// </summary>
+        private async Task<HashSet<DateOnly>> GetOfficialHolidayDatesAsync(AppDbContext db, DateOnly startDate, DateOnly endDate)
+        {
+            var start = startDate.ToDateTime(TimeOnly.MinValue);
+            var end = endDate.ToDateTime(TimeOnly.MaxValue);
+
+            var holidays = await db.OfficialHolidays
+                .Where(h => h.Date <= end && (h.EndDate ?? h.Date) >= start)
+                .ToListAsync();
+
+            var dates = new HashSet<DateOnly>();
+            foreach (var h in holidays)
+            {
+                var from = DateOnly.FromDateTime(h.Date);
+                var to = DateOnly.FromDateTime(h.EndDate ?? h.Date);
+                for (var d = from; d <= to; d = d.AddDays(1))
+                    dates.Add(d);
+            }
+            return dates;
         }
 
         /// <summary>

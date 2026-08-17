@@ -1,0 +1,150 @@
+﻿@page "/settings/shifts"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject ShiftService ShiftSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<Shifts> Logger
+@implements IDisposable
+
+<div class="shifts-page">
+    <div class="page-header">
+        <h2><i class="bi bi-clock-history"></i> @Lang.T("الورديات")</h2>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة وردية")
+        </button>
+    </div>
+
+    @if (items == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-inbox"></i><p>@Lang.T("لا توجد بيانات")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>@Lang.T("الاسم")</th><th>@Lang.T("من")</th><th>@Lang.T("إلى")</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.StartTime.ToString(@"hh\:mm")</td>
+                            <td>@item.EndTime.ToString(@"hh\:mm")</td>
+                            <td class="row-actions">
+                                <button class="icon-action" @onclick="() => OpenEditModal(item)"><i class="bi bi-pencil"></i></button>
+                                <button class="icon-action danger" @onclick="() => RequestDelete(item)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل وردية") : Lang.T("وردية جديدة"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>@Lang.T("الاسم")</label><input class="search-input" @bind="formName" /></div>
+                <div class="field"><label>@Lang.T("وقت البداية")</label><input type="time" class="search-input" @bind="formStart" /></div>
+                <div class="field"><label>@Lang.T("وقت النهاية")</label><input type="time" class="search-input" @bind="formEnd" /></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (itemToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من الحذف؟ الموظفون المرتبطون بهذه الوردية سيحتاجون وردية جديدة.")</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<Shift>? items;
+    bool showModal = false;
+    bool isEdit = false;
+    int? editingId;
+    string formName = "";
+    TimeOnly formStart = new(9, 0);
+    TimeOnly formEnd = new(17, 0);
+    Shift? itemToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await Load();
+
+    async Task Load()
+    {
+        try { items = await ShiftSvc.GetAllAsync(); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء تحميل الورديات"); Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات")); }
+    }
+
+    void OpenAddModal() { isEdit = false; editingId = null; formName = ""; formStart = new(9, 0); formEnd = new(17, 0); showModal = true; }
+    void OpenEditModal(Shift s)
+    {
+        isEdit = true; editingId = s.Id; formName = s.Name;
+        formStart = TimeOnly.FromTimeSpan(s.StartTime); formEnd = TimeOnly.FromTimeSpan(s.EndTime);
+        showModal = true;
+    }
+    void CloseModal() => showModal = false;
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName)) { Notify.ShowError(Lang.T("أدخل الاسم")); return; }
+        try
+        {
+            await ShiftSvc.SaveAsync(editingId, formName, formStart.ToTimeSpan(), formEnd.ToTimeSpan());
+            Notify.ShowSuccess(Lang.T("تم الحفظ بنجاح"));
+            showModal = false;
+            await Load();
+        }
+
+        catch (Exception ex)
+        {
+            Notify.ShowError($"{Lang.T("حدث خطأ")}: {ex.Message}");
+        }
+    }
+
+    void RequestDelete(Shift s) => itemToDelete = s;
+    void CancelDelete() => itemToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (itemToDelete == null) return;
+        try
+        {
+            await ShiftSvc.DeleteAsync(itemToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم الحذف"));
+            itemToDelete = null;
+            await Load();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء حذف وردية"); Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى")); itemToDelete = null; }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

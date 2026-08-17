@@ -21,9 +21,6 @@
         <button class="icon-btn" @onclick="Lang.Toggle" title="@Lang.T("تغيير اللغة")">
             <i class="bi bi-translate"></i>
         </button>
-        <button class="icon-btn theme-toggle" title="@Lang.T("الوضع الليلي")">
-            <i class="bi bi-moon-stars"></i>
-        </button>
         @inject NotificationCenterService NotifyCenter
         @inject NavigationManager Nav
         @implements IAsyncDisposable

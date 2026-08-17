@@ -25,7 +25,7 @@ namespace HR_Application
 
         private async Task LoadData()
         {
-            list.ItemsSource = await _context.Officals.Include(o => o.User).OrderBy(d => d.Name).ToListAsync();
+            list.ItemsSource = await _context.Officials.Include(o => o.User).OrderBy(d => d.Name).ToListAsync();
             name_box.Clear();
             user_box.SelectedIndex = -1;
             code_box.Clear();
@@ -131,7 +131,7 @@ namespace HR_Application
 
                 };
 
-                await _context.Officals.AddAsync(offical);
+                await _context.Officials.AddAsync(offical);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم إضافة المسؤول", LocalizationManager.Translate("تم"), MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
@@ -154,7 +154,7 @@ namespace HR_Application
 
             try
             {
-                _context.Officals.Remove(_selectedOffical);
+                _context.Officials.Remove(_selectedOffical);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم حذف المسؤول", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
@@ -185,7 +185,7 @@ namespace HR_Application
                 _selectedOffical.Name = name_box.Text.Trim();
                 _selectedOffical.UserId = user.Id;
 
-                _context.Officals.Update(_selectedOffical);
+                _context.Officials.Update(_selectedOffical);
                 await _context.SaveChangesAsync();
                 LocalizationManager.ShowMessage("تم تعديل المسؤول", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();

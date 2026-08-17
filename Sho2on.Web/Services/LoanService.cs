@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using Sho2on.Web.Models;
@@ -228,6 +229,17 @@ namespace Sho2on.Web.Services
                 loan.ApprovedDate = DateTime.Now;
                 loan.UpdatedAt = DateTime.Now;
 
+                var manager = await _db.Users.FindAsync(approvedByUserId);
+
+                if (manager != null)
+                {
+                    await _notify.CreateAsync(loan.UserId,
+                        "مراجعة طلب سلفة",
+                        $"{manager.FullName} تم الموافقة على طلب السلفة من",
+                        "bi-cash-stack",
+                        "/loans");
+                }
+
                 await _db.SaveChangesAsync();
                 return (true, "تمت الموافقة على السلفة بنجاح");
             }
@@ -256,6 +268,17 @@ namespace Sho2on.Web.Services
                 loan.Status = "Rejected";
                 loan.Notes = rejectionReason ?? loan.Notes;
                 loan.UpdatedAt = DateTime.Now;
+
+                var manager = await _db.Users.FindAsync(loan.ApprovedByUserId);
+
+                if (manager != null)
+                {
+                    await _notify.CreateAsync(loan.UserId,
+                        "مراجعة طلب سلفة",
+                        $"{manager.FullName} تم رفض طلب السلفة من",
+                        "bi-cash-stack",
+                        "/loans");
+                }
 
                 await _db.SaveChangesAsync();
                 return (true, "تم رفض السلفة");

@@ -1,0 +1,146 @@
+﻿@page "/settings/official-holidays"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject OfficialHolidayService HolidaySvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<OfficialHolidays> Logger
+@implements IDisposable
+
+<div class="official-holidays-page">
+    <div class="page-header">
+        <h2><i class="bi bi-calendar-event"></i> @Lang.T("العطلات الرسمية")</h2>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة عطلة")
+        </button>
+    </div>
+
+    @if (items == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-inbox"></i><p>@Lang.T("لا توجد بيانات")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>@Lang.T("الاسم")</th><th>@Lang.T("التاريخ")</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                            <td class="row-actions">
+                                <button class="icon-action" @onclick="() => OpenEditModal(item)"><i class="bi bi-pencil"></i></button>
+                                <button class="icon-action danger" @onclick="() => RequestDelete(item)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل عطلة") : Lang.T("عطلة جديدة"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>@Lang.T("الاسم")</label><input class="search-input" @bind="formName" /></div>
+                <div class="field"><label>@Lang.T("التاريخ")</label><input type="date" class="search-input" @bind="formDate" /></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (itemToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من الحذف؟")</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<OfficialHoliday>? items;
+    bool showModal = false;
+    bool isEdit = false;
+    int? editingId;
+    string formName = "";
+    DateOnly formDate = DateOnly.FromDateTime(DateTime.Today);
+    OfficialHoliday? itemToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await Load();
+
+    async Task Load()
+    {
+        try { items = await HolidaySvc.GetAllAsync(); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء تحميل العطلات الرسمية"); Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات")); }
+    }
+
+    void OpenAddModal() { isEdit = false; editingId = null; formName = ""; formDate = DateOnly.FromDateTime(DateTime.Today); showModal = true; }
+    void OpenEditModal(OfficialHoliday h)
+    {
+        isEdit = true; editingId = h.Id; formName = h.Name;
+        formDate = DateOnly.FromDateTime(h.Date); showModal = true;
+    }
+    void CloseModal() => showModal = false;
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName)) { Notify.ShowError(Lang.T("أدخل الاسم")); return; }
+        try
+        {
+            await HolidaySvc.SaveAsync(editingId, formName, formDate);
+            Notify.ShowSuccess(Lang.T("تم الحفظ بنجاح"));
+            showModal = false;
+            await Load();
+        }
+
+        catch (Exception ex)
+        {
+            Notify.ShowError($"{Lang.T("حدث خطأ")}: {ex.Message}");
+        }
+    }
+
+    void RequestDelete(OfficialHoliday h) => itemToDelete = h;
+    void CancelDelete() => itemToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (itemToDelete == null) return;
+        try
+        {
+            await HolidaySvc.DeleteAsync(itemToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم الحذف"));
+            itemToDelete = null;
+            await Load();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء حذف عطلة رسمية"); Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى")); itemToDelete = null; }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

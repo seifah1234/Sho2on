@@ -688,7 +688,7 @@
                                 <Button Margin="3" FontSize="12" Click="AddLateOpen" IsEnabled="{Binding LateP}" Width="140" FlowDirection="RightToLeft" Content="{DynamicResource LateOvertime}"/>
                                 <Button Margin="3" Click="AddHoliOpen"    IsEnabled="{Binding WHP}"      Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource WeeklyHolidays}"/>
                                 <Button Margin="3" Click="AddHoliTypeOpen" IsEnabled="{Binding HTypeP}"  Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource LeaveTypes}"/>
-                                <Button Margin="3" Click="AddOfficalsOpen" IsEnabled="{Binding OfficalsP}"  Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Officials}"/>
+                                <Button Margin="3" Click="AddOfficialsOpen" IsEnabled="{Binding OfficialsP}"  Width="140" FontSize = "12" FlowDirection="RightToLeft" Content="{DynamicResource Officials}"/>
                             </StackPanel>
                         </Border>
                     </Grid>

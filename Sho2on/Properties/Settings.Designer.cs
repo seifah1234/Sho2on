@@ -90,15 +90,15 @@ namespace HR_Application.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool OfficalsForAll
+        public bool OfficialsForAll
         {
             get
             {
-                return ((bool)(this["OfficalsForAll"]));
+                return ((bool)(this["OfficialsForAll"]));
             }
             set
             {
-                this["OfficalsForAll"] = value;
+                this["OfficialsForAll"] = value;
             }
         }
 

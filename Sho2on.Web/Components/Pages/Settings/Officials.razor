@@ -1,0 +1,152 @@
+﻿@page "/settings/officials"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject OfficialService OfficialSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<Officials> Logger
+@implements IDisposable
+
+<div class="officials-page">
+    <div class="page-header">
+        <h2><i class="bi bi-person-badge"></i> @Lang.T("المسؤولون")</h2>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة مسؤول")
+        </button>
+    </div>
+
+    @if (items == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-inbox"></i><p>@Lang.T("لا توجد بيانات")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>@Lang.T("المسؤولية")</th><th>@Lang.T("المسؤول")</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.User?.FullName</td>
+                            <td class="row-actions">
+                                <button class="icon-action" @onclick="() => OpenEditModal(item)"><i class="bi bi-pencil"></i></button>
+                                <button class="icon-action danger" @onclick="() => RequestDelete(item)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل مسؤول") : Lang.T("مسؤول جديد"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("اسم المسؤولية")</label>
+                    <input class="search-input" placeholder="@Lang.T("مثال: مسؤول الطباعة")" @bind="formName" />
+                </div>
+                <div class="field">
+                    <label>@Lang.T("الموظف المسؤول")</label>
+                    <EmployeeSearchSelect SelectedUserId="formUserId" SelectedUserIdChanged="(id) => formUserId = id" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (itemToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من الحذف؟")</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<Offical>? items;
+    bool showModal = false;
+    bool isEdit = false;
+    int? editingId;
+    string formName = "";
+    int? formUserId;
+    Offical? itemToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await Load();
+
+    async Task Load()
+    {
+        try { items = await OfficialSvc.GetAllAsync(); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء تحميل المسؤولين"); Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات")); }
+    }
+
+    void OpenAddModal() { isEdit = false; editingId = null; formName = ""; formUserId = null; showModal = true; }
+    void OpenEditModal(Offical o) { isEdit = true; editingId = o.Id; formName = o.Name; formUserId = o.UserId; showModal = true; }
+    void CloseModal() => showModal = false;
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName) || formUserId == null)
+        {
+            Notify.ShowError(Lang.T("أدخل اسم المسؤولية واختر الموظف"));
+            return;
+        }
+        try
+        {
+            await OfficialSvc.SaveAsync(editingId, formName, formUserId.Value);
+            Notify.ShowSuccess(Lang.T("تم الحفظ بنجاح"));
+            showModal = false;
+            await Load();
+        }
+
+        catch (Exception ex)
+        {
+            Notify.ShowError($"{Lang.T("حدث خطأ")}: {ex.Message}");
+        }
+    }
+
+    void RequestDelete(Offical o) => itemToDelete = o;
+    void CancelDelete() => itemToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (itemToDelete == null) return;
+        try
+        {
+            await OfficialSvc.DeleteAsync(itemToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم الحذف"));
+            itemToDelete = null;
+            await Load();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء حذف مسؤول"); Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى")); itemToDelete = null; }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

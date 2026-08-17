@@ -259,8 +259,10 @@
 
         try
         {
-            if (selectedConversation.IsGroup)
+            if (selectedConversation.IsGroup){
                 await ChatConn.SendGroupMessageAsync(selectedConversation.Id, text);
+
+            }
             else
                 await ChatConn.SendMessageAsync(selectedConversation.OtherUserId!.Value, text);
         }

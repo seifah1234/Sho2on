@@ -10,6 +10,11 @@
 @inject LocalizationService Lang
 @inject NotificationService Notify
 @inject NavigationManager Nav
+@using ClosedXML.Excel
+@using System.IO
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JS
 @implements IDisposable
 
 <div class="salary-details-page">
@@ -20,6 +25,10 @@
         </div>
         <button class="btn-secondary" @onclick='() => Nav.NavigateTo("/salaries")'>
             <i class="bi bi-arrow-right"></i> @Lang.T("العودة للرواتب")
+        </button>
+        <button class="btn-primary" @onclick="ExportSalaryExcel">
+            <i class="bi bi-file-earmark-excel"></i>
+            @Lang.T("تصدير Excel")
         </button>
     </div>
 
@@ -207,6 +216,9 @@
     private List<BenefitDto> filteredBenefits = new();
     private List<BenefitDto> allDeductions = new();
     private List<BenefitDto> filteredDeductions = new();
+    private readonly SemaphoreSlim _exportSemaphore = new(1, 1);
+    private readonly CancellationTokenSource _cts = new();
+    private bool _disposed;
 
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
@@ -214,7 +226,30 @@
 
     void SetTab(string tab) { activeTab = tab; }
 
-	private void FilterBenefits(string filter) { 
+    private void ExportSalaryExcel()
+    {
+        if (details == null)
+        {
+            Notify.ShowError(Lang.T("لا توجد بيانات للتصدير"));
+            return;
+        }
+        Nav.NavigateTo($"/api/salary/export/{UserId}?month={details.Month}&year={details.Year}", forceLoad: true);
+    }
+
+    [JSInvokable]
+    public async Task OnDownloadComplete()
+    {
+        try
+        {
+            Console.WriteLine("Download completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnDownloadComplete: {ex.Message}");
+        }
+    }
+
+    private void FilterBenefits(string filter) { 
         benefitFilter = filter; 
         
         filteredBenefits = benefitFilter switch
@@ -261,5 +296,12 @@
         finally { loading = false; StateHasChanged(); }
     }
 
-    public void Dispose() => Lang.OnChange -= StateHasChanged;
+    public void Dispose()
+    {
+        _disposed = true;
+        _cts.Cancel();
+        _cts.Dispose();
+        Lang.OnChange -= StateHasChanged;
+        _exportSemaphore.Dispose();
+    }
 }

@@ -238,7 +238,7 @@
                             <ComboBoxItem Content="{DynamicResource ATask}"/>
                             <ComboBoxItem Content="{DynamicResource ToRequest}"/>
                         </ComboBox>
-                        <StackPanel Orientation="Horizontal" Margin="10,0" Name="officalsPanel" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" Margin="10,0" Name="OfficialsPanel" Visibility="Collapsed">
                             <Label Content="{DynamicResource Officials}" Margin="0,0,5,0" Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
                             <ComboBox Name="officialsBox" SelectedValuePath="Id" DisplayMemberPath="User.FullName" SelectionChanged="officialsBox_SelectionChanged"/>
                         </StackPanel>

@@ -8,12 +8,14 @@ public class PermissionManagementService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
     private readonly CurrentUserService _currentUserService;
+    private readonly NotificationCenterService _notify;
 
 
-    public PermissionManagementService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUserService)
+    public PermissionManagementService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUserService, NotificationCenterService notify)
     {
         _dbFactory = dbFactory;
         _currentUserService = currentUserService;
+        _notify = notify;
     }
     public async Task<List<PermissionListItem>> GetRequestsByEmployeeAsync(int employeeId)
     {
@@ -110,6 +112,17 @@ public class PermissionManagementService
         permission.UpdatedAt = DateTime.Now;
 
         await ApplyToAttendanceAsync(permission);
+
+
+        var manager = await _db.Users.FirstOrDefaultAsync(u => u.Id == currentUserId);
+        if (manager != null)
+        {
+            await _notify.CreateAsync(permission.UserId,
+                "مراجعة طلب إذن",
+                $"{manager!.FullName} تم الموافقة على طلب الإذن من",
+                "bi-cash-stack",
+                "/leaves/permissions");
+        }
 
         await _db.SaveChangesAsync();
     }

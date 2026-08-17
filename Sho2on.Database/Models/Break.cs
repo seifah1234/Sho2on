@@ -22,11 +22,9 @@ namespace Sho2on.Database.Models
         public BreakType Type { get; set; } = BreakType.Fixed;
 
         // Start time of break
-        [Required]
         public TimeSpan? StartTime { get; set; }
 
         // End time of break
-        [Required]
         public TimeSpan? EndTime { get; set; }
 
 

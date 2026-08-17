@@ -64,6 +64,17 @@ builder.Services.AddScoped<BreakService>();
 builder.Services.AddScoped<BenefitTypeService>();
 builder.Services.AddScoped<NotificationCenterService>();
 builder.Services.AddHttpClient<InternalNotifyClient>();
+builder.Services.AddScoped<BranchService>();
+builder.Services.AddScoped<DepartmentService>();
+builder.Services.AddScoped<AreaService>();
+builder.Services.AddScoped<JobTitleService>();
+
+builder.Services.AddScoped<QualificationService>();
+builder.Services.AddScoped<ShiftService>();
+builder.Services.AddScoped<OfficialHolidayService>();
+builder.Services.AddScoped<WeekHolidayService>();
+builder.Services.AddScoped<OfficialService>();
+builder.Services.AddScoped<DepartmentTransferService>();
 
 builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
 builder.Logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);

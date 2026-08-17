@@ -279,7 +279,7 @@ namespace HR_Application
         public bool DownloadDataP => UserPerm.Contains("ÊäÒíá ÇáÏÇÊÇ");
         public bool ManualP => UserPerm.Contains("Manual");
         public bool ErrandP => UserPerm.Contains("ÅÌÑÇÁÇÊ");
-        public bool OfficalsP => UserPerm.Contains("ÇáãÓÄæáæä");
+        public bool OfficialsP => UserPerm.Contains("ÇáãÓÄæáæä");
         public bool MonthlyP => UserPerm.Contains("ÇáÍÑßÇÊ ÇáÔåÑíÉ");
         public bool AddMachineP => UserPerm.Contains("ÅÖÇÝÉ");
         public bool GetDataP => UserPerm.Contains("ÊÍãíá ÇáÈíÇäÇÊ");
@@ -491,7 +491,7 @@ namespace HR_Application
         private void StorageOpen(object sender, RoutedEventArgs e) => OpenWindow<NetworkSettingsWindow>();
 
         private void AddLateOpen(object sender, RoutedEventArgs e) => OpenWindow<AddLate>();
-        private void AddOfficalsOpen(object sender, RoutedEventArgs e) => OpenWindow<AddOffical>();
+        private void AddOfficialsOpen(object sender, RoutedEventArgs e) => OpenWindow<AddOffical>();
 
         private void AddJobDegreeOpen(object sender, RoutedEventArgs e) => OpenWindow<AddSection>();
 

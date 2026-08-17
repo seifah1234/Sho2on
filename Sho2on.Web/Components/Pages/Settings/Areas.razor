@@ -1,0 +1,103 @@
+﻿@page "/settings/areas"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject AreaService AreaSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@implements IDisposable
+
+<div class="settings-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-geo-alt"></i> @Lang.T("المناطق")</h2>
+            <p class="page-subtitle">@Lang.T("إدارة المناطق الجغرافية")</p>
+        </div>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة منطقة")
+        </button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state"><div class="spinner"></div><p>@Lang.T("جاري التحميل...")</p></div>
+    }
+    else if (items == null || items.Count == 0)
+    {
+
+        <div class="empty-state"><i class="bi bi-geo-alt"></i><p>@Lang.T("لا توجد مناطق")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead><tr><th>#</th><th>@Lang.T("الاسم")</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Name</td>
+                            <td class="row-actions">
+                                <button class="icon-action" @onclick="() => OpenEditModal(item)"><i class="bi bi-pencil"></i></button>
+                                <button class="icon-action danger" @onclick="() => RequestDelete(item)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@(isEdit ? Lang.T("تعديل منطقة") : Lang.T("منطقة جديدة"))</h3><button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button></div>
+            <div class="modal-body"><div class="field"><label>@Lang.T("الاسم")</label><input class="search-input" @bind="formName" /></div></div>
+            <div class="modal-footer"><button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button><button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button></div>
+        </div>
+    </div>
+}
+
+@if (itemToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من حذف") <strong>@itemToDelete.Name</strong>؟</p></div>
+            <div class="modal-footer"><button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button><button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button></div>
+        </div>
+    </div>
+}
+
+@code {
+    List<AreaDto>? items; bool loading = true; bool showModal = false; bool isEdit = false; int? editingId; string formName = ""; AreaDto? itemToDelete;
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await LoadData();
+    async Task LoadData() { loading = true; StateHasChanged(); try { items = await AreaSvc.GetAllAsync(); } catch { } finally { loading = false; StateHasChanged(); } }
+    void OpenAddModal() { isEdit = false; editingId = null; formName = ""; showModal = true; }
+    void OpenEditModal(AreaDto item) { isEdit = true; editingId = item.Id; formName = item.Name; showModal = true; }
+    void CloseModal() => showModal = false;
+    async Task SubmitSave() { 
+        if (string.IsNullOrWhiteSpace(formName)) { 
+            Notify.ShowError(Lang.T("أدخل الاسم")); 
+            return; 
+        } try { 
+            await AreaSvc.SaveAsync(editingId, formName); 
+            Notify.ShowSuccess(Lang.T("تم الحفظ")); 
+            showModal = false; 
+            await LoadData(); 
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError($"{Lang.T("حدث خطأ")}: {ex.Message}");
+        }
+    }
+    void RequestDelete(AreaDto item) => itemToDelete = item; void CancelDelete() => itemToDelete = null;
+    async Task ConfirmDelete() { if (itemToDelete == null) return; try { await AreaSvc.DeleteAsync(itemToDelete.Id); Notify.ShowSuccess(Lang.T("تم الحذف")); itemToDelete = null; await LoadData(); } catch { } }
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

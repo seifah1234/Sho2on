@@ -9,6 +9,7 @@ namespace Sho2on.Web.Services
         private readonly ILogger<ChatConnectionService> _logger;
         private HubConnection? _connection;
         private bool _isConnecting = false;
+        private readonly NotificationCenterService _notify;
 
         public bool IsConnected => _connection?.State == HubConnectionState.Connected;
 
@@ -17,11 +18,12 @@ namespace Sho2on.Web.Services
         public event Action<int, int, string, DateTime, int>? OnGroupMessageReceived;
         public event Action<string, string, string, string?>? OnNotificationReceived;
 
-        public ChatConnectionService(ChatTokenService tokenService, IConfiguration config, ILogger<ChatConnectionService> logger)
+        public ChatConnectionService(ChatTokenService tokenService, IConfiguration config, ILogger<ChatConnectionService> logger, NotificationCenterService notify)
         {
             _tokenService = tokenService;
             _config = config;
             _logger = logger;
+            _notify = notify;
         }
 
         public async Task ConnectAsync(int userId)
@@ -113,13 +115,34 @@ namespace Sho2on.Web.Services
         public async Task SendMessageAsync(int toUserId, string message)
         {
             if (_connection?.State != HubConnectionState.Connected) return;
-            try { await _connection.InvokeAsync("SendMessageToUser", toUserId, message); } catch { }
+            try { 
+                await _connection.InvokeAsync("SendMessageToUser", toUserId, message); 
+
+                if (_connection != null)
+                {
+                    await _notify.CreateAsync(toUserId,
+                        "رسالة جديدة",
+                        $"لديك رسالة جديدة من المستخدم {toUserId}",
+                        "bi-chat-left-text",
+                        "/chat");
+                }
+            } catch { }
         }
 
         public async Task SendGroupMessageAsync(int groupId, string message)
         {
             if (_connection?.State != HubConnectionState.Connected) return;
-            try { await _connection.InvokeAsync("SendGroupMessage", groupId, message); } catch { }
+            try { 
+                await _connection.InvokeAsync("SendGroupMessage", groupId, message);
+                if (_connection != null)
+                {
+                    await _notify.CreateForApproversAsync(new List<int> { groupId },
+                        "رسالة جديدة في المجموعة",
+                        $"لديك رسالة جديدة في المجموعة {groupId}",
+                        "bi-chat-left-text",
+                        "/chat");
+                }
+            } catch { }
         }
 
         public async Task JoinGroupAsync(int groupId)

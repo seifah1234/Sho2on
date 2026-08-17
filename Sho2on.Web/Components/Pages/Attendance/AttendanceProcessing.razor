@@ -418,9 +418,9 @@
 
     DateOnly CalculateMonthStart(int month, int year, int startDay, int endDay)
     {
-        var date = new DateOnly(year, month, Math.Min(endDay, DateTime.DaysInMonth(year, month)));
+        var date = new DateOnly(year, month, Math.Min(startDay, DateTime.DaysInMonth(year, month)));
         if (endDay < startDay)
-            date = date.AddMonths(-11);
+            date = date.AddMonths(-1);
         return date;
     }
 

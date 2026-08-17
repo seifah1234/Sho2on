@@ -1,4 +1,20 @@
 ﻿// wwwroot/js/notifications.js
+
+window.checkNotificationPermission = function () {
+    if (!("Notification" in window)) return "unsupported";
+    return Notification.permission;
+};
+
+window.dismissNotificationBanner = function () {
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 1);
+    document.cookie = `notif_banner_dismissed=1; expires=${expiry.toUTCString()}; path=/`;
+};
+
+window.wasNotificationBannerDismissedRecently = function () {
+    return document.cookie.split(';').some(c => c.trim().startsWith('notif_banner_dismissed='));
+};
+
 window.notificationService = {
     _audioContext: null,
     _sounds: {},

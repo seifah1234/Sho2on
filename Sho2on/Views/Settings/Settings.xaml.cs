@@ -292,17 +292,17 @@ namespace HR_Application
             }
         }
 
-        private void officalsForAllBox_Checked(object sender, RoutedEventArgs e)
+        private void OfficialsForAllBox_Checked(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.OfficalsForAll = officalsForAllBox.IsChecked ?? false;
+            Properties.Settings.Default.OfficialsForAll = OfficialsForAllBox.IsChecked ?? false;
             Properties.Settings.Default.Save();
 
 
         }
 
-        private void officalsForAllBox_Unchecked(object sender, RoutedEventArgs e)
+        private void OfficialsForAllBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.OfficalsForAll = officalsForAllBox.IsChecked ?? false;
+            Properties.Settings.Default.OfficialsForAll = OfficialsForAllBox.IsChecked ?? false;
             Properties.Settings.Default.Save();
 
         }

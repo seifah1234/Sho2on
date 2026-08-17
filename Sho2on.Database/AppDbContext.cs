@@ -280,7 +280,8 @@ namespace Sho2on.Database
             public DbSet<Shift> Shifts { get; set; }
             public DbSet<User> Users { get; set; }
             public DbSet<Commission> Commissions { get; set; }
-            public DbSet<Penalty> Penalties { get; set; }
+        public DbSet<OfficialHoliday> OfficialHolidays { get; set; }
+        public DbSet<Penalty> Penalties { get; set; }
             public DbSet<Role> Roles { get; set; }
             public DbSet<Permission> Permissions { get; set; }
             public DbSet<RolePermission> RolePermissions { get; set; }
@@ -305,7 +306,7 @@ namespace Sho2on.Database
             public DbSet<EvaluationCriteria> EvaluationCriterias { get; set; }
             public DbSet<Setting> Settings { get; set; }
             public DbSet<LeaveType> LeaveTypes { get; set; }
-
+        public DbSet<DepartmentTransferRequest> DepartmentTransferRequests { get; set; }
         public DbSet<Loan> Loans { get; set; }
 
         public DbSet<LoanPayment> LoanPayments { get; set; }
@@ -326,7 +327,7 @@ namespace Sho2on.Database
         public DbSet<ChatGroupMessage> ChatGroupMessages { get; set; }
         public DbSet<ChatGroupAttachment> ChatGroupAttachments { get; set; }
         public DbSet<ChatGroupMessageRead> ChatGroupMessageReads { get; set; }
-        public DbSet<Offical> Officals { get; set; }
+        public DbSet<Offical> Officials { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

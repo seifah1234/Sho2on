@@ -4,7 +4,7 @@
       "windowsAuthentication": false,
       "anonymousAuthentication": true,
       "iisExpress": {
-        "applicationUrl": "http://localhost:6084",
+        "applicationUrl": "https://0.0.0.0:7022;http://0.0.0.0:5022",
         "sslPort": 44379
       }
     },
@@ -30,6 +30,7 @@
       "IIS Express": {
         "commandName": "IISExpress",
         "launchBrowser": true,
+        "applicationUrl": "https://0.0.0.0:7022;http://0.0.0.0:5022",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         }

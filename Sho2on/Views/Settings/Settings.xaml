@@ -176,7 +176,7 @@
 
                         <Border CornerRadius="20" Margin="10" Background="{DynamicResource PrimaryColor}" Grid.Column="0" Grid.Row="1">
                             <GroupBox Header="{DynamicResource Tasks}">
-                                <CheckBox Content="{DynamicResource ShowAdministratorsToEveryone}" x:Name="officalsForAllBox" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="officalsForAllBox_Checked" Unchecked="officalsForAllBox_Unchecked"/>
+                                <CheckBox Content="{DynamicResource ShowAdministratorsToEveryone}" x:Name="OfficialsForAllBox" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="OfficialsForAllBox_Checked" Unchecked="OfficialsForAllBox_Unchecked"/>
                             </GroupBox>
 
                         </Border>

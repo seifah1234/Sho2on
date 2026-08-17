@@ -21,7 +21,7 @@
                     <button @onclick="ActivateNotifications" class="btn btn-primary btn-sm">
                         تفعيل
                     </button>
-                    <button @onclick="() => _showPermissionBanner = false" class="btn btn-secondary btn-sm">
+                    <button @onclick="DismissBannerForNow" class="btn btn-secondary btn-sm">
                         لاحقاً
                     </button>
                 </div>
@@ -47,7 +47,7 @@
 <ToastContainer />
 
 @code {
-    private bool _showPermissionBanner = true;
+    private bool _showPermissionBanner = false;
     private bool _audioInitialized = false;
 
     protected override void OnInitialized()
@@ -70,6 +70,33 @@
             catch { }
         }
         await PreloadSounds();
+        await CheckPermissionStatus();
+
+
+    }
+
+    private async Task CheckPermissionStatus()
+    {
+        try
+        {
+            var permission = await JS.InvokeAsync<string>("checkNotificationPermission");
+
+            if (permission == "default")
+            {
+                var dismissedRecently = await JS.InvokeAsync<bool>("wasNotificationBannerDismissedRecently");
+                _showPermissionBanner = !dismissedRecently;
+            }
+            else
+            {
+                _showPermissionBanner = false;
+            }
+
+            StateHasChanged();
+        }
+        catch
+        {
+            _showPermissionBanner = false;
+        }
     }
 
     private async Task PreloadSounds()
@@ -96,20 +123,11 @@
             // تفعيل AudioContext (ده ضروري عشان الصوت يشتغل)
             await JS.InvokeVoidAsync("notificationService.initAudio");
 
-            // طلب إذن الإشعارات
+            await JS.InvokeVoidAsync("notificationService.initAudio");
             var granted = await JS.InvokeAsync<bool>("notificationService.requestPermission");
 
-            if (granted)
-            {
-                _audioInitialized = true;
-                _showPermissionBanner = false;
-                Console.WriteLine("Notifications and audio activated");
-            }
-            else
-            {
-                Console.WriteLine("Notifications denied");
-                _showPermissionBanner = false;
-            }
+            _audioInitialized = granted;
+            _showPermissionBanner = false;
         }
         catch (Exception ex)
         {
@@ -120,14 +138,12 @@
 
     async void HandleNotification(string title, string message, string icon, string? url)
     {
-        // تحديث UI (الـ Toast مش هيظهر لو minimized، لكن الصوت والإشعار هيشتغلوا)
         await InvokeAsync(() =>
         {
             Notify.ShowInfo($"{title}: {message}");
             StateHasChanged();
         });
 
-        // تشغيل الصوت وإظهار System Notification (هيشتغل حتى لو minimized)
         try
         {
             await JS.InvokeVoidAsync("notificationService.showNotification",
@@ -137,6 +153,12 @@
         {
             Console.WriteLine($"Error showing notification: {ex.Message}");
         }
+    }
+
+    private async Task DismissBannerForNow()
+    {
+        _showPermissionBanner = false;
+        await JS.InvokeVoidAsync("dismissNotificationBanner");
     }
 
     void Reload() => Nav.NavigateTo(Nav.Uri, forceLoad: true);

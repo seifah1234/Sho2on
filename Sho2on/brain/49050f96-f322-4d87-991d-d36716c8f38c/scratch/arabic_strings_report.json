@@ -21751,7 +21751,7 @@
         "file": "Views\\Settings\\Settings.xaml",
         "line": 188,
         "type": "attribute",
-        "line_content": "<CheckBox Content=\"اظهار المسؤولون للكل\" x:Name=\"officalsForAllBox\" Margin=\"10\" HorizontalAlignment=\"Center\" VerticalAlignment=\"Center\" Checked=\"officalsForAllBox_Checked\" Unchecked=\"officalsForAllBox_Unchecked\"/>"
+        "line_content": "<CheckBox Content=\"اظهار المسؤولون للكل\" x:Name=\"OfficialsForAllBox\" Margin=\"10\" HorizontalAlignment=\"Center\" VerticalAlignment=\"Center\" Checked=\"OfficialsForAllBox_Checked\" Unchecked=\"OfficialsForAllBox_Unchecked\"/>"
       }
     ],
     "الالوان": [

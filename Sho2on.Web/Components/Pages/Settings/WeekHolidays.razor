@@ -1,0 +1,187 @@
+﻿@page "/settings/week-holidays"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject WeekHolidayService WeekHolidaySvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<WeekHolidays> Logger
+@implements IDisposable
+
+<div class="week-holidays-page">
+    <div class="page-header">
+        <h2><i class="bi bi-calendar-week"></i> @Lang.T("العطلات الأسبوعية")</h2>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة نظام عطلات")
+        </button>
+    </div>
+
+    <div class="warning-note">
+        <i class="bi bi-exclamation-triangle"></i>
+        @Lang.T("تأكد إن ترتيب الأيام هنا مطابق فعليًا لما هو مطبق على أرض الواقع، لأن حساب الراتب والغياب يعتمد على هذا الترتيب.")
+    </div>
+
+    @if (items == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-inbox"></i><p>@Lang.T("لا توجد بيانات")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الاسم")</th>
+                        <th>@Lang.T("السبت")</th>
+                        <th>@Lang.T("الأحد")</th>
+                        <th>@Lang.T("الاثنين")</th>
+                        <th>@Lang.T("الثلاثاء")</th>
+                        <th>@Lang.T("الأربعاء")</th>
+                        <th>@Lang.T("الخميس")</th>
+                        <th>@Lang.T("الجمعة")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@DayIcon(item.Day1)</td>
+                            <td>@DayIcon(item.Day2)</td>
+                            <td>@DayIcon(item.Day3)</td>
+                            <td>@DayIcon(item.Day4)</td>
+                            <td>@DayIcon(item.Day5)</td>
+                            <td>@DayIcon(item.Day6)</td>
+                            <td>@DayIcon(item.Day7)</td>
+                            <td class="row-actions">
+                                <button class="icon-action" @onclick="() => OpenEditModal(item)"><i class="bi bi-pencil"></i></button>
+                                <button class="icon-action danger" @onclick="() => RequestDelete(item)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل نظام عطلات") : Lang.T("نظام عطلات جديد"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>@Lang.T("الاسم")</label><input class="search-input" @bind="formName" /></div>
+                <div class="field">
+                    <label>@Lang.T("أيام العطلة")</label>
+                    <div class="days-checklist">
+                        @for (int i = 0; i < 7; i++)
+                        {
+                            var idx = i;
+                            <label class="day-check">
+                                <input type="checkbox" checked="@formDays[idx]" @onchange="(e) => formDays[idx] = (bool)e.Value!" />
+                                <span>@Lang.T(dayNames[idx])</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (itemToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من الحذف؟")</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<WeekHoliday>? items;
+    bool showModal = false;
+    bool isEdit = false;
+    int? editingId;
+    string formName = "";
+    bool[] formDays = new bool[7];
+    WeekHoliday? itemToDelete;
+
+    // الترتيب الافتراضي المستخدم فعليًا في AttendanceProcessingService.GetWeekHolidayFlags
+    readonly string[] dayNames = { "السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة" };
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await Load();
+
+    async Task Load()
+    {
+        try { items = await WeekHolidaySvc.GetAllAsync(); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء تحميل العطلات الأسبوعية"); Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات")); }
+    }
+
+    string DayIcon(bool isHoliday) => isHoliday ? "🔴" : "—";
+
+    void OpenAddModal() { isEdit = false; editingId = null; formName = ""; formDays = new bool[7]; showModal = true; }
+    void OpenEditModal(WeekHoliday w)
+    {
+        isEdit = true; editingId = w.Id; formName = w.Name;
+        formDays = new[] { w.Day1, w.Day2, w.Day3, w.Day4, w.Day5, w.Day6, w.Day7 };
+        showModal = true;
+    }
+    void CloseModal() => showModal = false;
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName)) { Notify.ShowError(Lang.T("أدخل الاسم")); return; }
+        try
+        {
+            await WeekHolidaySvc.SaveAsync(editingId, formName, formDays);
+            Notify.ShowSuccess(Lang.T("تم الحفظ بنجاح"));
+            showModal = false;
+            await Load();
+        }
+
+        catch (Exception ex)
+        {
+            Notify.ShowError($"{Lang.T("حدث خطأ")}: {ex.Message}");
+        }
+    }
+
+    void RequestDelete(WeekHoliday w) => itemToDelete = w;
+    void CancelDelete() => itemToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (itemToDelete == null) return;
+        try
+        {
+            await WeekHolidaySvc.DeleteAsync(itemToDelete.Id);
+            Notify.ShowSuccess(Lang.T("تم الحذف"));
+            itemToDelete = null;
+            await Load();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء حذف نظام عطلات"); Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى")); itemToDelete = null; }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

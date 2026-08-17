@@ -1,0 +1,123 @@
+﻿@page "/settings/departments"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject DepartmentService DeptSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@implements IDisposable
+
+<div class="settings-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-diagram-3"></i> @Lang.T("الإدارات")</h2>
+            <p class="page-subtitle">@Lang.T("إدارة أقسام وإدارات الشركة")</p>
+        </div>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة إدارة")
+        </button>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state"><div class="spinner"></div><p>@Lang.T("جاري التحميل...")</p></div>
+    }
+    else if (items == null || items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-diagram-3"></i><p>@Lang.T("لا توجد إدارات")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr><th>#</th><th>@Lang.T("الاسم")</th><th>@Lang.T("موارد بشرية؟")</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Name</td>
+                            <td>
+                                <span class="status-badge @(item.IsHR == true ? "status-benefit" : "status-inactive")">
+                                    @(item.IsHR == true ? Lang.T("نعم") : Lang.T("لا"))
+                                </span>
+                            </td>
+                            <td class="row-actions">
+                                <button class="icon-action" title="@Lang.T("تعديل")" @onclick="() => OpenEditModal(item)"><i class="bi bi-pencil"></i></button>
+                                <button class="icon-action danger" title="@Lang.T("حذف")" @onclick="() => RequestDelete(item)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل إدارة") : Lang.T("إدارة جديدة"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>@Lang.T("الاسم")</label><input class="search-input" @bind="formName" placeholder="@Lang.T("اسم الإدارة")" /></div>
+                <div class="field checkbox">
+                    <label><input type="checkbox" @bind="formIsHR" /> @Lang.T("إدارة موارد بشرية (HR)")</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (itemToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من حذف") <strong>@itemToDelete.Name</strong>؟</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<DepartmentDto>? items;
+    bool loading = true; bool showModal = false; bool isEdit = false; int? editingId;
+    string formName = ""; bool formIsHR = false;
+    DepartmentDto? itemToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    async Task LoadData() { loading = true; StateHasChanged(); try { items = await DeptSvc.GetAllAsync(); } catch { } finally { loading = false; StateHasChanged(); } }
+    void OpenAddModal() { isEdit = false; editingId = null; formName = ""; formIsHR = false; showModal = true; }
+    void OpenEditModal(DepartmentDto item) { isEdit = true; editingId = item.Id; formName = item.Name; formIsHR = item.IsHR == true; showModal = true; }
+    void CloseModal() => showModal = false;
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName)) { Notify.ShowError(Lang.T("أدخل الاسم")); return; }
+        try { await DeptSvc.SaveAsync(editingId, formName, formIsHR); Notify.ShowSuccess(Lang.T("تم الحفظ")); showModal = false; await LoadData(); }
+        catch (Exception ex)
+        {
+            Notify.ShowError($"{Lang.T("حدث خطأ")}: {ex.Message}");
+        }
+    }
+    void RequestDelete(DepartmentDto item) => itemToDelete = item;
+    void CancelDelete() => itemToDelete = null;
+    async Task ConfirmDelete() { if (itemToDelete == null) return; try { await DeptSvc.DeleteAsync(itemToDelete.Id); Notify.ShowSuccess(Lang.T("تم الحذف")); itemToDelete = null; await LoadData(); } catch { } }
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

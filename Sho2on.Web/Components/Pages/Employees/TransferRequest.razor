@@ -1,0 +1,247 @@
+﻿@page "/employee/transfer-requests"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@inject DepartmentTransferService TransferSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<TransferRequest> Logger
+@implements IDisposable
+
+<div class="transfer-page">
+    <div class="page-header">
+        <h2><i class="bi bi-arrow-left-right"></i> @Lang.T("طلب نقل إدارة")</h2>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <i class="bi bi-plus-circle"></i>
+            <h3>@Lang.T("تقديم طلب جديد")</h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="field">
+                <label><i class="bi bi-building"></i> @Lang.T("الإدارة الجديدة")</label>
+                <select class="select-input" @bind="toDepartmentId">
+                    <option value="">@Lang.T("اختر الإدارة")</option>
+                    @if (departments != null)
+                    {
+                        @foreach (var d in departments)
+                        {
+                            <option value="@d.Id">@d.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label><i class="bi bi-person-check"></i> @Lang.T("المدير المباشر")</label>
+                <select class="select-input" @bind="firstApproverId">
+                    <option value="">@Lang.T("اختر الموافق")</option>
+                    @if (managers != null)
+                    {
+                        @foreach (var m in managers)
+                        {
+                            if (m.Id.ToString() == firstApproverId)
+                            {
+                                <option selected value="@m.Id">@m.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@m.Id">@m.Name</option>
+                                
+                            }
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label><i class="bi bi-person-check"></i> @Lang.T("الموافق الثاني (بعد المدير المباشر)")</label>
+                <select class="select-input" @bind="secondApproverId">
+                    <option value="">@Lang.T("اختر الموافق")</option>
+                    @if (managers != null)
+                    {
+                        @foreach (var m in managers)
+                        {
+                            <option value="@m.Id">@m.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label><i class="bi bi-chat-left-text"></i> @Lang.T("السبب (اختياري)")</label>
+                <textarea class="search-input" rows="4" placeholder="@Lang.T("اكتب سبب طلب النقل...")" @bind="reason"></textarea>
+            </div>
+
+            <button class="btn-primary submit-btn" @onclick="Submit">
+                <i class="bi bi-send"></i> @Lang.T("تقديم الطلب")
+            </button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <i class="bi bi-clock-history"></i>
+            <h3>@Lang.T("طلباتي السابقة")</h3>
+            @if (myRequests != null && myRequests.Count > 0)
+            {
+                <span class="request-count">@myRequests.Count</span>
+            }
+        </div>
+
+        <div class="panel-body">
+            @if (myRequests == null)
+            {
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p class="muted">@Lang.T("جاري التحميل...")</p>
+                </div>
+            }
+            else if (myRequests.Count == 0)
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>@Lang.T("لا توجد طلبات سابقة")</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>@Lang.T("من")</th>
+                                <th>@Lang.T("إلى")</th>
+                                <th>@Lang.T("التاريخ")</th>
+                                <th>@Lang.T("الحالة")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in myRequests)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="dept-badge">
+                                            <i class="bi bi-building"></i> @r.FromDepartmentName
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="dept-badge to">
+                                            <i class="bi bi-arrow-right-circle"></i> @r.ToDepartmentName
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="date-cell">
+                                            <i class="bi bi-calendar3"></i> @r.RequestDate.ToString("dd/MM/yyyy")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge @StatusClass(r.Status)">
+                                            <i class="@StatusIcon(r.Status)"></i> @Lang.T(StatusLabel(r.Status))
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    List<(int Id, string Name)>? departments;
+    List<(int Id, string Name)>? managers;
+    List<TransferRequestItem>? myRequests;
+    int currentUserId;
+
+    string toDepartmentId = "";
+    string firstApproverId = "";
+    string secondApproverId = "";
+    string reason = "";
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+
+            var user = await EmployeeSvc.GetByIdAsync(currentUserId);
+            firstApproverId = user?.ManagerId?.ToString() ?? "";
+
+            var lookups = await EmployeeSvc.GetLookupsAsync();
+            departments = lookups.Departments;
+            managers = await TransferSvc.GetManagersListAsync();
+            myRequests = await TransferSvc.GetMyRequestsAsync(currentUserId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل بيانات طلب النقل");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+    }
+
+    async Task Submit()
+    {
+        if (string.IsNullOrEmpty(toDepartmentId) || string.IsNullOrEmpty(secondApproverId))
+        {
+            Notify.ShowError(Lang.T("اختر الإدارة الجديدة والموافق الثاني"));
+            return;
+        }
+        try
+        {
+            var (success, message) = await TransferSvc.CreateRequestAsync(
+                currentUserId, int.Parse(toDepartmentId), int.Parse(secondApproverId), reason, int.Parse(firstApproverId));
+
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                toDepartmentId = ""; secondApproverId = ""; reason = "";
+                myRequests = await TransferSvc.GetMyRequestsAsync(currentUserId);
+            }
+            else Notify.ShowError(message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تقديم طلب نقل");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    string StatusClass(Sho2on.Database.Models.TransferRequestStatus s) => s switch
+    {
+        Sho2on.Database.Models.TransferRequestStatus.Approved => "status-approved",
+        Sho2on.Database.Models.TransferRequestStatus.RejectedByDirectManager or
+        Sho2on.Database.Models.TransferRequestStatus.RejectedBySecondApprover => "status-rejected",
+        _ => "status-pending"
+    };
+
+    string StatusIcon(Sho2on.Database.Models.TransferRequestStatus s) => s switch
+    {
+        Sho2on.Database.Models.TransferRequestStatus.Approved => "bi bi-check-circle",
+        Sho2on.Database.Models.TransferRequestStatus.RejectedByDirectManager or
+        Sho2on.Database.Models.TransferRequestStatus.RejectedBySecondApprover => "bi bi-x-circle",
+        _ => "bi bi-hourglass-split"
+    };
+
+    string StatusLabel(Sho2on.Database.Models.TransferRequestStatus s) => s switch
+    {
+        Sho2on.Database.Models.TransferRequestStatus.PendingDirectManager => "قيد المراجعه من المدير المباشر",
+        Sho2on.Database.Models.TransferRequestStatus.PendingSecondApprover => "قيد المراجعه من الموافق الثاني",
+        Sho2on.Database.Models.TransferRequestStatus.Approved => "تمت الموافقة",
+        Sho2on.Database.Models.TransferRequestStatus.RejectedByDirectManager => "مرفوض من المدير المباشر",
+        Sho2on.Database.Models.TransferRequestStatus.RejectedBySecondApprover => "مرفوض من الموافق الثاني",
+        _ => ""
+    };
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

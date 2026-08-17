@@ -8,7 +8,12 @@ namespace Sho2on.Web.Services
     public class ChatService
     {
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
-        public ChatService(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
+        private readonly NotificationCenterService _notify;
+        public ChatService(IDbContextFactory<AppDbContext> dbFactory, NotificationCenterService notify)
+        {
+            _dbFactory = dbFactory;
+            _notify = notify;
+        }
 
         public async Task<List<ConversationListItem>> GetConversationsAsync(int userId)
         {
@@ -122,6 +127,17 @@ namespace Sho2on.Web.Services
                     JoinedAt = DateTime.Now
                 });
             }
+
+            if (memberIds.Count > 0)
+            {
+                await _notify.CreateForApproversAsync(memberIds,
+                    "تم انشاء مجموعة جديدة",
+                    $"تمت اضافتك إلى المجموعة '{name}'",
+                    "bi-chat-left-text",
+                    "/chat"
+                    );
+            }
+
             await _db.SaveChangesAsync();
             return group.Id;
         }

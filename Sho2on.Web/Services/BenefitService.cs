@@ -277,7 +277,7 @@ namespace Sho2on.Web.Services
                     BenefitTypeName = benefitType.Name,
                     BenefitType = benefitType.Type,
                     Amount = amount,
-                    Date = startDate, // تاريخ بداية الشهر
+                    Date = startDate,
                     Notes = $"شهري تلقائي - {benefitType.Name} ({benefitType.Percentage}% من {GetTargetName(benefitType.SalaryTarget)})",
                     Frequency = "Monthly",
                     CreatedAt = DateTime.Now

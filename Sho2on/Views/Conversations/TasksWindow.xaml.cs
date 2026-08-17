@@ -377,15 +377,15 @@ namespace HR_Application.Views.Conversations
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadTasksAsync();
-            await LoadOfficals();
+            await LoadOfficials();
         }
 
-        private async Task LoadOfficals()
+        private async Task LoadOfficials()
         {
             try
             {
-                var officals = await _context.Officals.Include(o => o.User).ToListAsync();
-                officialsBox.ItemsSource = officals;
+                var Officials = await _context.Officials.Include(o => o.User).ToListAsync();
+                officialsBox.ItemsSource = Officials;
                 
             }
             catch (Exception ex)
@@ -674,14 +674,14 @@ namespace HR_Application.Views.Conversations
                     assignToCodeBox.Text = App.CurrentUser.Manager.Code;
                     assignToBox.SelectedValue = App.CurrentUser.Manager.Code;
                 }
-                officalsPanel.Visibility = Visibility.Collapsed;
+                OfficialsPanel.Visibility = Visibility.Collapsed;
 
             }
             else
             {
-                if (Properties.Settings.Default.OfficalsForAll || App.CurrentUser.JobTitle.IsManager.Value)
+                if (Properties.Settings.Default.OfficialsForAll || App.CurrentUser.JobTitle.IsManager.Value)
                 {
-                    officalsPanel.Visibility = Visibility.Visible;
+                    OfficialsPanel.Visibility = Visibility.Visible;
                 }
             }
         }

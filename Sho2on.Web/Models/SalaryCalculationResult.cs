@@ -37,6 +37,7 @@ namespace Sho2on.Web.Models
         {
             public int Id { get; set; }
             public string EmployeeName { get; set; } = "";
+            public string EmployeeJob { get; set; } = "";
             public int UserId { get; set; }
             public string EmployeeCode { get; set; } = "";
             public string BranchName { get; set; } = "";

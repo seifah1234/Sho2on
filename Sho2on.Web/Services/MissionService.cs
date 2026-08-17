@@ -259,6 +259,17 @@ public class MissionService
         // تحديث سجل الحضور
         await UpdateAttendanceForMission(mission);
 
+        var manager = await _context.Users.FindAsync(currentUserId);
+
+        if (manager != null)
+        {
+            await _notify.CreateAsync(mission.UserId.Value,
+                "مراجعة طلب مأمورية",
+                $"{manager.FullName} تم الموافقة على طلب المأمورية من",
+                "bi-calendar-check",
+                "/leaves/missions");
+        }
+
         await _context.SaveChangesAsync();
         return true;
     }
@@ -293,6 +304,17 @@ public class MissionService
         mission.Status = "Rejected";
         mission.ApprovedDate = DateTime.Now;
         mission.ApprovedByUserId = currentUserId;
+
+        var manager = await _context.Users.FindAsync(currentUserId);
+
+        if (manager != null)
+        {
+            await _notify.CreateAsync(mission.UserId.Value,
+                "مراجعة طلب مأمورية",
+                $"{manager.FullName} تم رفض طلب المأمورية من",
+                "bi-calendar-check",
+                "/leaves/missions");
+        }
 
         await _context.SaveChangesAsync();
         return true;

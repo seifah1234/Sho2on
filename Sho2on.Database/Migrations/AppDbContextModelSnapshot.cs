@@ -17,7 +17,7 @@ namespace Sho2on.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.11")
+                .HasAnnotation("ProductVersion", "9.0.19")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -58,6 +58,9 @@ namespace Sho2on.Database.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
+                    b.Property<bool?>("IsHR")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -84,6 +87,12 @@ namespace Sho2on.Database.Migrations
                     b.Property<bool?>("IsDriver")
                         .HasColumnType("bit");
 
+                    b.Property<bool?>("IsHR")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsManager")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -92,6 +101,51 @@ namespace Sho2on.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JobTitles");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.AbsenceTier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("DeductionMultiplier")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FromOccurrence")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ToOccurrence")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AbsenceTiers");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Area", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Areas");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.Attendance", b =>
@@ -108,11 +162,35 @@ namespace Sho2on.Database.Migrations
                     b.Property<int?>("CheckInBranchId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CheckInFingerPrintId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("CheckInLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CheckInLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("CheckInLongitude")
+                        .HasColumnType("float");
+
                     b.Property<DateTime?>("CheckInTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("CheckOutBranchId")
                         .HasColumnType("int");
+
+                    b.Property<int?>("CheckOutFingerPrintId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("CheckOutLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CheckOutLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("CheckOutLongitude")
+                        .HasColumnType("float");
 
                     b.Property<DateTime?>("CheckOutTime")
                         .HasColumnType("datetime2");
@@ -136,6 +214,12 @@ namespace Sho2on.Database.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsAbsence")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsCheckInAutoFilled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsCheckOutAutoFilled")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsHoliday")
@@ -163,7 +247,11 @@ namespace Sho2on.Database.Migrations
 
                     b.HasIndex("CheckInBranchId");
 
+                    b.HasIndex("CheckInFingerPrintId");
+
                     b.HasIndex("CheckOutBranchId");
+
+                    b.HasIndex("CheckOutFingerPrintId");
 
                     b.HasIndex("LeaveId");
 
@@ -174,6 +262,94 @@ namespace Sho2on.Database.Migrations
                     b.ToTable("Attendances");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.Benefit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("BenefitTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BenefitTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Benefits");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.BenefitType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Percentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SalaryTarget")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BenefitTypes");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.Branch", b =>
                 {
                     b.Property<int>("Id")
@@ -182,17 +358,31 @@ namespace Sho2on.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("EditedAt")
+                    b.Property<int?>("AreaId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EditedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("RadiusMeters")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AreaId");
 
                     b.ToTable("Branches");
                 });
@@ -205,12 +395,15 @@ namespace Sho2on.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("DurationMinutes")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("EditedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<TimeSpan>("EndTime")
+                    b.Property<TimeSpan?>("EndTime")
                         .HasColumnType("time(0)");
 
                     b.Property<string>("Name")
@@ -218,12 +411,401 @@ namespace Sho2on.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<TimeSpan>("StartTime")
+                    b.Property<TimeSpan?>("StartTime")
                         .HasColumnType("time(0)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.ToTable("Breaks");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.BreakLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BreakId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("ExceededLimit")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BreakId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BreakLogs");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Chat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FirstUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SecondUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirstUserId");
+
+                    b.HasIndex("SecondUserId");
+
+                    b.ToTable("Chats");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("FileData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("ChatAttachments");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("GroupImageData")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.ToTable("ChatGroups");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("FileData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("ChatGroupAttachments");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UnreadCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatGroupMembers");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EditedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("ChatGroupMessages");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupMessageRead", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatGroupMessageReads");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EditedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsDelivered")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReceiverId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatUserStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UnreadCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ChatId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("ChatUserStatuses");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Commission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Commissions");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.CompanyDocument", b =>
@@ -246,6 +828,9 @@ namespace Sho2on.Database.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
 
@@ -254,11 +839,20 @@ namespace Sho2on.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("FullPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsRequired")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("JobTitleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StorageType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -273,9 +867,105 @@ namespace Sho2on.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("JobTitleId");
+
                     b.HasIndex("UploadedBy");
 
                     b.ToTable("CompanyDocuments");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.DepartmentTransferRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DirectManagerActionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DirectManagerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DirectManagerNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EffectiveDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FromDepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SecondApproverActionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SecondApproverId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SecondApproverNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ToDepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DirectManagerId");
+
+                    b.HasIndex("FromDepartmentId");
+
+                    b.HasIndex("SecondApproverId");
+
+                    b.HasIndex("ToDepartmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DepartmentTransferRequests");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.EmployeeBenefit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BenefitTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BenefitTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmployeeBenefits");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.EmployeeDocument", b =>
@@ -315,6 +1005,10 @@ namespace Sho2on.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("FullPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -327,6 +1021,14 @@ namespace Sho2on.Database.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StorageType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -358,6 +1060,13 @@ namespace Sho2on.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AdministrativeNotes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("AdministrativeScore")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
@@ -383,6 +1092,13 @@ namespace Sho2on.Database.Migrations
                     b.Property<decimal>("SuccessPercentage")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("TechnicalNotes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TechnicalScore")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("TotalScore")
                         .HasColumnType("decimal(18,2)");
 
@@ -393,6 +1109,79 @@ namespace Sho2on.Database.Migrations
                     b.HasIndex("EvaluatorId");
 
                     b.ToTable("EmployeeEvaluations");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.EmployeePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("DeductedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<double>("Duration")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PermissionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmployeePermissions");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.EvaluationCriteria", b =>
@@ -409,6 +1198,9 @@ namespace Sho2on.Database.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("EvaluationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EvaluationType")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsSuccessful")
@@ -442,11 +1234,26 @@ namespace Sho2on.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AddedByUsername")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("FingerPrintDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool?>("IsManualEntry")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("LocationName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<int?>("MachineId")
                         .HasColumnType("int");
@@ -466,6 +1273,113 @@ namespace Sho2on.Database.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("FingerPrints");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.FriendshipBox", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("CurrentBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DeductionPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("TotalDeposits")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalLoans")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalRepayments")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FriendshipBoxes");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.FriendshipBoxTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("BalanceBefore")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("FriendshipBoxId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LoanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("SalaryPaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FriendshipBoxId");
+
+                    b.HasIndex("LoanId");
+
+                    b.HasIndex("SalaryPaymentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FriendshipBoxTransactions");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.HolidayType", b =>
@@ -557,17 +1471,28 @@ namespace Sho2on.Database.Migrations
                     b.Property<int?>("ApprovedBy")
                         .HasColumnType("int");
 
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CancelledBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CancelledDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("LeaveType")
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LeaveTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Reason")
@@ -575,8 +1500,10 @@ namespace Sho2on.Database.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RejectionReason")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ReplacementUserId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("datetime2");
@@ -594,6 +1521,12 @@ namespace Sho2on.Database.Migrations
 
                     b.HasIndex("ApprovedBy");
 
+                    b.HasIndex("CancelledBy");
+
+                    b.HasIndex("LeaveTypeId");
+
+                    b.HasIndex("ReplacementUserId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Leaves");
@@ -607,11 +1540,17 @@ namespace Sho2on.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("LeaveType")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LeaveTypeId")
                         .HasColumnType("int");
 
                     b.Property<int>("TotalBalance")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UsedBalance")
                         .HasColumnType("int");
@@ -619,14 +1558,165 @@ namespace Sho2on.Database.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("LeaveTypeId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("LeaveBalances");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.LeaveType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("DeductFromBalance")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("DefaultBalance")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxConsecutiveDays")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("RequiresApproval")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LeaveTypes");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Loan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ActualPaybackDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpectedPaybackDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InstallmentCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LoanAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("LoanDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("MonthlyInstallment")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("RemainingAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Loans");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.LoanPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LoanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("PaymentAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoanId");
+
+                    b.ToTable("LoanPayments");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.Machine", b =>
@@ -723,6 +1813,130 @@ namespace Sho2on.Database.Migrations
                     b.ToTable("Menus");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Offical", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Officials");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.OfficialHoliday", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OfficialHolidays");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Penalty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Penalties");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.Permission", b =>
                 {
                     b.Property<int>("PermissionID")
@@ -749,6 +1963,12 @@ namespace Sho2on.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
@@ -766,6 +1986,9 @@ namespace Sho2on.Database.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -774,11 +1997,30 @@ namespace Sho2on.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApprovedByUserId");
+
                     b.HasIndex("BranchId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Procedures");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Qualification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Qualifications");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.Role", b =>
@@ -856,6 +2098,160 @@ namespace Sho2on.Database.Migrations
                     b.ToTable("Salaries");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.SalaryPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ActualPaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("BasicSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsOffCycle")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("NetSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalAdditions")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalDeductions")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SalaryPayments");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.SalarySetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AbsenceDeductionRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("AllowOffCycle")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal>("FriendshipBoxPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("InsuranceMaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("InsurancePercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("SocialParticipationAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxThreshold")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SalarySettings");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Setting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CentralDocumentStoragePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EndOfMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LateOvertimeCalculationMode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LateRepeat")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LateValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MaxMobileUsers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StartOfMonth")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Settings");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.Shift", b =>
                 {
                     b.Property<int>("Id")
@@ -896,6 +2292,9 @@ namespace Sho2on.Database.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("AreaId")
+                        .HasColumnType("int");
+
                     b.Property<DateOnly?>("ArmyCertificateExpiration")
                         .HasColumnType("date");
 
@@ -914,13 +2313,26 @@ namespace Sho2on.Database.Migrations
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BreakId")
+                    b.Property<int?>("BreakId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("CanTakeLoan")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<decimal>("CurrentLoanBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("DailyWorkingHours")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("DegreeId")
                         .HasColumnType("int");
@@ -953,6 +2365,9 @@ namespace Sho2on.Database.Migrations
                     b.Property<DateOnly?>("FinishJob")
                         .HasColumnType("date");
 
+                    b.Property<decimal?>("FixedSalary")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -971,13 +2386,22 @@ namespace Sho2on.Database.Migrations
                     b.Property<int>("HolidayBalance")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("HourlyRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("HousingAllowance")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<bool>("InDuty")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("InsuredId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsInsured")
+                    b.Property<bool?>("IsMobileUser")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsUser")
@@ -989,10 +2413,28 @@ namespace Sho2on.Database.Migrations
                     b.Property<int?>("JobTypeId")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("LoanMaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("MainSalary")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("ManagementAllowance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaritalId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MaxLoanAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("MinSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MonthlyWorkingHours")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("NationalID")
@@ -1002,6 +2444,9 @@ namespace Sho2on.Database.Migrations
 
                     b.Property<DateOnly?>("NationalIDExpiration")
                         .HasColumnType("date");
+
+                    b.Property<decimal?>("NatureAllowance")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -1014,11 +2459,26 @@ namespace Sho2on.Database.Migrations
                     b.Property<byte[]>("ProfileImageData")
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<int?>("QualificationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RecidenceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RegisteredDeviceId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SSN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("SalaryType")
+                        .HasColumnType("int");
+
                     b.Property<int>("ShiftId")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("TransportationAllowance")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("UnderEmployment")
                         .HasColumnType("bit");
@@ -1031,6 +2491,10 @@ namespace Sho2on.Database.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
+                    b.Property<string>("Username")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<DateOnly?>("VehicleLicenseExpiration")
                         .HasColumnType("date");
 
@@ -1040,7 +2504,12 @@ namespace Sho2on.Database.Migrations
                     b.Property<TimeSpan>("WorkHours")
                         .HasColumnType("time");
 
+                    b.Property<int?>("WorkingDaysPerMonth")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AreaId");
 
                     b.HasIndex("BranchId");
 
@@ -1053,6 +2522,10 @@ namespace Sho2on.Database.Migrations
                     b.HasIndex("JobTitleId");
 
                     b.HasIndex("JobTypeId");
+
+                    b.HasIndex("ManagerId");
+
+                    b.HasIndex("QualificationId");
 
                     b.HasIndex("ShiftId");
 
@@ -1089,6 +2562,45 @@ namespace Sho2on.Database.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.UserTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssignedToUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByUserId");
+
+                    b.HasIndex("AssignedToUserId");
+
+                    b.ToTable("UserTasks");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.WeekHoliday", b =>
@@ -1144,9 +2656,17 @@ namespace Sho2on.Database.Migrations
                         .WithMany()
                         .HasForeignKey("CheckInBranchId");
 
+                    b.HasOne("Sho2on.Database.Models.FingerPrint", "CheckInFingerPrint")
+                        .WithMany()
+                        .HasForeignKey("CheckInFingerPrintId");
+
                     b.HasOne("Sho2on.Database.Models.Branch", "CheckOutBranch")
                         .WithMany()
                         .HasForeignKey("CheckOutBranchId");
+
+                    b.HasOne("Sho2on.Database.Models.FingerPrint", "CheckOutFingerPrint")
+                        .WithMany()
+                        .HasForeignKey("CheckOutFingerPrintId");
 
                     b.HasOne("Sho2on.Database.Models.Leave", "Leave")
                         .WithMany()
@@ -1164,7 +2684,11 @@ namespace Sho2on.Database.Migrations
 
                     b.Navigation("CheckInBranch");
 
+                    b.Navigation("CheckInFingerPrint");
+
                     b.Navigation("CheckOutBranch");
+
+                    b.Navigation("CheckOutFingerPrint");
 
                     b.Navigation("Leave");
 
@@ -1173,15 +2697,296 @@ namespace Sho2on.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.Benefit", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.BenefitType", "BenefitType")
+                        .WithMany("Benefits")
+                        .HasForeignKey("BenefitTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BenefitType");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Branch", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.Area", "Area")
+                        .WithMany("Branches")
+                        .HasForeignKey("AreaId");
+
+                    b.Navigation("Area");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.BreakLog", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.Break", "Break")
+                        .WithMany()
+                        .HasForeignKey("BreakId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Break");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Chat", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "FirstUser")
+                        .WithMany("SenderChats")
+                        .HasForeignKey("FirstUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "SecondUser")
+                        .WithMany("ReceiverChats")
+                        .HasForeignKey("SecondUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FirstUser");
+
+                    b.Navigation("SecondUser");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatAttachment", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.ChatMessage", "Message")
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroup", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupAttachment", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.ChatGroupMessage", "Message")
+                        .WithMany("Attachments")
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupMember", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.ChatGroup", "Group")
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupMessage", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.ChatGroup", "Group")
+                        .WithMany("Messages")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupMessageRead", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.ChatGroupMessage", "Message")
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatMessage", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.Chat", "Chat")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatUserStatus", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.Chat", "Chat")
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Commission", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.CompanyDocument", b =>
                 {
+                    b.HasOne("JobTitle", "JobTitle")
+                        .WithMany()
+                        .HasForeignKey("JobTitleId");
+
                     b.HasOne("Sho2on.Database.Models.User", "Uploader")
                         .WithMany()
                         .HasForeignKey("UploadedBy")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("JobTitle");
+
                     b.Navigation("Uploader");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.DepartmentTransferRequest", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "DirectManager")
+                        .WithMany()
+                        .HasForeignKey("DirectManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Department", "FromDepartment")
+                        .WithMany()
+                        .HasForeignKey("FromDepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "SecondApprover")
+                        .WithMany()
+                        .HasForeignKey("SecondApproverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Department", "ToDepartment")
+                        .WithMany()
+                        .HasForeignKey("ToDepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DirectManager");
+
+                    b.Navigation("FromDepartment");
+
+                    b.Navigation("SecondApprover");
+
+                    b.Navigation("ToDepartment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.EmployeeBenefit", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.BenefitType", "BenefitType")
+                        .WithMany()
+                        .HasForeignKey("BenefitTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany("EmployeeBenefits")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BenefitType");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.EmployeeDocument", b =>
@@ -1228,6 +3033,31 @@ namespace Sho2on.Database.Migrations
                     b.Navigation("Evaluator");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.EmployeePermission", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId");
+
+                    b.HasOne("Sho2on.Database.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany("EmployeePermissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.EvaluationCriteria", b =>
                 {
                     b.HasOne("Sho2on.Database.Models.EmployeeEvaluation", "Evaluation")
@@ -1264,11 +3094,54 @@ namespace Sho2on.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.FriendshipBoxTransaction", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.FriendshipBox", "FriendshipBox")
+                        .WithMany()
+                        .HasForeignKey("FriendshipBoxId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.Loan", "Loan")
+                        .WithMany()
+                        .HasForeignKey("LoanId");
+
+                    b.HasOne("Sho2on.Database.Models.SalaryPayment", "SalaryPayment")
+                        .WithMany()
+                        .HasForeignKey("SalaryPaymentId");
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("FriendshipBox");
+
+                    b.Navigation("Loan");
+
+                    b.Navigation("SalaryPayment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.Leave", b =>
                 {
                     b.HasOne("Sho2on.Database.Models.User", "Approver")
                         .WithMany()
                         .HasForeignKey("ApprovedBy");
+
+                    b.HasOne("Sho2on.Database.Models.User", "Canceller")
+                        .WithMany()
+                        .HasForeignKey("CancelledBy");
+
+                    b.HasOne("Sho2on.Database.Models.LeaveType", "LeaveType")
+                        .WithMany("Leaves")
+                        .HasForeignKey("LeaveTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "ReplacementUser")
+                        .WithMany()
+                        .HasForeignKey("ReplacementUserId");
 
                     b.HasOne("Sho2on.Database.Models.User", "User")
                         .WithMany()
@@ -1278,18 +3151,61 @@ namespace Sho2on.Database.Migrations
 
                     b.Navigation("Approver");
 
+                    b.Navigation("Canceller");
+
+                    b.Navigation("LeaveType");
+
+                    b.Navigation("ReplacementUser");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.LeaveBalance", b =>
                 {
+                    b.HasOne("Sho2on.Database.Models.LeaveType", "LeaveType")
+                        .WithMany("LeaveBalances")
+                        .HasForeignKey("LeaveTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Sho2on.Database.Models.User", "User")
                         .WithMany("LeaveBalances")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("LeaveType");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Loan", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "ApprovedByUser")
+                        .WithMany("ApprovedLoans")
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany("Loans")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedByUser");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.LoanPayment", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.Loan", "Loan")
+                        .WithMany("LoanPayments")
+                        .HasForeignKey("LoanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Loan");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.Machine", b =>
@@ -1332,8 +3248,45 @@ namespace Sho2on.Database.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.Notification", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Offical", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Penalty", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.Procedure", b =>
                 {
+                    b.HasOne("Sho2on.Database.Models.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId");
+
                     b.HasOne("Sho2on.Database.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId");
@@ -1343,6 +3296,8 @@ namespace Sho2on.Database.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ApprovedBy");
 
                     b.Navigation("Branch");
 
@@ -1379,34 +3334,47 @@ namespace Sho2on.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.SalaryPayment", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "User")
+                        .WithMany("SalaryPayments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.User", b =>
                 {
-                    b.HasOne("Sho2on.Database.Models.Branch", "Branch")
+                    b.HasOne("Sho2on.Database.Models.Area", "Area")
                         .WithMany()
+                        .HasForeignKey("AreaId");
+
+                    b.HasOne("Sho2on.Database.Models.Branch", "Branch")
+                        .WithMany("Users")
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Sho2on.Database.Models.Break", "Break")
                         .WithMany()
-                        .HasForeignKey("BreakId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BreakId");
 
                     b.HasOne("Degree", "Degree")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("DegreeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Department", "Department")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("JobTitle", "JobTitle")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("JobTitleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1414,6 +3382,14 @@ namespace Sho2on.Database.Migrations
                     b.HasOne("Sho2on.Database.Models.JobType", "JobType")
                         .WithMany()
                         .HasForeignKey("JobTypeId");
+
+                    b.HasOne("Sho2on.Database.Models.User", "Manager")
+                        .WithMany("MyEmployees")
+                        .HasForeignKey("ManagerId");
+
+                    b.HasOne("Sho2on.Database.Models.Qualification", "Qualification")
+                        .WithMany()
+                        .HasForeignKey("QualificationId");
 
                     b.HasOne("Sho2on.Database.Models.Shift", "Shift")
                         .WithMany()
@@ -1427,6 +3403,8 @@ namespace Sho2on.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Area");
+
                     b.Navigation("Branch");
 
                     b.Navigation("Break");
@@ -1439,6 +3417,10 @@ namespace Sho2on.Database.Migrations
 
                     b.Navigation("JobType");
 
+                    b.Navigation("Manager");
+
+                    b.Navigation("Qualification");
+
                     b.Navigation("Shift");
 
                     b.Navigation("WeekHoliday");
@@ -1447,7 +3429,7 @@ namespace Sho2on.Database.Migrations
             modelBuilder.Entity("Sho2on.Database.Models.UserBranch", b =>
                 {
                     b.HasOne("Sho2on.Database.Models.Branch", "Branch")
-                        .WithMany()
+                        .WithMany("UserBranches")
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1455,7 +3437,7 @@ namespace Sho2on.Database.Migrations
                     b.HasOne("Sho2on.Database.Models.User", "User")
                         .WithMany("UserBranches")
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -1482,6 +3464,74 @@ namespace Sho2on.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Sho2on.Database.Models.UserTask", b =>
+                {
+                    b.HasOne("Sho2on.Database.Models.User", "AssignedByUser")
+                        .WithMany("AssignedByTasks")
+                        .HasForeignKey("AssignedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sho2on.Database.Models.User", "AssignedToUser")
+                        .WithMany("AssignedToTasks")
+                        .HasForeignKey("AssignedToUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByUser");
+
+                    b.Navigation("AssignedToUser");
+                });
+
+            modelBuilder.Entity("Degree", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Department", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("JobTitle", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Area", b =>
+                {
+                    b.Navigation("Branches");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.BenefitType", b =>
+                {
+                    b.Navigation("Benefits");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Branch", b =>
+                {
+                    b.Navigation("UserBranches");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Chat", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroup", b =>
+                {
+                    b.Navigation("Members");
+
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.ChatGroupMessage", b =>
+                {
+                    b.Navigation("Attachments");
+                });
+
             modelBuilder.Entity("Sho2on.Database.Models.CompanyDocument", b =>
                 {
                     b.Navigation("EmployeeDocuments");
@@ -1490,6 +3540,18 @@ namespace Sho2on.Database.Migrations
             modelBuilder.Entity("Sho2on.Database.Models.EmployeeEvaluation", b =>
                 {
                     b.Navigation("EvaluationCriterias");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.LeaveType", b =>
+                {
+                    b.Navigation("LeaveBalances");
+
+                    b.Navigation("Leaves");
+                });
+
+            modelBuilder.Entity("Sho2on.Database.Models.Loan", b =>
+                {
+                    b.Navigation("LoanPayments");
                 });
 
             modelBuilder.Entity("Sho2on.Database.Models.Menu", b =>
@@ -1511,19 +3573,39 @@ namespace Sho2on.Database.Migrations
 
             modelBuilder.Entity("Sho2on.Database.Models.User", b =>
                 {
+                    b.Navigation("ApprovedLoans");
+
+                    b.Navigation("AssignedByTasks");
+
+                    b.Navigation("AssignedToTasks");
+
                     b.Navigation("Attendances");
+
+                    b.Navigation("EmployeeBenefits");
 
                     b.Navigation("EmployeeDocuments");
 
                     b.Navigation("EmployeeEvaluations");
 
+                    b.Navigation("EmployeePermissions");
+
                     b.Navigation("FingerPrints");
 
                     b.Navigation("LeaveBalances");
 
+                    b.Navigation("Loans");
+
                     b.Navigation("MachineData");
 
+                    b.Navigation("MyEmployees");
+
+                    b.Navigation("ReceiverChats");
+
                     b.Navigation("Salaries");
+
+                    b.Navigation("SalaryPayments");
+
+                    b.Navigation("SenderChats");
 
                     b.Navigation("UserBranches");
 

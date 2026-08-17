@@ -6,19 +6,18 @@ namespace Sho2on.Database.Models
 {
     public class Branch
     {
-        [Key]
         public int Id { get; set; }
+        public string Name { get; set; } = "";
 
-        [Required]
-        [StringLength(100)]
-        public string Name { get; set; }
-
-        [ForeignKey("Area")]
         public int? AreaId { get; set; }
+        public Area? Area { get; set; }
 
-        public virtual Area Area { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
 
-        public DateTime? EditedAt { get; set; } = DateTime.Now;
+        public int RadiusMeters { get; set; } = 100;
+
+        public DateTime EditedAt { get; set; }
 
         public virtual ICollection<UserBranch> UserBranches { get; set; } = new List<UserBranch>();
 

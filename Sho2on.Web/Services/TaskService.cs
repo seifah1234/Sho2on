@@ -8,7 +8,12 @@ namespace Sho2on.Web.Services
     public class TaskService
     {
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
-        public TaskService(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
+        private readonly NotificationCenterService _notify;
+        public TaskService(IDbContextFactory<AppDbContext> dbFactory, NotificationCenterService notify)
+        {
+            _dbFactory = dbFactory;
+            _notify = notify;
+        }
 
         public async Task<List<TaskListItem>> GetAssignedToMeAsync(int userId)
         {
@@ -65,14 +70,33 @@ namespace Sho2on.Web.Services
                 CreatedAt = DateTime.Now,
                 DueDate = dueDate
             });
+
+            var assignedByUser = await _db.Users.FindAsync(assignedByUserId);
+            if (assignedByUser != null) {
+                await _notify.CreateAsync(assignedToUserId,
+                    "مهمة جديدة",
+                    $"{assignedByUser.FullName} قام بتعيين مهمة جديدة عليك",
+                    "bi-task",
+                    "/tasks");
+            }
+
             await _db.SaveChangesAsync();
         }
 
         public async Task UpdateStatusAsync(int taskId, UserTaskStatus status)
         {
             using var _db = await _dbFactory.CreateDbContextAsync();
-            var task = await _db.UserTasks.FindAsync(taskId) ?? throw new Exception("المهمة غير موجودة");
+            var task = await _db.UserTasks.Include(u => u.AssignedByUser).FirstOrDefaultAsync(t => t.Id == taskId) ?? throw new Exception("المهمة غير موجودة");
             task.Status = (int)status;
+            var assignedByUser = await _db.Users.FindAsync(task.AssignedByUserId);
+            if (assignedByUser != null)
+            {
+                await _notify.CreateAsync(task.AssignedByUserId,
+                    "تحديث حالة المهمة",
+                    $"{task.AssignedToUser.FullName} قام بتحديث حالة المهمة إلى {status}",
+                    "bi-task",
+                    "/tasks");
+            }
             await _db.SaveChangesAsync();
         }
 

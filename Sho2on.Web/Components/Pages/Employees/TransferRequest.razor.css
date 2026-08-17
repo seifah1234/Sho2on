@@ -1,0 +1,440 @@
+﻿/* ===== صفحة طلب نقل القسم ===== */
+.transfer-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== رأس الصفحة ===== */
+.transfer-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .transfer-page .page-header h2 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+        .transfer-page .page-header h2 i {
+            font-size: 24px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--info-bg);
+            color: var(--primary);
+            border-radius: var(--radius-md);
+        }
+
+/* ===== اللوحات ===== */
+.transfer-page .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all var(--transition);
+}
+
+    .transfer-page .panel:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+.transfer-page .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 24px;
+    background: linear-gradient(180deg, var(--background) 0%, #F5F2EC 100%);
+    border-bottom: 2px solid var(--border);
+}
+
+    .transfer-page .panel-header i {
+        font-size: 20px;
+        color: var(--primary);
+    }
+
+    .transfer-page .panel-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--text);
+        flex: 1;
+    }
+
+.transfer-page .panel-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ===== عداد الطلبات ===== */
+.transfer-page .request-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ===== حقول الإدخال ===== */
+.transfer-page .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .transfer-page .field label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+        .transfer-page .field label i {
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+.transfer-page .select-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    transition: all var(--transition);
+    box-sizing: border-box;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 16px center;
+}
+
+    .transfer-page .select-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background-color: var(--surface);
+    }
+
+.transfer-page .search-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    transition: all var(--transition);
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+}
+
+    .transfer-page .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+    .transfer-page .search-input::placeholder {
+        color: var(--text-muted);
+        font-size: 12.5px;
+    }
+
+/* ===== زر التقديم ===== */
+.transfer-page .submit-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 24px;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.transfer-page .btn-primary {
+    background: var(--gradient-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 13px 24px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+    .transfer-page .btn-primary:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .transfer-page .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: var(--shadow-sm);
+    }
+
+/* ===== الجدول ===== */
+.transfer-page .table-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.transfer-page .data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .transfer-page .data-table thead th {
+        padding: 14px 16px;
+        background: var(--background);
+        font-size: 11.5px;
+        font-weight: 800;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px solid var(--border);
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .transfer-page .data-table tbody td {
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .transfer-page .data-table tbody tr {
+        transition: all var(--transition-fast);
+    }
+
+        .transfer-page .data-table tbody tr:hover td {
+            background: var(--surface-hover);
+        }
+
+        .transfer-page .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+/* ===== شارات الأقسام ===== */
+.transfer-page .dept-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--background);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+    .transfer-page .dept-badge i {
+        font-size: 14px;
+        color: var(--primary);
+    }
+
+    .transfer-page .dept-badge.to i {
+        color: var(--info);
+    }
+
+/* ===== خلية التاريخ ===== */
+.transfer-page .date-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--text-light);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+    .transfer-page .date-cell i {
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+/* ===== شارات الحالة ===== */
+.transfer-page .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+    .transfer-page .status-badge i {
+        font-size: 14px;
+    }
+
+.transfer-page .status-approved {
+    background: var(--success-bg, #E8F5E9);
+    color: var(--success, #2E7D32);
+}
+
+.transfer-page .status-rejected {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.transfer-page .status-pending {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+/* ===== حالات التحميل والفارغ ===== */
+.transfer-page .loading-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.transfer-page .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.transfer-page .muted {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.transfer-page .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+    .transfer-page .empty-state i {
+        font-size: 48px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .transfer-page .empty-state p {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+/* ===== سكرول بار ===== */
+.transfer-page .table-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.transfer-page .table-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.transfer-page .table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .transfer-page .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .transfer-page .panel-header {
+        padding: 14px 16px;
+    }
+
+    .transfer-page .panel-body {
+        padding: 16px;
+    }
+
+    .transfer-page .data-table th,
+    .transfer-page .data-table td {
+        padding: 10px 8px;
+        font-size: 11.5px;
+    }
+
+    .transfer-page .dept-badge,
+    .transfer-page .date-cell {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    .transfer-page .status-badge {
+        padding: 4px 10px;
+        font-size: 10.5px;
+    }
+
+    .transfer-page .submit-btn {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+}

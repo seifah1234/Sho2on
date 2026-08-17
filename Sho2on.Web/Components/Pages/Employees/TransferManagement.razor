@@ -1,0 +1,148 @@
+﻿@page "/emplyee/transfer-requests/management"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject DepartmentTransferService TransferSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<TransferManagement> Logger
+@implements IDisposable
+
+<div class="settings-page">
+    <div class="page-header">
+        <h2><i class="bi bi-clipboard-check"></i> @Lang.T("إدارة طلبات النقل")</h2>
+    </div>
+
+    @if (pending == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (pending.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-check2-circle"></i><p>@Lang.T("لا توجد طلبات تحتاج موافقتك حاليًا")</p></div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("من")</th>
+                        <th>@Lang.T("إلى")</th>
+                        <th>@Lang.T("السبب")</th>
+                        <th>@Lang.T("مرحلة الموافقة")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in pending)
+                    {
+                        <tr>
+                            <td>@r.EmployeeName</td>
+                            <td>@r.FromDepartmentName</td>
+                            <td>@r.ToDepartmentName</td>
+                            <td class="muted-cell">@(r.Reason ?? "—")</td>
+                            <td>
+                                <span class="status-badge status-pending">
+                                    @(r.Status == TransferRequestStatus.PendingDirectManager ? Lang.T("مدير مباشر") : Lang.T("موافق ثاني"))
+                                </span>
+                            </td>
+                            <td class="row-actions">
+                                <button class="icon-action" title="@Lang.T("موافقة")" @onclick="() => OpenActionModal(r, true)">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                                <button class="icon-action danger" title="@Lang.T("رفض")" @onclick="() => OpenActionModal(r, false)">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal && selectedRequest != null)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isApproving ? Lang.T("تأكيد الموافقة") : Lang.T("تأكيد الرفض"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    @Lang.T("طلب نقل") <strong>@selectedRequest.EmployeeName</strong>
+                    @Lang.T("من") @selectedRequest.FromDepartmentName @Lang.T("إلى") @selectedRequest.ToDepartmentName
+                </p>
+                <div class="field">
+                    <label>@Lang.T("ملاحظة (اختياري)")</label>
+                    <textarea class="search-input" rows="2" @bind="actionNote"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="@(isApproving ? "btn-primary" : "btn-danger")" @onclick="ConfirmAction">
+                    @(isApproving ? Lang.T("تأكيد الموافقة") : Lang.T("تأكيد الرفض"))
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<TransferRequestItem>? pending;
+    int currentUserId;
+
+    bool showModal = false;
+    bool isApproving = false;
+    TransferRequestItem? selectedRequest;
+    string actionNote = "";
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+        await Load();
+    }
+
+    async Task Load()
+    {
+        try { pending = await TransferSvc.GetPendingForApproverAsync(currentUserId); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء تحميل طلبات النقل"); Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات")); }
+    }
+
+    void OpenActionModal(TransferRequestItem r, bool approve)
+    {
+        selectedRequest = r; isApproving = approve; actionNote = ""; showModal = true;
+    }
+    void CloseModal() => showModal = false;
+
+    async Task ConfirmAction()
+    {
+        if (selectedRequest == null) return;
+        try
+        {
+            var (success, message) = selectedRequest.Status == TransferRequestStatus.PendingDirectManager
+                ? await TransferSvc.DirectManagerActionAsync(selectedRequest.Id, currentUserId, isApproving, actionNote)
+                : await TransferSvc.SecondApproverActionAsync(selectedRequest.Id, currentUserId, isApproving, actionNote);
+
+            if (success) { Notify.ShowSuccess(message); showModal = false; await Load(); }
+            else Notify.ShowError(message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء معالجة طلب نقل");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}
