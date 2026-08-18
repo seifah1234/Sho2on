@@ -47,8 +47,16 @@ namespace Sho2on.Web.Services
 
         public async Task<int> GetUnreadCountAsync(int userId)
         {
-            using var db = await _dbFactory.CreateDbContextAsync();
-            return await db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+            try
+            {
+                using var db = await _dbFactory.CreateDbContextAsync();
+                return await db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         public async Task MarkAsReadAsync(int notificationId)

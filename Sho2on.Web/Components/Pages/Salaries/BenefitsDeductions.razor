@@ -90,7 +90,7 @@
                                 <span class="benefit-type-name">@item.BenefitTypeName</span>
                                 <span class="status-badge @item.TypeClass">@item.TypeDisplay</span>
                             </td>
-                            <td class="@item.AmountClass">@item.AmountDisplay <span class="currency-sm">ج.م</span></td>
+                            <td class="@item.AmountClass">@item.AmountDisplay <span class="currency-sm">@Lang.T("ج.م")</span></td>
                             <td>@item.Date.ToString("yyyy/MM/dd")</td>
                             <td>@(string.IsNullOrEmpty(item.Notes) ? "—" : item.Notes)</td>
                             <td>

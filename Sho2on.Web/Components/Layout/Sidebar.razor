@@ -9,7 +9,7 @@
 @inject AuthenticationStateProvider AuthProvider
 @implements IDisposable
 
-<div class="sidebar" style="position: fixed; top: 0; right: 0; bottom: 0; height: 100vh;">
+<div class="sidebar" style="@(Lang.IsRtl ? "position: fixed; top: 0; right: 0; bottom: 0; height: 100vh;" : "position: fixed; top: 0; left: 0; bottom: 0; height: 100vh;")" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
     <!-- الزخارف -->
     <div class="sidebar-decoration"></div>
     <div class="sidebar-dots">

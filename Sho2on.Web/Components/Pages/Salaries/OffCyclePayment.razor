@@ -42,7 +42,7 @@
                     <label class="form-label">@Lang.T("المبلغ") <span class="required">*</span></label>
                     <div class="input-with-currency">
                         <InputNumber class="form-input" @bind-Value="model.Amount" step="10" min="0" />
-                        <span class="currency">ج.م</span>
+                        <span class="currency">@Lang.T("ج.م")</span>
                     </div>
                     <ValidationMessage For="@(() => model.Amount)" />
                 </div>
