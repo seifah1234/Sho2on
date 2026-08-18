@@ -1,0 +1,56 @@
+﻿.role-modal {
+    max-width: 520px;
+}
+
+.permissions-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    font-size: 12px;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.permissions-actions span {
+    color: var(--text-muted);
+}
+
+.selected-count {
+    margin-inline-start: auto;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.permissions-checklist {
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-top: 6px;
+}
+
+.perm-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    cursor: pointer;
+    border-bottom: 1px solid #F5F3EF;
+}
+
+    .perm-row:last-child {
+        border-bottom: none;
+    }
+
+    .perm-row:hover {
+        background: var(--background);
+    }

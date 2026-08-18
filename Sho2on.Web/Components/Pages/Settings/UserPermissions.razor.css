@@ -1,0 +1,65 @@
+﻿.password-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border);
+}
+
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--text);
+    margin-bottom: 14px;
+}
+
+    .section-divider i {
+        color: var(--accent);
+    }
+
+.username-display {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+
+.password-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+    .password-input-wrapper input {
+        padding-inline-end: 38px;
+    }
+
+.toggle-password {
+    position: absolute;
+    inset-inline-end: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+}
+
+.password-mismatch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--danger);
+    font-size: 12px;
+    margin: 0 0 12px;
+}
+
+.password-section .btn-secondary {
+    margin-inline-end: 8px;
+}

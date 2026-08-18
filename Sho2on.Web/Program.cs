@@ -68,7 +68,8 @@ builder.Services.AddScoped<BranchService>();
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<AreaService>();
 builder.Services.AddScoped<JobTitleService>();
-
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<UserRoleService>();
 builder.Services.AddScoped<QualificationService>();
 builder.Services.AddScoped<ShiftService>();
 builder.Services.AddScoped<OfficialHolidayService>();

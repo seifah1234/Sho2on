@@ -1,0 +1,211 @@
+﻿@page "/settings/roles"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject RoleService RoleSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<Roles> Logger
+@implements IDisposable
+
+<div class="settings-page">
+    <div class="page-header">
+        <h2><i class="bi bi-shield-lock"></i> @Lang.T("الأدوار والصلاحيات")</h2>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة دور جديد")
+        </button>
+    </div>
+
+    @if (roles == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@Lang.T("اسم الدور")</th>
+                        <th>@Lang.T("عدد الصلاحيات")</th>
+                        <th>@Lang.T("عدد المستخدمين")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in roles)
+                    {
+                        <tr>
+                            <td><strong>@r.RoleName</strong></td>
+                            <td><span class="status-badge status-checkin">@r.PermissionsCount</span></td>
+                            <td>@r.UsersCount</td>
+                            <td class="row-actions">
+                                <button class="icon-action" title="@Lang.T("تعديل")" @onclick="() => OpenEditModal(r)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="icon-action danger" title="@Lang.T("حذف")" @onclick="() => RequestDelete(r)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box role-modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل دور") : Lang.T("دور جديد"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("اسم الدور")</label>
+                    <input class="search-input" @bind="formName" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("الصلاحيات")</label>
+                    <input class="search-input" placeholder="@Lang.T("ابحث في الصلاحيات...")" @bind="permSearchTerm" @bind:event="oninput" />
+
+                    <div class="permissions-actions">
+                        <button type="button" class="link-btn" @onclick="SelectAllVisible">@Lang.T("تحديد الكل")</button>
+                        <span>·</span>
+                        <button type="button" class="link-btn" @onclick="ClearAllVisible">@Lang.T("إلغاء التحديد")</button>
+                        <span class="selected-count">@selectedPermissionIds.Count @Lang.T("محددة")</span>
+                    </div>
+
+                    <div class="permissions-checklist">
+                        @if (allPermissions != null)
+                        {
+                            @foreach (var p in allPermissions.Where(p => string.IsNullOrEmpty(permSearchTerm) || p.PermissionName.Contains(permSearchTerm)))
+                            {
+                                <label class="perm-row">
+                                    <input type="checkbox" checked="@selectedPermissionIds.Contains(p.PermissionID)"
+                                           @onchange="(e) => TogglePermission(p.PermissionID, (bool)e.Value!)" />
+                                    <span>@p.PermissionName</span>
+                                </label>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (roleToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body"><p>@Lang.T("هل أنت متأكد من حذف دور") <strong>@roleToDelete.RoleName</strong>؟</p></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<RoleListItem>? roles;
+    List<Permission>? allPermissions;
+
+    bool showModal = false;
+    bool isEdit = false;
+    int? editingId;
+    string formName = "";
+    string permSearchTerm = "";
+    HashSet<int> selectedPermissionIds = new();
+
+    RoleListItem? roleToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allPermissions = await RoleSvc.GetAllPermissionsAsync();
+        await Load();
+    }
+
+    async Task Load()
+    {
+        try { roles = await RoleSvc.GetAllAsync(); }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء تحميل الأدوار"); Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات")); }
+    }
+
+    void OpenAddModal()
+    {
+        isEdit = false; editingId = null; formName = ""; permSearchTerm = "";
+        selectedPermissionIds = new();
+        showModal = true;
+    }
+
+    async Task OpenEditModal(RoleListItem r)
+    {
+        isEdit = true; editingId = r.Id; formName = r.RoleName; permSearchTerm = "";
+        var current = await RoleSvc.GetRolePermissionIdsAsync(r.Id);
+        selectedPermissionIds = new HashSet<int>(current);
+        showModal = true;
+    }
+
+    void CloseModal() => showModal = false;
+
+    void TogglePermission(int id, bool isChecked)
+    {
+        if (isChecked) selectedPermissionIds.Add(id); else selectedPermissionIds.Remove(id);
+    }
+
+    void SelectAllVisible()
+    {
+        var visible = allPermissions!.Where(p => string.IsNullOrEmpty(permSearchTerm) || p.PermissionName.Contains(permSearchTerm));
+        foreach (var p in visible) selectedPermissionIds.Add(p.PermissionID);
+    }
+
+    void ClearAllVisible()
+    {
+        var visible = allPermissions!.Where(p => string.IsNullOrEmpty(permSearchTerm) || p.PermissionName.Contains(permSearchTerm));
+        foreach (var p in visible) selectedPermissionIds.Remove(p.PermissionID);
+    }
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formName)) { Notify.ShowError(Lang.T("أدخل اسم الدور")); return; }
+        try
+        {
+            var (success, message) = await RoleSvc.SaveRoleAsync(editingId, formName, selectedPermissionIds.ToList());
+            if (success) { Notify.ShowSuccess(message); showModal = false; await Load(); }
+            else Notify.ShowError(message);
+        }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء حفظ دور"); Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى")); }
+    }
+
+    void RequestDelete(RoleListItem r) => roleToDelete = r;
+    void CancelDelete() => roleToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (roleToDelete == null) return;
+        try
+        {
+            var (success, message) = await RoleSvc.DeleteRoleAsync(roleToDelete.Id);
+            if (success) { Notify.ShowSuccess(message); roleToDelete = null; await Load(); }
+            else { Notify.ShowError(message); roleToDelete = null; }
+        }
+        catch (Exception ex) { Logger.LogError(ex, "خطأ أثناء حذف دور"); Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى")); roleToDelete = null; }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

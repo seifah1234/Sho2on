@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Sho2on.Web.Constants
 @using Sho2on.Web.Models
+@using Sho2on.Web.Models.Navigation
 @using Sho2on.Web.Services
 @inject NavigationService Navigation
 @inject LocalizationService Lang
@@ -31,9 +33,12 @@
     <div class="sidebar-divider"></div>
 
     <div class="sidebar-menu">
-        @foreach (var item in Navigation.GetMenu())
+        @if (visibleMenu != null)
         {
-            <SidebarGroup Item="item" />
+            @foreach (var item in visibleMenu)
+            {
+                <SidebarGroup Item="item" />
+            }
         }
     </div>
 
@@ -41,8 +46,7 @@
         <div class="user-card">
             <div class="avatar">@initials</div>
             <div>
-                <strong>@userName</strong>
-                <small>@userRole</small>
+                <strong>@userName</strong><small>@userRole</small>
             </div>
         </div>
     </div>
@@ -52,6 +56,7 @@
     string userName = "";
     string userRole = "";
     string initials = "?";
+    List<NavigationItem>? visibleMenu;
 
     protected override void OnInitialized()
     {
@@ -65,6 +70,42 @@
         userName = user.FindFirst("FullName")?.Value ?? user.Identity?.Name ?? "";
         userRole = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
         if (!string.IsNullOrEmpty(userName)) initials = userName.Trim()[0].ToString().ToUpper();
+        bool isAdmin = user.IsInRole(RoleNames.Admin);
+        var userPermissions = user.Claims.Where(c => c.Type == "perm").Select(c => c.Value).ToHashSet();
+
+        var fullMenu = Navigation.GetMenu();
+        visibleMenu = isAdmin ? fullMenu : FilterByPermissions(fullMenu, userPermissions);
+
+    }
+
+    List<NavigationItem> FilterByPermissions(List<NavigationItem> items, HashSet<string> userPermissions)
+    {
+        var result = new List<NavigationItem>();
+
+        foreach (var item in items)
+        {
+            if (item.Children.Count > 0)
+            {
+                var visibleChildren = FilterByPermissions(item.Children, userPermissions);
+                if (visibleChildren.Count > 0)
+                {
+                    result.Add(new NavigationItem
+                    {
+                        Title = item.Title,
+                        Icon = item.Icon,
+                        Url = item.Url,
+                        RequiredPermission = item.RequiredPermission,
+                        Children = visibleChildren
+                    });
+                }
+            }
+            else if (item.RequiredPermission == null || userPermissions.Contains(item.RequiredPermission))
+            {
+                result.Add(item);
+            }
+        }
+
+        return result;
     }
 
     public void Dispose()

@@ -239,7 +239,7 @@
     {
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        isManagement = Sho2on.Web.Constants.RoleNames.ManagementRoles.Any(r => user.IsInRole(r));
+        isManagement = user.IsInRole(RoleNames.Admin);
 
         if (isManagement)
         {

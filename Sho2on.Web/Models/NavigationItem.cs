@@ -11,7 +11,7 @@ public class NavigationItem
     public bool Expanded { get; set; }
 
     public bool IsSection { get; set; }
-
+    public string? RequiredPermission { get; set; }
     public string? Permission { get; set; }
 
     public List<NavigationItem> Children { get; set; } = [];

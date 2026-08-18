@@ -1,0 +1,176 @@
+﻿@page "/settings/user-permissions"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@inject UserRoleService UserRoleSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject ILogger<UserPermissions> Logger
+@implements IDisposable
+
+<div class="settings-page">
+    <div class="page-header">
+        <h2><i class="bi bi-person-gear"></i> @Lang.T("صلاحيات المستخدم")</h2>
+    </div>
+
+    <div class="panel">
+        <div class="field">
+            <label>@Lang.T("اختر موظف")</label>
+            <EmployeeSearchSelect SelectedUserId="selectedUserId" SelectedUserIdChanged="OnEmployeeSelected" />
+        </div>
+
+        @if (selectedUserId.HasValue && allRoles != null)
+        {
+            <div class="field">
+                <label>@Lang.T("الأدوار")</label>
+                <div class="roles-checklist">
+                    @foreach (var role in allRoles)
+                    {
+                        <label class="perm-row">
+                            <input type="checkbox" checked="@selectedRoleIds.Contains(role.Id)"
+                                   @onchange="(e) => ToggleRole(role.Id, (bool)e.Value!)" />
+                            <span>@role.Name</span>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            @if (selectedUserId.HasValue)
+            {
+                <div class="field">
+                    <label>@Lang.T("الأدوار")</label>
+                    <div class="roles-checklist">
+                        @foreach (var role in allRoles!)
+                        {
+                            <label class="perm-row">
+                                <input type="checkbox" checked="@selectedRoleIds.Contains(role.Id)"
+                                       @onchange="(e) => ToggleRole(role.Id, (bool)e.Value!)" />
+                                <span>@role.Name</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <button class="btn-primary" @onclick="Save">
+                    <i class="bi bi-check-lg"></i> @Lang.T("حفظ الأدوار")
+                </button>
+
+                <!-- ══ قسم كلمة المرور — منفصل تمامًا عن حفظ الأدوار ══ -->
+                <div class="password-section">
+                    <div class="section-divider">
+                        <i class="bi bi-key"></i>
+                        <span>@Lang.T("كلمة المرور")</span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(currentUsername))
+                    {
+                        <p class="username-display">@Lang.T("اسم المستخدم") : <strong>@currentUsername</strong></p>
+                    }
+
+                    <div class="password-fields">
+                        <div class="field">
+                            <label>@Lang.T("كلمة مرور جديدة")</label>
+                            <div class="password-input-wrapper">
+                                <input type="@(showPassword ? "text" : "password")" class="search-input" @bind="newPassword" @bind:event="oninput" placeholder="@Lang.T("6 أحرف على الأقل")" />
+                                <button type="button" class="toggle-password" @onclick="() => showPassword = !showPassword">
+                                    <i class="bi @(showPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("تأكيد كلمة المرور")</label>
+                            <input type="@(showPassword ? "text" : "password")" class="search-input" @bind="confirmPassword" @bind:event="oninput" />
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(newPassword) && !string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
+                    {
+                        <p class="password-mismatch"><i class="bi bi-exclamation-circle"></i> @Lang.T("كلمتا المرور غير متطابقتين")</p>
+                    }
+
+
+                    <button class="btn-primary" @onclick="SetPassword" disabled="@(!CanSetPassword)">
+                        <i class="bi bi-key"></i> @Lang.T("تعيين كلمة المرور")
+                    </button>
+                </div>
+            }
+
+            <button class="btn-primary" @onclick="Save">
+                <i class="bi bi-check-lg"></i> @Lang.T("حفظ")
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    int? selectedUserId;
+    List<(int Id, string Name)>? allRoles;
+    HashSet<int> selectedRoleIds = new();
+    string? currentUsername;
+    string newPassword = "";
+    string confirmPassword = "";
+    bool showPassword = false;
+
+    bool CanSetPassword => !string.IsNullOrWhiteSpace(newPassword)
+        && newPassword.Length >= 6
+        && newPassword == confirmPassword;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+    protected override async Task OnInitializedAsync() => allRoles = await UserRoleSvc.GetAllRolesAsync();
+
+    async Task OnEmployeeSelected(int? userId)
+    {
+        selectedUserId = userId;
+        newPassword = ""; confirmPassword = ""; showPassword = false;
+
+        if (userId.HasValue)
+        {
+            var current = await UserRoleSvc.GetUserRoleIdsAsync(userId.Value);
+            selectedRoleIds = new HashSet<int>(current);
+            currentUsername = await UserRoleSvc.GetUsernameAsync(userId.Value);
+        }
+    }
+
+    async Task SetPassword()
+    {
+        if (!selectedUserId.HasValue || !CanSetPassword) return;
+        try
+        {
+            var (success, message) = await UserRoleSvc.SetPasswordAsync(selectedUserId.Value, newPassword);
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                newPassword = ""; confirmPassword = ""; showPassword = false;
+            }
+            else Notify.ShowError(message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تعيين كلمة مرور للمستخدم {Id}", selectedUserId);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    void ToggleRole(int id, bool isChecked)
+    {
+        if (isChecked) selectedRoleIds.Add(id); else selectedRoleIds.Remove(id);
+    }
+
+    async Task Save()
+    {
+        if (!selectedUserId.HasValue) return;
+        try
+        {
+            await UserRoleSvc.SaveUserRolesAsync(selectedUserId.Value, selectedRoleIds.ToList());
+            Notify.ShowSuccess(Lang.T("تم حفظ صلاحيات المستخدم بنجاح"));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حفظ صلاحيات مستخدم");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}
