@@ -399,5 +399,90 @@ namespace Sho2on.Web.Services
                 PageSize = pageSize
             };
         }
+
+        public async Task<PagedResult<EmployeeListItem>> GetPagedListAsync(EmployeeFilterModel filter, int page, int pageSize)
+        {
+            using var _db = await _dbFactory.CreateDbContextAsync();
+            var query = _db.Users
+                .Include(u => u.Branch)
+                .Include(u => u.Department)
+                .Include(u => u.JobTitle)
+                .AsQueryable();
+
+            if (!filter.IncludeArchived)
+                query = query.Where(u => !u.IsArchived);
+
+            if (filter.BranchId.HasValue)
+                query = query.Where(u => u.BranchId == filter.BranchId.Value);
+
+            if (!string.IsNullOrWhiteSpace(filter.Search))
+                query = query.Where(u => u.FullName.Contains(filter.Search) || u.Code.Contains(filter.Search) || u.PhoneNumber.Contains(filter.Search));
+
+            if (filter.DepartmentId.HasValue)
+                query = query.Where(u => u.DepartmentId == filter.DepartmentId.Value);
+
+            if (filter.JobTitleId.HasValue)
+                query = query.Where(u => u.JobTitleId == filter.JobTitleId.Value);
+
+            if (filter.Gender.HasValue)
+                query = query.Where(u => u.Gender == filter.Gender.Value);
+
+            if (filter.MaritalId.HasValue)
+                query = query.Where(u => u.MaritalId == filter.MaritalId.Value);
+
+            if (filter.InsuredId.HasValue)
+                query = query.Where(u => u.InsuredId == filter.InsuredId.Value);
+
+            if (filter.RecidenceId.HasValue)
+                query = query.Where(u => u.RecidenceId == filter.RecidenceId.Value);
+
+            if (filter.DegreeId.HasValue)
+                query = query.Where(u => u.DegreeId == filter.DegreeId.Value);
+
+            if (filter.QualificationId.HasValue)
+                query = query.Where(u => u.QualificationId == filter.QualificationId.Value);
+
+            if (filter.AreaId.HasValue)
+                query = query.Where(u => u.AreaId == filter.AreaId.Value);
+
+            if (filter.InDuty.HasValue)
+                query = query.Where(u => u.InDuty == filter.InDuty.Value);
+
+            if (filter.UnderTraining.HasValue)
+                query = query.Where(u => u.UnderTraining == filter.UnderTraining.Value);
+
+            if (filter.Blacklist.HasValue)
+                query = query.Where(u => u.Blacklist == filter.Blacklist.Value);
+
+            if (filter.HireDateFrom.HasValue)
+                query = query.Where(u => u.HireDate >= filter.HireDateFrom.Value);
+
+            if (filter.HireDateTo.HasValue)
+                query = query.Where(u => u.HireDate <= filter.HireDateTo.Value);
+
+            if (!string.IsNullOrWhiteSpace(filter.PhoneNumber))
+                query = query.Where(u => u.PhoneNumber.Contains(filter.PhoneNumber));
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(u => u.FullName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(u => new EmployeeListItem
+                {
+                    Id = u.Id,
+                    Code = u.Code,
+                    FullName = u.FullName,
+                    BranchName = u.Branch.Name,
+                    DepartmentName = u.Department.Name,
+                    JobTitleName = u.JobTitle.Name,
+                    PhoneNumber = u.PhoneNumber,
+                    IsArchived = u.IsArchived
+                })
+                .ToListAsync();
+
+            return new PagedResult<EmployeeListItem> { Items = items, TotalCount = totalCount, Page = page, PageSize = pageSize };
+        }
     }
 }

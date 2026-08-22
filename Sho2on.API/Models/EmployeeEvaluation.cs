@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class EmployeeEvaluation
     {
@@ -35,11 +35,6 @@ namespace Sho2on.Database.Models
 
         [Required]
         public EvaluationResult FinalResult { get; set; }
-
-        public string AdministrativeNotes { get; set; }
-        public string TechnicalNotes { get; set; }
-        public decimal AdministrativeScore { get; set; }
-        public decimal TechnicalScore { get; set; }
 
         public string GeneralNotes { get; set; }
 
@@ -77,8 +72,6 @@ namespace Sho2on.Database.Models
 
         public string Notes { get; set; }
 
-        public EvaluationType EvaluationType { get; set; }
-
         [Required]
         public int OrderIndex { get; set; }
 
@@ -98,11 +91,5 @@ namespace Sho2on.Database.Models
         Successful = 1,
         Unsuccessful = 2,
         Conditional = 3
-    }
-
-    public enum EvaluationType
-    {
-        Administrative,
-        Technical
     }
 }

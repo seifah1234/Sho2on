@@ -1,9 +1,9 @@
-﻿namespace Sho2on.API.DTOs
+﻿namespace Sho2on.API.Dtos
 {
     public class RegisterDto
     {
-        public string Id { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public string DeviceId { get; set; } = null!;
+        public string Id { get; set; }
+        public string Password { get; set; }
+        public string DeviceId { get; set; }
     }
 }

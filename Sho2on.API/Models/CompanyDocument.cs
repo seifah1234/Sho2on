@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class CompanyDocument
     {
@@ -17,11 +17,6 @@ namespace Sho2on.Database.Models
         [Required]
         [StringLength(500)]
         public string FileName { get; set; }
-
-        public string? StorageType { get; set; } = "Central";
-
-        public string? FullPath { get; set; }
-        public string? FilePath { get; set; }
 
         [Required]
         [StringLength(50)]

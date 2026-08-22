@@ -32,7 +32,7 @@ namespace Sho2on.Database.Models
         public string Reason { get; set; }
 
         [MaxLength(500)]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 
         public decimal? DeductedAmount { get; set; }
 

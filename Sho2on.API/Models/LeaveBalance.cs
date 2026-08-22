@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Sho2on.API.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class LeaveBalance
     {

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class User
     {
@@ -51,8 +51,6 @@ namespace Sho2on.Database.Models
         public bool CanTakeLoan { get; set; } = true; // هل يمكن أخذ سلفة أم لا
 
         // Work Information
-        [ForeignKey(nameof(Area))]
-        public int? AreaId { get; set; }
         [ForeignKey(nameof(Branch))]
         public int BranchId { get; set; }
         [ForeignKey(nameof(Manager))]
@@ -79,11 +77,6 @@ namespace Sho2on.Database.Models
         [ForeignKey(nameof(JobType))]
         public int? JobTypeId { get; set; }
 
-        [ForeignKey(nameof(Qualification))]
-        public int? QualificationId { get; set; }
-        public int? RecidenceId { get; set; }
-        public int? MaritalId { get; set; }
-
         public bool ExemptLate { get; set; }
         public bool ExemptEarlyLeave { get; set; }
         public bool ExemptOvertime { get; set; }
@@ -93,7 +86,7 @@ namespace Sho2on.Database.Models
         public TimeSpan WorkHours { get; set; }
         public bool InDuty { get; set; }
 
-        public int? InsuredId { get; set; }
+        public bool IsInsured { get; set; }
         public int HolidayBalance { get; set; }
 
         // Sensitive / Administrative
@@ -130,7 +123,6 @@ namespace Sho2on.Database.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         // Navigation Properties
-        public Area? Area { get; set; } = null!;
         public Branch? Branch { get; set; } = null!;
         public User? Manager { get; set; } = null!;
         public Department? Department { get; set; } = null!;
@@ -140,7 +132,6 @@ namespace Sho2on.Database.Models
         public Break? Break { get; set; } = null!;
         public WeekHoliday? WeekHoliday { get; set; } = null!;
         public JobType? JobType { get; set; } = null!;
-        public Qualification? Qualification { get; set; } = null!;
         public ICollection<UserBranch>? UserBranches { get; internal set; }
         public ICollection<UserRole>? UserRoles { get; internal set; }
         public ICollection<FingerPrint>? FingerPrints { get; internal set; }
@@ -149,18 +140,11 @@ namespace Sho2on.Database.Models
         public ICollection<Salary>? Salaries { get; internal set; }
         public ICollection<LeaveBalance>? LeaveBalances { get; internal set; }
         public ICollection<EmployeeDocument>? EmployeeDocuments { get; internal set; }
-        public ICollection<EmployeeEvaluation>?  EmployeeEvaluations { get; internal set; }
+        public ICollection<EmployeeEvaluation>? EmployeeEvaluations { get; internal set; }
         public ICollection<Loan>? Loans { get; internal set; }
         public ICollection<Loan>? ApprovedLoans { get; internal set; }
         public ICollection<SalaryPayment>? SalaryPayments { get; internal set; }
-        public ICollection<EmployeePermission>? EmployeePermissions { get; internal set; }
 
         public ICollection<User>? MyEmployees { get; internal set; }
-
-        public ICollection<UserTask>? AssignedByTasks { get; internal set; }
-        public ICollection<UserTask>? AssignedToTasks { get; internal set; }
-
-        public ICollection<Chat>? SenderChats { get; internal set; }
-        public ICollection<Chat>? ReceiverChats { get; internal set; }
     }
 }

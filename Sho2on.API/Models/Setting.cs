@@ -5,16 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class Setting
     {
         [Key]
         public int Id { get; set; }
-        public string CompanyName { get; set; } = string.Empty;
         public int MaxMobileUsers { get; set; } = 0;
-
-        public string? CentralDocumentStoragePath { get; set; } = string.Empty;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     }

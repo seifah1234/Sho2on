@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class Attendance
     {
@@ -18,6 +18,7 @@ namespace Sho2on.Database.Models
         public int UserId { get; set; }
         public int? ShiftId { get; set; }
         public int? LeaveId { get; set; }
+        public int? PermissionId { get; set; }
 
         [Required]
         public DateTime AttendanceDate { get; set; }
@@ -76,5 +77,7 @@ namespace Sho2on.Database.Models
         public Leave? Leave { get; set; }
         [ForeignKey(nameof(ShiftId))]
         public Shift? Shift { get; set; }
+        [ForeignKey(nameof(PermissionId))]
+        public EmployeePermission? Permission { get; set; }
     }
 }

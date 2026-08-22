@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sho2on.API.DTOs;
-using Sho2on.Database.Models;
+using Sho2on.API.Data;
+using Sho2on.API.Dtos;
+using Sho2on.API.Models;
 
 namespace Sho2on.API.Controllers
 {
@@ -39,33 +41,69 @@ namespace Sho2on.API.Controllers
 
                 if (attendance == null)
                 {
-                    attendance = new Attendance
+                    if (dto.Status == 1)
                     {
-                        UserId = dto.UserId,
-                        AttendanceDate = today,
-                        CheckInBranchId = dto.BranchId,
-                        CheckInLocation = dto.LocationName,
-                        CheckInLatitude = dto.Latitude,
-                        CheckInLongitude = dto.Longitude,
-                        CheckInTime = now,
-                        ShiftId = user?.ShiftId,
-                        CheckInFingerPrintId = fp.Id
-                    };
-                    _db.Attendances.Add(attendance);
+                        attendance = new Attendance
+                        {
+                            UserId = dto.UserId,
+                            AttendanceDate = today,
+                            CheckInBranchId = dto.BranchId,
+                            CheckInLocation = dto.LocationName,
+                            CheckInLatitude = dto.Latitude,
+                            CheckInLongitude = dto.Longitude,
+                            CheckInTime = now,
+                            ShiftId = user?.ShiftId,
+                            CheckInFingerPrintId = fp.Id
+                        };
+
+                        _db.Attendances.Add(attendance);
+
+                    }else
+                    {
+                        attendance = new Attendance
+                        {
+                            UserId = dto.UserId,
+                            AttendanceDate = today,
+                            CheckOutBranchId = dto.BranchId,
+                            CheckOutLocation = dto.LocationName,
+                            CheckOutLatitude = dto.Latitude,
+                            CheckOutLongitude = dto.Longitude,
+                            CheckOutTime = now,
+                            ShiftId = user?.ShiftId,
+                            CheckOutFingerPrintId = fp.Id
+                        };
+
+                        _db.Attendances.Add(attendance);
+                    }
+
                 }
                 else
                 {
-                    attendance.CheckOutBranchId = dto.BranchId;
-                    attendance.CheckOutLocation = dto.LocationName;
-                    attendance.CheckOutLatitude = dto.Latitude;
-                    attendance.CheckOutLongitude = dto.Longitude;
-                    attendance.CheckOutTime = now;
-                    attendance.CheckOutFingerPrintId = fp.Id;
+                    if (dto.Status == 0)
+                    {
+                        attendance.CheckOutBranchId = dto.BranchId;
+                        attendance.CheckOutLocation = dto.LocationName;
+                        attendance.CheckOutLatitude = dto.Latitude;
+                        attendance.CheckOutLongitude = dto.Longitude;
+                        attendance.CheckOutTime = now;
+                        attendance.CheckOutFingerPrintId = fp.Id;
+                    }
+                    else
+                    {
+                        attendance.CheckInBranchId = dto.BranchId;
+                        attendance.CheckInLocation = dto.LocationName;
+                        attendance.CheckInLatitude = dto.Latitude;
+                        attendance.CheckInLongitude = dto.Longitude;
+                        attendance.CheckInTime = now;
+                        attendance.CheckInFingerPrintId = fp.Id;
+                    }
+
 
                     if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue)
                     {
                         attendance.TotalWorkHours = attendance.CheckOutTime - attendance.CheckInTime;
-                        if (user?.Shift != null) {
+                        if (user?.Shift != null)
+                        {
                             if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue && user?.Shift != null)
                             {
                                 var shift = user.Shift;
@@ -79,7 +117,18 @@ namespace Sho2on.API.Controllers
                                     attendance.EarlyLeave = shift.EndTime - attendance.CheckOutTime.Value.TimeOfDay;
 
                                 // ساعات العمل الفعلية
-                                attendance.TotalWorkHours = attendance.CheckOutTime - attendance.CheckInTime;
+                                if (attendance.CheckOutTime.Value.TimeOfDay > attendance.CheckInTime.Value.TimeOfDay)
+                                    attendance.TotalWorkHours = attendance.CheckOutTime.Value.TimeOfDay - attendance.CheckInTime.Value.TimeOfDay;
+                                else if (attendance.CheckOutTime.Value.Date > attendance.CheckInTime.Value.Date)
+                                {
+                                    // حالة الوردية المسائية (تخطت منتصف الليل)
+                                    attendance.TotalWorkHours = (attendance.CheckOutTime - attendance.CheckInTime);
+                                }
+                                else
+                                {
+                                    // حالة وقت الخروج أصغر من وقت الدخول في نفس اليوم
+                                    attendance.TotalWorkHours = TimeSpan.Zero;
+                                }
 
                                 // أوفر تايم
                                 if (attendance.CheckOutTime.Value.TimeOfDay > shift.EndTime)
@@ -110,6 +159,7 @@ namespace Sho2on.API.Controllers
             return Ok(att);
         }
 
+        [Authorize]
         [HttpGet("fingerprints/today/{userId}")]
         public async Task<IActionResult> Fingerprints(int userId)
         {

@@ -76,6 +76,7 @@ builder.Services.AddScoped<OfficialHolidayService>();
 builder.Services.AddScoped<WeekHolidayService>();
 builder.Services.AddScoped<OfficialService>();
 builder.Services.AddScoped<DepartmentTransferService>();
+builder.Services.AddScoped<ProfileService>();
 
 builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
 builder.Logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);

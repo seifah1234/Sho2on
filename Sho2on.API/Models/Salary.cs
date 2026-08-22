@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class Salary
     {

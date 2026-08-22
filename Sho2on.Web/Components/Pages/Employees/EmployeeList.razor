@@ -13,13 +13,22 @@
 @implements IDisposable
 
 <div class="employees-page">
+    <div class="page-header">
+        <h2><i class="bi bi-people"></i> @Lang.T("الموظفون")</h2>
+        <button class="btn-primary" @onclick='() => Nav.NavigateTo("/employees/add")'>
+            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة موظف")
+        </button>
+    </div>
 
     <div class="page-toolbar">
         <div class="search-filter">
-            <input class="search-input" placeholder="@Lang.T("ابحث بالاسم أو الكود أو الموبايل")"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="HandleSearchKeyUp" />
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input class="search-input" placeholder="@Lang.T("ابحث بالاسم أو الكود أو الموبايل")"
+                       @bind="filter.Search" @bind:event="oninput" @onkeyup="HandleSearchKeyUp" />
+            </div>
 
-            <select class="select-input" @bind="selectedBranchId">
+            <select class="select-input" @bind="branchIdStr">
                 <option value="">@Lang.T("كل الفروع")</option>
                 @if (branches != null)
                 {
@@ -31,31 +40,231 @@
             </select>
 
             <label class="checkbox-inline">
-                <input type="checkbox" @bind="includeArchived" />
-                @Lang.T("عرض المؤرشفين")
+                <input type="checkbox" @bind="filter.IncludeArchived" />
+                <i class="bi bi-archive"></i>
+                <span>@Lang.T("عرض المؤرشفين")</span>
             </label>
 
-            <button class="btn-secondary" @onclick="LoadEmployees">@Lang.T("بحث")</button>
-        </div>
+            <button class="btn-outline" @onclick="ToggleAdvancedFilters">
+                <i class="bi bi-sliders"></i> @Lang.T("فلاتر متقدمة")
+                @if (ActiveAdvancedFiltersCount > 0)
+                {
+                    <span class="filter-count-badge">@ActiveAdvancedFiltersCount</span>
+                }
+            </button>
 
-        <button class="btn-primary" @onclick='() => Nav.NavigateTo("/employees/add")'>
-            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة موظف")
-        </button>
+            <button class="btn-secondary" @onclick="ApplyFilters">
+                <i class="bi bi-funnel"></i> @Lang.T("بحث")
+            </button>
+        </div>
     </div>
+
+    @if (showAdvancedFilters)
+    {
+        <div class="advanced-filters-panel fade-in">
+            <div class="filters-header">
+                <h3><i class="bi bi-funnel"></i> @Lang.T("الفلاتر المتقدمة")</h3>
+                <button class="icon-action" @onclick="ToggleAdvancedFilters">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="filters-grid">
+                <div class="field">
+                    <label><i class="bi bi-building"></i> @Lang.T("الإدارة")</label>
+                    <select class="select-input" @bind="departmentIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @if (lookups != null)
+                        {
+                            @foreach (var d in lookups.Departments)
+                            {
+                                <option value="@d.Id">@d.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-briefcase"></i> @Lang.T("الوظيفة")</label>
+                    <select class="select-input" @bind="jobTitleIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @if (lookups != null)
+                        {
+                            @foreach (var j in lookups.JobTitles)
+                            {
+                                <option value="@j.Id">@j.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-gender-ambiguous"></i> @Lang.T("النوع")</label>
+                    <select class="select-input" @bind="genderStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        <option value="M">@Lang.T("ذكر")</option>
+                        <option value="F">@Lang.T("أنثى")</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-heart"></i> @Lang.T("الحالة الاجتماعية")</label>
+                    <select class="select-input" @bind="maritalIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @foreach (var m in Sho2on.Web.Constants.StaticLookups.MaritalStatuses)
+                        {
+                            <option value="@m.Id">@m.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-shield-plus"></i> @Lang.T("التأمين")</label>
+                    <select class="select-input" @bind="insuredIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @foreach (var i in Sho2on.Web.Constants.StaticLookups.InsuranceTypes)
+                        {
+                            <option value="@i.Id">@i.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-house"></i> @Lang.T("الإقامة")</label>
+                    <select class="select-input" @bind="recidenceIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @foreach (var r in Sho2on.Web.Constants.StaticLookups.ResidenceTypes)
+                        {
+                            <option value="@r.Id">@r.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-diagram-3"></i> @Lang.T("القطاع")</label>
+                    <select class="select-input" @bind="degreeIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @if (lookups != null)
+                        {
+                            @foreach (var d in lookups.Degrees)
+                            {
+                                <option value="@d.Id">@d.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-mortarboard"></i> @Lang.T("المؤهل")</label>
+                    <select class="select-input" @bind="qualificationIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @if (lookups != null)
+                        {
+                            @foreach (var q in lookups.Qualifications)
+                            {
+                                <option value="@q.Id">@q.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-geo-alt"></i> @Lang.T("المنطقة")</label>
+                    <select class="select-input" @bind="areaIdStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        @if (lookups != null)
+                        {
+                            @foreach (var a in lookups.Areas)
+                            {
+                                <option value="@a.Id">@a.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-person-check"></i> @Lang.T("في الخدمة")</label>
+                    <select class="select-input" @bind="inDutyStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        <option value="true">@Lang.T("نعم")</option>
+                        <option value="false">@Lang.T("لا")</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-mortarboard"></i> @Lang.T("تحت التدريب")</label>
+                    <select class="select-input" @bind="underTrainingStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        <option value="true">@Lang.T("نعم")</option>
+                        <option value="false">@Lang.T("لا")</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-exclamation-octagon"></i> @Lang.T("قائمة سوداء")</label>
+                    <select class="select-input" @bind="blacklistStr">
+                        <option value="">@Lang.T("الكل")</option>
+                        <option value="true">@Lang.T("نعم")</option>
+                        <option value="false">@Lang.T("لا")</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-phone"></i> @Lang.T("رقم التلفون")</label>
+                    <input class="search-input" @bind="filter.PhoneNumber" placeholder="@Lang.T("أدخل رقم التلفون")" />
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-calendar-plus"></i> @Lang.T("تاريخ التعيين من")</label>
+                    <input type="date" class="search-input" @bind="filter.HireDateFrom" />
+                </div>
+
+                <div class="field">
+                    <label><i class="bi bi-calendar-minus"></i> @Lang.T("تاريخ التعيين إلى")</label>
+                    <input type="date" class="search-input" @bind="filter.HireDateTo" />
+                </div>
+            </div>
+
+            <div class="filters-actions">
+                <button class="btn-secondary" @onclick="ClearAdvancedFilters">
+                    <i class="bi bi-x-circle"></i> @Lang.T("مسح الفلاتر")
+                </button>
+                <button class="btn-primary" @onclick="ApplyFilters">
+                    <i class="bi bi-check-circle"></i> @Lang.T("تطبيق الفلاتر")
+                </button>
+            </div>
+        </div>
+    }
 
     @if (loading)
     {
-        <p class="muted">@Lang.T("جاري التحميل...")</p>
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p class="muted">@Lang.T("جاري التحميل...")</p>
+        </div>
     }
     else if (result == null || result.TotalCount == 0)
     {
         <div class="empty-state">
             <i class="bi bi-people"></i>
             <p>@Lang.T("لا يوجد موظفون مطابقون")</p>
+            @if (ActiveAdvancedFiltersCount > 0 || !string.IsNullOrWhiteSpace(filter.Search))
+            {
+                <button class="btn-secondary" @onclick="ClearAdvancedFilters">
+                    <i class="bi bi-x-circle"></i> @Lang.T("مسح الفلاتر")
+                </button>
+            }
         </div>
     }
     else
     {
+        <div class="results-info">
+            <span class="results-count">
+                <i class="bi bi-person-lines-fill"></i>
+                @Lang.T("عدد النتائج") : @result.TotalCount
+            </span>
+        </div>
+
         <div class="table-wrapper">
             <table class="data-table">
                 <thead>
@@ -66,19 +275,33 @@
                         <th>@Lang.T("الإدارة")</th>
                         <th>@Lang.T("الوظيفة")</th>
                         <th>@Lang.T("الموبايل")</th>
-                        <th></th>
+                        <th>@Lang.T("إجراءات")</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var emp in result!.Items)
                     {
                         <tr class="@(emp.IsArchived ? "archived-row" : "")">
-                            <td>@emp.Code</td>
-                            <td>@emp.FullName</td>
+                            <td>
+                                <span class="code-badge">@emp.Code</span>
+                            </td>
+                            <td>
+                                <div class="employee-name-cell">
+                                    <span>@emp.FullName</span>
+                                    @if (emp.IsArchived)
+                                    {
+                                        <span class="archived-badge">@Lang.T("مؤرشف")</span>
+                                    }
+                                </div>
+                            </td>
                             <td>@emp.BranchName</td>
                             <td>@emp.DepartmentName</td>
                             <td>@emp.JobTitleName</td>
-                            <td>@emp.PhoneNumber</td>
+                            <td>
+                                <span class="phone-cell">
+                                    <i class="bi bi-phone"></i> @emp.PhoneNumber
+                                </span>
+                            </td>
                             <td class="row-actions">
                                 <button class="icon-action" title="@Lang.T("تعديل")" @onclick='() => Nav.NavigateTo($"/employees/edit/{emp.Id}")'>
                                     <i class="bi bi-pencil"></i>
@@ -94,10 +317,12 @@
                 </tbody>
             </table>
         </div>
+
         @if (result != null && result.TotalPages > 1)
         {
             <div class="pagination">
                 <span class="pagination-info">
+                    <i class="bi bi-list-ol"></i>
                     @Lang.T("عرض") @((result.Page - 1) * result.PageSize + 1)-@(Math.Min(result.Page * result.PageSize, result.TotalCount))
                     @Lang.T("من") @result.TotalCount
                 </span>
@@ -190,23 +415,81 @@
     int currentPage = 1;
     int pageSize = 15;
     List<(int Id, string Name)>? branches;
-    string searchTerm = "";
-    string selectedBranchId = "";
-    bool includeArchived = false;
+    EmployeeLookups? lookups;
     bool loading = true;
     System.Timers.Timer? debounceTimer;
 
-    // متغيرات المودال
     bool showArchiveConfirm = false;
     EmployeeListItem? employeeToToggle;
+
+    bool showAdvancedFilters = false;
+    EmployeeFilterModel filter = new();
+
+    // متغيرات وسيطة نصية لربط الـ <select> (HTML select بيرجع string دايمًا)
+    string branchIdStr = "";
+    string departmentIdStr = "";
+    string jobTitleIdStr = "";
+    string genderStr = "";
+    string maritalIdStr = "";
+    string insuredIdStr = "";
+    string recidenceIdStr = "";
+    string degreeIdStr = "";
+    string qualificationIdStr = "";
+    string areaIdStr = "";
+    string inDutyStr = "";
+    string underTrainingStr = "";
+    string blacklistStr = "";
+
+    int ActiveAdvancedFiltersCount =>
+        new[] { departmentIdStr, jobTitleIdStr, genderStr, maritalIdStr, insuredIdStr, recidenceIdStr,
+                degreeIdStr, qualificationIdStr, areaIdStr, inDutyStr, underTrainingStr, blacklistStr }
+        .Count(s => !string.IsNullOrEmpty(s))
+        + (filter.HireDateFrom.HasValue ? 1 : 0)
+        + (filter.HireDateTo.HasValue ? 1 : 0)
+        + (!string.IsNullOrWhiteSpace(filter.PhoneNumber) ? 1 : 0);
 
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
     protected override async Task OnInitializedAsync()
     {
-        var lookups = await EmployeeSvc.GetLookupsAsync();
+        lookups = await EmployeeSvc.GetLookupsAsync();
         branches = lookups.Branches;
         await LoadEmployees();
+    }
+
+    void ToggleAdvancedFilters() => showAdvancedFilters = !showAdvancedFilters;
+
+    void SyncFilterFromStrings()
+    {
+        filter.BranchId = string.IsNullOrEmpty(branchIdStr) ? null : int.Parse(branchIdStr);
+        filter.DepartmentId = string.IsNullOrEmpty(departmentIdStr) ? null : int.Parse(departmentIdStr);
+        filter.JobTitleId = string.IsNullOrEmpty(jobTitleIdStr) ? null : int.Parse(jobTitleIdStr);
+        filter.Gender = string.IsNullOrEmpty(genderStr) ? null : genderStr[0];
+        filter.MaritalId = string.IsNullOrEmpty(maritalIdStr) ? null : int.Parse(maritalIdStr);
+        filter.InsuredId = string.IsNullOrEmpty(insuredIdStr) ? null : int.Parse(insuredIdStr);
+        filter.RecidenceId = string.IsNullOrEmpty(recidenceIdStr) ? null : int.Parse(recidenceIdStr);
+        filter.DegreeId = string.IsNullOrEmpty(degreeIdStr) ? null : int.Parse(degreeIdStr);
+        filter.QualificationId = string.IsNullOrEmpty(qualificationIdStr) ? null : int.Parse(qualificationIdStr);
+        filter.AreaId = string.IsNullOrEmpty(areaIdStr) ? null : int.Parse(areaIdStr);
+        filter.InDuty = string.IsNullOrEmpty(inDutyStr) ? null : bool.Parse(inDutyStr);
+        filter.UnderTraining = string.IsNullOrEmpty(underTrainingStr) ? null : bool.Parse(underTrainingStr);
+        filter.Blacklist = string.IsNullOrEmpty(blacklistStr) ? null : bool.Parse(blacklistStr);
+    }
+
+    async Task ApplyFilters()
+    {
+        SyncFilterFromStrings();
+        currentPage = 1;
+        await LoadEmployees();
+    }
+
+    async Task ClearAdvancedFilters()
+    {
+        departmentIdStr = ""; jobTitleIdStr = ""; genderStr = ""; maritalIdStr = ""; insuredIdStr = "";
+        recidenceIdStr = ""; degreeIdStr = ""; qualificationIdStr = ""; areaIdStr = "";
+        inDutyStr = ""; underTrainingStr = ""; blacklistStr = "";
+        filter.PhoneNumber = null; filter.HireDateFrom = null; filter.HireDateTo = null;
+        await ApplyFilters();
     }
 
     async Task LoadEmployees()
@@ -215,8 +498,7 @@
         StateHasChanged();
         try
         {
-            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
-            result = await EmployeeSvc.GetPagedListAsync(searchTerm, branchId, includeArchived, currentPage, pageSize);
+            result = await EmployeeSvc.GetPagedListAsync(filter, currentPage, pageSize);
         }
         catch (Exception ex)
         {
@@ -247,30 +529,18 @@
         debounceTimer.Start();
     }
 
-    void ConfirmToggleArchive(EmployeeListItem emp)
-    {
-        employeeToToggle = emp;
-        showArchiveConfirm = true;
-    }
-
-    void CancelArchive()
-    {
-        employeeToToggle = null;
-        showArchiveConfirm = false;
-    }
+    void ConfirmToggleArchive(EmployeeListItem emp) { employeeToToggle = emp; showArchiveConfirm = true; }
+    void CancelArchive() { employeeToToggle = null; showArchiveConfirm = false; }
 
     async Task ExecuteToggleArchive()
     {
         if (employeeToToggle == null) return;
-
         showArchiveConfirm = false;
         try
         {
             currentPage = 1;
             await EmployeeSvc.ToggleArchiveAsync(employeeToToggle.Id);
-            Notify.ShowSuccess(employeeToToggle.IsArchived
-                ? Lang.T("تم استعادة الموظف بنجاح")
-                : Lang.T("تم أرشفة الموظف بنجاح"));
+            Notify.ShowSuccess(employeeToToggle.IsArchived ? Lang.T("تم استعادة الموظف بنجاح") : Lang.T("تم أرشفة الموظف بنجاح"));
             await LoadEmployees();
         }
         catch (Exception ex)
@@ -278,10 +548,7 @@
             Logger.LogError(ex, "خطأ أثناء تغيير حالة أرشفة الموظف {Id}", employeeToToggle.Id);
             Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
         }
-        finally
-        {
-            employeeToToggle = null;
-        }
+        finally { employeeToToggle = null; }
     }
 
     public void Dispose()

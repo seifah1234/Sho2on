@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Sho2on.API.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class Leave
     {
@@ -40,7 +41,6 @@ namespace Sho2on.Database.Models
         public DateTime? ApprovalDate { get; set; }
 
         public int? ApprovedBy { get; set; }
-        public int? ReplacementUserId { get; set; }
 
         public string? RejectionReason { get; set; }
 
@@ -58,9 +58,6 @@ namespace Sho2on.Database.Models
 
         [ForeignKey(nameof(ApprovedBy))]
         public virtual User Approver { get; set; }
-
-        [ForeignKey(nameof(ReplacementUserId))]
-        public virtual User ReplacementUser { get; set; }
 
         [ForeignKey(nameof(CancelledBy))]
         public virtual User Canceller { get; set; }

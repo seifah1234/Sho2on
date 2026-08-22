@@ -1,0 +1,300 @@
+﻿@page "/profile"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@inject ProfileService ProfileSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<Profile> Logger
+@implements IDisposable
+
+<div class="profile-page">
+    <div class="page-header">
+        <h2><i class="bi bi-person-circle"></i> @Lang.T("الملف الشخصي")</h2>
+    </div>
+
+    @if (profile == null)
+    {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p class="muted">@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else
+    {
+        <div class="tabs">
+            <button class="tab-btn @(activeTab == "info" ? "active" : "")" @onclick='() => activeTab = "info"'>
+                <i class="bi bi-person-lines-fill"></i> @Lang.T("بياناتي")
+            </button>
+            <button class="tab-btn @(activeTab == "account" ? "active" : "")" @onclick='() => activeTab = "account"'>
+                <i class="bi bi-shield-lock"></i> @Lang.T("الحساب")
+            </button>
+            <button class="tab-btn @(activeTab == "requests" ? "active" : "")" @onclick='() => activeTab = "requests"'>
+                <i class="bi bi-list-check"></i> @Lang.T("طلباتي")
+            </button>
+        </div>
+
+        @if (activeTab == "info")
+        {
+            <div class="panel fade-in">
+                <div class="profile-header">
+                    <div class="profile-avatar">@profile.FullName.Substring(0, 1)</div>
+                    <div class="profile-header-info">
+                        <h3>@profile.FullName</h3>
+                        <span class="profile-badges">
+                            <span class="code-badge"><i class="bi bi-hash"></i> @profile.Code</span>
+                            <span class="job-badge"><i class="bi bi-briefcase"></i> @profile.JobTitleName</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="bi bi-building"></i> @Lang.T("الإدارة")</span>
+                        <span class="info-value">@profile.DepartmentName</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="bi bi-geo-alt"></i> @Lang.T("الفرع")</span>
+                        <span class="info-value">@profile.BranchName</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="bi bi-person-check"></i> @Lang.T("المدير المباشر")</span>
+                        <span class="info-value">@(profile.ManagerName ?? "—")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="bi bi-phone"></i> @Lang.T("رقم الموبايل")</span>
+                        <span class="info-value">@profile.PhoneNumber</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="bi bi-envelope"></i> @Lang.T("البريد الإلكتروني")</span>
+                        <span class="info-value">@(profile.Email ?? "—")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="bi bi-calendar-check"></i> @Lang.T("تاريخ التعيين")</span>
+                        <span class="info-value">@profile.HireDate.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="bi bi-cake2"></i> @Lang.T("تاريخ الميلاد")</span>
+                        <span class="info-value">@profile.BirthDate.ToString("dd/MM/yyyy")</span>
+                    </div>
+                </div>
+
+                <div class="leave-balance-card">
+                    <div class="leave-icon">
+                        <i class="bi bi-calendar-week"></i>
+                    </div>
+                    <div class="leave-info">
+                        <strong>@profile.LeaveBalance</strong>
+                        <span>@Lang.T("يوم متبقي من رصيد الإجازات")</span>
+                        <small>@profile.LeaveUsed @Lang.T("يوم مستخدم")</small>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (activeTab == "account")
+        {
+            <div class="panel fade-in">
+                <div class="section-divider">
+                    <i class="bi bi-person-badge"></i>
+                    <span>@Lang.T("اسم المستخدم")</span>
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("اسم المستخدم")</label>
+                    <div class="input-with-icon">
+                        <i class="bi bi-at"></i>
+                        <input class="search-input" @bind="newUsername" placeholder="@Lang.T("أدخل اسم المستخدم الجديد")" />
+                    </div>
+                </div>
+
+                <button class="btn-primary save-btn" @onclick="SaveUsername">
+                    <i class="bi bi-check-lg"></i> @Lang.T("حفظ اسم المستخدم")
+                </button>
+
+                <div class="password-section">
+                    <div class="section-divider">
+                        <i class="bi bi-key"></i>
+                        <span>@Lang.T("تغيير كلمة المرور")</span>
+                    </div>
+
+                    <div class="field">
+                        <label>@Lang.T("كلمة المرور الحالية")</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-lock"></i>
+                            <input type="password" class="search-input" @bind="currentPassword" placeholder="@Lang.T("أدخل كلمة المرور الحالية")" />
+                        </div>
+                    </div>
+
+                    <div class="password-fields">
+                        <div class="field">
+                            <label>@Lang.T("كلمة مرور جديدة")</label>
+                            <div class="input-with-icon">
+                                <i class="bi bi-shield-lock"></i>
+                                <input type="password" class="search-input" @bind="newPassword" placeholder="@Lang.T("6 أحرف على الأقل")" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>@Lang.T("تأكيد كلمة المرور")</label>
+                            <div class="input-with-icon">
+                                <i class="bi bi-shield-check"></i>
+                                <input type="password" class="search-input" @bind="confirmPassword" placeholder="@Lang.T("أعد كتابة كلمة المرور")" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(newPassword) && !string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
+                    {
+                        <p class="password-mismatch">
+                            <i class="bi bi-exclamation-circle"></i> @Lang.T("كلمتا المرور غير متطابقتين")
+                        </p>
+                    }
+
+                    @if (!string.IsNullOrEmpty(newPassword) && newPassword.Length < 6)
+                    {
+                        <p class="password-hint">
+                            <i class="bi bi-info-circle"></i> @Lang.T("كلمة المرور يجب أن تكون 6 أحرف على الأقل")
+                        </p>
+                    }
+
+                    <button class="btn-primary save-btn" @onclick="SavePassword" disabled="@(!CanChangePassword)">
+                        <i class="bi bi-key"></i> @Lang.T("تغيير كلمة المرور")
+                    </button>
+                </div>
+            </div>
+        }
+        else if (activeTab == "requests")
+        {
+            <div class="panel fade-in">
+                @if (myRequests == null)
+                {
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p class="muted">@Lang.T("جاري التحميل...")</p>
+                    </div>
+                }
+                else if (myRequests.Count == 0)
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <p>@Lang.T("لا توجد طلبات سابقة")</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="requests-list">
+                        @foreach (var r in myRequests)
+                        {
+                            <div class="request-row">
+                                <div class="request-icon-wrapper">
+                                    <i class="bi @r.Icon request-icon"></i>
+                                </div>
+                                <div class="request-info">
+                                    <strong>@Lang.T(r.Type)</strong>
+                                    <span>@r.Description</span>
+                                    <small><i class="bi bi-calendar3"></i> @r.RequestDate.ToString("dd/MM/yyyy")</small>
+                                </div>
+                                <span class="status-badge @r.StatusClass">
+                                    <i class="@GetStatusIcon(r.StatusClass)"></i> @Lang.T(r.Status)
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    int currentUserId;
+    MyProfileInfo? profile;
+    List<MyRequestItem>? myRequests;
+    string activeTab = "info";
+
+    string newUsername = "";
+    string currentPassword = "";
+    string newPassword = "";
+    string confirmPassword = "";
+
+    bool CanChangePassword => !string.IsNullOrWhiteSpace(currentPassword)
+        && !string.IsNullOrWhiteSpace(newPassword)
+        && newPassword.Length >= 6
+        && newPassword == confirmPassword;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+
+            profile = await ProfileSvc.GetMyProfileAsync(currentUserId);
+            if (profile != null) newUsername = profile.Username;
+
+            myRequests = await ProfileSvc.GetMyRequestsAsync(currentUserId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل الملف الشخصي للمستخدم {Id}", currentUserId);
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+    }
+
+    string GetStatusIcon(string statusClass) => statusClass switch
+    {
+        "status-approved" => "bi bi-check-circle",
+        "status-rejected" => "bi bi-x-circle",
+        _ => "bi bi-hourglass-split"
+    };
+
+    async Task SaveUsername()
+    {
+        if (string.IsNullOrWhiteSpace(newUsername))
+        {
+            Notify.ShowError(Lang.T("أدخل اسم المستخدم"));
+            return;
+        }
+        try
+        {
+            var (success, message) = await ProfileSvc.UpdateUsernameAsync(currentUserId, newUsername);
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                profile.Username = newUsername;
+            }
+            else Notify.ShowError(message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحديث اسم المستخدم للمستخدم {Id}", currentUserId);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    async Task SavePassword()
+    {
+        if (!CanChangePassword) return;
+        try
+        {
+            var (success, message) = await ProfileSvc.ChangePasswordAsync(currentUserId, currentPassword, newPassword);
+            if (success)
+            {
+                Notify.ShowSuccess(message);
+                currentPassword = ""; newPassword = ""; confirmPassword = "";
+            }
+            else Notify.ShowError(message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تغيير كلمة مرور المستخدم {Id}", currentUserId);
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

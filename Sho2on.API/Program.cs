@@ -1,47 +1,49 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Sho2on.API.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// قراءة Connection String من appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// إضافة DbContext مع الـ SQL Server
+// DB Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString, sqlOptions =>
-    {
-        sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);
-        sqlOptions.CommandTimeout(180);
-    })
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
 );
 
+
+// Add Controllers
 builder.Services.AddControllers();
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
-// في Program.cs أو Startup.cs
+// CORS (��� ��� Flutter)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFlutterApp",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
-});
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
 
+
+});
 
 var app = builder.Build();
 
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowFlutterApp");
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
+app.UseCors("AllowAll");
+
+//app.UseHttpsRedirection();
+
 app.MapControllers();
 
 app.Run();

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
     public class LateOvertime
     {
@@ -36,9 +36,6 @@ namespace Sho2on.Database.Models
         public DateTime EditedAt { get; set; } = DateTime.Now;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-        [NotMapped]
-        public string TypeName => (Type == 0) ? "تأخير" : "اضافي";
 
     }
 }

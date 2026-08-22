@@ -1,0 +1,666 @@
+﻿/* ===== صفحة الملف الشخصي ===== */
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== رأس الصفحة ===== */
+.profile-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .profile-page .page-header h2 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+        .profile-page .page-header h2 i {
+            font-size: 24px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--info-bg);
+            color: var(--primary);
+            border-radius: var(--radius-md);
+        }
+
+/* ===== حالات التحميل ===== */
+.profile-page .loading-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+}
+
+.profile-page .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.profile-page .muted {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ===== التبويبات ===== */
+.profile-page .tabs {
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    padding: 6px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.profile-page .tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+    .profile-page .tab-btn:hover {
+        background: var(--surface-hover);
+        color: var(--primary);
+    }
+
+    .profile-page .tab-btn.active {
+        background: var(--gradient-primary);
+        color: #fff;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .profile-page .tab-btn i {
+        font-size: 16px;
+    }
+
+/* ===== اللوحات ===== */
+.profile-page .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    transition: all var(--transition);
+}
+
+    .profile-page .panel:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+/* ===== رأس الملف الشخصي ===== */
+.profile-page .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.profile-page .profile-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #FFFFFF;
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-page .profile-header-info {
+    flex: 1;
+}
+
+.profile-page .profile-header h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.profile-page .profile-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.profile-page .code-badge,
+.profile-page .job-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+.profile-page .code-badge {
+    background: var(--info-bg);
+    color: var(--primary);
+}
+
+.profile-page .job-badge {
+    background: var(--background);
+    color: var(--text-light);
+    border: 1px solid var(--border);
+}
+
+/* ===== شبكة المعلومات ===== */
+.profile-page .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.profile-page .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px;
+    background: var(--background);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    transition: all var(--transition-fast);
+}
+
+    .profile-page .info-item:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+.profile-page .info-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+    .profile-page .info-label i {
+        font-size: 13px;
+        color: var(--primary);
+    }
+
+.profile-page .info-value {
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* ===== بطاقة رصيد الإجازات ===== */
+.profile-page .leave-balance-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(135deg, var(--info-bg) 0%, #E3F2FD 100%);
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--primary);
+    position: relative;
+    overflow: hidden;
+}
+
+    .profile-page .leave-balance-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+.profile-page .leave-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+    .profile-page .leave-icon i {
+        font-size: 24px;
+        color: #fff;
+    }
+
+.profile-page .leave-info {
+    position: relative;
+    z-index: 1;
+}
+
+    .profile-page .leave-info strong {
+        display: block;
+        font-size: 28px;
+        color: var(--primary);
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .profile-page .leave-info span {
+        font-size: 13px;
+        color: var(--text);
+        font-weight: 600;
+        display: block;
+    }
+
+    .profile-page .leave-info small {
+        font-size: 11.5px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+/* ===== فواصل الأقسام ===== */
+.profile-page .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+}
+
+    .profile-page .section-divider i {
+        font-size: 18px;
+        color: var(--primary);
+    }
+
+    .profile-page .section-divider span {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+/* ===== حقول الإدخال ===== */
+.profile-page .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+    .profile-page .field label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+.profile-page .input-with-icon {
+    position: relative;
+}
+
+    .profile-page .input-with-icon i {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 16px;
+        pointer-events: none;
+        transition: all var(--transition);
+    }
+
+    .profile-page .input-with-icon .search-input {
+        padding-right: 42px;
+    }
+
+.profile-page .search-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--background);
+    transition: all var(--transition);
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+    .profile-page .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--focus-ring);
+        background: var(--surface);
+    }
+
+        .profile-page .search-input:focus + i,
+        .profile-page .input-with-icon:focus-within i {
+            color: var(--primary);
+        }
+
+    .profile-page .search-input::placeholder {
+        color: var(--text-muted);
+        font-size: 12.5px;
+    }
+
+/* ===== حقول كلمة المرور ===== */
+.profile-page .password-section {
+    margin-top: 32px;
+    padding-top: 8px;
+}
+
+.profile-page .password-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.profile-page .password-mismatch,
+.profile-page .password-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.profile-page .password-mismatch {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+
+.profile-page .password-hint {
+    background: var(--info-bg);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+/* ===== أزرار ===== */
+.profile-page .save-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 24px;
+    font-size: 14px;
+}
+
+.profile-page .btn-primary {
+    background: var(--gradient-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 13px 24px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+    .profile-page .btn-primary:hover:not(:disabled) {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .profile-page .btn-primary:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .profile-page .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+/* ===== قائمة الطلبات ===== */
+.profile-page .requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-page .request-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition);
+}
+
+    .profile-page .request-row:hover {
+        border-color: var(--primary);
+        background: var(--surface-hover);
+        transform: translateX(-4px);
+        box-shadow: var(--shadow-sm);
+    }
+
+.profile-page .request-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--info-bg);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.profile-page .request-icon {
+    font-size: 18px;
+    color: var(--primary);
+}
+
+.profile-page .request-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+    .profile-page .request-info strong {
+        font-size: 13px;
+        color: var(--text);
+        font-weight: 700;
+    }
+
+    .profile-page .request-info span {
+        font-size: 12.5px;
+        color: var(--text-light);
+    }
+
+    .profile-page .request-info small {
+        font-size: 11px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+/* ===== شارات الحالة ===== */
+.profile-page .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+    .profile-page .status-badge i {
+        font-size: 14px;
+    }
+
+.profile-page .status-approved {
+    background: var(--success-bg, #E8F5E9);
+    color: var(--success, #2E7D32);
+}
+
+.profile-page .status-rejected {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.profile-page .status-pending {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+/* ===== حالة فارغة ===== */
+.profile-page .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+    .profile-page .empty-state i {
+        font-size: 48px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .profile-page .empty-state p {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .profile-page .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .profile-page .tabs {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .profile-page .tab-btn {
+        padding: 10px;
+        font-size: 12.5px;
+    }
+
+    .profile-page .panel {
+        padding: 16px;
+    }
+
+    .profile-page .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .profile-page .profile-badges {
+        justify-content: center;
+    }
+
+    .profile-page .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-page .password-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-page .leave-balance-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-page .request-row {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .profile-page .request-info {
+        align-items: center;
+    }
+
+        .profile-page .request-info small {
+            justify-content: center;
+        }
+}

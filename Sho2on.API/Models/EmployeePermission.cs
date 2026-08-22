@@ -1,14 +1,17 @@
-﻿// EmployeePermission.cs
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Sho2on.Database.Models
+namespace Sho2on.API.Models
 {
-    [Table("EmployeePermissions")]
     public class EmployeePermission
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
@@ -16,7 +19,7 @@ namespace Sho2on.Database.Models
 
         [Required]
         [MaxLength(50)]
-        public string PermissionType { get; set; }
+        public string PermissionType { get; set; } // Errand, Leave, Emergency, Medical, etc.
 
         [Required]
         public DateTime StartDateTime { get; set; }
@@ -25,7 +28,6 @@ namespace Sho2on.Database.Models
         public DateTime EndDateTime { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue)]
         public double Duration { get; set; } // بالساعات
 
         [MaxLength(500)]
@@ -34,11 +36,11 @@ namespace Sho2on.Database.Models
         [MaxLength(500)]
         public string Notes { get; set; }
 
-        public decimal? DeductedAmount { get; set; }
+        public decimal? DeductedAmount { get; set; } // المبلغ المقتطع
 
         [Required]
         [MaxLength(50)]
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected
 
         public int? ApprovedByUserId { get; set; }
 
@@ -50,35 +52,19 @@ namespace Sho2on.Database.Models
         [Required]
         public int BranchId { get; set; }
 
+        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-        // Navigation Properties
-        [ForeignKey("UserId")]
-        public virtual User? User { get; set; }
+        // العلاقات
+        [ForeignKey(nameof(UserId))]
+        public User? User { get; set; }
 
-        [ForeignKey("ApprovedByUserId")]
-        public virtual User? ApprovedBy { get; set; }
+        [ForeignKey(nameof(ApprovedByUserId))]
+        public User? ApprovedByUser { get; set; }
 
-        [ForeignKey("BranchId")]
-        public virtual Branch? Branch { get; set; }
-    }
-
-    public static class PermissionTypes
-    {
-        public const string EarlyLeave = "EarlyLeave"; // خروج مبكر
-        public const string LateEntry = "LateEntry"; // دخول متأخر
-        public const string PersonalLeave = "PersonalLeave"; // إذن شخصي
-        public const string Emergency = "Emergency"; // طارئ
-        public const string Official = "Official"; // رسمي
-        public const string Other = "Other"; // أخرى
-    }
-
-    public static class PermissionStatus
-    {
-        public const string UnderReview = "Under Review";
-        public const string Pending = "Pending";
-        public const string Approved = "Approved";
-        public const string Rejected = "Rejected";
+        [ForeignKey(nameof(BranchId))]
+        public Branch? Branch { get; set; }
     }
 }
