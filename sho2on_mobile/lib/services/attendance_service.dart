@@ -3,100 +3,166 @@ import 'package:http/http.dart' as http;
 import 'api_config.dart';
 
 class AttendanceService {
-  // دالة لتحميل التقرير الشهري
- Future<Map<String, dynamic>> getMonthlyReport({
-  required int userId,
-  required int year,
-  required int month,
-}) async {
-  try {
-    final url = Uri.parse("${ApiConfig.baseUrl}/AttendanceReport/Monthly/$userId/$year/$month");
-    
-    print('Fetching monthly report from: $url');
-    
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ).timeout(Duration(seconds: 30));
-    
-    print('Response status: ${response.statusCode}');
-    
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print('Response data type: ${data.runtimeType}');
-      print('Response data: $data');
+  static const String baseUrl = ApiConfig.baseUrl;
+
+  // الحصول على الهيدرز مع التوكن
+  Map<String, String> _getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer YOUR_TOKEN',
+    };
+  }
+
+  // تحميل التقرير الشهري - مطابق للويب
+  Future<Map<String, dynamic>> getMonthlyReport({
+    required int userId,
+    required int year,
+    required int month,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/AttendanceReport/Monthly/$userId/$year/$month');
       
-      // تحقق من هيكل البيانات
-      if (data is Map<String, dynamic>) {
-        if (data.containsKey('success') && data['success'] == true) {
-          // تحقق مما إذا كانت البيانات قائمة أو خريطة
-          dynamic responseData = data['data'];
-          
-          if (responseData is List) {
-            return {
-              'success': true,
-              'data': responseData,
-              'message': data['message'] ?? '',
-            };
-          } else if (responseData is Map) {
-            // إذا كانت خريطة، حولها إلى قائمة
-            return {
-              'success': true,
-              'data': [responseData], // ضعها داخل قائمة
-              'message': data['message'] ?? '',
-            };
-          } else {
-            // إذا كانت null أو نوع آخر
-            return {
-              'success': true,
-              'data': [],
-              'message': data['message'] ?? '',
-            };
-          }
+      print('Fetching monthly report from: $url');
+      
+      final response = await http.get(
+        url,
+        headers: _getHeaders(),
+      ).timeout(Duration(seconds: 30));
+      
+      print('Response status: ${response.statusCode}');
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        // التحقق من نجاح الاستجابة
+        if (data['success'] == true) {
+          return {
+            'success': true,
+            'data': data['data'],
+            'message': data['message'] ?? '',
+          };
         } else {
           return {
             'success': false,
             'message': data['message'] ?? 'فشل في تحميل التقرير',
           };
         }
-      } else if (data is List) {
-        // إذا كانت الاستجابة مباشرة قائمة
+      } else {
+        print('API Error: ${response.statusCode} - ${response.body}');
         return {
-          'success': true,
-          'data': data,
-          'message': 'تم تحميل التقرير بنجاح',
+          'success': false,
+          'message': 'خطأ في الخادم (${response.statusCode})',
+        };
+      }
+    } catch (e) {
+      print('Exception in getMonthlyReport: $e');
+      return {
+        'success': false,
+        'message': 'خطأ في الاتصال: $e',
+      };
+    }
+  }
+
+  // حفظ تعديلات اليوم
+  Future<Map<String, dynamic>> saveDay({
+    required int userId,
+    required DateTime date,
+    String? checkIn,
+    String? checkOut,
+    bool isAbsence = false,
+    bool isHoliday = false,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/AttendanceReport/SaveDay'),
+        headers: _getHeaders(),
+        body: json.encode({
+          'userId': userId,
+          'date': date.toIso8601String(),
+          'checkIn': checkIn,
+          'checkOut': checkOut,
+          'isAbsence': isAbsence,
+          'isHoliday': isHoliday,
+        }),
+      );
+
+      final data = json.decode(response.body);
+      return {
+        'success': data['success'] ?? false,
+        'message': data['message'] ?? '',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
+
+  // تحميل بيانات البريك للشهر
+  Future<Map<String, dynamic>> getBreakReport({
+    required int userId,
+    required int month,
+    required int year,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/Break/GetBreakReport/$userId/$month/$year');
+      
+      final response = await http.get(url, headers: _getHeaders());
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'] ?? '',
         };
       } else {
         return {
           'success': false,
-          'message': 'هيكل البيانات غير متوقع',
+          'message': 'فشل في تحميل بيانات البريك',
         };
       }
-    } else {
-      print('API Error: ${response.statusCode} - ${response.body}');
+    } catch (e) {
       return {
         'success': false,
-        'message': 'خطأ في الخادم (${response.statusCode})',
+        'message': 'خطأ: $e',
       };
     }
-  } catch (e) {
-    print('Exception in getMonthlyReport: $e');
-    return {
-      'success': false,
-      'message': 'خطأ في الاتصال: $e',
-    };
-  }
-}
-  // دالة مساعدة للحصول على التوكن (تعدلها حسب نظام المصادقة لديك)
-  Future<String?> _getToken() async {
-    // TODO: استرجع التوكن من SharedPreferences أو مكان تخزين آخر
-    return null;
   }
 
-  // بقية الدوال كما هي...
+  // تغيير الوردية
+  Future<Map<String, dynamic>> changeShift({
+    required int userId,
+    required DateTime date,
+    required int shiftId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/AttendanceReport/ChangeShift'),
+        headers: _getHeaders(),
+        body: json.encode({
+          'userId': userId,
+          'date': date.toIso8601String(),
+          'shiftId': shiftId,
+        }),
+      );
+
+      final data = json.decode(response.body);
+      return {
+        'success': data['success'] ?? false,
+        'message': data['message'] ?? '',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
+
+  // باقي الدوال كما هي...
   Future<bool> checkIn({
     required int userId,
     required int branchId,
@@ -139,7 +205,7 @@ class AttendanceService {
     double? lon,
     String? locationName,
   }) async {
-    final url = Uri.parse("${ApiConfig.baseUrl}/attendance/record");
+    final url = Uri.parse('$baseUrl/attendance/record');
 
     final body = {
       "userId": userId,
@@ -161,7 +227,7 @@ class AttendanceService {
   }
 
   Future<Map<String, dynamic>?> getToday(int userId) async {
-    final url = Uri.parse("${ApiConfig.baseUrl}/attendance/today/$userId");
+    final url = Uri.parse('$baseUrl/attendance/today/$userId');
 
     final res = await http.get(url);
     if (res.statusCode == 200) {
@@ -171,18 +237,11 @@ class AttendanceService {
   }
 
   Future<List<dynamic>> getFingerprints(int userId) async {
-    final url = Uri.parse("${ApiConfig.baseUrl}/attendance/fingerprints/today/$userId");
+    final url = Uri.parse('$baseUrl/attendance/fingerprints/today/$userId');
     final res = await http.get(url);
     if (res.statusCode == 200) {
       return jsonDecode(res.body);
     }
     return [];
-  }
-
-  Future<bool> deleteLast(int userId) async {
-    final url = Uri.parse("${ApiConfig.baseUrl}/attendance/fingerprint/last/$userId");
-
-    final res = await http.delete(url);
-    return res.statusCode == 200;
   }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sho2on.API.Data;
 using Sho2on.API.Dtos;
-using Sho2on.API.Models;
+using Sho2on.Database;
+using Sho2on.Database.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -375,7 +375,7 @@ namespace Sho2on.API.Controllers
             try
             {
                 var query = _context.EmployeePermissions
-                    .Include(p => p.ApprovedByUser)
+                    .Include(p => p.ApprovedBy)
                     .Include(p => p.Branch)
                     .Where(p => p.UserId == employeeId);
 
@@ -418,7 +418,7 @@ namespace Sho2on.API.Controllers
                         Status = p.Status,
                         StatusText = GetPermissionStatusText(p.Status),
                         DeductedAmount = p.DeductedAmount,
-                        ApprovedByName = p.ApprovedByUser != null ? p.ApprovedByUser.FullName : null,
+                        ApprovedByName = p.ApprovedBy != null ? p.ApprovedBy.FullName : null,
                         ApprovedDate = p.ApprovedDate,
                         CreatedAt = p.CreatedAt
                     })
@@ -857,7 +857,7 @@ namespace Sho2on.API.Controllers
             {
                 var permission = await _context.EmployeePermissions
                     .Include(p => p.User)
-                    .Include(p => p.ApprovedByUser)
+                    .Include(p => p.ApprovedBy)
                     .Include(p => p.Branch)
                     .FirstOrDefaultAsync(p => p.Id == permissionId);
 
@@ -884,7 +884,7 @@ namespace Sho2on.API.Controllers
                     Status = permission.Status,
                     StatusText = GetPermissionStatusText(permission.Status),
                     DeductedAmount = permission.DeductedAmount,
-                    ApprovedByName = permission.ApprovedByUser?.FullName,
+                    ApprovedByName = permission.ApprovedBy?.FullName ?? "Unknown",
                     ApprovedDate = permission.ApprovedDate,
                     BranchName = permission.Branch?.Name ?? "",
                     CreatedAt = permission.CreatedAt,
@@ -1030,7 +1030,6 @@ namespace Sho2on.API.Controllers
 
         private async Task UpdateAttendanceForPermission(EmployeePermission permission, User employee)
         {
-            // هذا مثال بسيط، يمكن تطويره حسب نظام الحضور الخاص بك
             var attendanceDate = permission.StartDateTime.Date;
 
             var attendance = await _context.Attendances

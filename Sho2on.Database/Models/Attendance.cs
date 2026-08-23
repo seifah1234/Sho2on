@@ -18,6 +18,7 @@ namespace Sho2on.Database.Models
         public int UserId { get; set; }
         public int? ShiftId { get; set; }
         public int? LeaveId { get; set; }
+        public int? PermissionId { get; set; }
 
         [Required]
         public DateTime AttendanceDate { get; set; }

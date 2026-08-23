@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Sho2on.API.Data;
 using Sho2on.API.Dtos;
-using Sho2on.API.Models;
+using Sho2on.Database.Models;
+using Microsoft.EntityFrameworkCore;
+using Sho2on.Database;
 
 namespace Sho2on.API.Controllers
 {
@@ -13,6 +13,26 @@ namespace Sho2on.API.Controllers
     {
         private readonly AppDbContext _db;
         public AttendanceController(AppDbContext db) { _db = db; }
+
+        [HttpGet("today/{userId}")]
+        public async Task<IActionResult> GetTodayAttendance(int userId)
+        {
+            var today = DateTime.Today;
+            var att = await _db.Attendances
+                .FirstOrDefaultAsync(a => a.UserId == userId && a.AttendanceDate == today);
+
+            if (att == null) return Ok(new { Status = "لم يسجل بعد" });
+
+            return Ok(new
+            {
+                CheckInTime = att.CheckInTime,
+                CheckOutTime = att.CheckOutTime,
+                Late = att.Late,
+                Overtime = att.Overtime,
+                IsAbsence = att.IsAbsence
+            });
+        }
+
 
         [HttpPost("record")]
         public async Task<IActionResult> Record([FromBody] RecordDto dto)
@@ -51,6 +71,7 @@ namespace Sho2on.API.Controllers
                             CheckInLocation = dto.LocationName,
                             CheckInLatitude = dto.Latitude,
                             CheckInLongitude = dto.Longitude,
+                            IsAbsence = false,
                             CheckInTime = now,
                             ShiftId = user?.ShiftId,
                             CheckInFingerPrintId = fp.Id
@@ -69,6 +90,7 @@ namespace Sho2on.API.Controllers
                             CheckOutLatitude = dto.Latitude,
                             CheckOutLongitude = dto.Longitude,
                             CheckOutTime = now,
+                            IsAbsence = false,
                             ShiftId = user?.ShiftId,
                             CheckOutFingerPrintId = fp.Id
                         };
@@ -138,7 +160,7 @@ namespace Sho2on.API.Controllers
                                 if (attendance.CheckInTime.Value.TimeOfDay < shift.StartTime)
                                     attendance.EarlyEnter = shift.StartTime - attendance.CheckInTime.Value.TimeOfDay;
                             }
-
+                            attendance.IsAbsence = false;
                         }
                     }
                 }

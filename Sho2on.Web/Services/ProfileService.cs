@@ -66,13 +66,13 @@ namespace Sho2on.Web.Services
 
             bool currentValid = user.PasswordHash.StartsWith("$2")
                 ? BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash)
-                : user.PasswordHash == currentPassword; // دعم الحسابات القديمة اللي لسه plain text
+                : user.PasswordHash == currentPassword;
 
             if (!currentValid) return (false, "كلمة المرور الحالية غير صحيحة");
 
             if (newPassword.Length < 6) return (false, "كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف");
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.PasswordHash = newPassword;
             await db.SaveChangesAsync();
             return (true, "تم تغيير كلمة المرور بنجاح");
         }

@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../utils/device_helper.dart';
 import '../utils/local_storage.dart';
-import 'main_page.dart'; // الصفحة القديمة للموظفين العاديين
-import 'manager/manager_dashboard.dart'; // الصفحة الجديدة للمديرين
+import 'main_page.dart';
+import 'manager/manager_dashboard.dart';
 import 'register_page.dart';
-import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,38 +12,72 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _id = TextEditingController();
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+  final _username = TextEditingController();
   final _pass = TextEditingController();
   final _auth = AuthService();
   bool loading = false;
   bool _obscurePassword = true;
 
-  // ألوان التصميم (متوافقة مع MainPage)
+  // Animation
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Colors
   final Color babyBlue = Color(0xFF89CFF0);
   final Color darkBlue = Color(0xFF1E3A8A);
   final Color lightGray = Color(0xFFF5F7FA);
+  final Color gradientStart = Color(0xFFE3F2FD);
+  final Color gradientEnd = Color(0xFFF5F7FA);
 
-  // أضف هذه الدالة للاختبار
-  Future<void> testConnection() async {
-    try {
-      final response = await http.get(Uri.parse("http://197.44.171.27:5000"));
-      print("Connection test: ${response.statusCode}");
-    } catch (e) {
-      print("Connection test failed: $e");
-    }
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+    
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    
+    _animationController.forward();
   }
 
   Future<void> doLogin() async {
-    if (_id.text.isEmpty || _pass.text.isEmpty) {
+    if (_username.text.isEmpty || _pass.text.isEmpty) {
       showError('يرجى ملء جميع الحقول');
       return;
     }
     
     setState(() => loading = true);
     final deviceId = await DeviceHelper.getDeviceId();
-    final user = await _auth.login(_id.text.trim(), _pass.text, deviceId);
+    final result = await _auth.login(_username.text.trim(), _pass.text, deviceId);
+    
+    if (result == null || result.containsKey("500")) {
+      setState(() => loading = false);
+      showError('تأكد من اتصالك بقاعدة البيانات وحاول مرة أخرى');
+      return;
+    }
     setState(() => loading = false);
+
+    if (!result.containsKey("200")) {
+      showError(result.keys.first);
+      return;
+    }
+
+    final user = result["200"];
 
     if (user == null) {
       showError('بيانات الدخول غير صحيحة');
@@ -53,15 +86,12 @@ class _LoginPageState extends State<LoginPage> {
 
     await LocalStorage.saveUser(user);
     
-    // التحقق من صلاحية المدير وتوجيهه للصفحة المناسبة
     if (user['isManager'] ?? false) {
-      // إذا كان مدير، توجهه للـ ManagerDashboard
       Navigator.pushReplacement(
         context, 
         MaterialPageRoute(builder: (_) => ManagerDashboard(user))
       );
     } else {
-      // إذا كان موظف عادي، توجهه للـ MainPage القديمة
       Navigator.pushReplacement(
         context, 
         MaterialPageRoute(builder: (_) => MainPage(user))
@@ -76,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
         textDirection: TextDirection.rtl,
         child: AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -89,7 +119,14 @@ class _LoginPageState extends State<LoginPage> {
                 )
               ),
               SizedBox(width: 10),
-              Icon(Icons.error_outline, color: Colors.red),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.error_outline, color: Colors.red, size: 20),
+              ),
             ],
           ),
           content: Text(message,
@@ -133,266 +170,295 @@ class _LoginPageState extends State<LoginPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: lightGray,
-        appBar: AppBar(
-          title: Text('تسجيل الدخول',
-            style: TextStyle(
-              fontFamily: 'Tajawal',
-              fontWeight: FontWeight.bold,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradientStart, gradientEnd],
             ),
           ),
-          backgroundColor: babyBlue,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // شعار أو صورة ترحيبية
-                Container(
-                  height: 180,
-                  margin: EdgeInsets.only(bottom: 40),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: babyBlue.withValues(alpha: 0.2),
-                        blurRadius: 15,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.fingerprint,
-                          size: 60,
-                          color: babyBlue,
-                        ),
-                        SizedBox(height: 10),
-                        Text('نظام البصمة الذكي',
-                          style: TextStyle(
-                            fontFamily: 'Tajawal',
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: darkBlue,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text('مرحباً بعودتك',
-                          style: TextStyle(
-                            fontFamily: 'Tajawal',
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // حقل الكود
-                Container(
-                  margin: EdgeInsets.only(bottom: 20),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('الكود',
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontFamily: 'Tajawal',
-                          fontSize: 14,
-                          color: darkBlue,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 8),
+                      // Header with curved design
                       Container(
+                        height: 220,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                            colors: [babyBlue, darkBlue],
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(40),
+                            bottomRight: Radius.circular(40),
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
+                              color: babyBlue.withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: Offset(0, 10),
                             ),
                           ],
                         ),
-                        child: TextField(
-                          controller: _id,
-                          textDirection: TextDirection.rtl,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            hintText: 'أدخل الكود الخاص بك',
-                            hintStyle: TextStyle(
-                              fontFamily: 'Tajawal',
-                              color: Colors.grey[400],
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.person_outline,
-                              color: babyBlue,
-                            ),
-                          ),
-                          style: TextStyle(
-                            fontFamily: 'Tajawal',
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // حقل كلمة المرور
-                Container(
-                  margin: EdgeInsets.only(bottom: 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text('كلمة المرور',
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontFamily: 'Tajawal',
-                          fontSize: 14,
-                          color: darkBlue,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: _pass,
-                          textDirection: TextDirection.rtl,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            hintText: 'أدخل كلمة المرور',
-                            hintStyle: TextStyle(
-                              fontFamily: 'Tajawal',
-                              color: Colors.grey[400],
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.lock_outline,
-                              color: babyBlue,
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.grey[500],
-                              ),
-                              onPressed: _togglePasswordVisibility,
-                            ),
-                          ),
-                          style: TextStyle(
-                            fontFamily: 'Tajawal',
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // زر الدخول
-                Container(
-                  height: 56,
-                  margin: EdgeInsets.only(bottom: 20),
-                  child: ElevatedButton(
-                    onPressed: loading ? null : doLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: babyBlue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 4,
-                      shadowColor: babyBlue.withValues(alpha: 0.4),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: loading
-                        ? SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.login, size: 20),
-                              SizedBox(width: 10),
-                              Text('دخول',
-                                style: TextStyle(
-                                  fontFamily: 'Tajawal',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                        child: Stack(
+                          children: [
+                            // Decorative circles
+                            Positioned(
+                              top: -30,
+                              left: -20,
+                              child: Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withOpacity(0.1),
                                 ),
                               ),
-                            ],
-                          ),
-                  ),
-                ),
-
-                // رابط التسجيل
-                Container(
-                  margin: EdgeInsets.only(bottom: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const RegisterPage(),
-                          ),
+                            ),
+                            Positioned(
+                              bottom: -20,
+                              right: -10,
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.3),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.fingerprint,
+                                      size: 50,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text('نظام البصمة الذكي',
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text('مرحباً بعودتك',
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                      fontSize: 14,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        style: TextButton.styleFrom(
-                          foregroundColor: darkBlue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Row(
+                      ),
+                      
+                      Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Icon(Icons.person_add, size: 16),
-                            SizedBox(width: 6),
-                            Text('التسجيل كمستخدم جديد',
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                            SizedBox(height: 20),
+                            
+                            // Username field
+                            _buildLabel('اسم المستخدم'),
+                            SizedBox(height: 8),
+                            _buildTextField(
+                              controller: _username,
+                              hintText: 'أدخل اسم المستخدم',
+                              icon: Icons.person_outline,
+                              keyboardType: TextInputType.text,
+                            ),
+                            
+                            SizedBox(height: 20),
+                            
+                            // Password field
+                            _buildLabel('كلمة المرور'),
+                            SizedBox(height: 8),
+                            _buildTextField(
+                              controller: _pass,
+                              hintText: 'أدخل كلمة المرور',
+                              icon: Icons.lock_outline,
+                              obscureText: _obscurePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.grey[500],
+                                ),
+                                onPressed: _togglePasswordVisibility,
+                              ),
+                            ),
+                            
+                            SizedBox(height: 30),
+                            
+                            // Login button
+                            Container(
+                              height: 56,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [babyBlue, darkBlue],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: babyBlue.withOpacity(0.4),
+                                    blurRadius: 15,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: loading ? null : doLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: loading
+                                    ? SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.login, size: 20),
+                                          SizedBox(width: 10),
+                                          Text('دخول',
+                                            style: TextStyle(
+                                              fontFamily: 'Tajawal',
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: 20),
+                            
+                            // Register link
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'ليس لديك حساب؟',
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  SizedBox(width: 6),
+                                  TextButton(
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const RegisterPage(),
+                                      ),
+                                    ),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: darkBlue,
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                    child: Text('إنشاء حساب',
+                                      style: TextStyle(
+                                        fontFamily: 'Tajawal',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            SizedBox(height: 20),
+                            
+                            // Info card
+                            Container(
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: babyBlue.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      _buildInfoItem(
+                                        icon: Icons.admin_panel_settings,
+                                        color: Color(0xFF673AB7),
+                                        text: 'واجهة مدير',
+                                      ),
+                                      _buildInfoItem(
+                                        icon: Icons.supervised_user_circle,
+                                        color: babyBlue,
+                                        text: 'واجهة موظف',
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    'سيتم توجيهك تلقائياً للواجهة المناسبة حسب صلاحياتك',
+                                    textDirection: TextDirection.rtl,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                      fontSize: 12,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -401,71 +467,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-
-                // معلومات إضافية
-                Container(
-                  margin: EdgeInsets.only(top: 20),
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: babyBlue.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.admin_panel_settings,
-                            size: 16,
-                            color: Color(0xFF673AB7),
-                          ),
-                          SizedBox(width: 8),
-                          Text('واجهة مدير متقدمة',
-                            style: TextStyle(
-                              fontFamily: 'Tajawal',
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          Icon(
-                            Icons.supervised_user_circle,
-                            size: 16,
-                            color: babyBlue,
-                          ),
-                          SizedBox(width: 8),
-                          Text('واجهة موظف مبسطة',
-                            style: TextStyle(
-                              fontFamily: 'Tajawal',
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'سيتم توجيهك تلقائياً للواجهة المناسبة حسب صلاحياتك',
-                        textDirection: TextDirection.rtl,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Tajawal',
-                          fontSize: 11,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // المساحة السفلية
-                SizedBox(height: 40),
-              ],
+              ),
             ),
           ),
         ),
@@ -473,10 +475,119 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      textDirection: TextDirection.rtl,
+      style: TextStyle(
+        fontFamily: 'Tajawal',
+        fontSize: 15,
+        color: darkBlue,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: babyBlue.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: TextField(
+        controller: controller,
+        textDirection: TextDirection.rtl,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            fontFamily: 'Tajawal',
+            color: Colors.grey[400],
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          prefixIcon: Container(
+            margin: EdgeInsets.all(8),
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: babyBlue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: babyBlue,
+              size: 20,
+            ),
+          ),
+          suffixIcon: suffixIcon,
+        ),
+        style: TextStyle(
+          fontFamily: 'Tajawal',
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required Color color,
+    required String text,
+  }) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: color,
+          ),
+        ),
+        SizedBox(height: 6),
+        Text(
+          text,
+          style: TextStyle(
+            fontFamily: 'Tajawal',
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void dispose() {
-    _id.dispose();
+    _username.dispose();
     _pass.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 }

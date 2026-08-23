@@ -12,532 +12,290 @@ class MonthlyReportPage extends StatefulWidget {
 class _MonthlyReportPageState extends State<MonthlyReportPage> {
   final AttendanceService _attendanceService = AttendanceService();
   
-  List<Map<String, dynamic>> _monthlyData = [];
-  DateTime _selectedMonth = DateTime.now();
+  // بيانات التقرير
+  Map<String, dynamic>? _report;
+  List<Map<String, dynamic>> _dailyReports = [];
+  Map<String, dynamic>? _summary;
+  
+  // بيانات الموظف
+  String _employeeName = '';
+  String _employeeCode = '';
+  String _branchName = '';
+  
+  // بيانات البريك
+  Map<String, double> _breakByDay = {}; // Date -> break minutes
+  
+  // حالة التحميل
   bool _isLoading = false;
   String _errorMessage = '';
   
+  // الشهر والسنة المختارين
+  DateTime _selectedMonth = DateTime.now();
+  
+  // ألوان التصميم
   final Color primaryColor = Color(0xFF1976D2);
   final Color presentColor = Color(0xFF4CAF50);
   final Color absentColor = Color(0xFFF44336);
+  final Color leaveColor = Color(0xFF9C27B0);
+  final Color holidayColor = Color(0xFFFF9800);
+  final Color restColor = Color(0xFF607D8B);
+  final Color backgroundColor = Color(0xFFF5F7FA);
+  final Color cardColor = Colors.white;
+  
+  // أسماء الشهور العربية
+  final List<String> arabicMonths = [
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+  ];
   
   @override
   void initState() {
     super.initState();
-    _loadMonthlyReport();
+    _loadReport();
   }
   
-  // دالة لتحويل التاريخ إلى نص عربي
-  String _formatDate(DateTime date, {bool includeDay = false}) {
-    String day = date.day.toString();
-    String month = _getArabicMonth(date.month);
-    String year = date.year.toString();
-    
-    if (includeDay) {
-      String dayName = _getArabicDayName(date.weekday);
-      return '$dayName $day $month $year';
-    }
-    
-    return '$day $month $year';
-  }
-  
-  // أسماء الأشهر العربية
-  String _getArabicMonth(int month) {
-    switch (month) {
-      case 1: return 'يناير';
-      case 2: return 'فبراير';
-      case 3: return 'مارس';
-      case 4: return 'أبريل';
-      case 5: return 'مايو';
-      case 6: return 'يونيو';
-      case 7: return 'يوليو';
-      case 8: return 'أغسطس';
-      case 9: return 'سبتمبر';
-      case 10: return 'أكتوبر';
-      case 11: return 'نوفمبر';
-      case 12: return 'ديسمبر';
-      default: return '';
-    }
-  }
-  
-  // أسماء أيام الأسبوع العربية
   String _getArabicDayName(int weekday) {
     switch (weekday) {
-      case 1: return 'الإثنين';
-      case 2: return 'الثلاثاء';
-      case 3: return 'الأربعاء';
-      case 4: return 'الخميس';
-      case 5: return 'الجمعة';
-      case 6: return 'السبت';
-      case 7: return 'الأحد';
+      case 1: return 'السبت';
+      case 2: return 'الأحد';
+      case 3: return 'الإثنين';
+      case 4: return 'الثلاثاء';
+      case 5: return 'الأربعاء';
+      case 6: return 'الخميس';
+      case 7: return 'الجمعة';
       default: return '';
     }
   }
   
-  // اسم الشهر الحالي بالعربية
-  String _getCurrentMonthName() {
-    int month = _selectedMonth.month;
-    int year = _selectedMonth.year;
-    return '${_getArabicMonth(month)} $year';
-  }
-  
-  // تحويل الوقت من نص إلى TimeOfDay
-  TimeOfDay _parseTime(String time) {
-    if (time.isEmpty) return TimeOfDay(hour: 0, minute: 0);
-    
-    List<String> parts = time.split(':');
-    if (parts.length >= 2) {
-      return TimeOfDay(
-        hour: int.tryParse(parts[0]) ?? 0,
-        minute: int.tryParse(parts[1]) ?? 0,
-      );
-    }
-    return TimeOfDay(hour: 0, minute: 0);
-  }
-  
-  // حساب الفرق بين وقتين
-  Duration _calculateTimeDifference(String start, String end) {
-    if (start.isEmpty || end.isEmpty) return Duration.zero;
-    
-    TimeOfDay startTime = _parseTime(start);
-    TimeOfDay endTime = _parseTime(end);
-    
-    DateTime startDateTime = DateTime(
-      _selectedMonth.year,
-      _selectedMonth.month,
-      1,
-      startTime.hour,
-      startTime.minute,
-    );
-    
-    DateTime endDateTime = DateTime(
-      _selectedMonth.year,
-      _selectedMonth.month,
-      1,
-      endTime.hour,
-      endTime.minute,
-    );
-    
-    // إذا كان وقت النهاية قبل وقت البداية (مثل وردية مسائية)
-    if (endDateTime.isBefore(startDateTime)) {
-      endDateTime = endDateTime.add(Duration(days: 1));
-    }
-    
-    return endDateTime.difference(startDateTime);
-  }
-  
-  // حساب التأخير
-  int _calculateLateMinutes(String checkIn) {
-    if (checkIn.isEmpty) return 0;
-    
-    TimeOfDay checkInTime = _parseTime(checkIn);
-    int totalMinutes = (checkInTime.hour * 60 + checkInTime.minute);
-    int expectedMinutes = (8 * 60 + 15); // الساعة 8:15
-    
-    if (totalMinutes > expectedMinutes) {
-      return totalMinutes - expectedMinutes;
-    }
-    return 0;
-  }
-  
-  // حساب الخروج المبكر
-  int _calculateEarlyLeaveMinutes(String checkOut) {
-    if (checkOut.isEmpty) return 0;
-    
-    TimeOfDay checkOutTime = _parseTime(checkOut);
-    int totalMinutes = (checkOutTime.hour * 60 + checkOutTime.minute);
-    int expectedMinutes = (16 * 60); // الساعة 16:00
-    
-    if (totalMinutes < expectedMinutes) {
-      return expectedMinutes - totalMinutes;
-    }
-    return 0;
-  }
-  
-  // حساب العمل الإضافي
-  int _calculateOvertimeMinutes(String checkOut) {
-    if (checkOut.isEmpty) return 0;
-    
-    TimeOfDay checkOutTime = _parseTime(checkOut);
-    int totalMinutes = (checkOutTime.hour * 60 + checkOutTime.minute);
-    int overtimeStart = (17 * 60); // بعد الساعة 17:00
-    
-    if (totalMinutes > overtimeStart) {
-      return totalMinutes - overtimeStart;
-    }
-    return 0;
-  }
-  
-  // تحويل بيانات الاستجابة إلى تنسيق مناسب للعرض
-  void _processApiData(List<dynamic> apiData) {
-  print('⚙️ Processing API data with ${apiData.length} items');
-  
-  if (apiData.isEmpty) {
-    print('📭 API data is empty');
+  Future<void> _loadReport() async {
     setState(() {
-      _monthlyData = [];
-      _isLoading = false;
+      _isLoading = true;
+      _errorMessage = '';
     });
-    return;
-  }
-  
-  List<Map<String, dynamic>> processedData = [];
-  
-  for (int i = 0; i < apiData[0]['dailyReports'].length; i++) {
-    var item = apiData[0]['dailyReports'][i];
-    print('📝 Processing item $i: $item');
     
     try {
-      // تحقق مما إذا كان العنصر خريطة
-      if (item is! Map<String, dynamic>) {
-        print('⚠️ Skipping non-map item at index $i: ${item.runtimeType}');
-        continue;
+      int userId = widget.user['id'] ?? 0;
+      int year = _selectedMonth.year;
+      int month = _selectedMonth.month;
+      
+      final result = await _attendanceService.getMonthlyReport(
+        userId: userId,
+        year: year,
+        month: month,
+      );
+      
+      if (result['success'] == true) {
+        _processReportData(result['data']);
+        
+        // تحميل بيانات البريك
+        await _loadBreakData();
+      } else {
+        setState(() {
+          _errorMessage = result['message'] ?? 'حدث خطأ أثناء تحميل التقرير';
+          _isLoading = false;
+        });
       }
-      
-      // تحقق من وجود تاريخ - قد يكون المفتاح مختلفاً
-      String? dateString;
-      if (item.containsKey('date')) {
-        dateString = item['date']?.toString();
-      }
-      
-      if (dateString == null || dateString.isEmpty) {
-        print('⚠️ Skipping item without date at index $i');
-        continue;
-      }
-      
-      DateTime date;
-      try {
-        date = DateTime.parse(dateString);
-        print('📅 Parsed date: $date');
-      } catch (e) {
-        print('❌ Error parsing date "$dateString": $e');
-        continue;
-      }
-      
-      // تحويل الحالة - تحقق من المفاتيح المختلفة
-      dynamic statusValue;
-      if (item.containsKey('status')) {
-        statusValue = item['status'];
-      }
-      
-      String status = _getStatusText(statusValue);
-      print('✅ Status: $status');
-      
-      // حساب الأوقات - تحقق من المفاتيح المختلفة
-      String checkIn = '';
-      String checkOut = '';
-      
-      if (item.containsKey('checkIn')) {
-        checkIn = item['checkIn']?.toString() ?? '';
-      } 
-      
-      if (item.containsKey('checkOut')) {
-        checkOut = item['checkOut']?.toString() ?? '';
-      }
-      
-      print('⏰ CheckIn: $checkIn, CheckOut: $checkOut');
-      
-      // إذا كانت الأوقات تأتي كـ DateTime كامل
-      if (checkIn.contains('T')) {
-        try {
-          DateTime checkInTime = DateTime.parse(checkIn);
-          checkIn = '${checkInTime.hour.toString().padLeft(2, '0')}:${checkInTime.minute.toString().padLeft(2, '0')}';
-          print('🔄 Converted CheckIn to: $checkIn');
-        } catch (e) {
-          print('❌ Error parsing checkIn time: $e');
-        }
-      }
-      
-      if (checkOut.contains('T')) {
-        try {
-          DateTime checkOutTime = DateTime.parse(checkOut);
-          checkOut = '${checkOutTime.hour.toString().padLeft(2, '0')}:${checkOutTime.minute.toString().padLeft(2, '0')}';
-          print('🔄 Converted CheckOut to: $checkOut');
-        } catch (e) {
-          print('❌ Error parsing checkOut time: $e');
-        }
-      }
-      
-      // حساب المؤشرات
-      int lateMinutes = _calculateLateMinutes(checkIn);
-      int earlyLeaveMinutes = _calculateEarlyLeaveMinutes(checkOut);
-      int overtimeMinutes = _calculateOvertimeMinutes(checkOut);
-      
-      // حساب ساعات العمل
-      Duration workDuration = _calculateTimeDifference(checkIn, checkOut);
-      double workHours = workDuration.inMinutes / 60.0;
-      
-      // الملاحظات - تحقق من المفاتيح المختلفة
-      String notes = '';
-      if (item.containsKey('notes')) {
-        notes = item['notes']?.toString() ?? '';
-      } 
-      
-      processedData.add({
-        'date': date,
-        'dayOfWeek': _getArabicDayName(date.weekday),
-        'dateFormatted': _formatDate(date, includeDay: true),
-        'status': status,
-        'checkIn': checkIn.isNotEmpty ? checkIn.substring(0, 5) : '--:--',
-        'checkOut': checkOut.isNotEmpty ? checkOut.substring(0, 5) : '--:--',
-        'lateMinutes': lateMinutes,
-        'earlyLeaveMinutes': earlyLeaveMinutes,
-        'overtimeMinutes': overtimeMinutes,
-        'workHours': workHours,
-        'notes': notes,
-      });
-      
-      print('✅ Successfully processed item $i');
     } catch (e) {
-      print('❌ Error processing data item at index $i: $e');
-      print('❌ Item: $item');
+      setState(() {
+        _errorMessage = 'خطأ في الاتصال: $e';
+        _isLoading = false;
+      });
     }
   }
   
-  // ترتيب البيانات حسب التاريخ (من الأحدث إلى الأقدم)
-  processedData.sort((a, b) => a['date'].compareTo(b['date']));
-  
-  print('🎉 Processed ${processedData.length} items successfully');
-  print('📊 Final data: ${processedData.map((d) => d['dateFormatted']).toList()}');
-  
-  setState(() {
-    _monthlyData = processedData;
-    _isLoading = false;
-  });
-}
-
-  // تحويل رمز الحالة إلى نص
-
-  String _getStatusText(dynamic status) {
-    if (status == null) return 'غائب';
-    
-    
-    switch (status) {
-      case 'حاضر': return 'حاضر';
-      case 'إجازة': return 'إجازة';
-      case 'عمل من المنزل': return 'عمل من المنزل';
-      case 'مأمورية': return 'مأمورية';
-      default: return 'غائب';
+  void _processReportData(dynamic reportData) {
+    if (reportData == null) {
+      setState(() {
+        _dailyReports = [];
+        _summary = null;
+        _isLoading = false;
+      });
+      return;
     }
-  }
-
-  void _handleApiResponse(Map<String, dynamic> result) {
-  if (result['success'] == true) {
-    dynamic responseData = result['data'];
     
-    if (responseData is List) {
-      _processApiData(responseData);
-    } else if (responseData is Map) {
-      // إذا كانت خريطة واحدة، حولها إلى قائمة
-      _processApiData([responseData]);
+    // استخراج البيانات
+    Map<String, dynamic> report;
+    if (reportData is List && reportData.isNotEmpty) {
+      report = reportData[0] as Map<String, dynamic>;
+    } else if (reportData is Map<String, dynamic>) {
+      report = reportData;
     } else {
       setState(() {
         _errorMessage = 'هيكل البيانات غير متوقع';
         _isLoading = false;
       });
+      return;
     }
-  } else {
+    
+    // استخراج معلومات الموظف
+    _employeeName = report['employeeName'] ?? widget.user['fullName'] ?? '';
+    _employeeCode = report['employeeCode'] ?? widget.user['code'] ?? '';
+    _branchName = report['branchName'] ?? widget.user['branch']?['name'] ?? '';
+    
+    // استخراج التقرير اليومي
+    List<dynamic> dailyReportsRaw = report['dailyReports'] ?? [];
+    List<Map<String, dynamic>> processedReports = [];
+    
+    for (var day in dailyReportsRaw) {
+      if (day is Map) {
+        processedReports.add(Map<String, dynamic>.from(day));
+      }
+    }
+    
+    // استخراج الملخص
+    Map<String, dynamic>? summary;
+    if (report['summary'] is Map) {
+      summary = Map<String, dynamic>.from(report['summary']);
+    }
+    
     setState(() {
-      _errorMessage = result['message'] ?? 'حدث خطأ أثناء تحميل التقرير';
+      _dailyReports = processedReports;
+      _summary = summary;
       _isLoading = false;
     });
   }
-}
   
-  Future<void> _loadMonthlyReport() async {
-  setState(() {
-    _isLoading = true;
-    _errorMessage = '';
-  });
-  
-  try {
-    int userId = widget.user['id'] ?? 0;
-    int year = _selectedMonth.year;
-    int month = _selectedMonth.month;
-    
-    print('Loading report for user $userId, year $year, month $month');
-    
-    final result = await _attendanceService.getMonthlyReport(
-      userId: userId,
-      year: year,
-      month: month,
-    );
+  Future<void> _loadBreakData() async {
+    try {
+      final result = await _attendanceService.getBreakReport(
+        userId: widget.user['id'],
+        month: _selectedMonth.month,
+        year: _selectedMonth.year,
+      );
+      
+      if (result['success'] == true) {
+        // معالجة بيانات البريك
+        Map<String, double> breakMap = {};
+        final data = result['data'];
         
-    _handleApiResponse(result);
-  } catch (e) {
-    print('Error in _loadMonthlyReport: $e');
-    setState(() {
-      _errorMessage = 'خطأ في الاتصال: $e';
-      _isLoading = false;
-    });
+        if (data is Map && data['logs'] is List) {
+          for (var log in data['logs']) {
+            if (log is Map && log['startTime'] != null) {
+              final date = DateTime.parse(log['startTime'].toString());
+              final dateKey = '${date.year}-${date.month}-${date.day}';
+              final duration = log['endTime'] != null
+                  ? DateTime.parse(log['endTime'].toString()).difference(date).inMinutes.toDouble()
+                  : 0.0;
+              
+              if (breakMap.containsKey(dateKey)) {
+                breakMap[dateKey] = breakMap[dateKey]! + duration;
+              } else {
+                breakMap[dateKey] = duration;
+              }
+            }
+          }
+        }
+        
+        setState(() {
+          _breakByDay = breakMap;
+        });
+      }
+    } catch (e) {
+      // تجاهل أخطاء البريك
+    }
   }
-}
-  Future<void> _showMonthPicker() async {
+  
+  Future<void> _selectMonth() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedMonth,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
       initialDatePickerMode: DatePickerMode.year,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: primaryColor,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: child!,
+          ),
+        );
+      },
     );
     
-    if (picked != null && picked != _selectedMonth) {
+    if (picked != null) {
       setState(() {
         _selectedMonth = DateTime(picked.year, picked.month, 1);
       });
-      _loadMonthlyReport();
+      _loadReport();
     }
+  }
+  
+  String _formatTime(String? time) {
+    if (time == null || time.isEmpty) return '—';
+    
+    // تحويل من HH:mm إلى HH:mm AM/PM
+    try {
+      final parts = time.split(':');
+      if (parts.length >= 2) {
+        final hour = int.parse(parts[0]);
+        final minute = parts[1];
+        final period = hour >= 12 ? 'م' : 'ص';
+        final hour12 = hour % 12 == 0 ? 12 : hour % 12;
+        return '$hour12:$minute $period';
+      }
+    } catch (e) {}
+    
+    return time;
+  }
+  
+  String _formatDuration(int minutes) {
+    if (minutes <= 0) return '—';
+    final hours = minutes ~/ 60;
+    final mins = minutes % 60;
+    return '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}';
+  }
+  
+  String _formatWorkHours(double hours) {
+    if (hours <= 0) return '—';
+    final h = hours.floor();
+    final m = ((hours - h) * 60).round();
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
+  }
+  
+  String _getStatusText(dynamic status) {
+    if (status == null) return 'غير معروف';
+    return status.toString();
+  }
+  
+  Color _getStatusColor(String status) {
+    if (status.contains('حاضر')) return presentColor;
+    if (status.contains('غائب')) return absentColor;
+    if (status.contains('إجازة')) return leaveColor;
+    if (status.contains('عطلة')) return holidayColor;
+    if (status.contains('راحة')) return restColor;
+    return Colors.grey;
   }
   
   Widget _buildMonthSelector() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
           ),
         ],
       ),
-      child: ListTile(
-        leading: _isLoading
-            ? SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Icon(Icons.calendar_today, color: primaryColor),
-        title: Text(
-          'الشهر',
-          textDirection: TextDirection.rtl,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[700],
-            fontFamily: 'Tajawal',
-          ),
-        ),
-        subtitle: Text(
-          _getCurrentMonthName(),
-          textDirection: TextDirection.rtl,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: primaryColor,
-            fontFamily: 'Tajawal',
-          ),
-        ),
-        trailing: Icon(Icons.arrow_drop_down, color: primaryColor),
-        onTap: _showMonthPicker,
-      ),
-    );
-  }
-  
-  Widget _buildSummaryCard() {
-    if (_monthlyData.isEmpty) return SizedBox();
-    
-    int totalDays = _monthlyData.length;
-    int presentDays = _monthlyData.where((d) => d['status'] == 'حاضر').length;
-    int absentDays = _monthlyData.where((d) => d['status'] == 'غائب').length;
-    int lateDays = _monthlyData.where((d) => (d['lateMinutes'] as int) > 0).length;
-    
-    double totalWorkHours = _monthlyData.fold(0.0, (sum, d) => sum + (d['workHours'] as double));
-    int totalOvertime = _monthlyData.fold(0, (sum, d) => sum + (d['overtimeMinutes'] as int));
-    
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'ملخص الشهر',
-              textDirection: TextDirection.rtl,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: primaryColor,
-                fontFamily: 'Tajawal',
-              ),
-            ),
-            SizedBox(height: 12),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              textDirection: TextDirection.rtl,
-              children: [
-                _buildSummaryItem('الأيام', totalDays.toString(), Icons.calendar_today),
-                _buildSummaryItem('الحضور', presentDays.toString(), Icons.check_circle, presentColor),
-                _buildSummaryItem('الغياب', absentDays.toString(), Icons.cancel, absentColor),
-              ],
-            ),
-            
-            SizedBox(height: 12),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              textDirection: TextDirection.rtl,
-              children: [
-                _buildSummaryItem('ساعات العمل', '${totalWorkHours.toStringAsFixed(1)}h', Icons.access_time),
-                _buildSummaryItem('أيام التأخير', lateDays.toString(), Icons.watch_later, Colors.orange),
-                _buildSummaryItem('العمل الإضافي', '${(totalOvertime/60).toStringAsFixed(1)}h', Icons.add, Colors.purple),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildSummaryItem(String label, String value, IconData icon, [Color? color]) {
-    return Column(
-      children: [
-        Icon(icon, color: color ?? primaryColor, size: 28),
-        SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
-            fontFamily: 'Tajawal',
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontFamily: 'Tajawal',
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildDailyCard(Map<String, dynamic> dayData) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // التاريخ
-            Text(
-              dayData['dateFormatted'],
+      child: Row(
+        textDirection: TextDirection.rtl,
+        children: [
+          Icon(Icons.calendar_month, color: primaryColor),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '${arabicMonths[_selectedMonth.month - 1]} ${_selectedMonth.year}',
               textDirection: TextDirection.rtl,
               style: TextStyle(
                 fontSize: 16,
@@ -546,164 +304,330 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                 fontFamily: 'Tajawal',
               ),
             ),
-            
-            SizedBox(height: 12),
-            
-            // الحالة
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: dayData['status'] == 'حاضر' ? presentColor.withValues(alpha: 0.1) : absentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: dayData['status'] == 'حاضر' ? presentColor : absentColor,
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                dayData['status'],
-                textDirection: TextDirection.rtl,
-                style: TextStyle(
-                  color: dayData['status'] == 'حاضر' ? presentColor : absentColor,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Tajawal',
-                ),
+          ),
+          IconButton(
+            icon: Icon(Icons.chevron_left, color: primaryColor),
+            onPressed: () {
+              setState(() {
+                _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1, 1);
+              });
+              _loadReport();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.chevron_right, color: primaryColor),
+            onPressed: () {
+              setState(() {
+                _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1, 1);
+              });
+              _loadReport();
+            },
+          ),
+          TextButton(
+            onPressed: _selectMonth,
+            child: Text(
+              'اختيار',
+              style: TextStyle(
+                color: primaryColor,
+                fontFamily: 'Tajawal',
+                fontWeight: FontWeight.bold,
               ),
             ),
-            
-            SizedBox(height: 16),
-            
-            // أوقات الدخول والانصراف
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      'الدخول',
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                        fontFamily: 'Tajawal',
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      dayData['checkIn'],
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[700],
-                        fontFamily: 'Tajawal',
-                      ),
-                    ),
-                  ],
-                ),
-                
-                Icon(Icons.arrow_forward, color: primaryColor),
-                
-                Column(
-                  children: [
-                    Text(
-                      'الانصراف',
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                        fontFamily: 'Tajawal',
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      dayData['checkOut'],
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red[700],
-                        fontFamily: 'Tajawal',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            
-            SizedBox(height: 16),
-            
-            // التفاصيل
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(),
-                SizedBox(height: 8),
-                Text(
-                  'التفاصيل',
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                    fontFamily: 'Tajawal',
-                  ),
-                ),
-                SizedBox(height: 8),
-                
-                if (dayData['lateMinutes'] > 0)
-                  _buildDetailRow('تأخير', '${dayData['lateMinutes']} دقيقة', Colors.orange),
-                
-                if (dayData['earlyLeaveMinutes'] > 0)
-                  _buildDetailRow('خروج مبكر', '${dayData['earlyLeaveMinutes']} دقيقة', Colors.red),
-                
-                if (dayData['overtimeMinutes'] > 0)
-                  _buildDetailRow('عمل إضافي', '${dayData['overtimeMinutes']} دقيقة', Colors.purple),
-                
-                _buildDetailRow('ساعات العمل', '${(dayData['workHours'] as double).toStringAsFixed(1)} ساعة', primaryColor),
-              ],
-            ),
-            
-            if (dayData['notes'] != null && dayData['notes'].isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 12),
-                  Text(
-                    'ملاحظات: ${dayData['notes']}',
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      fontFamily: 'Tajawal',
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
   
-  Widget _buildDetailRow(String label, String value, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+  Widget _buildEmployeeHeader() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [primaryColor, Color(0xFF42A5F5)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.3),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         textDirection: TextDirection.rtl,
         children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-              fontFamily: 'Tajawal',
+          CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.white.withOpacity(0.2),
+            child: Text(
+              _employeeName.isNotEmpty ? _employeeName[0] : '?',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontFamily: 'Tajawal',
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  _employeeName,
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontFamily: 'Tajawal',
+                  ),
+                ),
+                Text(
+                  '$_employeeCode — $_branchName',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
+                    fontFamily: 'Tajawal',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.calendar_today, color: Colors.white, size: 20),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildStatsGrid() {
+    if (_summary == null) return SizedBox.shrink();
+    
+    final summary = _summary!;
+    
+    final stats = [
+      {
+        'label': 'أيام الغياب',
+        'value': '${summary['absentDays'] ?? summary['totalAbsenceDays'] ?? 0}',
+        'icon': Icons.person_off,
+        'color': absentColor,
+      },
+      {
+        'label': 'الراحة الأسبوعية',
+        'value': '${summary['restDays'] ?? summary['totalWeeklyRestDays'] ?? 0}',
+        'icon': Icons.weekend,
+        'color': restColor,
+      },
+      {
+        'label': 'أيام العطلة',
+        'value': '${summary['holidayDays'] ?? summary['totalHolidayDays'] ?? 0}',
+        'icon': Icons.beach_access,
+        'color': holidayColor,
+      },
+      {
+        'label': 'التأخير',
+        'value': _formatDuration(summary['totalLateMinutes'] ?? 0),
+        'icon': Icons.access_time,
+        'color': Colors.orange,
+      },
+      {
+        'label': 'الإضافي',
+        'value': _formatDuration(summary['totalOvertimeMinutes'] ?? 0),
+        'icon': Icons.timer,
+        'color': Colors.purple,
+      },
+      {
+        'label': 'ساعات العمل',
+        'value': _formatWorkHours(summary['totalWorkHours'] ?? 0),
+        'icon': Icons.work,
+        'color': primaryColor,
+      },
+    ];
+    
+    return GridView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 1.1,
+      ),
+      children: stats.map((stat) {
+        return Container(
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: (stat['color'] as Color).withOpacity(0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 5,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (stat['color'] as Color).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  stat['icon'] as IconData,
+                  color: stat['color'] as Color,
+                  size: 20,
+                ),
+              ),
+              SizedBox(height: 6),
+              Text(
+                stat['value']!.toString(),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                  fontFamily: 'Tajawal',
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                stat['label']!.toString(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey[600],
+                  fontFamily: 'Tajawal',
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+  
+  Widget _buildDailyTable() {
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              textDirection: TextDirection.rtl,
+              children: [
+                Text(
+                  'تفاصيل الأيام',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor,
+                    fontFamily: 'Tajawal',
+                  ),
+                ),
+                Spacer(),
+                Text(
+                  '${_dailyReports.length} يوم',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontFamily: 'Tajawal',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(height: 1),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              headingRowColor: WidgetStateProperty.all(Colors.grey[50]),
+              columnSpacing: 16,
+              horizontalMargin: 12,
+              columns: [
+                DataColumn(label: Text('اليوم', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('التاريخ', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('الحضور', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('الانصراف', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('التأخير', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('الإضافي', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('ساعات العمل', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('الحالة', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.bold))),
+              ],
+              rows: _dailyReports.map((day) {
+                final date = day['date'] != null ? DateTime.parse(day['date'].toString()) : null;
+                final dateKey = date != null ? '${date.year}-${date.month}-${date.day}' : '';
+                final breakMinutes = _breakByDay[dateKey] ?? 0.0;
+                final workHours = (day['workHours'] is num) ? (day['workHours'] as num).toDouble() : 0.0;
+                final actualWorkHours = workHours - (breakMinutes / 60.0);
+                final status = _getStatusText(day['status']);
+                final statusColor = _getStatusColor(status);
+                
+                return DataRow(
+                  color: WidgetStateProperty.resolveWith<Color?>((states) {
+                    if (status.contains('غائب')) return Colors.red.withOpacity(0.05);
+                    if (status.contains('إجازة')) return Colors.purple.withOpacity(0.05);
+                    if (status.contains('عطلة')) return Colors.orange.withOpacity(0.05);
+                    if (status.contains('راحة')) return Colors.grey.withOpacity(0.05);
+                    return null;
+                  }),
+                  cells: [
+                    DataCell(Text(day['dayOfWeek'] ?? '', style: TextStyle(fontFamily: 'Tajawal', fontSize: 12))),
+                    DataCell(Text(date != null ? '${date.day}/${date.month}/${date.year}' : '—', style: TextStyle(fontFamily: 'Tajawal', fontSize: 12))),
+                    DataCell(Text(_formatTime(day['checkIn']), style: TextStyle(fontFamily: 'Tajawal', fontSize: 12))),
+                    DataCell(Text(_formatTime(day['checkOut']), style: TextStyle(fontFamily: 'Tajawal', fontSize: 12))),
+                    DataCell(Text(_formatDuration(day['lateMinutes'] ?? 0), style: TextStyle(fontFamily: 'Tajawal', fontSize: 12))),
+                    DataCell(Text(_formatDuration(day['overtimeMinutes'] ?? 0), style: TextStyle(fontFamily: 'Tajawal', fontSize: 12))),
+                    DataCell(Text(
+                      actualWorkHours > 0 ? _formatWorkHours(actualWorkHours) : '—',
+                      style: TextStyle(
+                        fontFamily: 'Tajawal',
+                        fontSize: 12,
+                        color: actualWorkHours >= 8 ? Colors.green : Colors.orange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                    DataCell(
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: statusColor, width: 0.5),
+                        ),
+                        child: Text(
+                          status,
+                          style: TextStyle(
+                            fontFamily: 'Tajawal',
+                            fontSize: 11,
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
           ),
         ],
@@ -716,14 +640,24 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        backgroundColor: backgroundColor,
         appBar: AppBar(
-          title: Text('تقرير الشهر'),
+          title: Text(
+            'تقرير الموظف الشهري',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Tajawal',
+            ),
+          ),
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
+          elevation: 0,
           centerTitle: true,
         ),
         body: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(
+                child: CircularProgressIndicator(color: primaryColor),
+              )
             : _errorMessage.isNotEmpty
                 ? Center(
                     child: Padding(
@@ -736,30 +670,40 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                           Text(
                             _errorMessage,
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16, fontFamily: 'Tajawal'),
                           ),
                           SizedBox(height: 20),
                           ElevatedButton(
-                            onPressed: _loadMonthlyReport,
-                            child: Text('إعادة المحاولة'),
+                            onPressed: _loadReport,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColor,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text('إعادة المحاولة', style: TextStyle(fontFamily: 'Tajawal')),
                           ),
                         ],
                       ),
                     ),
                   )
-                : _monthlyData.isEmpty
+                : _dailyReports.isEmpty
                     ? Center(
                         child: Text(
                           'لا توجد بيانات لهذا الشهر',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          style: TextStyle(fontSize: 16, color: Colors.grey, fontFamily: 'Tajawal'),
                         ),
                       )
                     : SingleChildScrollView(
+                        padding: EdgeInsets.all(16),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _buildMonthSelector(),
-                            _buildSummaryCard(),
-                            ..._monthlyData.map((day) => _buildDailyCard(day)),
+                            SizedBox(height: 16),
+                            _buildEmployeeHeader(),
+                            SizedBox(height: 16),
+                            _buildStatsGrid(),
+                            SizedBox(height: 16),
+                            _buildDailyTable(),
                           ],
                         ),
                       ),

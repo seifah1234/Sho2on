@@ -5,284 +5,84 @@ import 'package:sho2on_mobile/services/api_config.dart';
 class HolidayService {
   static const String baseUrl = ApiConfig.baseUrl;
 
-  // في HolidayService.dart - إضافة الدوال التالية:
-
-Future<Map<String, dynamic>> getManagerHolidaysByStatus({
-  required int managerId,
-  required String status,
-  String? searchTerm,
-  DateTime? fromDate,
-  DateTime? toDate,
-  int pageNumber = 1,
-  int pageSize = 20,
-}) async {
-  try {
-    String endpoint;
-    
-    // اختيار الـ endpoint المناسب حسب الحالة
-    switch (status.toLowerCase()) {
-      case 'pending':
-        endpoint = 'GetPendingRequestsForManager';
-        break;
-      case 'approved':
-        endpoint = 'GetApprovedRequestsForManager';
-        break;
-      case 'rejected':
-        endpoint = 'GetRejectedRequestsForManager';
-        break;
-      default:
-        endpoint = 'GetPendingRequestsForManager';
-    }
-    
-    String url = '$baseUrl/HolidayRequests/$endpoint/$managerId?'
-        'pageNumber=$pageNumber&pageSize=$pageSize';
-
-    if (searchTerm != null && searchTerm.isNotEmpty) {
-      url += '&searchTerm=$searchTerm';
-    }
-    if (fromDate != null) {
-      url += '&fromDate=${fromDate.toIso8601String()}';
-    }
-    if (toDate != null) {
-      url += '&toDate=${toDate.toIso8601String()}';
-    }
-
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
-        return {
-          'success': true,
-          'data': data['data'],
-          'totalRecords': data['totalRecords'] ?? 0,
-        };
-      } else {
-        return {
-          'success': false,
-          'message': data['message'],
-        };
-      }
-    } else {
-      throw Exception('فشل في تحميل طلبات الإجازة');
-    }
-  } catch (e) {
+  // الحصول على الهيدرز مع التوكن
+  Map<String, String> _getHeaders() {
     return {
-      'success': false,
-      'message': 'خطأ: $e',
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer YOUR_TOKEN',
     };
   }
-}
 
-Future<Map<String, dynamic>> approveHoliday(int requestId) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/HolidayRequests/ApproveHoliday/$requestId'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
+  // البحث عن الموظفين
+  Future<Map<String, dynamic>> searchEmployees({
+    String? searchTerm,
+    int? departmentId,
+    int? jobTitleId,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'pageNumber': pageNumber.toString(),
+        'pageSize': pageSize.toString(),
+      };
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
+      if (searchTerm != null && searchTerm.isNotEmpty) {
+        queryParams['searchTerm'] = searchTerm;
+      }
+      if (departmentId != null && departmentId > 0) {
+        queryParams['departmentId'] = departmentId.toString();
+      }
+      if (jobTitleId != null && jobTitleId > 0) {
+        queryParams['jobTitleId'] = jobTitleId.toString();
+      }
+
+      final uri = Uri.parse('$baseUrl/HolidayRequests/SearchEmployees')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _getHeaders());
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
         return {
-          'success': true,
+          'success': data['success'] ?? false,
           'data': data['data'],
           'message': data['message'],
         };
       } else {
         return {
           'success': false,
-          'message': data['message'],
-          'errors': data['errors'],
+          'message': 'فشل في البحث عن الموظفين',
         };
       }
-    } else {
-      throw Exception('فشل في الموافقة على طلب الإجازة');
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
     }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
   }
-}
 
-Future<Map<String, dynamic>> rejectHoliday(int requestId, String reason) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/HolidayRequests/RejectHoliday/$requestId'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-      body: json.encode({'reason': reason}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
-        return {
-          'success': true,
-          'data': data['data'],
-          'message': data['message'],
-        };
-      } else {
-        return {
-          'success': false,
-          'message': data['message'],
-          'errors': data['errors'],
-        };
-      }
-    } else {
-      throw Exception('فشل في رفض طلب الإجازة');
-    }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
-  }
-}
-
-Future<Map<String, dynamic>> getManagerHolidayStats({
-  required int managerId,
-  DateTime? fromDate,
-  DateTime? toDate,
-}) async {
-  try {
-    String url = '$baseUrl/HolidayRequests/GetManagerHolidayStats/$managerId';
-
-    final uri = Uri.parse(url).replace(
-      queryParameters: {
-        if (fromDate != null) 'fromDate': fromDate.toIso8601String(),
-        if (toDate != null) 'toDate': toDate.toIso8601String(),
-      },
-    );
-
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
-        return {
-          'success': true,
-          'data': data['data'],
-        };
-      } else {
-        return {
-          'success': false,
-          'message': data['message'],
-        };
-      }
-    } else {
-      throw Exception('فشل في تحميل الإحصائيات');
-    }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
-  }
-}
-
-  // في HolidayService.dart، تأكد من وجود الدالة:
-Future<Map<String, dynamic>> getEmployeeRequests(
-  int employeeId, {
-  int? status,
-  DateTime? fromDate,
-  DateTime? toDate,
-  int pageNumber = 1,
-  int pageSize = 20,
-}) async {
-  try {
-    // بناء URL مع معاملات التصفية
-    String url = '$baseUrl/HolidayRequests/GetEmployeeRequests/$employeeId?'
-        'pageNumber=$pageNumber&pageSize=$pageSize';
-    
-    if (status != null) {
-      url += '&status=$status';
-    }
-    
-    if (fromDate != null) {
-      url += '&fromDate=${fromDate.toIso8601String()}';
-    }
-    
-    if (toDate != null) {
-      url += '&toDate=${toDate.toIso8601String()}';
-    }
-    
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
-    
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
-        return {
-          'success': true,
-          'data': data['data'],
-        };
-      } else {
-        return {
-          'success': false,
-          'message': data['message'],
-        };
-      }
-    } else {
-      throw Exception('فشل في تحميل طلبات الإجازة');
-    }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
-  }
-}
-
+  // الحصول على أنواع الإجازات
   Future<Map<String, dynamic>> getLeaveTypes() async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/HolidayRequests/GetLeaveTypes'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN', // أضف التوثيق
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تحميل أنواع الإجازات');
+        return {
+          'success': false,
+          'message': 'فشل في تحميل أنواع الإجازات',
+        };
       }
     } catch (e) {
       return {
@@ -292,31 +92,27 @@ Future<Map<String, dynamic>> getEmployeeRequests(
     }
   }
 
+  // الحصول على رصيد الإجازة
   Future<Map<String, dynamic>> getLeaveBalance(int employeeId, int leaveTypeId) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/HolidayRequests/GetLeaveBalance/$employeeId/$leaveTypeId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تحميل رصيد الإجازة');
+        final data = json.decode(response.body);
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تحميل رصيد الإجازة',
+        };
       }
     } catch (e) {
       return {
@@ -326,36 +122,35 @@ Future<Map<String, dynamic>> getEmployeeRequests(
     }
   }
 
-  Future<Map<String, dynamic>> getManagers({int? jobTitleId}) async {
+  // الحصول على المديرين
+  Future<Map<String, dynamic>> getManagers({int? jobTitleId, int? departmentId}) async {
     try {
-      String url = '$baseUrl/HolidayRequests/GetManagers';
-      if (jobTitleId != null) {
-        url += '?jobTitleId=$jobTitleId';
+      final queryParams = <String, String>{};
+
+      if (jobTitleId != null && jobTitleId > 0) {
+        queryParams['jobTitleId'] = jobTitleId.toString();
+      }
+      if (departmentId != null && departmentId > 0) {
+        queryParams['departmentId'] = departmentId.toString();
       }
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
-      );
+      final uri = Uri.parse('$baseUrl/HolidayRequests/GetManagers')
+          .replace(queryParameters: queryParams.isEmpty ? null : queryParams);
+
+      final response = await http.get(uri, headers: _getHeaders());
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تحميل المديرين');
+        return {
+          'success': false,
+          'message': 'فشل في تحميل المديرين',
+        };
       }
     } catch (e) {
       return {
@@ -365,6 +160,7 @@ Future<Map<String, dynamic>> getEmployeeRequests(
     }
   }
 
+  // التحقق من تعارض التواريخ
   Future<Map<String, dynamic>> checkDateConflicts(
     int employeeId, 
     DateTime startDate, 
@@ -373,10 +169,7 @@ Future<Map<String, dynamic>> getEmployeeRequests(
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/HolidayRequests/CheckDateConflicts'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
         body: json.encode({
           'employeeId': employeeId,
           'startDate': startDate.toIso8601String(),
@@ -384,16 +177,19 @@ Future<Map<String, dynamic>> getEmployeeRequests(
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
         return {
           'success': true,
-          'hasConflicts': data['data']['hasConflicts'],
-          'conflicts': data['data']['conflicts'],
+          'hasConflicts': data['data']['hasConflicts'] ?? false,
+          'conflicts': data['data']['conflicts'] ?? [],
           'message': data['message'],
         };
       } else {
-        throw Exception('فشل في التحقق من التعارض');
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في التحقق من التعارض',
+        };
       }
     } catch (e) {
       return {
@@ -403,6 +199,7 @@ Future<Map<String, dynamic>> getEmployeeRequests(
     }
   }
 
+  // تقديم طلب إجازة
   Future<Map<String, dynamic>> submitHolidayRequest({
     required int employeeId,
     required int leaveTypeId,
@@ -410,16 +207,15 @@ Future<Map<String, dynamic>> getEmployeeRequests(
     required DateTime endDate,
     required int duration,
     required String reason,
+    String? notes,
     int? approvingManagerId,
+    int? replacementUserId,
     bool saveAsDraft = false,
   }) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/HolidayRequests/SubmitRequest'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
         body: json.encode({
           'employeeId': employeeId,
           'leaveTypeId': leaveTypeId,
@@ -427,28 +223,26 @@ Future<Map<String, dynamic>> getEmployeeRequests(
           'endDate': endDate.toIso8601String(),
           'duration': duration,
           'reason': reason,
+          'notes': notes,
           'approvingManagerId': approvingManagerId,
+          'replacementUserId': replacementUserId,
           'saveAsDraft': saveAsDraft,
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-            'message': data['message'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-            'errors': data['errors'],
-          };
-        }
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تقديم الطلب');
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تقديم الطلب',
+          'errors': data['errors'],
+        };
       }
     } catch (e) {
       return {
@@ -458,5 +252,225 @@ Future<Map<String, dynamic>> getEmployeeRequests(
     }
   }
 
-    
+  // الحصول على طلبات الموظف
+  Future<Map<String, dynamic>> getEmployeeRequests(
+    int employeeId, {
+    int? status,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'pageNumber': pageNumber.toString(),
+        'pageSize': pageSize.toString(),
+      };
+
+      if (status != null) {
+        queryParams['status'] = status.toString();
+      }
+      if (fromDate != null) {
+        queryParams['fromDate'] = fromDate.toIso8601String();
+      }
+      if (toDate != null) {
+        queryParams['toDate'] = toDate.toIso8601String();
+      }
+
+      final uri = Uri.parse('$baseUrl/HolidayRequests/GetEmployeeRequests/$employeeId')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _getHeaders());
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'فشل في تحميل طلبات الإجازة',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
+
+  // الحصول على طلبات المدير حسب الحالة
+  Future<Map<String, dynamic>> getManagerHolidaysByStatus({
+    required int managerId,
+    required String status, // pending, approved, rejected
+    String? searchTerm,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      String endpoint;
+      switch (status.toLowerCase()) {
+        case 'pending':
+          endpoint = 'GetPendingRequestsForManager';
+          break;
+        case 'approved':
+          endpoint = 'GetApprovedRequestsForManager';
+          break;
+        case 'rejected':
+          endpoint = 'GetRejectedRequestsForManager';
+          break;
+        default:
+          endpoint = 'GetPendingRequestsForManager';
+      }
+
+      final queryParams = <String, String>{
+        'pageNumber': pageNumber.toString(),
+        'pageSize': pageSize.toString(),
+      };
+
+      if (searchTerm != null && searchTerm.isNotEmpty) {
+        queryParams['searchTerm'] = searchTerm;
+      }
+      if (fromDate != null) {
+        queryParams['fromDate'] = fromDate.toIso8601String();
+      }
+      if (toDate != null) {
+        queryParams['toDate'] = toDate.toIso8601String();
+      }
+
+      final uri = Uri.parse('$baseUrl/HolidayRequests/$endpoint/$managerId')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _getHeaders());
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'totalRecords': data['totalRecords'] ?? 0,
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تحميل طلبات الإجازة',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
+
+  // الموافقة على طلب إجازة
+  Future<Map<String, dynamic>> approveHoliday(int requestId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/HolidayRequests/ApproveHoliday/$requestId'),
+        headers: _getHeaders(),
+      );
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في الموافقة على طلب الإجازة',
+          'errors': data['errors'],
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
+
+  // رفض طلب إجازة
+  Future<Map<String, dynamic>> rejectHoliday(int requestId, String reason) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/HolidayRequests/RejectHoliday/$requestId'),
+        headers: _getHeaders(),
+        body: json.encode({'reason': reason}),
+      );
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في رفض طلب الإجازة',
+          'errors': data['errors'],
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
+
+  // الحصول على إحصائيات المدير
+  Future<Map<String, dynamic>> getManagerHolidayStats({
+    required int managerId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    try {
+      final queryParams = <String, String>{};
+
+      if (fromDate != null) {
+        queryParams['fromDate'] = fromDate.toIso8601String();
+      }
+      if (toDate != null) {
+        queryParams['toDate'] = toDate.toIso8601String();
+      }
+
+      final uri = Uri.parse('$baseUrl/HolidayRequests/GetManagerHolidayStats/$managerId')
+          .replace(queryParameters: queryParams.isEmpty ? null : queryParams);
+
+      final response = await http.get(uri, headers: _getHeaders());
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تحميل الإحصائيات',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
 }

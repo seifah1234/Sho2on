@@ -5,6 +5,14 @@ import 'package:sho2on_mobile/services/api_config.dart';
 class LoanService {
   static const String baseUrl = ApiConfig.baseUrl;
 
+  // الحصول على الهيدرز مع التوكن
+  Map<String, String> _getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer YOUR_TOKEN',
+    };
+  }
+
   // البحث عن الموظفين
   Future<Map<String, dynamic>> searchEmployees({
     String? searchTerm,
@@ -14,42 +22,38 @@ class LoanService {
     int pageSize = 20,
   }) async {
     try {
-      String url = '$baseUrl/Loans/SearchEmployees?'
-          'pageNumber=$pageNumber&pageSize=$pageSize';
+      final queryParams = <String, String>{
+        'pageNumber': pageNumber.toString(),
+        'pageSize': pageSize.toString(),
+      };
 
       if (searchTerm != null && searchTerm.isNotEmpty) {
-        url += '&searchTerm=$searchTerm';
+        queryParams['searchTerm'] = searchTerm;
       }
       if (departmentId != null && departmentId > 0) {
-        url += '&departmentId=$departmentId';
+        queryParams['departmentId'] = departmentId.toString();
       }
       if (jobTitleId != null && jobTitleId > 0) {
-        url += '&jobTitleId=$jobTitleId';
+        queryParams['jobTitleId'] = jobTitleId.toString();
       }
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
-      );
+      final uri = Uri.parse('$baseUrl/Loans/SearchEmployees')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _getHeaders());
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في البحث عن الموظفين');
+        return {
+          'success': false,
+          'message': 'فشل في البحث عن الموظفين',
+        };
       }
     } catch (e) {
       return {
@@ -64,27 +68,22 @@ class LoanService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/Loans/GetEmployee/$employeeId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تحميل بيانات الموظف');
+        final data = json.decode(response.body);
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تحميل بيانات الموظف',
+        };
       }
     } catch (e) {
       return {
@@ -99,27 +98,21 @@ class LoanService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/Loans/GetManagers'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+        return {
+          'success': data['success'] ?? false,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تحميل المديرين');
+        return {
+          'success': false,
+          'message': 'فشل في تحميل المديرين',
+        };
       }
     } catch (e) {
       return {
@@ -138,10 +131,7 @@ class LoanService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/Loans/CalculateInstallment'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
         body: json.encode({
           'employeeId': employeeId,
           'loanAmount': loanAmount,
@@ -149,21 +139,19 @@ class LoanService {
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في حساب القسط');
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في حساب القسط',
+          'errors': data['errors'],
+        };
       }
     } catch (e) {
       return {
@@ -181,15 +169,13 @@ class LoanService {
     required DateTime expectedPaybackDate,
     required int installmentMonths,
     required String reason,
+    String? notes,
     required int approvingManagerId,
   }) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/Loans/SubmitRequest'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
         body: json.encode({
           'employeeId': employeeId,
           'loanAmount': loanAmount,
@@ -197,27 +183,24 @@ class LoanService {
           'expectedPaybackDate': expectedPaybackDate.toIso8601String(),
           'installmentMonths': installmentMonths,
           'reason': reason,
+          'notes': notes,
           'approvingManagerId': approvingManagerId,
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-            'message': data['message'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-            'errors': data['errors'],
-          };
-        }
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تقديم الطلب');
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تقديم الطلب',
+          'errors': data['errors'],
+        };
       }
     } catch (e) {
       return {
@@ -237,42 +220,38 @@ class LoanService {
     int pageSize = 20,
   }) async {
     try {
-      String url = '$baseUrl/Loans/GetEmployeeLoans/$employeeId?'
-          'pageNumber=$pageNumber&pageSize=$pageSize';
+      final queryParams = <String, String>{
+        'pageNumber': pageNumber.toString(),
+        'pageSize': pageSize.toString(),
+      };
 
       if (status != null && status.isNotEmpty) {
-        url += '&status=$status';
+        queryParams['status'] = status;
       }
       if (fromDate != null) {
-        url += '&fromDate=${fromDate.toIso8601String()}';
+        queryParams['fromDate'] = fromDate.toIso8601String();
       }
       if (toDate != null) {
-        url += '&toDate=${toDate.toIso8601String()}';
+        queryParams['toDate'] = toDate.toIso8601String();
       }
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
-      );
+      final uri = Uri.parse('$baseUrl/Loans/GetEmployeeLoans/$employeeId')
+          .replace(queryParameters: queryParams);
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+      final response = await http.get(uri, headers: _getHeaders());
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تحميل سجل السلف');
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تحميل سجل السلف',
+        };
       }
     } catch (e) {
       return {
@@ -287,27 +266,21 @@ class LoanService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/Loans/GetLoanDetails/$loanId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN',
-        },
+        headers: _getHeaders(),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success']) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
-        } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
-        }
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
+          'message': data['message'],
+        };
       } else {
-        throw Exception('فشل في تحميل تفاصيل السلفة');
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في تحميل تفاصيل السلفة',
+        };
       }
     } catch (e) {
       return {
@@ -317,204 +290,101 @@ class LoanService {
     }
   }
 
-  // دالة عامة للحصول على طلبات المدير حسب الحالة
-Future<Map<String, dynamic>> getManagerLoansByStatus({
-  required int managerId,
-  required String status, // Pending, Approved, Rejected
-  String? searchTerm,
-  DateTime? fromDate,
-  DateTime? toDate,
-  int pageNumber = 1,
-  int pageSize = 20,
-}) async {
-  try {
-    String endpoint;
-    
-    // اختيار الـ endpoint المناسب حسب الحالة
-    switch (status.toLowerCase()) {
-      case 'pending':
-        endpoint = 'GetPendingLoansForManager';
-        break;
-      case 'approved':
-        endpoint = 'GetApprovedLoansForManager';
-        break;
-      case 'rejected':
-        endpoint = 'GetRejectedLoansForManager';
-        break;
-      default:
-        endpoint = 'GetPendingLoansForManager';
-    }
-    
-    String url = '$baseUrl/Loans/$endpoint/$managerId?'
-        'pageNumber=$pageNumber&pageSize=$pageSize';
+  // الحصول على طلبات السلف للمدير حسب الحالة
+  Future<Map<String, dynamic>> getManagerLoansByStatus({
+    required int managerId,
+    required String status,
+    String? searchTerm,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      String endpoint;
+      switch (status.toLowerCase()) {
+        case 'pending':
+          endpoint = 'GetPendingLoansForManager';
+          break;
+        case 'approved':
+          endpoint = 'GetApprovedLoansForManager';
+          break;
+        case 'rejected':
+          endpoint = 'GetRejectedLoansForManager';
+          break;
+        default:
+          endpoint = 'GetPendingLoansForManager';
+      }
 
-    if (searchTerm != null && searchTerm.isNotEmpty) {
-      url += '&searchTerm=$searchTerm';
-    }
-    if (fromDate != null) {
-      url += '&fromDate=${fromDate.toIso8601String()}';
-    }
-    if (toDate != null) {
-      url += '&toDate=${toDate.toIso8601String()}';
-    }
+      final queryParams = <String, String>{
+        'pageNumber': pageNumber.toString(),
+        'pageSize': pageSize.toString(),
+      };
 
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
+      if (searchTerm != null && searchTerm.isNotEmpty) {
+        queryParams['searchTerm'] = searchTerm;
+      }
+      if (fromDate != null) {
+        queryParams['fromDate'] = fromDate.toIso8601String();
+      }
+      if (toDate != null) {
+        queryParams['toDate'] = toDate.toIso8601String();
+      }
 
-    if (response.statusCode == 200) {
+      final uri = Uri.parse('$baseUrl/Loans/$endpoint/$managerId')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _getHeaders());
+
       final data = json.decode(response.body);
-      if (data['success']) {
+      if (response.statusCode == 200 && data['success'] == true) {
         return {
           'success': true,
           'data': data['data'],
           'totalRecords': data['totalRecords'] ?? 0,
+          'message': data['message'],
         };
       } else {
         return {
           'success': false,
-          'message': data['message'],
+          'message': data['message'] ?? 'فشل في تحميل طلبات السلف',
         };
       }
-    } else {
-      throw Exception('فشل في تحميل طلبات السلف');
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
     }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
   }
-}
 
-  // الحصول على طلبات السلف للمدير
-Future<Map<dynamic, dynamic>> getPendingLoansForManager({
-  required int managerId,
-  String? searchTerm,
-  String? status,
-  DateTime? fromDate,
-  DateTime? toDate,
-  int pageNumber = 1,
-  int pageSize = 20,
-}) async {
-  try {
-    String url = '$baseUrl/Loans/GetPendingLoansForManager/$managerId?'
-        'pageNumber=$pageNumber&pageSize=$pageSize';
+  // الحصول على إحصائيات السلف للمدير
+  Future<Map<String, dynamic>> getManagerLoanStats({
+    required int managerId,
+    String? status,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    try {
+      final queryParams = <String, String>{};
 
-    if (searchTerm != null && searchTerm.isNotEmpty) {
-      url += '&searchTerm=$searchTerm';
-    }
-    if (fromDate != null) {
-      url += '&fromDate=${fromDate.toIso8601String()}';
-    }
-    if (toDate != null) {
-      url += '&toDate=${toDate.toIso8601String()}';
-    }
-    if (status != null && status.isNotEmpty) {
-      url += '&status=$status';
-    }
-
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
-        return {
-          'success': true,
-          'data': data['data'],
-          'totalRecords': data['totalRecords'] ?? 0,
-        };
-      } else {
-        return {
-          'success': false,
-          'message': data['message'],
-        };
+      if (status != null && status.isNotEmpty) {
+        queryParams['status'] = status;
       }
-    } else {
-      throw Exception('فشل في تحميل طلبات السلف');
-    }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
-  }
-}
-
-// الحصول على إحصائيات السلف للمدير
-Future<Map<String, dynamic>> getManagerLoanStats({
-  required int managerId,
-  String? status,
-  DateTime? fromDate,
-  DateTime? toDate,
-}) async {
-  try {
-    String url = '$baseUrl/Loans/GetAllManagerLoans/$managerId';
-
-    final uri = Uri.parse(url).replace(
-      queryParameters: {
-        if (status != null && status.isNotEmpty) 'status': status,
-        if (fromDate != null) 'fromDate': fromDate.toIso8601String(),
-        if (toDate != null) 'toDate': toDate.toIso8601String(),
-      },
-    );
-
-    final response = await http.get(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
-        return {
-          'success': true,
-          'data': data['data'],
-        };
-      } else {
-        return {
-          'success': false,
-          'message': data['message'],
-        };
+      if (fromDate != null) {
+        queryParams['fromDate'] = fromDate.toIso8601String();
       }
-    } else {
-      throw Exception('فشل في تحميل الإحصائيات');
-    }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
-  }
-}
+      if (toDate != null) {
+        queryParams['toDate'] = toDate.toIso8601String();
+      }
 
-// الموافقة على سلفة
-Future<Map<String, dynamic>> approveLoan(int loanId) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/Loans/ApproveLoan/$loanId'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-    );
+      final uri = Uri.parse('$baseUrl/Loans/GetAllManagerLoans/$managerId')
+          .replace(queryParameters: queryParams.isEmpty ? null : queryParams);
 
-    if (response.statusCode == 200) {
+      final response = await http.get(uri, headers: _getHeaders());
+
       final data = json.decode(response.body);
-      if (data['success']) {
+      if (response.statusCode == 200 && data['success'] == true) {
         return {
           'success': true,
           'data': data['data'],
@@ -523,36 +393,58 @@ Future<Map<String, dynamic>> approveLoan(int loanId) async {
       } else {
         return {
           'success': false,
+          'message': data['message'] ?? 'فشل في تحميل الإحصائيات',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+  }
+
+  // الموافقة على سلفة
+  Future<Map<String, dynamic>> approveLoan(int loanId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/Loans/ApproveLoan/$loanId'),
+        headers: _getHeaders(),
+      );
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'],
           'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'فشل في الموافقة على السلفة',
           'errors': data['errors'],
         };
       }
-    } else {
-      throw Exception('فشل في الموافقة على السلفة');
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
     }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
   }
-}
 
-// رفض سلفة
-Future<Map<String, dynamic>> rejectLoan(int loanId, String reason) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/Loans/RejectLoan/$loanId'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_TOKEN',
-      },
-      body: json.encode({'reason': reason}),
-    );
+  // رفض سلفة
+  Future<Map<String, dynamic>> rejectLoan(int loanId, String reason) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/Loans/RejectLoan/$loanId'),
+        headers: _getHeaders(),
+        body: json.encode({'reason': reason}),
+      );
 
-    if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      if (data['success']) {
+      if (response.statusCode == 200 && data['success'] == true) {
         return {
           'success': true,
           'data': data['data'],
@@ -561,18 +453,15 @@ Future<Map<String, dynamic>> rejectLoan(int loanId, String reason) async {
       } else {
         return {
           'success': false,
-          'message': data['message'],
+          'message': data['message'] ?? 'فشل في رفض السلفة',
           'errors': data['errors'],
         };
       }
-    } else {
-      throw Exception('فشل في رفض السلفة');
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
     }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'خطأ: $e',
-    };
   }
-}
 }

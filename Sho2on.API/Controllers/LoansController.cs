@@ -1,9 +1,9 @@
 ﻿using HR_Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sho2on.API.Data;
 using Sho2on.API.Dtos;
-using Sho2on.API.Models;
+using Sho2on.Database;
+using Sho2on.Database.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -125,14 +125,6 @@ namespace Sho2on.API.Controllers
                     });
                 }
 
-                // حساب الحد الأقصى للسلفة (50% من الراتب)
-                var basicSalary = employee.Salaries.FirstOrDefault(s => s.Type == 1);
-                decimal maxAllowed = 0;
-                if (basicSalary != null)
-                {
-                    maxAllowed = basicSalary.Amount * 0.5m;
-                }
-
                 // السلفة المستحقة
                 var currentLoans = await _context.Loans
                     .Where(l => l.UserId == id &&
@@ -152,10 +144,9 @@ namespace Sho2on.API.Controllers
                     JobTitleName = employee.JobTitle?.Name ?? "غير محدد",
                     BranchName = employee.Branch?.Name ?? "غير محدد",
                     HireDate = employee.HireDate.ToDateTime(TimeOnly.MinValue),
-                    BasicSalary = basicSalary?.Amount ?? 0,
-                    MaxAllowedAmount = maxAllowed,
+                    BasicSalary = employee.MainSalary ?? 0,
+                    MaxAllowedAmount = employee.MaxLoanAmount,
                     CurrentLoanBalance = currentLoans,
-                    FriendshipBoxBalance = friendshipBoxAmount,
                     CanTakeLoan = employee.CanTakeLoan,
                     EmployeeStatus = employee.CanTakeLoan ? "مسموح بالسلفة" : "غير مسموح بالسلفة"
                 };
@@ -345,18 +336,6 @@ namespace Sho2on.API.Controllers
                     {
                         Success = false,
                         Message = "المدير المحدد غير صالح للموافقة"
-                    });
-                }
-
-                // التحقق من رصيد صندوق الزمالة
-                var friendshipBoxService = new FriendshipBoxService(_context);
-                if (!await friendshipBoxService.CanWithdrawAsync(request.LoanAmount))
-                {
-                    var balance = await friendshipBoxService.GetCurrentBalanceAsync();
-                    return BadRequest(new ApiResponse<LoanResponseDto>
-                    {
-                        Success = false,
-                        Message = $"رصيد صندوق الزمالة غير كافي. الرصيد المتاح: {balance:N2}"
                     });
                 }
 

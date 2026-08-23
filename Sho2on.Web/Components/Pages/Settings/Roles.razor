@@ -40,7 +40,9 @@
                         <tr>
                             <td><strong>@r.RoleName</strong></td>
                             <td><span class="status-badge status-checkin">@r.PermissionsCount</span></td>
-                            <td>@r.UsersCount</td>
+                            <td>
+                                <button class="link-btn" @onclick="() => ShowUsers(r)">@r.UsersCount</button>
+                            </td>
                             <td class="row-actions">
                                 <button class="icon-action" title="@Lang.T("تعديل")" @onclick="() => OpenEditModal(r)">
                                     <i class="bi bi-pencil"></i>
@@ -119,6 +121,31 @@
     </div>
 }
 
+@if (showUsersModal)
+{
+    <div class="modal-overlay" @onclick="() => showUsersModal = false">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("مستخدمو دور") @selectedRoleName</h3></div>
+            <div class="modal-body">
+                @if (roleUsers.Count == 0)
+                {
+                    <p class="muted">@Lang.T("لا يوجد مستخدمون")</p>
+                }
+                else
+                {
+                    @foreach (var name in roleUsers)
+                    {
+                        <p>@name</p>
+                    }
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="() => showUsersModal = false">@Lang.T("إغلاق")</button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     List<RoleListItem>? roles;
     List<Permission>? allPermissions;
@@ -131,6 +158,17 @@
     HashSet<int> selectedPermissionIds = new();
 
     RoleListItem? roleToDelete;
+
+    bool showUsersModal = false;
+    string selectedRoleName = "";
+    List<string> roleUsers = new();
+
+    async Task ShowUsers(RoleListItem r)
+    {
+        selectedRoleName = r.RoleName;
+        roleUsers = await RoleSvc.GetUsersInRoleAsync(r.Id);
+        showUsersModal = true;
+    }
 
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 

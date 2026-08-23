@@ -21,7 +21,7 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin {
   final AttendanceService _attendance = AttendanceService();
   final HolidayService _holidayService = HolidayService();
   final LoanService _loanService = LoanService();
@@ -30,6 +30,10 @@ class _MainPageState extends State<MainPage> {
   String checkOut = '--:--';
   String statusText = 'غير مسجل';
   bool _showAttendanceOptions = false;
+
+  // Animation
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   // ألوان التصميم
   final Color babyBlue = Color(0xFF89CFF0);
@@ -40,6 +44,7 @@ class _MainPageState extends State<MainPage> {
   final Color historyColor = Color(0xFFFF9800);
   final Color loanColor = Color(0xFF2196F3);
   final Color installmentColor = Color(0xFFFF5722);
+  final Color permissionColor = Color(0xFFFF9800);
 
   // إحصائيات الإجازات
   Map<String, dynamic> _leaveStats = {
@@ -62,6 +67,17 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 600),
+    );
+    
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+    
+    _animationController.forward();
     _initData();
   }
 
@@ -72,7 +88,6 @@ class _MainPageState extends State<MainPage> {
       statusText = widget.user['today']['status'] ?? 'غير مسجل';
     });
     
-    // تحميل إحصائيات الإجازات والسلف
     await _loadLeaveStats();
     await _loadLoanStats();
   }
@@ -87,8 +102,8 @@ class _MainPageState extends State<MainPage> {
         
         setState(() {
           _leaveStats = {
-            'balance': 21, // يمكن استبداله بـ API
-            'used': 5,     // يمكن استبداله بـ API
+            'balance': 21,
+            'used': 5,
             'pending': pending,
             'approved': approved,
           };
@@ -211,13 +226,24 @@ class _MainPageState extends State<MainPage> {
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          textDirection: TextDirection.rtl,
-          style: TextStyle(fontFamily: 'Tajawal'),
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white, size: 20),
+            SizedBox(width: 10),
+            Text(
+              message,
+              textDirection: TextDirection.rtl,
+              style: TextStyle(fontFamily: 'Tajawal'),
+            ),
+          ],
         ),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: EdgeInsets.all(16),
       ),
     );
   }
@@ -228,26 +254,48 @@ class _MainPageState extends State<MainPage> {
       builder: (_) => Directionality(
         textDirection: TextDirection.rtl,
         child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('خطأ', style: TextStyle(fontFamily: 'Tajawal')),
+              Text('خطأ', 
+                style: TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                )
+              ),
               SizedBox(width: 10),
-              Icon(Icons.error, color: Colors.red),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.error_outline, color: Colors.red, size: 20),
+              ),
             ],
           ),
           content: Text(message, 
             textDirection: TextDirection.rtl,
-            style: TextStyle(fontFamily: 'Tajawal'),
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 14),
           ),
           actionsAlignment: MainAxisAlignment.start,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: darkBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               child: Text('موافق', 
                 style: TextStyle(
-                  color: darkBlue,
                   fontFamily: 'Tajawal',
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -262,7 +310,6 @@ class _MainPageState extends State<MainPage> {
     _navigateToLogin();
   }
 
-  // دوال التنقل للصفحات المختلفة
   void _navigateToHolidayRequest() async {
     final result = await Navigator.push(
       context,
@@ -320,17 +367,17 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _navigateToPermissionRequest() async {
-  final result = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => PermissionRequestPage(user: widget.user),
-    ),
-  );
-  
-  if (result == true) {
-    _showSuccessSnackBar('تم تقديم طلب الإذن بنجاح');
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PermissionRequestPage(user: widget.user),
+      ),
+    );
+    
+    if (result == true) {
+      _showSuccessSnackBar('تم تقديم طلب الإذن بنجاح');
+    }
   }
-}
 
   void _navigateToLoanHistory() async {
     await Navigator.push(
@@ -363,16 +410,16 @@ class _MainPageState extends State<MainPage> {
       margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [babyBlue, Colors.white],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
+          colors: [darkBlue, babyBlue],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: babyBlue.withValues(alpha: 0.3),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            color: darkBlue.withOpacity(0.3),
+            blurRadius: 15,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -383,48 +430,60 @@ class _MainPageState extends State<MainPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             textDirection: TextDirection.rtl,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'مرحباً بك',
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey[700],
-                      fontFamily: 'Tajawal',
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'مرحباً بك 👋',
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white.withOpacity(0.9),
+                        fontFamily: 'Tajawal',
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    widget.user['fullName'] ?? '',
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: darkBlue,
-                      fontFamily: 'Tajawal',
+                    SizedBox(height: 5),
+                    Text(
+                      widget.user['fullName'] ?? '',
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontFamily: 'Tajawal',
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    '${widget.user['department']?['name'] ?? ''} - ${widget.user['jobTitle']?['name'] ?? ''}',
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      fontFamily: 'Tajawal',
+                    SizedBox(height: 5),
+                    Text(
+                      '${widget.user['department']?['name'] ?? ''} - ${widget.user['jobTitle']?['name'] ?? ''}',
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.8),
+                        fontFamily: 'Tajawal',
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: darkBlue,
-                child: Icon(
-                  Icons.person,
-                  size: 35,
-                  color: Colors.white,
+              Container(
+                padding: EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white.withOpacity(0.2),
+                  child: Icon(
+                    Icons.person,
+                    size: 35,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
@@ -435,14 +494,21 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildAttendanceSection() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Container(
       margin: EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -460,21 +526,36 @@ class _MainPageState extends State<MainPage> {
                     fontFamily: 'Tajawal',
                   ),
                 ),
-                Icon(Icons.calendar_today, color: babyBlue),
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: babyBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.calendar_today, color: babyBlue, size: 20),
+                ),
               ],
             ),
             SizedBox(height: 16),
             
             // حالة الحضور
             Container(
-              padding: EdgeInsets.all(12),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: statusText == 'حاضر' ? Colors.green[50] : 
-                       statusText == 'منصرف' ? Colors.blue[50] : Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  colors: statusText == 'حاضر' 
+                    ? [Colors.green[50]!, Colors.green[100]!]
+                    : statusText == 'منصرف' 
+                      ? [Colors.blue[50]!, Colors.blue[100]!]
+                      : [Colors.grey[100]!, Colors.grey[200]!],
+                ),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: statusText == 'حاضر' ? Colors.green : 
-                         statusText == 'منصرف' ? Colors.blue : Colors.grey,
+                  color: statusText == 'حاضر' 
+                    ? Colors.green[300]!
+                    : statusText == 'منصرف' 
+                      ? Colors.blue[300]!
+                      : Colors.grey[300]!,
                   width: 1.5,
                 ),
               ),
@@ -486,7 +567,7 @@ class _MainPageState extends State<MainPage> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'الحالة:',
+                        'الحالة الحالية',
                         textDirection: TextDirection.rtl,
                         style: TextStyle(
                           fontSize: 12,
@@ -494,25 +575,43 @@ class _MainPageState extends State<MainPage> {
                           fontFamily: 'Tajawal',
                         ),
                       ),
+                      SizedBox(height: 4),
                       Text(
                         statusText,
                         textDirection: TextDirection.rtl,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: statusText == 'حاضر' ? Colors.green[800] : 
-                                 statusText == 'منصرف' ? Colors.blue[800] : Colors.grey[800],
+                          color: statusText == 'حاضر' 
+                            ? Colors.green[800]
+                            : statusText == 'منصرف' 
+                              ? Colors.blue[800]
+                              : Colors.grey[700],
                           fontFamily: 'Tajawal',
                         ),
                       ),
                     ],
                   ),
-                  Icon(
-                    statusText == 'حاضر' ? Icons.check_circle : 
-                    statusText == 'منصرف' ? Icons.logout : Icons.schedule,
-                    color: statusText == 'حاضر' ? Colors.green : 
-                           statusText == 'منصرف' ? Colors.blue : Colors.grey,
-                    size: 32,
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      statusText == 'حاضر' ? Icons.check_circle : 
+                      statusText == 'منصرف' ? Icons.logout : Icons.schedule,
+                      color: statusText == 'حاضر' ? Colors.green : 
+                             statusText == 'منصرف' ? Colors.blue : Colors.grey,
+                      size: 30,
+                    ),
                   ),
                 ],
               ),
@@ -547,37 +646,57 @@ class _MainPageState extends State<MainPage> {
             SizedBox(height: 16),
             
             // زر البصمة
-            ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _showAttendanceOptions = !_showAttendanceOptions;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: babyBlue,
-                foregroundColor: Colors.white,
-                minimumSize: Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [babyBlue, darkBlue],
                 ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: babyBlue.withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-              icon: Icon(Icons.fingerprint),
-              label: Text(
-                'بصمة الحضور',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Tajawal',
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _showAttendanceOptions = !_showAttendanceOptions;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                icon: Icon(Icons.fingerprint, size: 24),
+                label: Text(
+                  'بصمة الحضور',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Tajawal',
+                  ),
                 ),
               ),
             ),
             
             // خيارات الحضور
-            if (_showAttendanceOptions)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: _buildAttendanceOptions(),
-              ),
+            AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              child: _showAttendanceOptions
+                  ? Padding(
+                      key: ValueKey('attendance_options'),
+                      padding: const EdgeInsets.only(top: 16),
+                      child: _buildAttendanceOptions(),
+                    )
+                  : SizedBox.shrink(),
+            ),
           ],
         ),
       ),
@@ -586,11 +705,18 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildTimeCard(String title, String time, IconData icon, Color color) {
     return Container(
-      padding: EdgeInsets.all(12),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -613,13 +739,20 @@ class _MainPageState extends State<MainPage> {
                 time,
                 textDirection: TextDirection.rtl,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: color,
                   fontFamily: 'Tajawal',
                 ),
               ),
-              Icon(icon, color: color, size: 20),
+              Container(
+                padding: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 16),
+              ),
             ],
           ),
         ],
@@ -631,9 +764,9 @@ class _MainPageState extends State<MainPage> {
     return Column(
       children: [
         Divider(),
-        SizedBox(height: 8),
+        SizedBox(height: 12),
         Text(
-          'اختر العملية:',
+          'اختر العملية المطلوبة:',
           textDirection: TextDirection.rtl,
           style: TextStyle(
             fontSize: 14,
@@ -647,34 +780,45 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           textDirection: TextDirection.rtl,
           children: [
-            ElevatedButton.icon(
-              onPressed: doCheckIn,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: doCheckIn,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              icon: Icon(Icons.login, size: 20),
-              label: Text('حضور', 
-                style: TextStyle(fontFamily: 'Tajawal'),
+                icon: Icon(Icons.login, size: 20),
+                label: Text('حضور', 
+                  style: TextStyle(
+                    fontFamily: 'Tajawal',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-            ElevatedButton.icon(
-              onPressed: doCheckOut,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: doCheckOut,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              icon: Icon(Icons.logout, size: 20),
-              label: Text('انصراف', 
-                style: TextStyle(fontFamily: 'Tajawal'),
+                icon: Icon(Icons.logout, size: 20),
+                label: Text('انصراف', 
+                  style: TextStyle(
+                    fontFamily: 'Tajawal',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
@@ -700,26 +844,47 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildQuickServices() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Container(
       margin: EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              'الخدمات السريعة',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               textDirection: TextDirection.rtl,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: darkBlue,
-                fontFamily: 'Tajawal',
-              ),
+              children: [
+                Text(
+                  'الخدمات السريعة',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: darkBlue,
+                    fontFamily: 'Tajawal',
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: babyBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.grid_view, color: babyBlue, size: 20),
+                ),
+              ],
             ),
             SizedBox(height: 16),
             
@@ -730,7 +895,7 @@ class _MainPageState extends State<MainPage> {
                 crossAxisCount: 3,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.8,
+                childAspectRatio: 0.85,
               ),
               children: [
                 _buildServiceButton(
@@ -739,37 +904,30 @@ class _MainPageState extends State<MainPage> {
                   vacationColor,
                   _navigateToHolidayRequest,
                 ),
-
-                
-                
                 _buildServiceButton(
                   'طلب إذن',
                   Icons.access_time,
-                  Colors.amber, // لون مختلف للإذن
+                  permissionColor,
                   _navigateToPermissionRequest,
                 ),
-
                 _buildServiceButton(
                   'طلب سلفة',
                   Icons.account_balance,
                   loanColor,
                   _navigateToLoanRequest,
                 ),
-                
                 _buildServiceButton(
                   'سجل الإجازات',
                   Icons.history,
                   vacationColor,
                   _navigateToLeaveHistory,
                 ),
-
                 _buildServiceButton(
                   'سجل الاذونات',
                   Icons.bar_chart,
-                  Colors.amber,
+                  permissionColor,
                   _navigateToPermissionHistory,
                 ),
-
                 _buildServiceButton(
                   'سجل السلف',
                   Icons.history_edu,
@@ -790,12 +948,12 @@ class _MainPageState extends State<MainPage> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.2), width: 1),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.1),
-              blurRadius: 6,
+              color: color.withOpacity(0.08),
+              blurRadius: 8,
               offset: Offset(0, 2),
             ),
           ],
@@ -807,10 +965,12 @@ class _MainPageState extends State<MainPage> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                gradient: LinearGradient(
+                  colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+                ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: color, size: 26),
             ),
             SizedBox(height: 8),
             Text(
@@ -818,7 +978,7 @@ class _MainPageState extends State<MainPage> {
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.bold,
                 color: darkBlue,
                 fontFamily: 'Tajawal',
@@ -831,219 +991,219 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildLeaveStatsSection() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              textDirection: TextDirection.rtl,
-              children: [
-                Text(
-                  'إحصائيات الإجازات',
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: vacationColor,
-                    fontFamily: 'Tajawal',
-                  ),
-                ),
-                Icon(Icons.beach_access, color: vacationColor, size: 28),
-              ],
-            ),
-            SizedBox(height: 16),
-            
-            GridView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.6,
-              ),
-              children: [
-                _buildStatItem(
-                  'الرصيد المتبقي',
-                  '${_leaveStats['balance']} يوم',
-                  Icons.account_balance_wallet,
-                  Colors.green,
-                ),
-                _buildStatItem(
-                  'المستخدم',
-                  '${_leaveStats['used']} يوم',
-                  Icons.airline_seat_recline_normal,
-                  Colors.orange,
-                ),
-                _buildStatItem(
-                  'قيد الانتظار',
-                  '${_leaveStats['pending']} طلب',
-                  Icons.access_time,
-                  Colors.blue,
-                ),
-                _buildStatItem(
-                  'الموافق عليه',
-                  '${_leaveStats['approved']} طلب',
-                  Icons.check_circle,
-                  Colors.purple,
-                ),
-              ],
-            ),
-            
-            SizedBox(height: 16),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton.icon(
-                      onPressed: _navigateToLeaveHistory,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[100],
-                        foregroundColor: darkBlue,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      icon: Icon(Icons.history, size: 18),
-                      label: Text(
-                        'سجل الإجازات',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton.icon(
-                      onPressed: _navigateToHolidayRequest,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: vacationColor,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      icon: Icon(Icons.add, size: 18),
-                      label: Text(
-                        'طلب جديد',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+  return Container(
+    margin: EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: Offset(0, 3),
         ),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            textDirection: TextDirection.rtl,
+            children: [
+              Text(
+                'إحصائيات الإجازات',
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: vacationColor,
+                  fontFamily: 'Tajawal',
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: vacationColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.beach_access, color: vacationColor, size: 20),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          
+          GridView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.8, // زيادة النسبة لتوفير مساحة أكبر
+            ),
+            children: [
+              _buildStatItem(
+                'الرصيد المتبقي',
+                '${_leaveStats['balance']} يوم',
+                Icons.account_balance_wallet,
+                Colors.green,
+              ),
+              _buildStatItem(
+                'المستخدم',
+                '${_leaveStats['used']} يوم',
+                Icons.airline_seat_recline_normal,
+                Colors.orange,
+              ),
+              _buildStatItem(
+                'قيد الانتظار',
+                '${_leaveStats['pending']} طلب',
+                Icons.access_time,
+                Colors.blue,
+              ),
+              _buildStatItem(
+                'الموافق عليه',
+                '${_leaveStats['approved']} طلب',
+                Icons.check_circle,
+                Colors.purple,
+              ),
+            ],
+          ),
+          
+          SizedBox(height: 16),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  'سجل الإجازات',
+                  Icons.history,
+                  Colors.grey[100]!,
+                  darkBlue,
+                  _navigateToLeaveHistory,
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: _buildActionButton(
+                  'طلب جديد',
+                  Icons.add,
+                  vacationColor,
+                  Colors.white,
+                  _navigateToHolidayRequest,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildLoanStatsSection() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              textDirection: TextDirection.rtl,
-              children: [
-                Text(
-                  'إحصائيات السلف',
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: loanColor,
-                    fontFamily: 'Tajawal',
-                  ),
+  return Container(
+    margin: EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            textDirection: TextDirection.rtl,
+            children: [
+              Text(
+                'إحصائيات السلف',
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: loanColor,
+                  fontFamily: 'Tajawal',
                 ),
-                Icon(Icons.account_balance, color: loanColor, size: 28),
-              ],
-            ),
-            SizedBox(height: 16),
-            
-            GridView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.6,
               ),
-              children: [
-                _buildStatItem(
-                  'الرصيد الحالي',
-                  '${_loanStats['currentBalance'].toStringAsFixed(0)} ج',
-                  Icons.money,
-                  Colors.red,
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: loanColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                _buildStatItem(
-                  'الحد الأقصى',
-                  '${_loanStats['maxAllowed'].toStringAsFixed(0)} ج',
-                  Icons.warning,
-                  Colors.green,
-                ),
-                _buildStatItem(
-                  'القروض النشطة',
-                  '${_loanStats['activeLoans']}',
-                  Icons.credit_card,
-                  Colors.blue,
-                ),
-                _buildStatItem(
-                  'القسط القادم',
-                  '${_loanStats['nextInstallment'].toStringAsFixed(0)} ج',
-                  Icons.calendar_today,
-                  Colors.orange,
-                ),
-              ],
+                child: Icon(Icons.account_balance, color: loanColor, size: 20),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          
+          GridView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.8, // زيادة النسبة لتوفير مساحة أكبر
             ),
-            
-            if (_loanStats['nextInstallment'] > 0 && _loanStats['nextDueDate'] != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange[100]!),
+            children: [
+              _buildStatItem(
+                'الرصيد الحالي',
+                '${_loanStats['currentBalance'].toStringAsFixed(0)} ج',
+                Icons.money,
+                Colors.red,
+              ),
+              _buildStatItem(
+                'الحد الأقصى',
+                '${_loanStats['maxAllowed'].toStringAsFixed(0)} ج',
+                Icons.warning,
+                Colors.green,
+              ),
+              _buildStatItem(
+                'القروض النشطة',
+                '${_loanStats['activeLoans']}',
+                Icons.credit_card,
+                Colors.blue,
+              ),
+              _buildStatItem(
+                'القسط القادم',
+                '${_loanStats['nextInstallment'].toStringAsFixed(0)} ج',
+                Icons.calendar_today,
+                Colors.orange,
+              ),
+            ],
+          ),
+          
+          if (_loanStats['nextInstallment'] > 0 && _loanStats['nextDueDate'] != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange[50]!, Colors.orange[100]!],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    textDirection: TextDirection.rtl,
-                    children: [
-                      Column(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.orange[200]!),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  textDirection: TextDirection.rtl,
+                  children: [
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
@@ -1055,6 +1215,7 @@ class _MainPageState extends State<MainPage> {
                               fontFamily: 'Tajawal',
                             ),
                           ),
+                          SizedBox(height: 4),
                           Text(
                             '${_loanStats['nextInstallment'].toStringAsFixed(2)} جنيه',
                             textDirection: TextDirection.rtl,
@@ -1065,220 +1226,249 @@ class _MainPageState extends State<MainPage> {
                               fontFamily: 'Tajawal',
                             ),
                           ),
+                          SizedBox(height: 4),
                           Text(
                             'تاريخ الاستحقاق: ${_formatDate(_loanStats['nextDueDate'])}',
                             textDirection: TextDirection.rtl,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               color: Colors.orange[600],
                               fontFamily: 'Tajawal',
                             ),
                           ),
                         ],
                       ),
-                      Icon(Icons.notifications_active, color: Colors.orange),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: 8),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.notifications_active, color: Colors.orange, size: 20),
+                    ),
+                  ],
                 ),
               ),
-            
-            SizedBox(height: 16),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton.icon(
-                      onPressed: _navigateToLoanHistory,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[100],
-                        foregroundColor: darkBlue,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      icon: Icon(Icons.history, size: 18),
-                      label: Text(
-                        'سجل السلف',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton.icon(
-                      onPressed: _navigateToLoanRequest,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: loanColor,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      icon: Icon(Icons.add, size: 18),
-                      label: Text(
-                        'طلب سلفة جديدة',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String title, String value, IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+          
+          SizedBox(height: 16),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  'سجل السلف',
+                  Icons.history,
+                  Colors.grey[100]!,
+                  darkBlue,
+                  _navigateToLoanHistory,
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: _buildActionButton(
+                  'طلب سلفة',
+                  Icons.add,
+                  loanColor,
+                  Colors.white,
+                  _navigateToLoanRequest,
+                ),
+              ),
+            ],
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              textDirection: TextDirection.rtl,
-              children: [
-                Icon(icon, color: color, size: 24),
-                Text(
-                  title,
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontFamily: 'Tajawal',
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text(
-              value,
-              textDirection: TextDirection.rtl,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: darkBlue,
-                fontFamily: 'Tajawal',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildMonthlyStats() {
-    return Card(
-      elevation: 3,
+  Widget _buildActionButton(String text, IconData icon, Color bgColor, Color textColor, VoidCallback onPressed) {
+  return ElevatedButton.icon(
+    onPressed: onPressed,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: bgColor,
+      foregroundColor: textColor,
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8), // تقليل padding
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      margin: EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              textDirection: TextDirection.rtl,
-              children: [
-                Text(
-                  'إحصائيات هذا الشهر',
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: darkBlue,
-                    fontFamily: 'Tajawal',
-                  ),
-                ),
-                Icon(Icons.calendar_month, color: babyBlue, size: 28),
-              ],
+    ),
+    icon: Icon(icon, size: 16), // تقليل حجم الأيقونة
+    label: Text(
+      text,
+      style: TextStyle(
+        fontSize: 11, // تقليل حجم الخط
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Tajawal',
+      ),
+    ),
+  );
+}
+
+  Widget _buildStatItem(String title, String value, IconData icon, Color color) {
+  return Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.white, color.withOpacity(0.05)],
+      ),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: color.withOpacity(0.3), width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: color.withOpacity(0.08),
+          blurRadius: 8,
+          offset: Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 24),
+          SizedBox(height: 2),
+          Text(
+            title,
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11, // تقليل حجم الخط
+              color: Colors.grey[600],
+              fontFamily: 'Tajawal',
             ),
-            SizedBox(height: 16),
-            
-            GridView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.4,
+          ),
+          SizedBox(height: 2),
+          Text(
+            value,
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14, // تقليل حجم الخط
+              fontWeight: FontWeight.bold,
+              color: darkBlue,
+              fontFamily: 'Tajawal',
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  Widget _buildMonthlyStats() {
+  return Container(
+    margin: EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            textDirection: TextDirection.rtl,
+            children: [
+              Text(
+                'إحصائيات هذا الشهر',
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: darkBlue,
+                  fontFamily: 'Tajawal',
+                ),
               ),
-              children: [
-                _buildMonthlyStatItem(
-                  'أيام الحضور',
-                  widget.user['stats']['present'].toString(),
-                  Icons.check_circle,
-                  Colors.green,
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: babyBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                _buildMonthlyStatItem(
-                  'أيام الغياب',
-                  widget.user['stats']['absent'].toString(),
-                  Icons.cancel,
-                  Colors.red,
-                ),
-                _buildMonthlyStatItem(
-                  'التأخيرات',
-                  widget.user['stats']['late'].toString(),
-                  Icons.schedule,
-                  Colors.orange,
-                ),
-                _buildMonthlyStatItem(
-                  'الإجازات',
-                  widget.user['stats']['vacation'].toString(),
-                  Icons.beach_access,
-                  babyBlue,
+                child: Icon(Icons.calendar_month, color: babyBlue, size: 20),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          
+          GridView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.6, // زيادة النسبة لتوفير مساحة أكبر
+            ),
+            children: [
+              _buildMonthlyStatItem(
+                'أيام الحضور',
+                widget.user['stats']['present'].toString(),
+                Icons.check_circle,
+                Colors.green,
+              ),
+              _buildMonthlyStatItem(
+                'أيام الغياب',
+                widget.user['stats']['absent'].toString(),
+                Icons.cancel,
+                Colors.red,
+              ),
+              _buildMonthlyStatItem(
+                'التأخيرات',
+                widget.user['stats']['late'].toString(),
+                Icons.schedule,
+                Colors.orange,
+              ),
+              _buildMonthlyStatItem(
+                'الإجازات',
+                widget.user['stats']['vacation'].toString(),
+                Icons.beach_access,
+                babyBlue,
+              ),
+            ],
+          ),
+          
+          SizedBox(height: 16),
+          
+          Container(
+            height: 50,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [reportColor, reportColor.withOpacity(0.8)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: reportColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
                 ),
               ],
             ),
-            
-            SizedBox(height: 16),
-            
-            ElevatedButton.icon(
+            child: ElevatedButton.icon(
               onPressed: _navigateToMonthlyReport,
               style: ElevatedButton.styleFrom(
-                backgroundColor: reportColor,
-                foregroundColor: Colors.white,
-                minimumSize: Size(double.infinity, 50),
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              icon: Icon(Icons.bar_chart),
+              icon: Icon(Icons.bar_chart, size: 20),
               label: Text(
                 'عرض التقرير الشامل',
                 style: TextStyle(
@@ -1288,77 +1478,102 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildMonthlyStatItem(String title, String value, IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
+  return Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.white, color.withOpacity(0.05)],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 32),
-          SizedBox(height: 8),
-          Text(
-            value,
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: darkBlue,
-              fontFamily: 'Tajawal',
-            ),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: color.withOpacity(0.3), width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: color.withOpacity(0.08),
+          blurRadius: 8,
+          offset: Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: color, size: 28),
+        SizedBox(height: 6),
+        Text(
+          value,
+          textDirection: TextDirection.rtl,
+          style: TextStyle(
+            fontSize: 20, // تقليل حجم الخط قليلاً
+            fontWeight: FontWeight.bold,
+            color: darkBlue,
+            fontFamily: 'Tajawal',
           ),
-          SizedBox(height: 4),
-          Text(
-            title,
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontFamily: 'Tajawal',
-            ),
+        ),
+        SizedBox(height: 2),
+        Text(
+          title,
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey[600],
+            fontFamily: 'Tajawal',
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildPersonalInfo() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Container(
       margin: EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              'معلومات شخصية',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               textDirection: TextDirection.rtl,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: darkBlue,
-                fontFamily: 'Tajawal',
-              ),
+              children: [
+                Text(
+                  'معلومات شخصية',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: darkBlue,
+                    fontFamily: 'Tajawal',
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: babyBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.person, color: babyBlue, size: 20),
+                ),
+              ],
             ),
             SizedBox(height: 16),
             
@@ -1411,7 +1626,14 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
         SizedBox(width: 12),
-        Icon(icon, color: babyBlue, size: 24),
+        Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: babyBlue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: babyBlue, size: 20),
+        ),
       ],
     );
   }
@@ -1422,15 +1644,14 @@ class _MainPageState extends State<MainPage> {
       child: ElevatedButton.icon(
         onPressed: () {
           _showLogoutConfirmation();
-          
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: Colors.red,
-          minimumSize: Size(double.infinity, 50),
+          minimumSize: Size(double.infinity, 56),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.red, width: 1.5),
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.red.withOpacity(0.3), width: 1.5),
           ),
           elevation: 0,
         ),
@@ -1453,26 +1674,72 @@ class _MainPageState extends State<MainPage> {
       builder: (context) => Directionality(
         textDirection: TextDirection.rtl,
         child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Icon(Icons.logout, color: Colors.red),
+              Text(
+                'تسجيل الخروج',
+                style: TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
               SizedBox(width: 10),
-              Text('تسجيل الخروج'),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.logout, color: Colors.red, size: 20),
+              ),
             ],
           ),
-          content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
+          content: Text(
+            'هل أنت متأكد من رغبتك في تسجيل الخروج؟',
+            textDirection: TextDirection.rtl,
+            style: TextStyle(
+              fontFamily: 'Tajawal',
+              fontSize: 14,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('إلغاء'),
+              style: TextButton.styleFrom(
+                foregroundColor: darkBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'إلغاء',
+                style: TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: logout,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: Text('تسجيل الخروج'),
+              child: Text(
+                'تسجيل الخروج',
+                style: TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
@@ -1498,40 +1765,39 @@ class _MainPageState extends State<MainPage> {
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(20),
+            ),
+          ),
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // بطاقة ترحيب
-                _buildEmployeeInfoCard(),
-                
-                // قسم الحضور
-                _buildAttendanceSection(),
-                
-                // الخدمات السريعة
-                _buildQuickServices(),
-                
-                // إحصائيات الإجازات
-                _buildLeaveStatsSection(),
-                
-                // إحصائيات السلف
-                _buildLoanStatsSection(),
-                
-                // إحصائيات الشهر
-                _buildMonthlyStats(),
-                
-                // المعلومات الشخصية
-                _buildPersonalInfo(),
-                
-                // زر تسجيل الخروج
-                _buildLogoutButton(),
-              ],
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildEmployeeInfoCard(),
+                  _buildAttendanceSection(),
+                  _buildQuickServices(),
+                  _buildLeaveStatsSection(),
+                  _buildLoanStatsSection(),
+                  _buildMonthlyStats(),
+                  _buildPersonalInfo(),
+                  _buildLogoutButton(),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

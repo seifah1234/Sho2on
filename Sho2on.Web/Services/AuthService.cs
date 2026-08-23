@@ -45,16 +45,16 @@ namespace Sho2on.Web.Services
             else if (user.PasswordHash.StartsWith("$2"))
             {
                 isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+                if (isValid)
+                {
+                    user.PasswordHash = password;
+                    await _db.SaveChangesAsync();
+
+                }
             }
             else
             {
                 isValid = user.PasswordHash == password;
-
-                if (isValid)
-                {
-                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
-                    await _db.SaveChangesAsync();
-                }
             }
 
             if (!isValid)

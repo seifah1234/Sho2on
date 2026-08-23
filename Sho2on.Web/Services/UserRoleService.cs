@@ -34,7 +34,7 @@ namespace Sho2on.Web.Services
             var user = await _db.Users.FindAsync(userId);
             if (user == null) return (false, "المستخدم غير موجود");
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.PasswordHash = newPassword;
             await _db.SaveChangesAsync();
 
             return (true, $"تم تعيين كلمة مرور جديدة لـ {user.FullName} بنجاح");

@@ -6,11 +6,11 @@ import 'api_config.dart';
 
 class AuthService {
 
-  Future<Map<String, dynamic>?> login(String id, String password, String deviceId) async {
+  Future<Map<String, Map<String, dynamic>?>> login(String username, String password, String deviceId) async {
     final url = Uri.parse("${ApiConfig.baseUrl}/auth/login");
 
     final body = {
-      "id": id,
+      "username": username,
       "password": password,
       "deviceId": deviceId,
     };
@@ -22,25 +22,27 @@ class AuthService {
     );
 
     if (res.statusCode == 200) {
-      return jsonDecode(res.body);
-    } else {
-      return null;
+      return {"200": jsonDecode(res.body)};
+    } else if (res.statusCode == 500) {
+      return {"500": null};
+    }
+    else {
+      return {res.body: null};
     }
     }catch(e){
       SnackBar(content: SnackBar(content: Text("Error occurred during login")), );
       print(e);
     }
-    return null;
-
-    
+    return {"Error": null};
   }
 
 
-  Future<String> register(String id, String password, String deviceId) async {
+  Future<String> register(String id, String username, String password, String deviceId) async {
     final url = Uri.parse("${ApiConfig.baseUrl}/auth/register");
 
     final body = {
       "id": id.trim(),
+      "username": username.trim(),
       "password": password.trim(),
       "deviceId": deviceId,
     };

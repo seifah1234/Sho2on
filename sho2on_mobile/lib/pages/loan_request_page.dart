@@ -18,33 +18,41 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
   double _loanAmount = 0;
   int _installmentMonths = 1;
   String _reason = '';
+  String _notes = '';
   DateTime _loanDate = DateTime.now();
   DateTime _expectedPaybackDate = DateTime.now().add(Duration(days: 30));
   
   // قوائم البيانات
   List<dynamic> _managers = [];
-  final List<int> _installmentOptions = [1, 2, 3, 4, 5, 6];
+  final List<int> _installmentOptions = [1, 3, 6, 12];
+  int? _customInstallmentCount;
   
-  // معلومات الحسابات
+  // معلومات الحسابات - مطابقة للـ API
+  double _basicSalary = 0;
   double _maxAllowedAmount = 0;
-  double _monthlyInstallment = 0;
-  double _friendshipBoxBalance = 0;
   double _currentLoanBalance = 0;
+  double _remainingLimit = 0;
+  bool _canTakeLoan = false;
   String _employeeStatus = '';
   
   // حالة التحميل
   bool _isLoading = false;
   bool _isSubmitting = false;
-  bool _isCalculating = false;
+  
+  // Controllers
+  final TextEditingController _loanAmountController = TextEditingController();
+  final TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
+  final TextEditingController _customInstallmentController = TextEditingController();
   
   // ألوان التصميم
   final Color primaryColor = Color(0xFF1976D2);
-  final Color secondaryColor = Color(0xFF42A5F5);
   final Color accentColor = Color(0xFF4CAF50);
   final Color warningColor = Color(0xFFFF9800);
   final Color errorColor = Color(0xFFF44336);
   final Color backgroundColor = Color(0xFFF5F7FA);
   final Color cardColor = Colors.white;
+  final Color borderColor = Color(0xFFE0E0E0);
   
   @override
   void initState() {
@@ -56,12 +64,8 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
     setState(() => _isLoading = true);
     
     try {
-      // تحميل بيانات الموظف الحالي
-      await _loadEmployeeDetails(widget.user['id']);
-      
-      // تحميل المديرين
+      await _loadEmployeeDetails();
       await _loadManagers();
-      
     } catch (e) {
       _showError('خطأ في تحميل البيانات: $e');
     } finally {
@@ -69,16 +73,24 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
     }
   }
   
-  Future<void> _loadEmployeeDetails(int employeeId) async {
+  Future<void> _loadEmployeeDetails() async {
     try {
-      final result = await _loanService.getEmployee(employeeId);
+      final result = await _loanService.getEmployee(widget.user['id']);
       if (result['success']) {
+        final data = result['data'];
         setState(() {
-          _maxAllowedAmount = (result['data']['maxAllowedAmount'] ?? 0).toDouble();
-          _friendshipBoxBalance = (result['data']['friendshipBoxBalance'] ?? 0).toDouble();
-          _currentLoanBalance = (result['data']['currentLoanBalance'] ?? 0).toDouble();
-          _employeeStatus = result['data']['employeeStatus'] ?? 'غير معروف';
+          _basicSalary = (data['basicSalary'] ?? 0).toDouble();
+          _maxAllowedAmount = (data['maxAllowedAmount'] ?? 0).toDouble();
+          _currentLoanBalance = (data['currentLoanBalance'] ?? 0).toDouble();
+          _canTakeLoan = data['canTakeLoan'] ?? false;
+          _employeeStatus = data['employeeStatus'] ?? 'غير معروف';
+          
+          // حساب المتبقي للحد الأقصى
+          _remainingLimit = _maxAllowedAmount - _currentLoanBalance;
+          if (_remainingLimit < 0) _remainingLimit = 0;
         });
+      } else {
+        _showError(result['message'] ?? 'فشل في تحميل بيانات الموظف');
       }
     } catch (e) {
       _showError('خطأ في تحميل بيانات الموظف: $e');
@@ -86,61 +98,204 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
   }
   
   Future<void> _loadManagers() async {
-  try {
-    final result = await _loanService.getManagers();
-    if (result['success']) {
-      setState(() {
-        _managers = result['data'];
-        
-        // اختيار مدير الموظف كافتراضي
-        if (widget.user['managerId'] != null) {
-          final managerId = widget.user['managerId'];
-          _selectedManager = _managers.firstWhere(
-            (manager) => manager['id'] == managerId,
-            orElse: () => _managers.isNotEmpty ? _managers[0] : null,
-          );
-        } else if (_managers.isNotEmpty) {
-          _selectedManager = _managers[0];
-        }
-      });
+    try {
+      final result = await _loanService.getManagers();
+      if (result['success']) {
+        setState(() {
+          _managers = result['data'] ?? [];
+          
+          // اختيار مدير الموظف كافتراضي
+          if (widget.user['managerId'] != null && _managers.isNotEmpty) {
+            final managerId = widget.user['managerId'];
+            _selectedManager = _managers.firstWhere(
+              (manager) => manager['id'] == managerId,
+              orElse: () => _managers.isNotEmpty ? _managers[0] : null,
+            );
+          } else if (_managers.isNotEmpty) {
+            _selectedManager = _managers[0];
+          }
+        });
+      } else {
+        _showError(result['message'] ?? 'فشل في تحميل المديرين');
+      }
+    } catch (e) {
+      _showError('خطأ في تحميل المديرين: $e');
     }
-  } catch (e) {
-    _showError('خطأ في تحميل المديرين: $e');
   }
-}
   
-  Future<void> _calculateInstallment() async {
+  // حساب القسط الشهري محلياً (مثل الويب)
+  void _calculateInstallmentLocally() {
+    if (_loanAmount > 0 && _installmentMonths > 0) {
+      final monthlyInstallment = _loanAmount / _installmentMonths;
+      final maxMonthlyInstallment = _basicSalary * 0.3;
+      
+      if (monthlyInstallment > maxMonthlyInstallment) {
+        _showError('القسط الشهري يتجاوز 30% من الراتب');
+      }
+    }
+  }
+  
+  // التحقق من صحة النموذج (مثل ValidateLoanRequest في API)
+  bool _validateForm() {
     if (_loanAmount <= 0) {
-      _showError('الرجاء إدخال مبلغ السلفة');
-      return;
+      _showError('مبلغ السلفة يجب أن يكون أكبر من صفر');
+      return false;
     }
     
-    if (_loanAmount > _maxAllowedAmount) {
-      _showError('مبلغ السلفة يتجاوز الحد المسموح');
-      return;
+    if (_loanAmount > _remainingLimit) {
+      _showError('المبلغ المطلوب يتجاوز الحد المتبقي (${_remainingLimit.toStringAsFixed(0)} ج)');
+      return false;
     }
     
-    setState(() => _isCalculating = true);
+    if (_installmentMonths <= 0) {
+      _showError('عدد الأشهر يجب أن يكون أكبر من صفر');
+      return false;
+    }
+    
+    if (_reason.isEmpty) {
+      _showError('سبب السلفة مطلوب');
+      return false;
+    }
+    
+    if (_selectedManager == null) {
+      _showError('الرجاء اختيار مدير للموافقة');
+      return false;
+    }
+    
+    if (!_canTakeLoan) {
+      _showError('هذا الموظف غير مسموح له بأخذ سلفة');
+      return false;
+    }
+    
+    // التحقق من القسط الشهري (30% من الراتب)
+    final monthlyInstallment = _loanAmount / _installmentMonths;
+    final maxMonthlyInstallment = _basicSalary * 0.3;
+    if (monthlyInstallment > maxMonthlyInstallment) {
+      _showError('القسط الشهري (${monthlyInstallment.toStringAsFixed(0)} ج) يتجاوز 30% من الراتب (${maxMonthlyInstallment.toStringAsFixed(0)} ج)');
+      return false;
+    }
+    
+    return true;
+  }
+  
+  Future<void> _submitRequest() async {
+    if (!_validateForm()) return;
+    
+    setState(() => _isSubmitting = true);
     
     try {
-      final result = await _loanService.calculateInstallment(
+      final result = await _loanService.submitLoanRequest(
         employeeId: widget.user['id'],
         loanAmount: _loanAmount,
+        loanDate: _loanDate,
+        expectedPaybackDate: _expectedPaybackDate,
         installmentMonths: _installmentMonths,
+        reason: _reason,
+        notes: _notes,
+        approvingManagerId: _selectedManager?['id'] ?? -1,
       );
       
       if (result['success']) {
-        setState(() {
-          _monthlyInstallment = (result['data']['monthlyInstallment'] ?? 0).toDouble();
-        });
+        final data = result['data'];
+        _showSuccessDialog(
+          result['message'] ?? 'تم تقديم طلب السلفة بنجاح',
+          () {
+            Navigator.pop(context, true);
+          },
+        );  
+        clearForm();      
       } else {
-        _showError(result['message'] ?? 'فشل في الحساب');
+        _showError(result['message'] ?? 'فشل في تقديم الطلب');
       }
     } catch (e) {
-      _showError('خطأ في الحساب: $e');
+      _showError('خطأ في تقديم الطلب: $e');
     } finally {
-      setState(() => _isCalculating = false);
+      setState(() => _isSubmitting = false);
     }
+  }
+  
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.white, size: 20),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                textDirection: TextDirection.rtl,
+                style: TextStyle(fontFamily: 'Tajawal'),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: errorColor,
+        duration: Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: EdgeInsets.all(16),
+      ),
+    );
+  }
+  
+  void _showSuccessDialog(String message, VoidCallback onOk) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                'نجاح',
+                style: TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.check_circle, color: Colors.green, size: 20),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            textDirection: TextDirection.rtl,
+            style: TextStyle(fontFamily: 'Tajawal'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: onOk,
+              style: TextButton.styleFrom(
+                foregroundColor: primaryColor,
+              ),
+              child: Text(
+                'موافق',
+                style: TextStyle(
+                  fontFamily: 'Tajawal',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
   
   Future<void> _selectManager() async {
@@ -152,21 +307,31 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
     final Map<String, dynamic>? selected = await showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Directionality(
         textDirection: TextDirection.rtl,
         child: Container(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.all(20),
           height: MediaQuery.of(context).size.height * 0.6,
           child: Column(
             children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              SizedBox(height: 16),
               Text(
                 'اختر المدير للموافقة',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Tajawal',
+                  color: primaryColor,
                 ),
               ),
               SizedBox(height: 16),
@@ -175,29 +340,45 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
                   itemCount: _managers.length,
                   itemBuilder: (context, index) {
                     final manager = _managers[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: primaryColor,
-                        child: Text(
-                          manager['fullName'][0],
-                          style: TextStyle(color: Colors.white),
+                    final isSelected = _selectedManager != null && 
+                                     _selectedManager!['id'] == manager['id'];
+                    return Card(
+                      elevation: isSelected ? 2 : 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: isSelected ? primaryColor : borderColor,
+                          width: isSelected ? 2 : 1,
                         ),
                       ),
-                      title: Text(
-                        manager['fullName'],
-                        textDirection: TextDirection.rtl,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: isSelected ? primaryColor : Colors.grey[300],
+                          child: Text(
+                            (manager['fullName'] ?? '?')[0],
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        title: Text(
+                          manager['fullName'] ?? '',
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontFamily: 'Tajawal',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${manager['jobTitleName'] ?? ''} - ${manager['departmentName'] ?? ''}',
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(fontFamily: 'Tajawal', fontSize: 12),
+                        ),
+                        trailing: isSelected
+                            ? Icon(Icons.check_circle, color: primaryColor)
+                            : null,
+                        onTap: () {
+                          Navigator.pop(context, manager);
+                        },
                       ),
-                      subtitle: Text(
-                        '${manager['jobTitleName']} - ${manager['departmentName']}',
-                        textDirection: TextDirection.rtl,
-                      ),
-                      trailing: _selectedManager != null && 
-                               _selectedManager!['id'] == manager['id']
-                          ? Icon(Icons.check, color: primaryColor)
-                          : null,
-                      onTap: () {
-                        Navigator.pop(context, manager);
-                      },
                     );
                   },
                 ),
@@ -227,7 +408,7 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black,
-            ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+            ),
           ),
           child: Directionality(
             textDirection: TextDirection.rtl,
@@ -256,7 +437,7 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black,
-            ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+            ),
           ),
           child: Directionality(
             textDirection: TextDirection.rtl,
@@ -271,112 +452,21 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
     }
   }
   
-  Future<void> _submitRequest() async {
-    if (!_validateForm()) return;
-    
-    setState(() => _isSubmitting = true);
-    
-    try {
-      final result = await _loanService.submitLoanRequest(
-        employeeId: widget.user['id'],
-        loanAmount: _loanAmount,
-        loanDate: _loanDate,
-        expectedPaybackDate: _expectedPaybackDate,
-        installmentMonths: _installmentMonths,
-        reason: _reason,
-        approvingManagerId: _selectedManager?['id'] ?? -1,
-      );
-      
-      if (result['success']) {
-        _showSuccessDialog('تم تقديم الطلب بنجاح', () {
-          Navigator.pop(context, true);
-        });
-      } else {
-        _showError(result['message'] ?? 'فشل في تقديم الطلب');
-      }
-    } catch (e) {
-      _showError('خطأ في تقديم الطلب: $e');
-    } finally {
-      setState(() => _isSubmitting = false);
-    }
-  }
-  
-  bool _validateForm() {
-    if (_loanAmount <= 0) {
-      _showError('الرجاء إدخال مبلغ السلفة');
-      return false;
-    }
-    
-    if (_loanAmount > _maxAllowedAmount) {
-      _showError('مبلغ السلفة يتجاوز الحد المسموح');
-      return false;
-    }
-    
-    if (_selectedManager == null) {
-      _showError('الرجاء اختيار مدير للموافقة');
-      return false;
-    }
-    
-    if (_reason.isEmpty) {
-      _showError('الرجاء كتابة سبب السلفة');
-      return false;
-    }
-    
-    if (_employeeStatus != 'مسموح بالسلفة') {
-      _showError('حالتك لا تسمح بأخذ سلفة');
-      return false;
-    }
-    
-    return true;
-  }
-  
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          textDirection: TextDirection.rtl,
-          style: TextStyle(fontFamily: 'Tajawal'),
-        ),
-        backgroundColor: errorColor,
-        duration: Duration(seconds: 3),
-      ),
-    );
-  }
-  
-  void _showSuccessDialog(String message, VoidCallback onOk) {
-    showDialog(
-      context: context,
-      builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green),
-              SizedBox(width: 10),
-              Text('نجاح'),
-            ],
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: onOk,
-              child: Text('موافق'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
   Widget _buildEmployeeInfoCard() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -396,46 +486,52 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.blue[100]!),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     textDirection: TextDirection.rtl,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            widget.user['fullName'] ?? '',
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[900],
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                          Text(
-                            '${widget.user['department']?['name'] ?? ''} - ${widget.user['jobTitle']?['name'] ?? ''}',
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              color: Colors.blue[700],
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                        ],
-                      ),
                       CircleAvatar(
                         radius: 25,
                         backgroundColor: primaryColor,
-                        child: Icon(
-                          Icons.person,
-                          size: 30,
-                          color: Colors.white,
+                        child: Text(
+                          (widget.user['fullName'] ?? '?')[0],
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              widget.user['fullName'] ?? '',
+                              textDirection: TextDirection.rtl,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue[900],
+                                fontFamily: 'Tajawal',
+                              ),
+                            ),
+                            Text(
+                              '${widget.user['department']?['name'] ?? ''} - ${widget.user['jobTitle']?['name'] ?? ''}',
+                              textDirection: TextDirection.rtl,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue[700],
+                                fontFamily: 'Tajawal',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -443,33 +539,64 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
                   
                   SizedBox(height: 16),
                   
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
+                  GridView(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.8,
+                    ),
                     children: [
                       _buildInfoItem('الراتب الأساسي', 
-                        '${widget.user['mainSalary']?.toStringAsFixed(2) ?? '0.00'} جنيه',
+                        '${_basicSalary.toStringAsFixed(0)} ج',
                         Icons.attach_money, Colors.green),
                       
                       _buildInfoItem('الحد الأقصى', 
-                        '${_maxAllowedAmount.toStringAsFixed(2)} جنيه',
+                        '${_maxAllowedAmount.toStringAsFixed(0)} ج',
                         Icons.warning, Colors.orange),
                       
-                      _buildInfoItem('السلف المستحقة', 
-                        '${_currentLoanBalance.toStringAsFixed(2)} جنيه',
+                      _buildInfoItem('السلف النشطة', 
+                        '${_currentLoanBalance.toStringAsFixed(0)} ج',
                         Icons.account_balance, Colors.red),
                       
-                      _buildInfoItem('رصيد الصندوق', 
-                        '${_friendshipBoxBalance.toStringAsFixed(2)} جنيه',
-                        Icons.account_balance_wallet, Colors.purple),
-                      
-                      _buildInfoItem('الحالة', 
-                        _employeeStatus,
-                        Icons.verified_user, 
-                        _employeeStatus == 'مسموح بالسلفة' ? Colors.green : Colors.red),
+                      _buildInfoItem('المتبقي للحد', 
+                        '${_remainingLimit.toStringAsFixed(0)} ج',
+                        Icons.account_balance_wallet, 
+                        _remainingLimit > 0 ? Colors.purple : Colors.red),
                     ],
                   ),
+                  
+                  if (!_canTakeLoan)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.block, color: Colors.red, size: 20),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _employeeStatus,
+                                textDirection: TextDirection.rtl,
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontFamily: 'Tajawal',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -481,32 +608,32 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
   
   Widget _buildInfoItem(String title, String value, IconData icon, Color color) {
     return Container(
-      constraints: BoxConstraints(minWidth: 140),
-      padding: EdgeInsets.all(12),
+      padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 24, color: color),
-          SizedBox(height: 5),
+          Icon(icon, size: 15, color: color),
+          SizedBox(height: 2),
           Text(
             title,
             textDirection: TextDirection.rtl,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.grey[600],
               fontFamily: 'Tajawal',
             ),
           ),
-          SizedBox(height: 5),
+          SizedBox(height: 2),
           Text(
             value,
             textDirection: TextDirection.rtl,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
               color: color,
               fontFamily: 'Tajawal',
@@ -518,13 +645,20 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
   }
   
   Widget _buildLoanDetailsSection() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -540,175 +674,250 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
             ),
             SizedBox(height: 16),
             
-            Row(
+            // مبلغ السلفة
+            Text(
+              'مبلغ السلفة *',
               textDirection: TextDirection.rtl,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'مبلغ السلفة',
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[700],
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        textDirection: TextDirection.rtl,
-                        decoration: InputDecoration(
-                          hintText: 'أدخل المبلغ',
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400],
-                            fontFamily: 'Tajawal',
-                          ),
-                          suffixText: 'جنيه',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: primaryColor),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            _loanAmount = double.tryParse(value) ?? 0;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                
-                SizedBox(width: 12),
-                
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'عدد الأشهر',
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[700],
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: DropdownButton<int>(
-                          value: _installmentMonths,
-                          items: _installmentOptions.map((months) {
-                            return DropdownMenuItem<int>(
-                              value: months,
-                              child: Text(
-                                '$months شهر',
-                                textDirection: TextDirection.rtl,
-                                style: TextStyle(fontFamily: 'Tajawal'),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _installmentMonths = value;
-                              });
-                            }
-                          },
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          icon: Icon(Icons.arrow_drop_down, color: primaryColor),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+                fontFamily: 'Tajawal',
+                fontSize: 13,
+              ),
             ),
+            SizedBox(height: 8),
+            TextField(
+              controller: _loanAmountController,
+              keyboardType: TextInputType.number,
+              textDirection: TextDirection.rtl,
+              decoration: InputDecoration(
+                hintText: '0',
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontFamily: 'Tajawal',
+                ),
+                suffixText: 'جنيه',
+                suffixStyle: TextStyle(
+                  color: Colors.grey[600],
+                  fontFamily: 'Tajawal',
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: borderColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: borderColor),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: primaryColor, width: 2),
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _loanAmount = double.tryParse(value) ?? 0;
+                });
+              },
+            ),
+            
+            if (_loanAmount > _remainingLimit)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber, color: warningColor, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      'المبلغ المطلوب يتجاوز الحد المتبقي',
+                      style: TextStyle(
+                        color: warningColor,
+                        fontSize: 11,
+                        fontFamily: 'Tajawal',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             
             SizedBox(height: 20),
             
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            // عدد الأقساط
+            Text(
+              'عدد الأقساط *',
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+                fontFamily: 'Tajawal',
+                fontSize: 13,
+              ),
+            ),
+            SizedBox(height: 8),
+            
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.start,
               children: [
-                ElevatedButton.icon(
-                  onPressed: _isCalculating ? null : _calculateInstallment,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                ..._installmentOptions.map((months) {
+                  final isSelected = _installmentMonths == months && _customInstallmentCount == null;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _installmentMonths = months;
+                        _customInstallmentCount = null;
+                        _customInstallmentController.clear();
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected ? primaryColor : Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isSelected ? primaryColor : borderColor,
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Text(
+                        months == 1 ? 'مرة واحدة' : '$months شهور',
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                          fontFamily: 'Tajawal',
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
-                  ),
-                  icon: _isCalculating
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                  );
+                }).toList(),
+                
+                // Custom installment input
+                Container(
+                  width: 120,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _customInstallmentController,
+                          keyboardType: TextInputType.number,
+                          textDirection: TextDirection.rtl,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            hintText: 'عدد',
+                            hintStyle: TextStyle(
+                              color: Colors.grey[400],
+                              fontFamily: 'Tajawal',
+                              fontSize: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: borderColor),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: borderColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: primaryColor, width: 2),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                            isDense: true,
                           ),
-                        )
-                      : Icon(Icons.calculate, size: 20),
-                  label: Text(
-                    _isCalculating ? 'جاري الحساب...' : 'حساب القسط الشهري',
-                    style: TextStyle(fontFamily: 'Tajawal'),
+                          onChanged: (value) {
+                            final count = int.tryParse(value);
+                            if (count != null && count > 0) {
+                              setState(() {
+                                _installmentMonths = count;
+                                _customInstallmentCount = count;
+                              });
+                            } else if (value.isEmpty) {
+                              setState(() {
+                                _customInstallmentCount = null;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'شهر',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontFamily: 'Tajawal',
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
             
-            if (_monthlyInstallment > 0) ...[
+            // عرض القسط الشهري
+            if (_loanAmount > 0 && _installmentMonths > 0) ...[
               SizedBox(height: 20),
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.green[50],
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.green[100]!),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   textDirection: TextDirection.rtl,
                   children: [
-                    Text(
-                      'القسط الشهري:',
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[800],
-                        fontFamily: 'Tajawal',
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'القسط الشهري',
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[700],
+                            fontFamily: 'Tajawal',
+                          ),
+                        ),
+                        Text(
+                          '${(_loanAmount / _installmentMonths).toStringAsFixed(0)} جنيه',
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[800],
+                            fontFamily: 'Tajawal',
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '${_monthlyInstallment.toStringAsFixed(2)} جنيه',
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[800],
-                        fontFamily: 'Tajawal',
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'إجمالي المبلغ',
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[700],
+                            fontFamily: 'Tajawal',
+                          ),
+                        ),
+                        Text(
+                          '${_loanAmount.toStringAsFixed(0)} جنيه',
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[800],
+                            fontFamily: 'Tajawal',
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -720,19 +929,26 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
     );
   }
   
-  Widget _buildDatesSection() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+  Widget _buildManagerSection() {
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              'التواريخ',
+              'اختيار المدير للموافقة',
               textDirection: TextDirection.rtl,
               style: TextStyle(
                 fontSize: 18,
@@ -743,118 +959,13 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
             ),
             SizedBox(height: 16),
             
-            Column(
-              children: [
-                _buildDateField(
-                  'تاريخ الطلب',
-                  '${_loanDate.year}/${_loanDate.month}/${_loanDate.day}',
-                  _selectLoanDate,
-                  Icons.date_range,
-                ),
-                SizedBox(height: 16),
-                _buildDateField(
-                  'تاريخ السداد المتوقع',
-                  '${_expectedPaybackDate.year}/${_expectedPaybackDate.month}/${_expectedPaybackDate.day}',
-                  _selectPaybackDate,
-                  Icons.date_range,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildDateField(String label, String value, VoidCallback onTap, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          label,
-          textDirection: TextDirection.rtl,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[700],
-            fontFamily: 'Tajawal',
-          ),
-        ),
-        SizedBox(height: 8),
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              textDirection: TextDirection.rtl,
-              children: [
-                Icon(icon, color: primaryColor, size: 20),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    value,
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: 'Tajawal',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildManagerSection() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              textDirection: TextDirection.rtl,
-              children: [
-                Text(
-                  'اختيار المدير للموافقة',
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
-                    fontFamily: 'Tajawal',
-                  ),
-                ),
-                if (_managers.isNotEmpty)
-                  IconButton(
-                    icon: Icon(Icons.refresh, color: primaryColor),
-                    onPressed: _loadManagers,
-                  ),
-              ],
-            ),
-            SizedBox(height: 16),
-            
             if (_managers.isEmpty)
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: borderColor),
                 ),
                 child: Center(
                   child: Text(
@@ -867,85 +978,62 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
                   ),
                 ),
               )
-            else if (_selectedManager == null)
-              ElevatedButton.icon(
-                onPressed: _selectManager,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[200],
-                  foregroundColor: Colors.grey[700],
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                icon: Icon(Icons.person_add, size: 20),
-                label: Text(
-                  'اختر المدير للموافقة',
-                  style: TextStyle(fontFamily: 'Tajawal'),
-                ),
-              )
             else
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue),
-                ),
-                child: Row(
-                  textDirection: TextDirection.rtl,
-                  children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundColor: primaryColor,
-                      child: Text(
-                        _selectedManager!['fullName'][0],
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: _selectManager,
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: primaryColor),
+                  ),
+                  child: Row(
+                    textDirection: TextDirection.rtl,
+                    children: [
+                      CircleAvatar(
+                        radius: 25,
+                        backgroundColor: primaryColor,
+                        child: Text(
+                          _selectedManager != null ? (_selectedManager!['fullName'] ?? '?')[0] : '?',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            _selectedManager!['fullName'],
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[900],
-                              fontFamily: 'Tajawal',
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              _selectedManager?['fullName'] ?? 'اختر المدير',
+                              textDirection: TextDirection.rtl,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue[900],
+                                fontFamily: 'Tajawal',
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '${_selectedManager!['jobTitleName']}',
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              color: Colors.blue[700],
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                          Text(
-                            _selectedManager!['departmentName'],
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              color: Colors.blue[700],
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                        ],
+                            if (_selectedManager != null)
+                              Text(
+                                '${_selectedManager!['jobTitleName'] ?? ''}',
+                                textDirection: TextDirection.rtl,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue[700],
+                                  fontFamily: 'Tajawal',
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.edit, color: primaryColor),
-                      onPressed: _selectManager,
-                    ),
-                  ],
+                      Icon(Icons.edit, color: primaryColor, size: 20),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -955,13 +1043,20 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
   }
   
   Widget _buildReasonSection() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -976,27 +1071,96 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
               ),
             ),
             SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: TextFormField(
-                maxLines: 4,
-                textDirection: TextDirection.rtl,
-                decoration: InputDecoration(
-                  hintText: 'اكتب سبب طلب السلفة هنا...',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[400],
-                    fontFamily: 'Tajawal',
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(12),
+            TextField(
+              controller: _reasonController,
+              maxLines: 4,
+              textDirection: TextDirection.rtl,
+              decoration: InputDecoration(
+                hintText: 'أدخل سبب السلفة...',
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontFamily: 'Tajawal',
                 ),
-                onChanged: (value) {
-                  setState(() => _reason = value);
-                },
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: borderColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: borderColor),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: primaryColor, width: 2),
+                ),
+                contentPadding: EdgeInsets.all(12),
               ),
+              onChanged: (value) {
+                setState(() => _reason = value);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildNotesSection() {
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              'ملاحظات',
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+                fontFamily: 'Tajawal',
+              ),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _notesController,
+              maxLines: 3,
+              textDirection: TextDirection.rtl,
+              decoration: InputDecoration(
+                hintText: 'ملاحظات إضافية (اختياري)...',
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontFamily: 'Tajawal',
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: borderColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: borderColor),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: primaryColor, width: 2),
+                ),
+                contentPadding: EdgeInsets.all(12),
+              ),
+              onChanged: (value) {
+                setState(() => _notes = value);
+              },
             ),
           ],
         ),
@@ -1008,67 +1172,58 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        textDirection: TextDirection.rtl,
         children: [
           Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8),
-              child: ElevatedButton.icon(
-                onPressed: _isSubmitting ? null : _submitRequest,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 3,
-                ),
-                icon: _isSubmitting
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Icon(Icons.send, size: 20),
-                label: _isSubmitting
-                    ? Text('جاري الإرسال...')
-                    : Text(
-                        'إرسال الطلب للمدير',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-              ),
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 8),
             child: ElevatedButton.icon(
-              onPressed: () => Navigator.pop(context),
+              onPressed: _isSubmitting ? null : _submitRequest,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[300],
-                foregroundColor: Colors.grey[700],
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                backgroundColor: accentColor,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 0,
+                elevation: 3,
               ),
-              icon: Icon(Icons.cancel, size: 20),
+              icon: _isSubmitting
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Icon(Icons.send, size: 20),
               label: Text(
-                'إلغاء',
+                _isSubmitting ? 'جاري الإرسال...' : 'تقديم الطلب',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Tajawal',
                 ),
+              ),
+            ),
+          ),
+          SizedBox(width: 12),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[200],
+              foregroundColor: Colors.grey[700],
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            icon: Icon(Icons.cancel, size: 20),
+            label: Text(
+              'إلغاء',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
               ),
             ),
           ),
@@ -1085,7 +1240,7 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
         backgroundColor: backgroundColor,
         appBar: AppBar(
           title: Text(
-            'طلب سلفة من صندوق الزمالة',
+            'طلب سلفة جديدة',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontFamily: 'Tajawal',
@@ -1102,9 +1257,7 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
         ),
         body: _isLoading
             ? Center(
-                child: CircularProgressIndicator(
-                  color: primaryColor,
-                ),
+                child: CircularProgressIndicator(color: primaryColor),
               )
             : Form(
                 key: _formKey,
@@ -1113,78 +1266,17 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // معلومات الموظف الحالي
                       _buildEmployeeInfoCard(),
-                      
                       SizedBox(height: 16),
-                      
-                      // معلومات السلفة
                       _buildLoanDetailsSection(),
-                      
                       SizedBox(height: 16),
-                      
-                      // التواريخ
-                      _buildDatesSection(),
-                      
-                      SizedBox(height: 16),
-                      
-                      // المدير للموافقة
                       _buildManagerSection(),
-                      
                       SizedBox(height: 16),
-                      
-                      // سبب السلفة
                       _buildReasonSection(),
-                      
                       SizedBox(height: 16),
-                      
-                      // أزرار الإجراء
+                      _buildNotesSection(),
+                      SizedBox(height: 16),
                       _buildActionButtons(),
-                      
-                      SizedBox(height: 16),
-                      
-                      // ملاحظات هامة
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        margin: EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.orange[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.orange[100]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              textDirection: TextDirection.rtl,
-                              children: [
-                                Icon(Icons.warning, color: Colors.orange[700]),
-                                SizedBox(width: 8),
-                                Text(
-                                  'ملاحظات هامة',
-                                  textDirection: TextDirection.rtl,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange[700],
-                                    fontFamily: 'Tajawal',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                _buildNoteItem('• يجب توافر رصيد كافٍ في صندوق الزمالة'),
-                                _buildNoteItem('• سيتم إشعار المدير المختص للموافقة على الطلب'),
-                                _buildNoteItem('• يمكنك تتبع حالة الطلب من خلال سجل السلف'),
-                                _buildNoteItem('• الحد الأقصى للسلفة هو 50% من الراتب الأساسي'),
-                                _buildNoteItem('• القسط الشهري لا يتجاوز 30% من الراتب'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -1193,17 +1285,27 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
     );
   }
   
-  Widget _buildNoteItem(String text) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2),
-      child: Text(
-        text,
-        textDirection: TextDirection.rtl,
-        style: TextStyle(
-          color: Colors.orange[700],
-          fontFamily: 'Tajawal',
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    _loanAmountController.dispose();
+    _reasonController.dispose();
+    _notesController.dispose();
+    _customInstallmentController.dispose();
+    super.dispose();
+  }
+
+  void clearForm() {
+    _loanAmountController.clear();
+    _reasonController.clear();
+    _notesController.clear();
+    _customInstallmentController.clear();
+    setState(() {
+      _loanAmount = 0;
+      _installmentMonths = 1;
+      _selectedManager = null;
+      _reason = '';
+      _notes = '';
+      _customInstallmentCount = null;
+    });
   }
 }

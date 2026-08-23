@@ -1,9 +1,9 @@
 ﻿// AttendanceReportController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sho2on.API.Data;
 using Sho2on.API.Dtos;
-using Sho2on.API.Models;
+using Sho2on.Database;
+using Sho2on.Database.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +22,34 @@ namespace Sho2on.API.Controllers
             _context = context;
         }
 
+        private async Task<(int StartDay, int EndDay)> GetMonthSettingsAsync()
+        {
+            var settings = await _context.Settings.FirstOrDefaultAsync();
+            return (
+                settings?.StartOfMonth ?? 26,
+                settings?.EndOfMonth ?? 25
+            );
+        }
+
+
+        private async Task<(DateOnly Start, DateOnly End)> GetMonthRange(int month, int year)
+        {
+            var (startDay, endDay) = await GetMonthSettingsAsync();
+
+            DateTime startDate = new DateTime(year, month, startDay);
+            DateTime endDate = new DateTime(year, month, endDay);
+
+            // لو بداية الشهر أكبر من 15 (يعني الشهر بيبدأ في الشهر اللي قبله)
+            if (startDay > endDay)
+            {
+
+                startDate = startDate.AddMonths(-1);
+            }
+
+
+            return (DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate));
+        }
+
         // GET: api/AttendanceReport/Monthly/{userId}/{year}/{month}
         [HttpGet("Monthly/{userId}/{year}/{month}")]
         public async Task<ActionResult<ApiResponse<MonthlyReportDto>>> GetMonthlyReport(
@@ -30,8 +58,10 @@ namespace Sho2on.API.Controllers
             try
             {
                 // تحديد تاريخ البداية والنهاية للشهر
-                DateTime startDate = new DateTime(year, month, 1);
-                DateTime endDate = startDate.AddMonths(1).AddDays(-1);
+
+                var (startDate, endDate) = await GetMonthRange(month, year);
+                var startDt = startDate.ToDateTime(TimeOnly.MinValue);
+                var endDt = endDate.ToDateTime(TimeOnly.MaxValue);
 
                 // جلب بيانات الحضور للشهر
                 var attendances = await _context.Attendances
@@ -39,8 +69,8 @@ namespace Sho2on.API.Controllers
                     .Include(a => a.CheckInFingerPrint)
                     .Include(a => a.CheckOutFingerPrint)
                     .Where(a => a.UserId == userId &&
-                               a.AttendanceDate >= startDate &&
-                               a.AttendanceDate <= endDate)
+                               a.AttendanceDate >= startDt &&
+                               a.AttendanceDate <= endDt)
                     .OrderBy(a => a.AttendanceDate)
                     .ToListAsync();
 
@@ -50,16 +80,16 @@ namespace Sho2on.API.Controllers
                     .Where(l => l.UserId == userId &&
                                l.Status == 2 && // الموافق عليها فقط
                                !l.IsCancelled &&
-                               ((l.StartDate <= endDate && l.EndDate >= startDate)))
+                               ((l.StartDate <= endDt && l.EndDate >= startDt)))
                     .ToListAsync();
 
                 // إنشاء بيانات التقرير
                 var dailyReports = new List<DailyReportDto>();
                 var summaryStats = new MonthlySummaryDto();
 
-                DateTime currentDate = startDate;
+                DateTime currentDate = startDt;
 
-                while (currentDate <= endDate)
+                while (currentDate <= endDt)
                 {
                     // تخطي أيام نهاية الأسبوع (السبت والجمعة)
                     if (currentDate.DayOfWeek != DayOfWeek.Friday &&
@@ -81,7 +111,7 @@ namespace Sho2on.API.Controllers
 
                 var reportDto = new MonthlyReportDto
                 {
-                    Month = startDate,
+                    Month = startDt,
                     DailyReports = dailyReports,
                     Summary = summaryStats
                 };
@@ -129,7 +159,7 @@ namespace Sho2on.API.Controllers
             }
 
             // إذا لم يكن هناك حضور
-            if (attendance == null)
+            if (attendance == null || (!attendance.CheckInTime.HasValue && !attendance.CheckOutTime.HasValue))
             {
                 report.Status = "غائب";
                 return report;

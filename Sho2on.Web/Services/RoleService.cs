@@ -31,6 +31,9 @@ namespace Sho2on.Web.Services
                 .ToListAsync();
         }
 
+        public async Task<List<string>> GetUsersInRoleAsync(int roleId) =>
+    await _db.UserRoles.Where(ur => ur.RoleId == roleId).Select(ur => ur.User.FullName).ToListAsync();
+
         public async Task<List<Permission>> GetAllPermissionsAsync() =>
             await _db.Permissions.OrderBy(p => p.PermissionName).ToListAsync();
 

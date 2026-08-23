@@ -1,8 +1,7 @@
 ﻿// FriendshipBoxService.cs
 using Microsoft.EntityFrameworkCore;
 using Sho2on.API;
-using Sho2on.API.Data;
-using Sho2on.API.Models;
+using Sho2on.Database;
 using Sho2on.Database.Models;
 using System;
 using System.Threading.Tasks;

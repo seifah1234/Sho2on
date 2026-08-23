@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sho2on.API.Data;
 using Sho2on.API.Dtos;
+using Sho2on.Database;
 
 namespace Sho2on.API.Controllers
 {
@@ -19,21 +19,23 @@ namespace Sho2on.API.Controllers
                 .Include(u => u.Branch)
                 .Include(u => u.JobTitle)
                 .Include(u => u.Attendances)
-                .FirstOrDefaultAsync(u => u.Id.ToString() == dto.Id);
+                .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
             if (user == null)
                 return BadRequest("الموظف غير موجود");
 
+            if (!user.IsMobileUser.HasValue || !user.IsMobileUser.Value)
+                return BadRequest("هذا الحساب ليس حساب موبايل");
+
             if (user.PasswordHash == null)
                 return BadRequest("غير مسجل");
 
-            if (user.PasswordHash != HashPassword(dto.Password))
+            if (user.PasswordHash != dto.Password)
                 return BadRequest("بيانات غير صحيحة");
 
             if (user.RegisteredDeviceId != dto.DeviceId)
                 return BadRequest("الجهاز غير مسجل");
 
-            // 🔹 Attendance stats
             var attendances = user.Attendances;
 
             var present = attendances.Count(a => !a.IsAbsence && !a.IsHoliday);
@@ -41,7 +43,6 @@ namespace Sho2on.API.Controllers
             var late = attendances.Count(a => !a.ExemptLate && a.Late > TimeSpan.Zero);
             var vacation = attendances.Count(a => a.LeaveId.HasValue);
 
-            // 🔹 Today attendance
             var today = DateTime.Today;
             var todayAttendance = attendances
                 .FirstOrDefault(a => a.AttendanceDate.Date == today);
@@ -90,28 +91,20 @@ namespace Sho2on.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id.ToString() == dto.Id);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Code == dto.Id);
             if (user == null) return BadRequest("الموظف غير موجود");
             if (user.PasswordHash != null) return BadRequest("أنت مسجل بالفعل");
 
             var settings = await _db.Settings.FirstAsync();
-            int usedUsers = await _db.Users.CountAsync(x => x.PasswordHash != null);
+            int usedUsers = await _db.Users.CountAsync(x => x.IsMobileUser.HasValue && x.IsMobileUser.Value);
             if (usedUsers >= settings.MaxMobileUsers)
                 return BadRequest("عدد المستخدمين المسموح به ممتلئ");
 
-            user.PasswordHash = HashPassword(dto.Password);
+            user.PasswordHash = dto.Password;
             user.RegisteredDeviceId = dto.DeviceId;
 
             await _db.SaveChangesAsync();
             return Ok("success");
-        }
-
-        private string HashPassword(string password)
-        {
-            using var sha = System.Security.Cryptography.SHA256.Create();
-            return Convert.ToBase64String(
-                sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password))
-            );
         }
 
 

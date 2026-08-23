@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sho2on.API.Data;
 using Sho2on.API.Dtos;
-using Sho2on.API.Models;
+using Sho2on.Database;
+using Sho2on.Database.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
