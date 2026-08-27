@@ -160,9 +160,9 @@ namespace Sho2on.API.Controllers
                                 if (attendance.CheckInTime.Value.TimeOfDay < shift.StartTime)
                                     attendance.EarlyEnter = shift.StartTime - attendance.CheckInTime.Value.TimeOfDay;
                             }
-                            attendance.IsAbsence = false;
                         }
                     }
+                    attendance.IsAbsence = false;
                 }
 
                 await _db.SaveChangesAsync();

@@ -549,3 +549,100 @@
     color: var(--text-muted);
     font-size: 13px;
 }
+
+/* في ملف CSS الخاص بالـ Topbar */
+.topbar .avatar.profile-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .topbar .avatar.profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+/* صورة في القائمة المنسدلة */
+.dropdown-avatar.profile-avatar {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+
+    .dropdown-avatar.profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+/* ===== زر الإعلانات في الـ Topbar ===== */
+.announcement-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+}
+
+    .announcement-btn:hover {
+        background: rgba(200, 169, 81, 0.1);
+        color: var(--accent);
+        transform: translateY(-1px);
+    }
+
+.announcement-badge {
+    background: var(--accent);
+    color: var(--primary-dark);
+    font-size: 9px;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    box-shadow: 0 2px 6px rgba(200, 169, 81, 0.4);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .announcement-btn {
+        display: none; /* إخفاء في الموبايل إذا لزم */
+    }
+}

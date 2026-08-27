@@ -7,7 +7,7 @@ namespace Sho2on.Web.Services
 
         public List<NavigationItem> GetMenu() => new()
         {
-            new() { Title = "الرئيسية", Icon = "bi-speedometer2", Url = "/" }, // بدون صلاحية = ظاهرة للجميع
+            //new() { Title = "الرئيسية", Icon = "bi-speedometer2", Url = "/" }, // بدون صلاحية = ظاهرة للجميع
 
             new()
             {

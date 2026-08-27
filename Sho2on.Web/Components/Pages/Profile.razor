@@ -41,7 +41,21 @@
         {
             <div class="panel fade-in">
                 <div class="profile-header">
-                    <div class="profile-avatar">@profile.FullName.Substring(0, 1)</div>
+                    @* ✅ إظهار الصورة بدلاً من الحرف الأول *@
+                    @if (!string.IsNullOrEmpty(profile.ProfileImage))
+                    {
+                        <div class="profile-avatar profile-image-avatar">
+                            <img src="@profile.ProfileImage"
+                                 alt="@profile.FullName"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<span>@profile.FullName.Substring(0, 1)</span>';" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="profile-avatar">
+                            <span>@profile.FullName.Substring(0, 1)</span>
+                        </div>
+                    }
                     <div class="profile-header-info">
                         <h3>@profile.FullName</h3>
                         <span class="profile-badges">

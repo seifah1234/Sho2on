@@ -1,0 +1,228 @@
+﻿@page "/download-app"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models
+@inject LocalizationService Lang
+@inject AppVersionService AppVersionSvc
+@inject AuthenticationStateProvider AuthProvider
+@inject ILogger<DownloadApp> Logger
+
+<div class="download-app-page">
+    <div class="page-header">
+        <h2><i class="bi bi-phone"></i> @Lang.T("تحميل تطبيق الموبايل")</h2>
+        <p>@Lang.T("حمّل تطبيق RAKZ على هاتفك للوصول السريع للنظام")</p>
+    </div>
+
+    <div class="download-container">
+        <!-- بطاقة التطبيق -->
+        <div class="app-card">
+            <div class="app-icon-wrapper">
+                <img src="/images/logo.png" alt="RAKZ App" class="app-icon"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="app-icon-fallback" style="display:none;">
+                    <span>R</span>
+                </div>
+            </div>
+
+            <div class="app-info">
+                <h3>@Lang.T("تطبيق RAKZ للموبايل")</h3>
+                <p>@Lang.T("نظام إدارة الموظفين والحضور والرواتب")</p>
+
+                <div class="app-meta">
+                    <span class="meta-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        @Lang.T("أحدث إصدار")
+                    </span>
+                    <span class="meta-item">
+                        <i class="bi bi-shield-check"></i>
+                        @Lang.T("آمن وموثوق")
+                    </span>
+                    <span class="meta-item">
+                        <i class="bi bi-phone"></i>
+                        @Lang.T("يدعم Android و iOS")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- أزرار التحميل -->
+        <div class="download-buttons">
+            @if (isLoading)
+            {
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p class="muted">@Lang.T("جاري تجهيز رابط التحميل...")</p>
+                </div>
+            }
+            else
+            {
+                @* زر الأندرويد - يظهر دائماً *@
+                <a href="@(appInfo?.AndroidAvailable == true ? appInfo.AndroidUrl : "#")"
+                   class="download-btn android-btn @(appInfo?.AndroidAvailable == true ? "" : "disabled-btn")"
+                   download="@(appInfo?.AndroidAvailable == true)"
+                   onclick="@(appInfo?.AndroidAvailable == true ? "" : "event.preventDefault(); alert('التطبيق غير متوفر حالياً');")">
+                    <i class="bi bi-android2"></i>
+                    <div class="btn-text">
+                        <strong>@Lang.T("تحميل للأندرويد")</strong>
+                        <small>@(appInfo?.AndroidAvailable == true ? $"APK - {appInfo.AndroidVersion}" : Lang.T("غير متوفر حالياً"))</small>
+                    </div>
+                    <i class="bi @(appInfo?.AndroidAvailable == true ? "bi-download" : "bi-exclamation-circle")"></i>
+                </a>
+
+                @* رسالة عدم التوفر *@
+                @if (appInfo?.AndroidAvailable != true)
+                {
+                    <div class="no-app-message">
+                        <i class="bi bi-info-circle"></i>
+                        <p>@Lang.T("تطبيق الأندرويد غير متوفر حالياً. يرجى التواصل مع مدير النظام.")</p>
+                    </div>
+                }
+
+                @* زر iOS - إذا كان متوفراً *@
+                @if (appInfo?.IosAvailable == true)
+                {
+                    <a href="@appInfo.IosUrl" class="download-btn ios-btn" target="_blank">
+                        <i class="bi bi-apple"></i>
+                        <div class="btn-text">
+                            <strong>@Lang.T("تحميل للآيفون")</strong>
+                            <small>iOS - @appInfo.IosVersion</small>
+                        </div>
+                        <i class="bi bi-download"></i>
+                    </a>
+                }
+            }
+        </div>
+
+        <!-- مزايا التطبيق -->
+        <div class="features-section">
+            <h4>@Lang.T("مميزات التطبيق")</h4>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-fingerprint"></i>
+                    </div>
+                    <div class="feature-info">
+                        <strong>@Lang.T("تسجيل الحضور بالبصمة")</strong>
+                        <p>@Lang.T("سجّل حضورك وانصرافك من هاتفك مباشرة")</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="feature-info">
+                        <strong>@Lang.T("طلبات الإجازات")</strong>
+                        <p>@Lang.T("قدّم طلبات الإجازة وتابع حالتها")</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div class="feature-info">
+                        <strong>@Lang.T("السلف والرواتب")</strong>
+                        <p>@Lang.T("اطلب سلفة وتابع رصيدك")</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <div class="feature-info">
+                        <strong>@Lang.T("المحادثات")</strong>
+                        <p>@Lang.T("تواصل مع زملائك بسهولة")</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <div class="feature-info">
+                        <strong>@Lang.T("الإشعارات")</strong>
+                        <p>@Lang.T("استلم إشعارات فورية بكل جديد")</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="feature-info">
+                        <strong>@Lang.T("التقارير")</strong>
+                        <p>@Lang.T("اطلع على تقاريرك الشهرية")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تعليمات التثبيت -->
+        <div class="install-instructions">
+            <h4><i class="bi bi-info-circle"></i> @Lang.T("طريقة التثبيت")</h4>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <strong>@Lang.T("حمّل ملف APK")</strong>
+                        <p>@Lang.T("اضغط على زر التحميل للأندرويد")</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <strong>@Lang.T("اسمح بالتثبيت")</strong>
+                        <p>@Lang.T("فعّل خيار التثبيت من مصادر غير معروفة في إعدادات هاتفك")</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <strong>@Lang.T("افتح التطبيق")</strong>
+                        <p>@Lang.T("سجّل دخولك بنفس بياناتك في النظام")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLoading = true;
+    private AppVersionInfo? appInfo;
+    private int currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+
+            // تحميل معلومات الإصدارات
+            appInfo = await AppVersionSvc.GetLatestVersionAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل معلومات التطبيق");
+            // قيم افتراضية
+            appInfo = new AppVersionInfo
+            {
+                AndroidUrl = "/downloads/rakz-app.apk",
+                AndroidVersion = "1.0.0",
+                AndroidAvailable = false,
+                IosUrl = "",
+                IosVersion = "",
+                IosAvailable = false
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

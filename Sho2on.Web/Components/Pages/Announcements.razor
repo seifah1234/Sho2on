@@ -1,0 +1,304 @@
+﻿@page "/announcements"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Services
+@inject AnnouncementService AnnouncementSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject AuthenticationStateProvider AuthProvider
+@inject CurrentUserService CurrentUser
+@inject ILogger<Announcements> Logger
+@implements IDisposable
+
+<div class="announcements-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-megaphone"></i> @Lang.T("الإعلانات")</h2>
+            <p class="page-subtitle">@Lang.T("أحدث الإعلانات والتحديثات")</p>
+        </div>
+        @if (isAdmin)
+        {
+            <a href="/announcements/types" class="btn-secondary">
+                <i class="bi bi-tags"></i> @Lang.T("إدارة الأنواع")
+            </a>
+            <button class="btn-primary" @onclick="OpenCreateModal">
+                <i class="bi bi-plus-lg"></i> @Lang.T("إعلان جديد")
+            </button>
+        }
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (announcements == null || announcements.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-megaphone"></i>
+            <p>@Lang.T("لا توجد إعلانات")</p>
+        </div>
+    }
+    else
+    {
+        <div class="announcements-list">
+            @foreach (var announcement in announcements)
+            {
+                <div class="announcement-card @(announcement.IsDeleted ? "deleted" : "")">
+                    <div class="announcement-header">
+                        <div class="announcement-type-badge" style="background-color: @announcement.AnnouncementType.Color">
+                            <i class="bi bi-megaphone"></i>
+                            @announcement.AnnouncementType.Name
+                        </div>
+                        <span class="announcement-date">
+                            <i class="bi bi-calendar3"></i>
+                            @announcement.CreatedAt.ToString("dd/MM/yyyy")
+                        </span>
+                    </div>
+
+                    <h3 class="announcement-title">@announcement.Title</h3>
+                    <p class="announcement-content">@announcement.Description</p>
+
+                    @if (announcement.ExpireDate.HasValue)
+                    {
+                        <div class="announcement-expiry">
+                            <i class="bi bi-clock-history"></i>
+                            @Lang.T("ينتهي في"): @announcement.ExpireDate.Value.ToString("dd/MM/yyyy")
+                        </div>
+                    }
+
+                    @if (isAdmin)
+                    {
+                        <div class="announcement-actions">
+                            <button class="icon-action" title="@Lang.T("تعديل")" @onclick="() => OpenEditModal(announcement)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="icon-action danger" title="@Lang.T("حذف")" @onclick="() => RequestDelete(announcement)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showCreateModal)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>@(isEdit ? Lang.T("تعديل إعلان") : Lang.T("إعلان جديد"))</h3>
+                <button class="icon-action" @onclick="CloseModal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("نوع الإعلان")</label>
+                    <select class="select-input" @bind="formTypeId">
+                        <option value="">@Lang.T("اختر النوع")</option>
+                        @if (announcementTypes != null)
+                        {
+                            @foreach (var type in announcementTypes)
+                            {
+                                <option value="@type.Id">@type.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("العنوان")</label>
+                    <input class="search-input" @bind="formTitle" placeholder="@Lang.T("عنوان الإعلان")" />
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("المحتوى")</label>
+                    <textarea class="search-input" rows="5" @bind="formContent" placeholder="@Lang.T("محتوى الإعلان...")"></textarea>
+                </div>
+
+                <div class="field">
+                    <label>@Lang.T("تاريخ الانتهاء (اختياري)")</label>
+                    <input type="date" class="search-input" @bind="formExpireDate" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseModal">@Lang.T("إلغاء")</button>
+                <button class="btn-primary" @onclick="SubmitSave">@Lang.T("حفظ")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (announcementToDelete != null)
+{
+    <div class="modal-overlay" @onclick="CancelDelete">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header"><h3>@Lang.T("تأكيد الحذف")</h3></div>
+            <div class="modal-body">
+                <p>@Lang.T("هل أنت متأكد من حذف") <strong>@announcementToDelete.Title</strong>؟</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CancelDelete">@Lang.T("إلغاء")</button>
+                <button class="btn-danger" @onclick="ConfirmDelete">@Lang.T("حذف")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+        List<Announcement>? announcements;
+        List<AnnouncementType>? announcementTypes;
+        bool loading = true;
+        bool isAdmin = false;
+        int currentUserId;
+
+        bool showCreateModal = false;
+        bool isEdit = false;
+        int? editingId;
+        int? formTypeId;
+        string formTitle = "";
+        string formContent = "";
+        DateTime? formExpireDate;
+
+        Announcement? announcementToDelete;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+        var user = await CurrentUser.GetCurrentUserAsync();
+        isAdmin = (user.JobTitle.IsManager.Value || user.UserRoles.Any(u => (new List<string>([ "ادمن", "Admin", "أدمن", "admin" ])).Contains(u.Role.RoleName)));
+
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            announcements = await AnnouncementSvc.GetAllAnnouncementsAsync();
+            announcementTypes = await AnnouncementSvc.GetAnnouncementTypesAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تحميل الإعلانات");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    
+    void OpenCreateModal()
+    {
+        isEdit = false;
+        editingId = null;
+        formTypeId = null;
+        formTitle = "";
+        formContent = "";
+        formExpireDate = null;
+        showCreateModal = true;
+    }
+
+    void OpenEditModal(Announcement announcement)
+    {
+        isEdit = true;
+        editingId = announcement.Id;
+        formTypeId = announcement.AnnouncementTypeId;
+        formTitle = announcement.Title;
+        formContent = announcement.Description;
+        formExpireDate = announcement.ExpireDate?.Date;
+        showCreateModal = true;
+    }
+
+    void CloseModal() => showCreateModal = false;
+
+    async Task SubmitSave()
+    {
+        if (string.IsNullOrWhiteSpace(formTitle))
+        {
+            Notify.ShowError(Lang.T("أدخل العنوان"));
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(formContent))
+        {
+            Notify.ShowError(Lang.T("أدخل المحتوى"));
+            return;
+        }
+
+        try
+        {
+            if (isEdit && editingId.HasValue)
+            {
+                var existing = await AnnouncementSvc.GetAnnouncementByIdAsync(editingId.Value);
+                if (existing != null)
+                {
+                    existing.Title = formTitle;
+                    existing.Description = formContent;
+                    existing.AnnouncementTypeId = formTypeId.Value;
+                    existing.ExpireDate = formExpireDate;
+                    await AnnouncementSvc.UpdateAnnouncement(existing);
+                }
+            }
+            else
+            {
+                var newAnnouncement = new Announcement
+                {
+                    Title = formTitle,
+                    Description = formContent,
+                    AnnouncementTypeId = formTypeId.Value,
+                    ExpireDate = formExpireDate,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = currentUserId,
+                    IsDeleted = false
+                };
+                await AnnouncementSvc.CreateAnnouncement(newAnnouncement);
+            }
+
+            Notify.ShowSuccess(Lang.T("تم الحفظ بنجاح"));
+            CloseModal();
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حفظ الإعلان");
+            Notify.ShowError(Lang.T("حدث خطأ، حاول مرة أخرى"));
+        }
+    }
+
+    void RequestDelete(Announcement announcement) => announcementToDelete = announcement;
+    void CancelDelete() => announcementToDelete = null;
+
+    async Task ConfirmDelete()
+    {
+        if (announcementToDelete == null) return;
+        try
+        {
+            announcementToDelete.IsDeleted = true;
+            await AnnouncementSvc.UpdateAnnouncement(announcementToDelete);
+            Notify.ShowSuccess(Lang.T("تم الحذف"));
+            announcementToDelete = null;
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء حذف الإعلان");
+            Notify.ShowError(Lang.T("حدث خطأ"));
+            announcementToDelete = null;
+        }
+    }
+
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
+}

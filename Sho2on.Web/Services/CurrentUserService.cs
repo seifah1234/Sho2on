@@ -39,7 +39,7 @@ namespace Sho2on.Web.Services
                 return null;
 
             using var _db = await _contextFactory.CreateDbContextAsync();
-            return await _db.Users.Include(u => u.JobTitle).FirstOrDefaultAsync(u => u.Id == userId.Value);
+            return await _db.Users.Include(u => u.JobTitle).Include(u => u.UserRoles).ThenInclude(u => u.Role).FirstOrDefaultAsync(u => u.Id == userId.Value);
         }
     }
 }

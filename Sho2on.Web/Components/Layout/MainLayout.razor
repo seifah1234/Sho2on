@@ -8,8 +8,11 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 
-<div class="layout @(UiState.SidebarCollapsed ? "sidebar-collapsed" : "")" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
+<div class="layout @(UiState.IsSidebarCollapsed ? "sidebar-collapsed" : "") @(UiState.IsSidebarOpen ? "sidebar-open" : "")" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
+    <div class="sidebar-overlay @(UiState.IsSidebarOpen ? "active" : "")" @onclick="UiState.CloseSidebar"></div>
+
     <Sidebar />
+
     <div class="layout-body">
         <Topbar />
         @if (_showPermissionBanner)
@@ -71,8 +74,6 @@
         }
         await PreloadSounds();
         await CheckPermissionStatus();
-
-
     }
 
     private async Task CheckPermissionStatus()
@@ -103,7 +104,6 @@
     {
         try
         {
-            // تحميل الأصوات في الخلفية
             await JS.InvokeVoidAsync("eval", @"
                 if (window.notificationService) {
                     window.notificationService.initAudio();
@@ -120,12 +120,8 @@
     {
         try
         {
-            // تفعيل AudioContext (ده ضروري عشان الصوت يشتغل)
-            await JS.InvokeVoidAsync("notificationService.initAudio");
-
             await JS.InvokeVoidAsync("notificationService.initAudio");
             var granted = await JS.InvokeAsync<bool>("notificationService.requestPermission");
-
             _audioInitialized = granted;
             _showPermissionBanner = false;
         }
@@ -134,7 +130,6 @@
             Console.WriteLine($"Error activating notifications: {ex.Message}");
         }
     }
-
 
     async void HandleNotification(string title, string message, string icon, string? url)
     {

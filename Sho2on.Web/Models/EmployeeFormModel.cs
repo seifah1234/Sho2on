@@ -7,6 +7,9 @@ namespace Sho2on.Web.Models
     {
         public int? Id { get; set; }
 
+        public byte[]? ProfileImageData { get; set; }
+        public string? ProfileImageBase64 { get; set; }
+
         // ── بيانات شخصية ──
         [Required(ErrorMessage = "الاسم مطلوب")]
         public string FullName { get; set; } = "";
@@ -40,6 +43,7 @@ namespace Sho2on.Web.Models
         public bool UnderTraining { get; set; }
         public bool UnderEmployment { get; set; } = true;
         public bool InDuty { get; set; } = true;
+        public bool IsFreeLocation { get; set; } = false;
         public DateOnly? FinishJob { get; set; }
 
         // ── الراتب والسلف ──

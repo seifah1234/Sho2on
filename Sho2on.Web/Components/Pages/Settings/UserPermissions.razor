@@ -22,19 +22,6 @@
 
         @if (selectedUserId.HasValue && allRoles != null)
         {
-            <div class="field">
-                <label>@Lang.T("الأدوار")</label>
-                <div class="roles-checklist">
-                    @foreach (var role in allRoles)
-                    {
-                        <label class="perm-row">
-                            <input type="checkbox" checked="@selectedRoleIds.Contains(role.Id)"
-                                   @onchange="(e) => ToggleRole(role.Id, (bool)e.Value!)" />
-                            <span>@role.Name</span>
-                        </label>
-                    }
-                </div>
-            </div>
 
             @if (selectedUserId.HasValue)
             {

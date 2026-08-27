@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Sho2on.Database;
 using Sho2on.Web.Services;
 using System.Security.Claims;
 
@@ -28,6 +29,7 @@ namespace Sho2on.Web.Endpoints
                         new Claim("FullName", user.FullName),
                         new Claim("UserId", user.Id.ToString())
                     };
+                    
                     claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
                     claims.AddRange(permissions.Select(p => new Claim("perm", p)));
 
@@ -41,6 +43,15 @@ namespace Sho2on.Web.Endpoints
                     logger.LogError(ex, "خطأ أثناء محاولة تسجيل الدخول للمستخدم {Username}", username);
                     return Results.Redirect("/login?error=connection");
                 }
+            });
+
+            app.MapGet("/api/profile-image/{userId}", async (int userId, AppDbContext db) =>
+            {
+                var user = await db.Users.FindAsync(userId);
+                if (user?.ProfileImageData == null || user.ProfileImageData.Length == 0)
+                    return Results.NotFound();
+
+                return Results.File(user.ProfileImageData, "image/jpeg");
             });
 
             app.MapPost("/account/logout", async (HttpContext http) =>

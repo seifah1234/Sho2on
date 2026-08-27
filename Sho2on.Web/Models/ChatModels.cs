@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public bool IsGroup { get; set; }
         public int? OtherUserId { get; set; }
+        public string ProfileImage { get; set; } = "";
         public string DisplayName { get; set; } = "";
         public string LastMessage { get; set; } = "";
         public DateTime? LastMessageTime { get; set; }

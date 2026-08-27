@@ -44,7 +44,11 @@
                 {
                     <div class="log-item @(log.ExceededLimit ? "exceeded" : "ok")">
                         <span>@log.StartTime.ToString("HH:mm") - @(log.EndTime?.ToString("HH:mm") ?? "---")</span>
-                        <span>@((log.EndTime - log.StartTime)?.TotalMinutes / @log.Break.DurationMinutes) @Lang.T("دقيقة")</span>
+                        @if (log.EndTime.HasValue)
+                        {
+                            <span>@((Math.Round((log.EndTime.Value - log.StartTime).TotalMinutes, 0))) / @(log.Break.DurationMinutes) @Lang.T("دقيقة")</span>
+                            
+                        }
                         @if (log.ExceededLimit)
                         {
                             <span class="badge danger">@Lang.T("تجاوز")</span>

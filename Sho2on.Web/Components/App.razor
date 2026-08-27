@@ -32,6 +32,31 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script src="js/branch-map.js"></script>
+    <!-- في _Host.cshtml - قبل إغلاق body -->
+    <script>
+            window.submitLoginForm = function(username, password) {
+                // إنشاء form وإرساله
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/account/login';
+                form.style.display = 'none';
+
+                const usernameInput = document.createElement('input');
+                usernameInput.type = 'hidden';
+                usernameInput.name = 'username';
+                usernameInput.value = username;
+
+                const passwordInput = document.createElement('input');
+                passwordInput.type = 'hidden';
+                passwordInput.name = 'password';
+                passwordInput.value = password;
+
+                form.appendChild(usernameInput);
+                form.appendChild(passwordInput);
+                document.body.appendChild(form);
+                form.submit();
+            };
+    </script>
 </body>
 
 </html>

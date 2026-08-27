@@ -28,6 +28,9 @@ namespace Sho2on.Web.Services
                     IsGroup = false,
                     OtherUserId = c.FirstUserId == userId ? c.SecondUserId : c.FirstUserId,
                     DisplayName = c.FirstUserId == userId ? c.SecondUser.FullName : c.FirstUser.FullName,
+                    ProfileImage = c.FirstUserId == userId
+                ? $"/api/profile-image/{c.SecondUserId}"
+                : $"/api/profile-image/{c.FirstUserId}",
                     LastMessage = c.Messages.OrderByDescending(m => m.SentAt).Select(m => m.Message).FirstOrDefault() ?? "",
                     LastMessageTime = c.UpdatedAt ?? c.CreatedAt,
                     UnreadCount = c.Messages.Count(m => m.ReceiverId == userId && !m.IsRead)
@@ -42,6 +45,7 @@ namespace Sho2on.Web.Services
                     Id = m.GroupId,
                     IsGroup = true,
                     DisplayName = m.Group.Name,
+                    ProfileImage = "",
                     LastMessage = m.Group.Messages.OrderByDescending(x => x.SentAt).Select(x => x.Message).FirstOrDefault() ?? "",
                     LastMessageTime = m.Group.Messages.OrderByDescending(x => x.SentAt).Select(x => x.SentAt).FirstOrDefault(),
                     UnreadCount = m.UnreadCount

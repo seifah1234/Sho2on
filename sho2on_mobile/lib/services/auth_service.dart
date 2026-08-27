@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'api_config.dart';
@@ -7,33 +8,38 @@ import 'api_config.dart';
 class AuthService {
 
   Future<Map<String, Map<String, dynamic>?>> login(String username, String password, String deviceId) async {
+    if (kDebugMode) {
+      print("Connecting to API");
+    }
     final url = Uri.parse("${ApiConfig.baseUrl}/auth/login");
-
+    print("Connected");
     final body = {
       "username": username,
       "password": password,
       "deviceId": deviceId,
     };
     try{
-    final res = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(body),
-    );
+      final res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
 
-    if (res.statusCode == 200) {
-      return {"200": jsonDecode(res.body)};
-    } else if (res.statusCode == 500) {
-      return {"500": null};
-    }
-    else {
-      return {res.body: null};
-    }
+      print(res);
+
+      if (res.statusCode == 200) {
+        return {"200": jsonDecode(res.body)};
+      } else if (res.statusCode == 500) {
+        return {"500": null};
+      }
+      else {
+        return {res.body: null};
+      }
     }catch(e){
       SnackBar(content: SnackBar(content: Text("Error occurred during login")), );
       print(e);
+      return {"Error": null};
     }
-    return {"Error": null};
   }
 
 

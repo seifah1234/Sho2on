@@ -2,13 +2,15 @@
 @rendermode InteractiveServer
 @layout MainLayout
 @attribute [Authorize]
-@using Microsoft.AspNetCore.Components.Authorization
-@using Sho2on.Web.Services
-@using Sho2on.Web.Models
-@using Sho2on.Web.Constants
-@using Sho2on.Web.Components.Layout
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Sho2on.Database.Models
+@using Sho2on.Web.Components.Layout
+@using Sho2on.Web.Constants
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
 @inject DashboardService DashboardSvc
+@inject AnnouncementService AnnouncementSvc
 @inject LocalizationService Lang
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Nav
@@ -171,23 +173,53 @@
 
             <div class="panel">
                 <div class="panel-header">
-                    <i class="bi bi-bell"></i>
-                    <h3>@Lang.T("التنبيهات")</h3>
+                    <i class="bi bi-megaphone"></i>
+                    <h3>@Lang.T("الإعلانات")</h3>
+                    <a href="/announcements" class="view-all-link">
+                        @Lang.T("عرض الكل") <i class="bi bi-arrow-left"></i>
+                    </a>
                 </div>
-                <div class="alerts-list">
-                    @if (alerts != null && alerts.Count > 0)
+                <div class="announcements-list">
+                    @if (announcements != null && announcements.Count > 0)
                     {
-                        @foreach (var a in alerts)
+                        @foreach (var announcement in announcements.Take(3))
                         {
-                            <div class="alert-item">
-                                <i class="bi @a.Icon"></i>
-                                <span>@a.Message</span>
+                            <div class="announcement-item @(announcement.IsDeleted ? "deleted" : "")">
+                                <div class="announcement-icon" style="background-color: @announcement.AnnouncementType.Color">
+                                    <i class="bi @GetTypeIcon(announcement.AnnouncementTypeId)"></i>
+                                </div>
+                                <div class="announcement-info">
+                                    <div class="announcement-top">
+                                        <div>
+                                            <h4 class="announcement-title">@announcement.Title</h4>
+                                            <p class="announcement-description">@announcement.Description</p>
+
+                                        </div>
+                                        <div>
+
+                                            <span class="announcement-type" style="color: @announcement.AnnouncementType.Color">
+                                                @announcement.AnnouncementType.Name
+                                            </span>
+                                            @if (announcement.ExpireDate.HasValue)
+                                            {
+                                                <span class="announcement-date">
+                                                    @Lang.T("تاريخ الانتهاء") 
+                                                    @announcement.ExpireDate.Value.ToString("dd/MM/yyyy")
+                                                    <i class="bi bi-calendar3"></i>
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         }
                     }
                     else
                     {
-                        <p class="muted">@Lang.T("لا توجد تنبيهات حالياً")</p>
+                        <div class="empty-announcements">
+                            <i class="bi bi-megaphone"></i>
+                            <p>@Lang.T("لا توجد إعلانات حالياً")</p>
+                        </div>
                     }
                 </div>
             </div>
@@ -226,7 +258,8 @@
 @code {
     bool isManagement;
     Sho2on.Web.Models.DashboardTreeNode? tree;
-    List<Sho2on.Web.Models.DashboardAlert>? alerts;
+    List<Announcement>? announcements;
+    List<AnnouncementType>? announcementTypes;
     DashboardChartsData? charts;
     Sho2on.Web.Models.DashboardStats? personalStats;
 
@@ -244,7 +277,8 @@
         if (isManagement)
         {
             tree = await DashboardSvc.GetCompanyTreeAsync();
-            alerts = await DashboardSvc.GetAlertsAsync();
+            announcements = await AnnouncementSvc.GetAnnouncementsAsync();
+            announcementTypes = await AnnouncementSvc.GetAnnouncementTypesAsync();
             charts = await DashboardSvc.GetChartsDataAsync();
         }
         else
@@ -253,6 +287,13 @@
             personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
         }
     }
+
+
+    string GetTypeIcon(int typeId)
+    {
+        return "bi-megaphone";
+    }
+
 
     void ToggleSector(Sho2on.Web.Models.DashboardTreeNode sector)
     {

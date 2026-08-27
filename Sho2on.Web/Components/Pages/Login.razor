@@ -6,25 +6,23 @@
 
 @layout EmptyLayout
 @inject LocalizationService Lang
+@inject IJSRuntime JSRuntime
 
 <div class="login-page" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
 
-    <!-- ══ البانل الأيسر - GIF الخلفية ══ -->
+    <!-- ══ البانل الأيسر - GIF الخلفية (مخفي في الموبايل) ══ -->
     <div class="brand-panel">
-        <!-- GIF كخلفية -->
         <div class="brand-background">
             <img src="/images/Back.gif" alt="Background" class="bg-gif" />
             <div class="bg-overlay"></div>
         </div>
 
-        <!-- دوائر زخرفية -->
         <div class="brand-decor">
             <div class="decor-circle decor-1"></div>
             <div class="decor-circle decor-2"></div>
             <div class="decor-circle decor-3"></div>
         </div>
 
-        <!-- المحتوى - فوق في النص -->
         <div class="brand-content">
             <h1>@Lang.T("نظام RAKZ")</h1>
             <p>@Lang.T("إدارة الموظفين والحضور والرواتب في مكان واحد")</p>
@@ -41,7 +39,6 @@
         </button>
 
         <div class="login-card">
-            <!-- هيدر الكارت - اللوجو مكان الأيقونة -->
             <div class="card-header">
                 <div class="card-logo">
                     <img src="/images/logo.png" alt="RAKZ" class="card-logo-img"
@@ -54,8 +51,7 @@
                 <p>@Lang.T("أهلاً بك، سجّل دخولك للمتابعة")</p>
             </div>
 
-            <!-- الفورم -->
-            <form method="post" action="/account/login" class="login-form">
+            <form class="login-form" @onsubmit="HandleSubmit">
                 <div class="input-group">
                     <label for="username">
                         <i class="bi bi-person"></i>
@@ -65,7 +61,8 @@
                         <i class="bi bi-person input-icon"></i>
                         <input id="username" type="text" name="username"
                                placeholder="@Lang.T("أدخل اسم المستخدم")"
-                               autocomplete="username" />
+                               autocomplete="username"
+                               @bind="username" />
                     </div>
                 </div>
 
@@ -78,17 +75,25 @@
                         <i class="bi bi-lock input-icon"></i>
                         <input id="password" type="password" name="password"
                                placeholder="@Lang.T("أدخل كلمة المرور")"
-                               autocomplete="current-password" />
+                               autocomplete="current-password"
+                               @bind="password" />
                     </div>
                 </div>
 
-                <button type="submit" class="login-submit">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    @Lang.T("تسجيل الدخول")
+                <button type="submit" class="login-submit" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        @Lang.T("جاري الدخول...")
+                    }
+                    else
+                    {
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        @Lang.T("تسجيل الدخول")
+                    }
                 </button>
             </form>
 
-            <!-- رسائل الخطأ -->
             @if (ErrorType == "invalid")
             {
                 <div class="error-message shake">
@@ -120,4 +125,27 @@
 @code {
     [SupplyParameterFromQuery(Name = "error")]
     public string? ErrorType { get; set; }
+
+    private string username = "";
+    private string password = "";
+    private bool isLoading = false;
+
+    private async Task HandleSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            return;
+        }
+
+        isLoading = true;
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("submitLoginForm", username, password);
+        }
+        catch
+        {
+            isLoading = false;
+        }
+    }
 }

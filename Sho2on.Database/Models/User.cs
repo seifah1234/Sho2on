@@ -122,6 +122,7 @@ namespace Sho2on.Database.Models
 
         public TimeSpan WorkHours { get; set; }
         public bool InDuty { get; set; }
+        public bool? IsFreeLocation { get; set; } = false;
 
         public int? InsuredId { get; set; }
         public int HolidayBalance { get; set; }

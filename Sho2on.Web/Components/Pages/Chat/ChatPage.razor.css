@@ -638,3 +638,84 @@
         max-width: 85%;
     }
 }
+
+/* ===== صورة البروفايل في المحادثات ===== */
+.profile-avatar {
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* صورة الأفاتار في قائمة المحادثات */
+.conv-avatar.profile-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .conv-avatar.profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+    }
+
+/* صورة الأفاتار في هيدر المحادثة */
+.thread-header .conv-avatar.profile-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+    .thread-header .conv-avatar.profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+/* صورة الأفاتار في القائمة المنسدلة */
+.dropdown-avatar.profile-avatar {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+    .dropdown-avatar.profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+/* صورة الأفاتار في الهيدر العلوي */
+.avatar.profile-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+    .avatar.profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+    }

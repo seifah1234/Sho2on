@@ -5,10 +5,11 @@
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Nav
 @inject ChatConnectionService ChatConn
+@inject AnnouncementService AnnouncementSvc
 
 <header class="topbar">
     <div class="topbar-left">
-        <button class="icon-btn" @onclick="UiState.ToggleSidebar" title="@Lang.T("القائمة")">
+        <button class="icon-btn" @onclick="ToggleSidebar" title="@Lang.T("القائمة")">
             <i class="bi bi-list"></i>
         </button>
         <div class="page-info">
@@ -21,6 +22,15 @@
         <button class="icon-btn" @onclick="Lang.Toggle" title="@Lang.T("تغيير اللغة")">
             <i class="bi bi-translate"></i>
         </button>
+
+        <a class="icon-btn announcement-btn" href="/announcements" title="@Lang.T("الإعلانات")">
+            <i class="bi bi-megaphone"></i>
+            @if (activeAnnouncementsCount > 0)
+            {
+                <span class="badge announcement-badge">@(activeAnnouncementsCount > 9 ? "9+" : activeAnnouncementsCount.ToString())</span>
+            }
+        </a>
+
         @inject NotificationCenterService NotifyCenter
         @inject NavigationManager Nav
         @implements IAsyncDisposable
@@ -68,20 +78,28 @@
         </div>
 
         
-        <!-- قائمة المستخدم مع Logout -->
+        @* في Topbar.razor - تعديل قسم user-menu *@
         <div class="user-menu" @onclick="ToggleUserMenu">
-            <div class="avatar">@initials</div>
+            <div class="avatar profile-avatar">
+                <img src="@($"/api/profile-image/{currentUserId}")"
+                     alt="@userName"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='@initials';" />
+            </div>
             <div class="user-info">
                 <strong>@userName</strong>
                 <small>@userRole</small>
             </div>
             <i class="bi bi-chevron-down"></i>
-            
+
             @if (showUserMenu)
             {
                 <div class="user-dropdown" @onclick:stopPropagation="true">
                     <div class="dropdown-header">
-                        <div class="dropdown-avatar">@initials</div>
+                        <div class="dropdown-avatar profile-avatar">
+                            <img src="@($"/api/profile-image/{currentUserId}")"
+                                 alt="@userName"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='@initials';" />
+                        </div>
                         <div>
                             <strong>@userName</strong>
                             <small>@userRole</small>
@@ -117,6 +135,8 @@
     System.Threading.Timer? pollTimer;
     int currentUserId;
 
+    int activeAnnouncementsCount = 0;
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthProvider.GetAuthenticationStateAsync();
@@ -128,12 +148,32 @@
 
         await RefreshCount();
 
+        await RefreshAnnouncementsCount();
         // تحديث العدد كل 30 ثانية تلقائيًا من غير ما المستخدم يعمل Refresh
         pollTimer = new System.Threading.Timer(async _ =>
         {
             await InvokeAsync(async () => { await RefreshCount(); StateHasChanged(); });
         }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
         ChatConn.OnNotificationReceived += async (t, m, i, u) => await InvokeAsync(async () => { await RefreshCount(); StateHasChanged(); });
+    }
+
+    async Task RefreshAnnouncementsCount()
+    {
+        try
+        {
+            var announcements = await AnnouncementSvc.GetAnnouncementsAsync();
+            activeAnnouncementsCount = announcements.Count(a => !a.IsDeleted);
+        }
+        catch
+        {
+            activeAnnouncementsCount = 0;
+        }
+    }
+
+    void ToggleSidebar()
+    {
+        UiState.ToggleSidebar();
+        UiState.ToggleSidebarCollapse();
     }
 
     async Task RefreshCount() => unreadCount = await NotifyCenter.GetUnreadCountAsync(currentUserId);

@@ -89,16 +89,49 @@
                     </select>
                 </div>
 
+                <!-- في modal-body - بعد حقل المنطقة وقبل الخريطة -->
+                <div class="field">
+                    <label>@Lang.T("الإحداثيات")</label>
+                    <div class="coordinates-grid">
+                        <div class="coordinate-input">
+                            <label class="coordinate-label">@Lang.T("خط العرض (Latitude)")</label>
+                            <input type="number"
+                                   class="search-input"
+                                   step="0.000001"
+                                   min="-90"
+                                   max="90"
+                                   @bind="formLatitude"
+                                   @bind:event="oninput"
+                                   @onchange="OnLatitudeManualChanged"
+                                   placeholder="30.0444" />
+                        </div>
+                        <div class="coordinate-input">
+                            <label class="coordinate-label">@Lang.T("خط الطول (Longitude)")</label>
+                            <input type="number"
+                                   class="search-input"
+                                   step="0.000001"
+                                   min="-180"
+                                   max="180"
+                                   @bind="formLongitude"
+                                   @bind:event="oninput"
+                                   @onchange="OnLongitudeManualChanged"
+                                   placeholder="31.2357" />
+                        </div>
+                    </div>
+                </div>
+
                 <!-- حقل الموقع -->
                 <div class="field">
-                    <label>@Lang.T("موقع الفرع")</label>
+                    <label>@Lang.T("موقع الفرع على الخريطة")</label>
                     <div class="map-container">
                         <div id="branch-map" class="branch-map"></div>
                     </div>
                     <small class="map-hint">
-                        @Lang.T("اضغط على الخريطة لتحديد موقع الفرع")
+                        <i class="bi bi-info-circle"></i>
+                        @Lang.T("اضغط على الخريطة لتحديد الموقع أو اسحب العلامة")
                     </small>
                 </div>
+
 
                 <!-- حقل نطاق الحضور -->
                 <div class="field">
@@ -192,10 +225,36 @@
     [JSInvokable]
     public Task LocationChanged(double latitude, double longitude)
     {
-        formLatitude = latitude;
-        formLongitude = longitude;
+        formLatitude = Math.Round(latitude, 6);
+        formLongitude = Math.Round(longitude, 6);
         StateHasChanged();
         return Task.CompletedTask;
+    }
+
+    async Task OnLatitudeManualChanged(ChangeEventArgs e)
+    {
+        if (double.TryParse(e.Value?.ToString(), out double lat))
+        {
+            formLatitude = lat;
+
+            if (formLongitude.HasValue)
+            {
+                await JS.InvokeVoidAsync("branchMap.setLocation", formLatitude, formLongitude, formRadius);
+            }
+        }
+    }
+
+    async Task OnLongitudeManualChanged(ChangeEventArgs e)
+    {
+        if (double.TryParse(e.Value?.ToString(), out double lng))
+        {
+            formLongitude = lng;
+
+            if (formLatitude.HasValue)
+            {
+                await JS.InvokeVoidAsync("branchMap.setLocation", formLatitude, formLongitude, formRadius);
+            }
+        }
     }
 
     void OpenAddModal()

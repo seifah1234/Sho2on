@@ -155,10 +155,13 @@ namespace Sho2on.Web.Services
                 Id = u.Id,
                 FullName = u.FullName,
                 Code = u.Code,
+                ProfileImageData = u.ProfileImageData,
+                ProfileImageBase64 = u.ProfileImageData != null ? Convert.ToBase64String(u.ProfileImageData) : null,
                 NationalID = u.NationalID,
                 PhoneNumber = u.PhoneNumber,
                 Email = u.Email,
                 Address = u.Address,
+                IsFreeLocation = u.IsFreeLocation ?? false,
                 BirthDate = u.BirthDate,
                 Gender = u.Gender,
                 HireDate = u.HireDate,
@@ -245,7 +248,18 @@ namespace Sho2on.Web.Services
             u.Blacklist = m.Blacklist; u.BlacklistReason = m.BlacklistReason;
             u.MaritalId = m.MaritalId; u.RecidenceId = m.RecidenceId; u.InsuredId = m.InsuredId;
             u.UpdatedAt = DateTime.Now;
-
+            u.IsFreeLocation = m.IsFreeLocation;
+            if (!string.IsNullOrEmpty(m.ProfileImageBase64))
+            {
+                try
+                {
+                    u.ProfileImageData = Convert.FromBase64String(m.ProfileImageBase64);
+                }
+                catch
+                {
+                    // تجاهل إذا كانت Base64 غير صالحة
+                }
+            }
 
             u.SalaryType = m.SalaryType;
             u.MonthlyWorkingHours = m.MonthlyWorkingHours;

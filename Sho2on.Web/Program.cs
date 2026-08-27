@@ -21,6 +21,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
 
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
@@ -77,9 +80,21 @@ builder.Services.AddScoped<WeekHolidayService>();
 builder.Services.AddScoped<OfficialService>();
 builder.Services.AddScoped<DepartmentTransferService>();
 builder.Services.AddScoped<ProfileService>();
+builder.Services.AddScoped<AppVersionService>();
+builder.Services.AddScoped<AnnouncementService>();
 
 builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
 builder.Logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+
+
+});
 
 var app = builder.Build();
 
@@ -88,6 +103,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -101,5 +117,6 @@ app.UseDeveloperExceptionPage();
 
 app.MapRazorComponents<Sho2on.Web.Components.App>()
     .AddInteractiveServerRenderMode();
+app.MapControllers();
 
 app.Run();

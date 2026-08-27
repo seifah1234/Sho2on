@@ -40,7 +40,10 @@ namespace Sho2on.Web.Services
                 HireDate = user.HireDate,
                 BirthDate = user.BirthDate,
                 LeaveBalance = (balance?.TotalBalance ?? 0) - (balance?.UsedBalance ?? 0),
-                LeaveUsed = balance?.UsedBalance ?? 0
+                LeaveUsed = balance?.UsedBalance ?? 0,
+        ProfileImage = user.ProfileImageData != null && user.ProfileImageData.Length > 0
+            ? $"/api/profile-image/{user.Id}"
+            : ""
             };
         }
 

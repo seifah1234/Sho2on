@@ -41,6 +41,39 @@
             <div class="tab-content">
                 @if (activeTab == "بيانات شخصية")
                 {
+                    @* في قسم "بيانات شخصية" - إضافة قبل الحقول *@
+                    <div class="field full">
+                        <div class="profile-image-upload">
+                            <div class="profile-image-preview">
+                                @if (!string.IsNullOrEmpty(model!.ProfileImageBase64))
+                                {
+                                    <img src="data:image/jpeg;base64,@model.ProfileImageBase64" alt="صورة الموظف" />
+                                }
+                                else if (model.ProfileImageData != null && model.ProfileImageData.Length > 0)
+                                {
+                                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(model.ProfileImageData)" alt="صورة الموظف" />
+                                }
+                                else
+                                {
+                                    <div class="profile-image-placeholder">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="profile-image-actions">
+                                <label class="btn-upload">
+                                    <i class="bi bi-camera"></i> @Lang.T("اختيار صورة")
+                                    <InputFile OnChange="OnProfileImageSelected" accept="image/*" hidden />
+                                </label>
+                                @if (!string.IsNullOrEmpty(model!.ProfileImageBase64) || (model.ProfileImageData != null && model.ProfileImageData.Length > 0))
+                                {
+                                    <button type="button" class="btn-secondary" @onclick="RemoveProfileImage">
+                                        <i class="bi bi-trash"></i> @Lang.T("إزالة الصورة")
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-grid">
                         <div class="field"><label>@Lang.T("الاسم الكامل")</label><InputText @bind-Value="model!.FullName" /><ValidationMessage For="() => model.FullName" /></div>
                         <div class="field"><label>@Lang.T("الكود")</label><InputText @bind-Value="model!.Code" /></div>
@@ -307,6 +340,7 @@ else if (activeTab == "الحضور والإعفاءات")
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptOvertime" /><label>@Lang.T("إعفاء من العمل الإضافي")</label></div>
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptAbsence" /><label>@Lang.T("إعفاء من الغياب")</label></div>
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.ExemptEarlyEnter" /><label>@Lang.T("إعفاء من الحضور المبكر")</label></div>
+                        <div class="field checkbox"><InputCheckbox @bind-Value="model!.IsFreeLocation" /><label>@Lang.T("محل حر")</label></div>
                     </div>
                 }
                 else if (activeTab == "اخرى")
@@ -667,7 +701,7 @@ else if (activeTab == "الحضور والإعفاءات")
     List<BenefitTypeDto> monthlyBenefitTypes = new();
     HashSet<int> selectedBenefitTypeIds = new();
     HashSet<int> savedBenefitTypeIds = new();
-
+    const long MaxProfileImageSize = 5 * 1024 * 1024;
     readonly string[] tabTitles = {
     "بيانات شخصية", "بيانات الوظيفة", "الراتب والسلف",
     "الحضور والإعفاءات", "الاستحقاقات والاستقطاعات", "المستندات", "إعدادات الحساب", "اخرى"
@@ -687,6 +721,48 @@ else if (activeTab == "الحضور والإعفاءات")
             await LoadDocuments();
             await LoadEmployeeBenefits();
         }
+    }
+
+    async Task OnProfileImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        
+        // التحقق من نوع الملف
+        if (!file.ContentType.StartsWith("image/"))
+        {
+            Notify.ShowError(Lang.T("الرجاء اختيار ملف صورة صالح"));
+            return;
+        }
+        
+        // التحقق من الحجم
+        if (file.Size > MaxProfileImageSize)
+        {
+            Notify.ShowError(Lang.T("حجم الصورة أكبر من الحد المسموح (5 ميجا)"));
+            return;
+        }
+        
+        try
+        {
+            using var stream = file.OpenReadStream(MaxProfileImageSize);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
+            
+            model!.ProfileImageBase64 = Convert.ToBase64String(bytes);
+            
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل الصورة"));
+        }
+    }
+
+    void RemoveProfileImage()
+    {
+        model!.ProfileImageBase64 = null;
+        model.ProfileImageData = null;
+        StateHasChanged();
     }
 
     async Task LoadMonthlyBenefitTypes()

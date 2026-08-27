@@ -23,6 +23,7 @@
             </div>
         </div>
 
+        @* في ChatPage.razor - تعديل قائمة المحادثات *@
         <div class="conv-list">
             @if (conversations == null)
             {
@@ -37,9 +38,21 @@
                 @foreach (var conv in conversations)
                 {
                     <button class="conv-item @(IsActive(conv) ? "active" : "")" @onclick="() => OpenConversation(conv)">
-                        <div class="conv-avatar @(conv.IsGroup ? "group" : "")">
-                            <i class="bi @(conv.IsGroup ? "bi-people-fill" : "bi-person-fill")"></i>
-                        </div>
+                        @* في قائمة المحادثات *@
+                        @if (!conv.IsGroup && !string.IsNullOrEmpty(conv.ProfileImage))
+                        {
+                            <div class="conv-avatar profile-avatar">
+                                <img src="@conv.ProfileImage"
+                                     alt="@conv.DisplayName"
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=&quot;bi bi-person-fill&quot;></i>';" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="conv-avatar @(conv.IsGroup ? "group" : "")">
+                                <i class="bi @(conv.IsGroup ? "bi-people-fill" : "bi-person-fill")"></i>
+                            </div>
+                        }
                         <div class="conv-info">
                             <strong>@conv.DisplayName</strong>
                             <small>@Truncate(conv.LastMessage, 34)</small>
@@ -64,10 +77,23 @@
         }
         else
         {
+            @* في thread-header *@
             <div class="thread-header">
-                <div class="conv-avatar @(selectedConversation.IsGroup ? "group" : "")">
-                    <i class="bi @(selectedConversation.IsGroup ? "bi-people-fill" : "bi-person-fill")"></i>
-                </div>
+                @if (!selectedConversation.IsGroup && !string.IsNullOrEmpty(selectedConversation.ProfileImage))
+                {
+
+                    <div class="conv-avatar profile-avatar">
+                        <img src="@selectedConversation.ProfileImage"
+                             alt="@selectedConversation.DisplayName"
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=&quot;bi bi-person-fill&quot;></i>';" />
+                    </div>
+                }
+                else
+                {
+                    <div class="conv-avatar @(selectedConversation.IsGroup ? "group" : "")">
+                        <i class="bi @(selectedConversation.IsGroup ? "bi-people-fill" : "bi-person-fill")"></i>
+                    </div>
+                }
                 <strong>@selectedConversation.DisplayName</strong>
             </div>
 

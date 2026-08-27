@@ -198,33 +198,42 @@ class AttendanceService {
   }
 
   Future<bool> _record({
-    required int userId,
-    required int branchId,
-    required int status,
-    double? lat,
-    double? lon,
-    String? locationName,
-  }) async {
-    final url = Uri.parse('$baseUrl/attendance/record');
+  required int userId,
+  required int branchId,
+  required int status,
+  double? lat,
+  double? lon,
+  String? locationName,
+}) async {
+  final url = Uri.parse('$baseUrl/attendance/record');
 
-    final body = {
-      "userId": userId,
-      "branchId": branchId,
-      "status": status,
-      "latitude": lat,
-      "longitude": lon,
-      "locationName": locationName,
-      "deviceTime": DateTime.now().toIso8601String(),
-    };
+  final body = {
+    "userId": userId,
+    "branchId": branchId,
+    "status": status,
+    "latitude": lat,
+    "longitude": lon,
+    "locationName": locationName,
+    "deviceTime": DateTime.now().toIso8601String(),
+  };
 
-    final res = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(body),
-    );
+  final res = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode(body),
+  );
 
-    return res.statusCode == 200;
+  if (res.statusCode == 200) {
+    return true;
+  } else {
+    try {
+      final data = jsonDecode(res.body);
+      final message = data['message'] ?? 'فشل التسجيل';
+      print('Location error: $message');
+    } catch (e) {}
+    return false;
   }
+}
 
   Future<Map<String, dynamic>?> getToday(int userId) async {
     final url = Uri.parse('$baseUrl/attendance/today/$userId');

@@ -262,6 +262,8 @@ namespace Sho2on.Database
         }
 
             // DbSets
+            public DbSet<Announcement> Announcements { get; set; }
+            public DbSet<AnnouncementType> AnnouncementTypes { get; set; }
             public DbSet<Area> Areas { get; set; }
             public DbSet<BreakLog> BreakLogs { get; set; }
             public DbSet<AbsenceTier> AbsenceTiers { get; set; }

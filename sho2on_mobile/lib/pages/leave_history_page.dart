@@ -11,11 +11,8 @@ class LeaveHistoryPage extends StatefulWidget {
 
 class _LeaveHistoryPageState extends State<LeaveHistoryPage> {
   final HolidayService _holidayService = HolidayService();
-  
-  // قائمة طلبات الإجازة
+
   List<dynamic> _leaveRequests = [];
-  
-  // حالات التصفية
   String _selectedFilter = 'الكل';
   final List<String> _filterOptions = ['الكل', 'قيد الانتظار', 'موافق', 'مرفوض', 'مسودة'];
   final Map<String, int> _statusMap = {
@@ -25,83 +22,70 @@ class _LeaveHistoryPageState extends State<LeaveHistoryPage> {
     'مرفوض': 3,
     'مسودة': 0,
   };
-  
-  // حالة التحميل
+
   bool _isLoading = false;
-  bool _isRefreshing = false;
-  
-  // ألوان التصميم
-  final Color primaryColor = Color(0xFF1976D2);
-  final Color secondaryColor = Color(0xFF42A5F5);
-  final Color backgroundColor = Color(0xFFF5F7FA);
-  final Color pendingColor = Color(0xFFFF9800);
-  final Color approvedColor = Color(0xFF4CAF50);
-  final Color rejectedColor = Color(0xFFF44336);
-  final Color draftColor = Color(0xFF9E9E9E);
-  
+
+  final Color primaryBlue = Color(0xFF2563EB);
+  final Color darkBlue = Color(0xFF1E40AF);
+  final Color lightBlue = Color(0xFFDBEAFE);
+  final Color backgroundColor = Color(0xFFF8FAFC);
+  final Color cardColor = Colors.white;
+  final Color pendingColor = Color(0xFFF59E0B);
+  final Color approvedColor = Color(0xFF10B981);
+  final Color rejectedColor = Color(0xFFEF4444);
+  final Color draftColor = Color(0xFF64748B);
+
   @override
   void initState() {
     super.initState();
     _loadLeaveRequests();
   }
-  
+
   Future<void> _loadLeaveRequests({String? filter}) async {
     setState(() => _isLoading = true);
-    
+
     try {
       final result = await _holidayService.getEmployeeRequests(
         widget.user['id'],
         status: filter != null && filter != 'الكل' ? _statusMap[filter] : null,
       );
-      
-      if (result['success']) {
+
+      if (result['success'] && mounted) {
         setState(() {
           _leaveRequests = result['data'] ?? [];
         });
-      } else {
+      } else if (mounted) {
         _showError(result['message'] ?? 'فشل في تحميل البيانات');
       }
     } catch (e) {
-      _showError('خطأ في تحميل البيانات: $e');
+      if (mounted) _showError('خطأ في تحميل البيانات');
     } finally {
-      setState(() {
-        _isLoading = false;
-        _isRefreshing = false;
-      });
+      if (mounted) setState(() => _isLoading = false);
     }
   }
-  
-  Future<void> _refreshData() async {
-    setState(() => _isRefreshing = true);
-    await _loadLeaveRequests();
-  }
-  
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          textDirection: TextDirection.rtl,
-          style: TextStyle(fontFamily: 'Tajawal'),
-        ),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
+        content: Text(message, textDirection: TextDirection.rtl),
+        backgroundColor: rejectedColor,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
 
   String _formatDate(String? dateString) {
-    if (dateString == null || dateString.isEmpty) return 'غير محدد';
-    
+    if (dateString == null || dateString.isEmpty) return '—';
     try {
-      // معالجة التاريخ يدوياً بدون intl package
       DateTime date = DateTime.parse(dateString);
       return '${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}';
     } catch (e) {
       return dateString;
     }
   }
-  
+
   Color _getStatusColor(String status) {
     switch (status) {
       case 'قيد الانتظار':
@@ -116,11 +100,11 @@ class _LeaveHistoryPageState extends State<LeaveHistoryPage> {
         return Colors.grey;
     }
   }
-  
+
   IconData _getStatusIcon(String status) {
     switch (status) {
       case 'قيد الانتظار':
-        return Icons.access_time;
+        return Icons.hourglass_empty;
       case 'موافق':
         return Icons.check_circle;
       case 'مرفوض':
@@ -131,423 +115,7 @@ class _LeaveHistoryPageState extends State<LeaveHistoryPage> {
         return Icons.help;
     }
   }
-  
-  Widget _buildStatusChip(String status) {
-    return Chip(
-      label: Text(
-        status,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          fontFamily: 'Tajawal',
-        ),
-      ),
-      backgroundColor: _getStatusColor(status),
-      avatar: Icon(
-        _getStatusIcon(status),
-        size: 16,
-        color: Colors.white,
-      ),
-    );
-  }
 
-  // يمكنك إضافة تأثيرات حركية
-  Widget _buildLeaveRequestCardWithAnimation(Map<String, dynamic> request, int index) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 300 + (index * 100)),
-      curve: Curves.easeInOut,
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: _buildLeaveRequestCard(request),
-    );
-  }
-  
-  Widget _buildLeaveRequestCard(Map<String, dynamic> request) {
-    
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            left: BorderSide(
-              color: _getStatusColor(request['status']),
-              width: 4,
-            ),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // الصف العلوي: معلومات الطلب الأساسية
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                textDirection: TextDirection.rtl,
-                children: [
-                  // رقم الطلب
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'رقم الطلب',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          request['requestNumber'] ?? 'HR-000000',
-                          textDirection: TextDirection.ltr,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // نوع الإجازة
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'نوع الإجازة',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          request['leaveTypeName'] ?? 'غير محدد',
-                          textDirection: TextDirection.rtl,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(width: 30),
-                  
-                  // حالة الطلب
-                  _buildStatusChip(request['status']),
-                ],
-              ),
-              
-              SizedBox(height: 16),
-              
-              // معلومات الفترة
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  textDirection: TextDirection.rtl,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          'من تاريخ',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          _formatDate(request['startDate']),
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    Icon(Icons.arrow_forward, color: primaryColor),
-                    
-                    Column(
-                      children: [
-                        Text(
-                          'إلى تاريخ',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          _formatDate(request['endDate']),
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    Column(
-                      children: [
-                        Text(
-                          'المدة',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '${request['duration']} يوم',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              
-              SizedBox(height: 16),
-              
-              // سبب الإجازة
-              if (request['reason'] != null && request['reason'].isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'السبب',
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                        fontFamily: 'Tajawal',
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      request['reason'],
-                      textDirection: TextDirection.rtl,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontFamily: 'Tajawal',
-                      ),
-                    ),
-                  ],
-                ),
-              
-              SizedBox(height: 16),
-              
-              // معلومات إضافية
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                textDirection: TextDirection.rtl,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'تاريخ الطلب',
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        _formatDate(request['requestDate']),
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black,
-                          fontFamily: 'Tajawal',
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  if (request['approvedByName'] != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'الموافق',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          request['approvedByName']!,
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: primaryColor,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                  
-                  if (request['approvedDate'] != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'تاريخ الموافقة',
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                           _formatDate(request['approvedDate']),
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.beach_access,
-            size: 80,
-            color: Colors.grey[400],
-          ),
-          SizedBox(height: 16),
-          Text(
-            'لا توجد طلبات إجازة',
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-              fontFamily: 'Tajawal',
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'يمكنك تقديم طلب إجازة جديد\nمن خلال زر "طلب إجازة"',
-            textDirection: TextDirection.rtl,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-              fontFamily: 'Tajawal',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildFilterChips() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: Colors.white,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        reverse: true, // لجعل العناصر تظهر من اليمين
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          textDirection: TextDirection.rtl,
-          children: _filterOptions.map((filter) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: FilterChip(
-                label: Text(
-                  filter,
-                  style: TextStyle(
-                    fontFamily: 'Tajawal',
-                    color: _selectedFilter == filter ? Colors.white : Colors.black,
-                  ),
-                ),
-                selected: _selectedFilter == filter,
-                selectedColor: primaryColor,
-                backgroundColor: Colors.grey[200],
-                checkmarkColor: Colors.white,
-                onSelected: (selected) {
-                  setState(() {
-                    _selectedFilter = filter;
-                    _loadLeaveRequests(filter: filter);
-                  });
-                },
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-  
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -555,150 +123,345 @@ class _LeaveHistoryPageState extends State<LeaveHistoryPage> {
       child: Scaffold(
         backgroundColor: backgroundColor,
         appBar: AppBar(
-          title: Text(
-            'سجل الإجازات',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Tajawal',
-            ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'سجل الإجازات',
+                style: TextStyle(fontFamily: 'Tajawal', fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              if (_leaveRequests.isNotEmpty)
+                Text(
+                  '${_leaveRequests.length} طلب',
+                  style: TextStyle(fontFamily: 'Tajawal', fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
+                ),
+            ],
           ),
-          backgroundColor: primaryColor,
+          backgroundColor: primaryBlue,
           foregroundColor: Colors.white,
           elevation: 0,
-          centerTitle: true,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: _refreshData,
-            ),
-          ],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
         ),
         body: Column(
           children: [
-            // رأس الصفحة مع الإحصائيات
+            // Stats
+            if (!_isLoading && _leaveRequests.isNotEmpty)
+              Container(
+                padding: EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatCard('الطلبات', _leaveRequests.length.toString(), Icons.list_alt, primaryBlue),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: _buildStatCard(
+                        'قيد الانتظار',
+                        _leaveRequests.where((r) => r['status'] == 'قيد الانتظار').length.toString(),
+                        Icons.hourglass_empty,
+                        pendingColor,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: _buildStatCard(
+                        'موافق',
+                        _leaveRequests.where((r) => r['status'] == 'موافق').length.toString(),
+                        Icons.check_circle,
+                        approvedColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Filter chips
             Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                textDirection: TextDirection.rtl,
-                children: [
-                  // إجمالي الطلبات
-                  _buildStatItem(
-                    'إجمالي الطلبات',
-                    _leaveRequests.length.toString(),
-                    Icons.list,
-                    primaryColor,
-                  ),
-                  
-                  // الطلبات المعلقة
-                  _buildStatItem(
-                    'قيد الانتظار',
-                    _leaveRequests
-                        .where((r) => r['status'] == 'قيد الانتظار')
-                        .length
-                        .toString(),
-                    Icons.access_time,
-                    pendingColor,
-                  ),
-                  
-                  // الطلبات الموافق عليها
-                  _buildStatItem(
-                    'الموافق عليها',
-                    _leaveRequests
-                        .where((r) => r['status'] == 'موافق')
-                        .length
-                        .toString(),
-                    Icons.check_circle,
-                    approvedColor,
-                  ),
-                ],
+              height: 55,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                children: _filterOptions.map((filter) {
+                  final isSelected = _selectedFilter == filter;
+                  final color = filter == 'الكل' ? primaryBlue : _getStatusColor(filter);
+
+                  return Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() => _selectedFilter = filter);
+                        _loadLeaveRequests(filter: filter);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: isSelected ? color : cardColor,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: isSelected ? color : Color(0xFFE5E7EB)),
+                          boxShadow: isSelected
+                              ? [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 6, offset: Offset(0, 2))]
+                              : null,
+                        ),
+                        child: Text(
+                          filter,
+                          style: TextStyle(
+                            fontFamily: 'Tajawal',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isSelected ? Colors.white : Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
-            
-            // شريط التصفية
-            _buildFilterChips(),
-            
-            SizedBox(height: 8),
-            
-            // قائمة طلبات الإجازة
+
+            // List
             Expanded(
-              child: _isLoading && !_isRefreshing
+              child: _isLoading
                   ? Center(
-                      child: CircularProgressIndicator(
-                        color: primaryColor,
-                      ),
+                      child: CircularProgressIndicator(color: primaryBlue),
                     )
                   : _leaveRequests.isEmpty
                       ? _buildEmptyState()
                       : RefreshIndicator(
-                          onRefresh: _refreshData,
-                          color: primaryColor,
-                          child: ListView.builder(
-                            padding: EdgeInsets.only(bottom: 16),
+                          onRefresh: () => _loadLeaveRequests(filter: _selectedFilter),
+                          color: primaryBlue,
+                          child: ListView.separated(
+                            padding: EdgeInsets.all(16),
                             itemCount: _leaveRequests.length,
+                            separatorBuilder: (context, i) => SizedBox(height: 12),
                             itemBuilder: (context, index) {
-                              return _buildLeaveRequestCardWithAnimation(
-                                _leaveRequests[index],
-                                index,
-                              );
+                              return _buildLeaveCard(_leaveRequests[index]);
                             },
                           ),
                         ),
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // العودة للصفحة الرئيسية أو فتح صفحة طلب جديد
-            Navigator.pop(context);
-          },
-          backgroundColor: primaryColor,
-          child: Icon(Icons.home),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 5, offset: Offset(0, 2))],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.bold, color: darkBlue),
+          ),
+          SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 10, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(color: lightBlue, shape: BoxShape.circle),
+            child: Icon(Icons.beach_access, size: 40, color: primaryBlue),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'لا توجد طلبات إجازة',
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'يمكنك تقديم طلب إجازة جديد من الصفحة الرئيسية',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 13, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeaveCard(Map<String, dynamic> request) {
+    final status = request['status'] ?? '';
+    final statusColor = _getStatusColor(status);
+    final statusIcon = _getStatusIcon(status);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: Offset(0, 2))],
+        border: Border.all(color: Color(0xFFE5E7EB)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(statusIcon, color: statusColor, size: 24),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        request['leaveTypeName'] ?? 'إجازة',
+                        style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.bold, color: darkBlue),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        request['requestNumber'] ?? '',
+                        style: TextStyle(fontFamily: 'Tajawal', fontSize: 11, color: Colors.grey[400]),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      fontFamily: 'Tajawal',
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 14),
+
+            // Date range
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Color(0xFFE5E7EB)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildDateItem('من', _formatDate(request['startDate']), Icons.calendar_today, approvedColor),
+                  ),
+                  Icon(Icons.arrow_forward, color: Colors.grey[400], size: 16),
+                  Expanded(
+                    child: _buildDateItem('إلى', _formatDate(request['endDate']), Icons.calendar_today, rejectedColor),
+                  ),
+                  Container(width: 1, height: 30, color: Color(0xFFE5E7EB)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      children: [
+                        Text('${request['duration'] ?? 0}', style: TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.bold, color: darkBlue)),
+                        Text('يوم', style: TextStyle(fontFamily: 'Tajawal', fontSize: 10, color: Colors.grey[500])),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            if (request['reason'] != null && request['reason'].toString().isNotEmpty) ...[
+              SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: Colors.grey[400]),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      request['reason'].toString(),
+                      style: TextStyle(fontFamily: 'Tajawal', fontSize: 12, color: Colors.grey[500]),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            SizedBox(height: 10),
+
+            // Footer
+            Row(
+              children: [
+                Icon(Icons.event, size: 13, color: Colors.grey[400]),
+                SizedBox(width: 4),
+                Text(
+                  'تاريخ الطلب: ${_formatDate(request['requestDate'])}',
+                  style: TextStyle(fontFamily: 'Tajawal', fontSize: 11, color: Colors.grey[400]),
+                ),
+                Spacer(),
+                if (request['approvedByName'] != null) ...[
+                  Icon(Icons.person_outline, size: 13, color: Colors.grey[400]),
+                  SizedBox(width: 4),
+                  Text(
+                    request['approvedByName'].toString(),
+                    style: TextStyle(fontFamily: 'Tajawal', fontSize: 11, color: Colors.grey[400]),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
-  
-  Widget _buildStatItem(String title, String value, IconData icon, Color color) {
+
+  Widget _buildDateItem(String label, String value, IconData icon, Color color) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 20,
-          ),
+        Text(
+          label,
+          style: TextStyle(fontFamily: 'Tajawal', fontSize: 10, color: Colors.grey[500]),
         ),
-        SizedBox(height: 8),
+        SizedBox(height: 3),
         Text(
           value,
-          textDirection: TextDirection.rtl,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontFamily: 'Tajawal',
-          ),
-        ),
-        SizedBox(height: 4),
-        Text(
-          title,
-          textDirection: TextDirection.rtl,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontFamily: 'Tajawal',
-          ),
+          textAlign: TextAlign.center,
+          style: TextStyle(fontFamily: 'Tajawal', fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey[700]),
         ),
       ],
     );

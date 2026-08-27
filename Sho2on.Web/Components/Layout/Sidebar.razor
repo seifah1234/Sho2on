@@ -7,9 +7,11 @@
 @inject LocalizationService Lang
 @inject NavigationManager Nav
 @inject AuthenticationStateProvider AuthProvider
+@inject UiStateService UiState
 @implements IDisposable
 
-<div class="sidebar" style="@(Lang.IsRtl ? "position: fixed; top: 0; right: 0; bottom: 0; height: 100vh;" : "position: fixed; top: 0; left: 0; bottom: 0; height: 100vh;")" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
+@* ✅ Sidebar فقط بدون Overlay هنا *@
+<div class="sidebar @(UiState.IsSidebarOpen ? "open" : "") @(Lang.IsRtl ? "sidebar-right" : "sidebar-left")" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
     <!-- الزخارف -->
     <div class="sidebar-decoration"></div>
     <div class="sidebar-dots">
@@ -21,13 +23,18 @@
     </div>
 
     <div class="sidebar-header">
-        <div class="logo">
-            <div class="logo-icon">R</div>
-            <div class="logo-text">
-                <h3>RAKZ</h3>
-                <span>@Lang.T("نظام الموارد البشرية")</span>
+        <a href="/">
+            <div class="logo">
+                <div class="logo-icon">R</div>
+                <div class="logo-text">
+                    <h3>RAKZ</h3>
+                    <span>@Lang.T("نظام الموارد البشرية")</span>
+                </div>
             </div>
-        </div>
+        </a>
+        <button class="sidebar-close-btn" @onclick="UiState.CloseSidebar" title="@Lang.T("إغلاق")">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
 
     <div class="sidebar-divider"></div>
@@ -43,8 +50,18 @@
     </div>
 
     <div class="sidebar-footer">
+        <a class="nav-link download-link" href="/download-app" @onclick="UiState.CloseSidebar">
+            <i class="bi bi-phone"></i>
+            <span>@Lang.T("تحميل التطبيق")</span>
+            <span class="download-badge">@Lang.T("جديد")</span>
+        </a>
+
         <div class="user-card">
-            <div class="avatar">@initials</div>
+            <div class="avatar">
+                <img src="@($"/api/profile-image/{currentUserId}")"
+                     alt="@userName"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='@initials';" />
+            </div>
             <div>
                 <strong>@userName</strong><small>@userRole</small>
             </div>
@@ -56,6 +73,7 @@
     string userName = "";
     string userRole = "";
     string initials = "?";
+    int currentUserId;
     List<NavigationItem>? visibleMenu;
 
     protected override void OnInitialized()
@@ -69,13 +87,13 @@
         var user = authState.User;
         userName = user.FindFirst("FullName")?.Value ?? user.Identity?.Name ?? "";
         userRole = user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+        currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
         if (!string.IsNullOrEmpty(userName)) initials = userName.Trim()[0].ToString().ToUpper();
         bool isAdmin = user.IsInRole(RoleNames.Admin);
         var userPermissions = user.Claims.Where(c => c.Type == "perm").Select(c => c.Value).ToHashSet();
 
         var fullMenu = Navigation.GetMenu();
         visibleMenu = isAdmin ? fullMenu : FilterByPermissions(fullMenu, userPermissions);
-
     }
 
     List<NavigationItem> FilterByPermissions(List<NavigationItem> items, HashSet<string> userPermissions)

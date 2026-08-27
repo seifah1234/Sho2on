@@ -22,6 +22,28 @@ public static class DocumentEndpoints
             }
         }).RequireAuthorization();
 
+        // في Program.cs أو AuthEndpoints
+        // في Program.cs - بعد MapAuthEndpoints
+        app.MapGet("/downloads/{fileName}", (string fileName, IWebHostEnvironment env) =>
+        {
+            var filePath = Path.Combine(env.WebRootPath, "downloads", fileName);
+
+            if (!File.Exists(filePath))
+                return Results.NotFound("الملف غير موجود");
+
+            // منع Path Traversal
+            var fullPath = Path.GetFullPath(filePath);
+            var downloadsPath = Path.GetFullPath(Path.Combine(env.WebRootPath, "downloads"));
+            if (!fullPath.StartsWith(downloadsPath))
+                return Results.BadRequest("مسار غير صالح");
+
+            return Results.File(
+                filePath,
+                "application/vnd.android.package-archive",
+                fileName
+            );
+        });
+
         // تحميل مستندات الموظف
         app.MapGet("/files/employee-documents/{id:int}", async (int id, EmployeeDocumentService svc) =>
         {

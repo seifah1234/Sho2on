@@ -16,6 +16,7 @@
         public DateOnly BirthDate { get; set; }
         public int LeaveBalance { get; set; }
         public int LeaveUsed { get; set; }
+        public string ProfileImage { get; set; } = "";
     }
 
     public class MyRequestItem
