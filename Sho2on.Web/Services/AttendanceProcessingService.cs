@@ -90,6 +90,184 @@ namespace Sho2on.Web.Services
         }
 
         /// <summary>
+/// ✅ معالجة البصمات وحساب الحضور بشكل صحيح
+/// </summary>
+private void ProcessDayScans(Attendance attendance, List<FingerPrint> dayScans, Shift shift, DateOnly day)
+{
+    if (dayScans == null || dayScans.Count == 0) return;
+
+    if (dayScans.Count == 1)
+    {
+        // ═══ ✅ بصمة واحدة: نحدد هل هي حضور ولا انصراف ═══
+        var scan = dayScans[0];
+        var scanTime = scan.FingerPrintDate.TimeOfDay;
+
+        // ✅ نحسب المسافة الدائرية لبداية ونهاية الشيفت
+        var distToStart = CircularDistance(scanTime, shift.StartTime);
+        var distToEnd = CircularDistance(scanTime, shift.EndTime);
+
+        if (distToStart <= distToEnd)
+        {
+            // ✅ الأقرب لبداية الشيفت => حضور
+            attendance.CheckInTime = scan.FingerPrintDate;
+            attendance.IsCheckInAutoFilled = false;
+            
+            // ✅ نكمل الانصراف تلقائياً حسب الشيفت
+            FillMissingPunch(attendance, day, shift);
+        }
+        else
+        {
+            // ✅ الأقرب لنهاية الشيفت => انصراف
+            attendance.CheckOutTime = scan.FingerPrintDate;
+            attendance.IsCheckOutAutoFilled = false;
+            
+            // ✅ نكمل الحضور تلقائياً حسب الشيفت
+            FillMissingPunch(attendance, day, shift);
+        }
+    }
+    else
+    {
+        // ═══ ✅ بصمتين أو أكثر: أول بصمة حضور، آخر بصمة انصراف ═══
+        attendance.CheckInTime = dayScans.First().FingerPrintDate;
+        attendance.CheckOutTime = dayScans.Last().FingerPrintDate;
+    }
+
+    // ✅ لو لسه في نقص، نكمله
+    if (attendance.CheckInTime == null || attendance.CheckOutTime == null)
+    {
+        FillMissingPunch(attendance, day, shift);
+    }
+}
+
+/// <summary>
+/// ✅ حساب التأخير/الحضور المبكر/الانصراف المبكر/الإضافي/إجمالي ساعات العمل
+/// ✅ الأساس دائمًا هو "يوم الشيفت المنطقي" (day) مش تاريخ بصمة الحضور نفسها
+///    لأن في شيفتات زي (12ص - 12م) ممكن الموظف يبصم قبل منتصف الليل بشوية
+///    فتاريخ البصمة يبقى "أمس" رغم إنها بصمة حضور ليوم الشيفت "النهارده"
+/// </summary>
+private const int MaxDiffHours = 12; // أي فرق أكبر من كده يعتبر بيانات غير منطقية ويتجاهل
+
+private void CalculateTimes(Attendance attendance, DateTime checkIn, DateTime checkOut, Shift shift, DateOnly day)
+{
+    // ═══ إعادة تصفير القيم قبل الحساب (عشان الدالة تبقى صالحة لإعادة الحساب كمان) ═══
+    attendance.Late = null;
+    attendance.EarlyEnter = null;
+    attendance.EarlyLeave = null;
+    attendance.Overtime = null;
+
+    // ═══ ✅ حساب بداية ونهاية الشيفت المتوقعة بالاعتماد على يوم الشيفت الصحيح ═══
+    var shiftDate = day.ToDateTime(TimeOnly.MinValue);
+    var expectedStart = shiftDate.Add(shift.StartTime);
+    var expectedEnd = shiftDate.Add(shift.EndTime);
+
+    // ✅ لو الشيفت عابر لمنتصف الليل (مثلاً 8 م - 6 ص) => نهاية الشيفت في اليوم التالي
+    if (shift.EndTime < shift.StartTime)
+    {
+        expectedEnd = expectedEnd.AddDays(1);
+    }
+
+    // ═══ ✅ التأخير / الحضور المبكر ═══
+    if (checkIn > expectedStart)
+    {
+        var late = checkIn - expectedStart;
+        if (late.TotalHours <= MaxDiffHours)
+            attendance.Late = ClampTimeSpan(late);
+    }
+    else if (checkIn < expectedStart)
+    {
+        var earlyEnter = expectedStart - checkIn;
+        if (earlyEnter.TotalHours <= MaxDiffHours)
+            attendance.EarlyEnter = ClampTimeSpan(earlyEnter);
+    }
+
+    // ═══ ✅ الانصراف المبكر / الإضافي ═══
+    if (checkOut < expectedEnd)
+    {
+        var earlyLeave = expectedEnd - checkOut;
+        if (earlyLeave.TotalHours <= MaxDiffHours)
+            attendance.EarlyLeave = ClampTimeSpan(earlyLeave);
+    }
+    else if (checkOut > expectedEnd)
+    {
+        var overtime = checkOut - expectedEnd;
+        if (overtime.TotalHours <= MaxDiffHours)
+            attendance.Overtime = ClampTimeSpan(overtime);
+    }
+
+    // ═══ ✅ إجمالي ساعات العمل الفعلية (فرق حقيقي بين تاريخين كاملين، مفيش لبس هنا) ═══
+    var totalWork = checkOut - checkIn;
+    attendance.TotalWorkHours = totalWork > TimeSpan.Zero ? ClampTimeSpan(totalWork) : TimeSpan.Zero;
+}
+
+/// <summary>
+/// ✅ تكملة البصمة الناقصة
+/// لو في حضور بس => نكمل الانصراف بميعاد نهاية الشيفت
+/// لو في انصراف بس => نكمل الحضور بميعاد بداية الشيفت
+/// </summary>
+private bool FillMissingPunch(Attendance attendance, DateOnly day, Shift shift)
+{
+    // ✅ لو الاتنين موجودين - مفيش حاجة نعملها
+    if (attendance.CheckInTime != null && attendance.CheckOutTime != null)
+        return false;
+
+    // ✅ لو مفيش ولا بصمة - مفيش حاجة نكملها
+    if (attendance.CheckInTime == null && attendance.CheckOutTime == null)
+        return false;
+
+    // ═══ ✅ لو في حضور بس - نكمل الانصراف ═══
+    if (attendance.CheckInTime != null && attendance.CheckOutTime == null)
+    {
+        var checkOutTime = day.ToDateTime(TimeOnly.MinValue).Add(shift.EndTime);
+
+        // ✅ لو الشيفت عابر لمنتصف الليل
+        if (shift.EndTime < shift.StartTime)
+        {
+            checkOutTime = checkOutTime.AddDays(1);
+        }
+
+        attendance.CheckOutTime = checkOutTime;
+        attendance.IsCheckOutAutoFilled = true;
+        return true;
+    }
+
+    // ═══ ✅ لو في انصراف بس - نكمل الحضور ═══
+    if (attendance.CheckInTime == null && attendance.CheckOutTime != null)
+    {
+        var checkInTime = day.ToDateTime(TimeOnly.MinValue).Add(shift.StartTime);
+
+        attendance.CheckInTime = checkInTime;
+        attendance.IsCheckInAutoFilled = true;
+        return true;
+    }
+
+    return false;
+}
+
+/// <summary>
+/// ✅ تحديد TimeSpan ليكون بين 0 و 23:59:59
+/// </summary>
+private TimeSpan ClampTimeSpan(TimeSpan value)
+{
+    if (value < TimeSpan.Zero)
+        return TimeSpan.Zero;
+
+    if (value.TotalHours >= 24)
+        return TimeSpan.FromHours(23) + TimeSpan.FromMinutes(59) + TimeSpan.FromSeconds(59);
+
+    return value;
+}
+
+/// <summary>
+/// ✅ المسافة الدائرية بين وقتين (لحساب الأقرب)
+/// </summary>
+private TimeSpan CircularDistance(TimeSpan a, TimeSpan b)
+{
+    var diff = (a - b).Duration();
+    var wrap = TimeSpan.FromHours(24) - diff;
+    return diff < wrap ? diff : wrap;
+}
+
+        /// <summary>
         /// سحب بصمات موظف من FingerPrints إلى Attendances (مع إزالة المكررة)
         /// </summary>
         private async Task<(bool Success, string Message)> PullEmployeeScansFromFingerPrintsAsync(
@@ -175,7 +353,7 @@ namespace Sho2on.Web.Services
                     FillMissingPunch(attendance, day, user.Shift);
 
                 if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue)
-                    CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value, user.Shift);
+                    CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value, user.Shift, day);
 
                 if (attendance.CheckInTime == null && attendance.CheckOutTime == null && !isHoliday)
                     attendance.IsAbsence = true;
@@ -284,8 +462,7 @@ namespace Sho2on.Web.Services
                     }
 
                     if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue)
-                        CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value, user.Shift);
-
+                        CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value, user.Shift, day);
                     db.Attendances.Add(attendance);
                     result.DaysAutoResolved++;
                 }
@@ -297,35 +474,7 @@ namespace Sho2on.Web.Services
             return result;
         }
 
-        /// <summary>
-        /// لو اليوم فيه حضور بس من غير انصراف (أو العكس)، نكمّل الناقص تلقائيًا بميعاد الوردية القياسي.
-        /// ده منفصل تمامًا عن موضوع تعدي منتصف الليل - هنا الموظف أصلاً مبصمش الطرف التاني خالص.
-        /// </summary>
-        private bool FillMissingPunch(Attendance attendance, DateOnly day, Shift shift)
-        {
-            if (attendance.CheckInTime == null && attendance.CheckOutTime == null)
-                return false;
-
-            if (attendance.CheckInTime != null && attendance.CheckOutTime != null)
-                return false;
-
-            if (attendance.CheckInTime != null)
-            {
-                var checkOutTime = day.ToDateTime(TimeOnly.MinValue).Add(shift.EndTime);
-
-                if (shift.EndTime < shift.StartTime)
-                    checkOutTime = checkOutTime.AddDays(1);
-
-                attendance.CheckOutTime = checkOutTime;
-                attendance.IsCheckOutAutoFilled = true;
-                return true;
-            }
-
-            attendance.CheckInTime = day.ToDateTime(TimeOnly.MinValue).Add(shift.StartTime);
-            attendance.IsCheckInAutoFilled = true;
-            return true;
-        }
-
+     
         // دوال مساعدة
         private bool IsWeeklyRestDay(DayOfWeek day, WeekHoliday? wh)
         {
@@ -397,96 +546,307 @@ namespace Sho2on.Web.Services
             return (deduped, duplicatesRemoved, statusesCorrected, singleScanResolved);
         }
 
-        public async Task<AttendanceProcessingResult> ProcessAsync(int? branchId, int? userId, DateOnly startDate, DateOnly endDate)
+        /// <summary>
+/// ✅ المعالجة: تحديد CheckIn و CheckOut من البصمات
+/// ✅ الحساب: يتم بعدين على مستوى الـ Attendance
+/// </summary>
+public async Task<AttendanceProcessingResult> ProcessAsync(int? branchId, int? userId, DateOnly startDate, DateOnly endDate)
+{
+    using var db = await _dbFactory.CreateDbContextAsync();
+    var result = new AttendanceProcessingResult();
+    var start = startDate.ToDateTime(TimeOnly.MinValue);
+    var end = endDate.ToDateTime(TimeOnly.MaxValue);
+
+    var usersQuery = db.Users.Include(u => u.Shift).Include(u => u.WeekHoliday).Where(u => !u.IsArchived);
+    if (userId.HasValue) usersQuery = usersQuery.Where(u => u.Id == userId.Value);
+    else if (branchId.HasValue) usersQuery = usersQuery.Where(u => u.BranchId == branchId.Value);
+
+    var users = await usersQuery.ToListAsync();
+    var officialHolidays = await GetOfficialHolidayDatesAsync(db, startDate, endDate);
+
+    foreach (var user in users)
+    {
+        if (user.Shift == null) continue;
+
+        var allScans = await db.FingerPrints
+            .Where(f => f.UserId == user.Id && f.FingerPrintDate >= start && f.FingerPrintDate <= end)
+            .OrderBy(f => f.FingerPrintDate)
+            .ToListAsync();
+
+        if (allScans.Count == 0) continue;
+
+        // ═══ 1. التطبيع: إزالة التكرار + فرض النمط ═══
+        var (cleanScans, dupCount, correctedCount, singleCount) = await NormalizeUserScansAsync(db, allScans, user.Shift);
+
+        var duplicates = allScans.Except(cleanScans).ToList();
+        if (duplicates.Count > 0) db.FingerPrints.RemoveRange(duplicates);
+
+        result.DuplicateScansRemoved += dupCount;
+        result.StatusesAutoCorrected += correctedCount;
+        result.SingleScanDaysAutoResolved += singleCount;
+
+        // ═══ 2. تجميع البصمات حسب يوم العمل ═══
+        var scansByDay = GroupScansByWorkDay(cleanScans, user.Shift);
+
+        // ═══ 3. حذف الحضور القديم ═══
+        var existingAttendances = await db.Attendances
+            .Where(a => a.UserId == user.Id && a.AttendanceDate >= start && a.AttendanceDate <= end)
+            .ToListAsync();
+        if (existingAttendances.Count > 0) db.Attendances.RemoveRange(existingAttendances);
+
+        var weekHoliDays = GetWeekHolidayFlags(user.WeekHoliday);
+
+        // ═══ 4. إنشاء سجلات الحضور (بدون حساب التأخير والإضافي) ═══
+        for (var day = startDate; day <= endDate; day = day.AddDays(1))
         {
-            using var db = await _dbFactory.CreateDbContextAsync();
-            var result = new AttendanceProcessingResult();
-            var start = startDate.ToDateTime(TimeOnly.MinValue);
-            var end = endDate.ToDateTime(TimeOnly.MaxValue);
+            var dayIndex = (int)day.ToDateTime(TimeOnly.MinValue).DayOfWeek;
+            bool isHoliday = weekHoliDays[dayIndex] || officialHolidays.Contains(day);
+            scansByDay.TryGetValue(day, out var dayScans);
 
-            var usersQuery = db.Users.Include(u => u.Shift).Include(u => u.WeekHoliday).Where(u => !u.IsArchived);
-            if (userId.HasValue) usersQuery = usersQuery.Where(u => u.Id == userId.Value);
-            else if (branchId.HasValue) usersQuery = usersQuery.Where(u => u.BranchId == branchId.Value);
-
-            var users = await usersQuery.ToListAsync();
-            var officialHolidays = await GetOfficialHolidayDatesAsync(db, startDate, endDate);
-
-            foreach (var user in users)
+            var attendance = new Attendance
             {
-                if (user.Shift == null) continue;
+                UserId = user.Id,
+                AttendanceDate = day.ToDateTime(TimeOnly.MinValue),
+                CheckInBranchId = user.BranchId,
+                CheckOutBranchId = user.BranchId,
+                IsHoliday = isHoliday,
+                ShiftId = user.ShiftId
+            };
 
-                var allScans = await db.FingerPrints
-                    .Where(f => f.UserId == user.Id && f.FingerPrintDate >= start && f.FingerPrintDate <= end)
-                    .OrderBy(f => f.FingerPrintDate)
-                    .ToListAsync();
+            // ✅ تحديد CheckIn و CheckOut فقط (بدون حساب)
+            DetermineCheckInAndCheckOut(attendance, dayScans, day, user.Shift);
 
-                if (allScans.Count == 0) continue;
+            // ✅ تحديد الغياب
+            attendance.IsAbsence = attendance.CheckInTime == null && 
+                                   attendance.CheckOutTime == null && 
+                                   !isHoliday;
 
-                // ═══ التطبيع التلقائي الكامل (تكرار + نمط تبديل + بصمة واحدة) ═══
-                var (cleanScans, dupCount, correctedCount, singleCount) = await NormalizeUserScansAsync(db, allScans, user.Shift);
+            db.Attendances.Add(attendance);
 
-                var duplicates = allScans.Except(cleanScans).ToList();
-                if (duplicates.Count > 0) db.FingerPrints.RemoveRange(duplicates);
-
-                result.DuplicateScansRemoved += dupCount;
-                result.StatusesAutoCorrected += correctedCount;
-                result.SingleScanDaysAutoResolved += singleCount;
-
-                var scansByDay = GroupScansByWorkDay(cleanScans, user.Shift);
-
-                var existingAttendances = await db.Attendances
-                    .Where(a => a.UserId == user.Id && a.AttendanceDate >= start && a.AttendanceDate <= end)
-                    .ToListAsync();
-                if (existingAttendances.Count > 0) db.Attendances.RemoveRange(existingAttendances);
-
-                var weekHoliDays = GetWeekHolidayFlags(user.WeekHoliday);
-
-                for (var day = startDate; day <= endDate; day = day.AddDays(1))
-                {
-                    var dayIndex = (int)day.ToDateTime(TimeOnly.MinValue).DayOfWeek;
-                    bool isHoliday = weekHoliDays[dayIndex] || officialHolidays.Contains(day);
-                    scansByDay.TryGetValue(day, out var dayScans);
-
-                    DateTime? checkIn = dayScans?.FirstOrDefault(s => s.Status == 1)?.FingerPrintDate;
-                    DateTime? checkOut = dayScans?.LastOrDefault(s => s.Status == 0)?.FingerPrintDate
-                                          ?? (dayScans?.Count > 1 ? dayScans.Last().FingerPrintDate : null);
-
-                    bool isAbsence = checkIn == null && checkOut == null && !isHoliday;
-
-                    var attendance = new Attendance
-                    {
-                        UserId = user.Id,
-                        AttendanceDate = day.ToDateTime(TimeOnly.MinValue),
-                        CheckInTime = checkIn,
-                        CheckOutTime = checkOut,
-                        CheckInBranchId = user.BranchId,
-                        CheckOutBranchId = user.BranchId,
-                        IsAbsence = isAbsence,
-                        IsHoliday = isHoliday,
-                        ShiftId = user.ShiftId
-                    };
-
-                    if (!isAbsence)
-                    {
-                        bool wasFilled = FillMissingPunch(attendance, day, user.Shift);
-                        if (wasFilled) result.MissingPunchesAutoFilled++;
-                    }
-
-                    if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue)
-                        CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value, user.Shift);
-
-
-                    db.Attendances.Add(attendance);
-
-                    if (dayScans != null && dayScans.Count > 0) result.DaysAutoResolved++;
-                }
-
-                result.EmployeesProcessed++;
-            }
-
-            await db.SaveChangesAsync();
-            return result;
+            if (dayScans != null && dayScans.Count > 0) 
+                result.DaysAutoResolved++;
         }
+
+        result.EmployeesProcessed++;
+    }
+
+    await db.SaveChangesAsync();
+
+    // ═══ 5. ✅ حساب التأخير والإضافي بعد الحفظ ═══
+    await RecalculateAllTimesAsync(db, start, end, users.Select(u => u.Id).ToList());
+
+    return result;
+}
+
+/// <summary>
+/// ✅ تحديد CheckIn و CheckOut فقط (بدون حساب التأخير والإضافي)
+/// </summary>
+private void DetermineCheckInAndCheckOut(Attendance attendance, List<FingerPrint>? dayScans, DateOnly day, Shift shift)
+{
+    if (dayScans == null || dayScans.Count == 0) return;
+
+    if (dayScans.Count == 1)
+    {
+        // ✅ بصمة واحدة: نحدد الأقرب (حضور ولا انصراف)
+        var scan = dayScans[0];
+        var scanTime = scan.FingerPrintDate.TimeOfDay;
+
+        var distToStart = CircularDistance(scanTime, shift.StartTime);
+        var distToEnd = CircularDistance(scanTime, shift.EndTime);
+
+        if (distToStart <= distToEnd)
+        {
+            // ✅ الأقرب لبداية الشيفت => حضور
+            attendance.CheckInTime = scan.FingerPrintDate;
+        }
+        else
+        {
+            // ✅ الأقرب لنهاية الشيفت => انصراف
+            attendance.CheckOutTime = scan.FingerPrintDate;
+        }
+    }
+    else
+    {
+        // ✅ بصمتين أو أكثر: أول بصمة حضور، آخر بصمة انصراف
+        attendance.CheckInTime = dayScans.First().FingerPrintDate;
+        attendance.CheckOutTime = dayScans.Last().FingerPrintDate;
+    }
+
+    // ✅ تكملة الناقص
+    FillMissingPunch(attendance, day, shift);
+}
+
+/// <summary>
+/// ✅ إعادة حساب التأخير والإضافي لكل سجلات الحضور
+/// دي بتتنفذ بعد المعالجة على مستوى الـ Attendance
+/// </summary>
+private async Task RecalculateAllTimesAsync(AppDbContext db, DateTime start, DateTime end, List<int> userIds)
+{
+    var attendances = await db.Attendances
+        .Where(a => userIds.Contains(a.UserId) &&
+                    a.AttendanceDate >= start &&
+                    a.AttendanceDate <= end)
+        .ToListAsync();
+
+    var shifts = await db.Shifts.ToDictionaryAsync(s => s.Id);
+
+    foreach (var attendance in attendances)
+    {
+        attendance.Late = null;
+        attendance.EarlyEnter = null;
+        attendance.Overtime = null;
+        attendance.EarlyLeave = null;
+        attendance.TotalWorkHours = null;
+
+        if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue)
+        {
+            var shift = shifts.GetValueOrDefault(attendance.ShiftId ?? 0);
+            if (shift != null)
+            {
+                CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value,
+                    shift, DateOnly.FromDateTime(attendance.AttendanceDate));
+            }
+        }
+    }
+
+    await db.SaveChangesAsync();
+}
+
+/// <summary>
+/// ✅ حساب التأخير والإضافي من بيانات الـ Attendance
+/// </summary>
+/// <summary>
+/// ✅ حساب التأخير والإضافي بشكل صحيح مع دعم كل أنواع الشيفتات
+/// </summary>
+private void CalculateTimesFromAttendance(Attendance attendance, DateTime checkIn, DateTime checkOut, Shift shift)
+{
+    // ═══ ✅ 1. تحديد "يوم الشيفت" الصحيح ═══
+    // ✅ نستخدم وقت الحضور كمرجع أساسي لتحديد يوم الشيفت
+    var checkInTime = checkIn.TimeOfDay;
+    var checkOutTime = checkOut.TimeOfDay;
+
+    // ═══ ✅ 2. حساب بداية ونهاية الشيفت كـ TimeSpan ═══
+    var shiftStart = shift.StartTime;
+    var shiftEnd = shift.EndTime;
+
+    // ═══ ✅ 3. حساب التأخير والإضافي باستخدام Circular Distance ═══
+    
+    // ✅ التأخير: كم اتأخر عن بداية الشيفت
+    var lateMinutes = CalculateLate(checkInTime, shiftStart);
+    if (lateMinutes > 0 && lateMinutes <= 12 * 60) // ✅ أقصى تأخير 12 ساعة
+    {
+        attendance.Late = TimeSpan.FromMinutes(lateMinutes);
+    }
+    else if (lateMinutes > 0)
+    {
+        // ✅ لو "التأخير" أكتر من 12 ساعة، ده معناه إن البصمة قريبة من نهاية الشيفت
+        // ✅ يعني ممكن تكون انصراف مش حضور - لكن المعالجة المفروض تكون حددت صح
+        attendance.Late = null;
+    }
+
+    // ✅ الحضور المبكر: كم جه بدري عن بداية الشيفت
+    var earlyEnterMinutes = CalculateEarlyEnter(checkInTime, shiftStart);
+    if (earlyEnterMinutes > 0 && earlyEnterMinutes <= 12 * 60)
+    {
+        attendance.EarlyEnter = TimeSpan.FromMinutes(earlyEnterMinutes);
+    }
+
+    // ✅ الانصراف المبكر: كم انصرف بدري عن نهاية الشيفت
+    var earlyLeaveMinutes = CalculateEarlyLeave(checkOutTime, shiftEnd);
+    if (earlyLeaveMinutes > 0 && earlyLeaveMinutes <= 12 * 60)
+    {
+        attendance.EarlyLeave = TimeSpan.FromMinutes(earlyLeaveMinutes);
+    }
+
+    // ✅ الإضافي: كم اشتغل زيادة عن نهاية الشيفت
+    var overtimeMinutes = CalculateOvertime(checkOutTime, shiftEnd);
+    if (overtimeMinutes > 0 && overtimeMinutes <= 12 * 60) // ✅ أقصى إضافي 12 ساعة
+    {
+        attendance.Overtime = TimeSpan.FromMinutes(overtimeMinutes);
+    }
+
+    // ═══ ✅ 4. حساب ساعات العمل الفعلية ═══
+    var workMinutes = CalculateWorkMinutes(checkIn, checkOut);
+    if (workMinutes > 0 && workMinutes <= 24 * 60)
+    {
+        attendance.TotalWorkHours = TimeSpan.FromMinutes(workMinutes);
+    }
+}
+
+/// <summary>
+/// ✅ حساب التأخير بالدقائق
+/// لو الحضور بعد بداية الشيفت => تأخير
+/// </summary>
+private int CalculateLate(TimeSpan checkIn, TimeSpan shiftStart)
+{
+    // ✅ الفرق المباشر
+    var diff = (checkIn - shiftStart).TotalMinutes;
+    
+    // ✅ لو الفرق موجب => اتأخر
+    if (diff > 0 && diff <= 12 * 60) // ✅ أقصى 12 ساعة
+        return (int)diff;
+    
+    // ✅ لو الفرق سالب => جه بدري (مش تأخير)
+    return 0;
+}
+
+/// <summary>
+/// ✅ حساب الحضور المبكر بالدقائق
+/// لو الحضور قبل بداية الشيفت => حضور مبكر
+/// </summary>
+private int CalculateEarlyEnter(TimeSpan checkIn, TimeSpan shiftStart)
+{
+    var diff = (shiftStart - checkIn).TotalMinutes;
+    
+    if (diff > 0 && diff <= 12 * 60)
+        return (int)diff;
+    
+    return 0;
+}
+
+/// <summary>
+/// ✅ حساب الانصراف المبكر بالدقائق
+/// لو الانصراف قبل نهاية الشيفت => انصراف مبكر
+/// </summary>
+private int CalculateEarlyLeave(TimeSpan checkOut, TimeSpan shiftEnd)
+{
+    var diff = (shiftEnd - checkOut).TotalMinutes;
+    
+    if (diff > 0 && diff <= 12 * 60)
+        return (int)diff;
+    
+    return 0;
+}
+
+/// <summary>
+/// ✅ حساب الإضافي بالدقائق
+/// لو الانصراف بعد نهاية الشيفت => إضافي
+/// </summary>
+private int CalculateOvertime(TimeSpan checkOut, TimeSpan shiftEnd)
+{
+    var diff = (checkOut - shiftEnd).TotalMinutes;
+    
+    if (diff > 0 && diff <= 12 * 60)
+        return (int)diff;
+    
+    return 0;
+}
+
+/// <summary>
+/// ✅ حساب ساعات العمل الفعلية
+/// </summary>
+private int CalculateWorkMinutes(DateTime checkIn, DateTime checkOut)
+{
+    var diff = (checkOut - checkIn).TotalMinutes;
+    
+    if (diff < 0) // ✅ لو الانصراف قبل الحضور (غالباً خطأ)
+        diff += 24 * 60; // ✅ نضيف 24 ساعة
+    
+    if (diff > 0 && diff <= 24 * 60)
+        return (int)diff;
+    
+    return 0;
+}
 
         /// <summary>
         /// إزالة البصمات المكررة (اللي بينها أقل من 30 ثانية)
@@ -590,7 +950,7 @@ namespace Sho2on.Web.Services
             FillMissingPunch(attendance, date, shift);
 
             if (attendance.CheckInTime.HasValue && attendance.CheckOutTime.HasValue)
-                CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value, shift);
+                CalculateTimes(attendance, attendance.CheckInTime.Value, attendance.CheckOutTime.Value, shift, date);
             else
                 attendance.IsAbsence = !attendance.IsHoliday;
 
@@ -614,45 +974,10 @@ namespace Sho2on.Web.Services
             att.CheckOutTime = isCheckOut ? scanTime : null;
 
             if (att.CheckInTime.HasValue && att.CheckOutTime.HasValue)
-                CalculateTimes(att, att.CheckInTime.Value, att.CheckOutTime.Value, shift);
+                CalculateTimes(att, att.CheckInTime.Value, att.CheckOutTime.Value, shift,
+                    DateOnly.FromDateTime(att.AttendanceDate));
 
             await _db.SaveChangesAsync();
-        }
-
-        private void CalculateTimes(Attendance attendance, DateTime checkIn, DateTime checkOut, Shift shift)
-        {
-            // نبني الميعاد المتوقع الكامل (تاريخ + وقت) بناءً على تاريخ الحضور الفعلي
-            var shiftDate = checkIn.Date;
-            var expectedStart = shiftDate.Add(shift.StartTime);
-
-            // لو الوردية عابرة لمنتصف الليل أصلاً، نهايتها المتوقعة في اليوم التالي
-            var expectedEnd = shift.EndTime < shift.StartTime
-                ? shiftDate.AddDays(1).Add(shift.EndTime)
-                : shiftDate.Add(shift.EndTime);
-
-            // ═══ حساب التأخير / الحضور المبكر ═══
-            if (checkIn > expectedStart)
-                attendance.Late = checkIn - expectedStart;
-            else if (checkIn < expectedStart)
-                attendance.EarlyEnter = expectedStart - checkIn;
-
-            // ═══ حساب الانصراف المبكر / الإضافي ═══
-            // المقارنة بقت بالـ DateTime الكامل، فلو الانصراف حصل بعد منتصف الليل
-            // (سواء وردية عابرة أصلاً أو حالة استثنائية) هيتحسب صح كإضافي
-            if (checkOut > expectedEnd)
-                attendance.Overtime = checkOut - expectedEnd;
-            else if (checkOut < expectedEnd)
-                attendance.EarlyLeave = expectedEnd - checkOut;
-
-            // ═══ إجمالي ساعات العمل ═══
-            attendance.TotalWorkHours = checkOut - checkIn;
-        }
-
-        private TimeSpan CircularDistance(TimeSpan a, TimeSpan b)
-        {
-            var diff = (a - b).Duration();
-            var wrap = TimeSpan.FromHours(24) - diff;
-            return diff < wrap ? diff : wrap;
         }
 
         private bool[] GetWeekHolidayFlags(WeekHoliday? wh)
@@ -766,30 +1091,7 @@ namespace Sho2on.Web.Services
             return (settings?.StartOfMonth ?? 26, settings?.EndOfMonth ?? 25);
         }
 
-        /// <summary>
-        /// تحديد "يوم الوردية المنطقي" للبصمة بدل اليوم التقويمي، عشان الورديات العابرة لمنتصف الليل
-        /// (مثلاً: حضور 8 صباحاً وانصراف 1 صباحاً اليوم التالي) تتحسب على نفس يوم العمل
-        /// </summary>
-        private DateOnly GetShiftLogicalDay(DateTime scanTime, Shift shift)
-        {
-            // وردية عادية (مش عابرة لمنتصف الليل) => نفس اليوم التقويمي
-            if (shift.EndTime >= shift.StartTime)
-                return DateOnly.FromDateTime(scanTime);
-
-            var timeOfDay = scanTime.TimeOfDay;
-
-            // البصمة وقعت في نطاق بداية الوردية أو بعده (مثلاً 8 صباحاً وبعدين) => نفس اليوم
-            if (timeOfDay >= shift.StartTime)
-                return DateOnly.FromDateTime(scanTime);
-
-            // البصمة وقعت في الفترة الصباحية اللي بعد منتصف الليل وقبل نهاية الوردية (مثلاً 1 صباحاً)
-            // => دي فعلياً امتداد ليوم العمل اللي قبلها
-            if (timeOfDay <= shift.EndTime)
-                return DateOnly.FromDateTime(scanTime).AddDays(-1);
-
-            // خارج نطاق الوردية تماماً (نادر) => سيبها على يومها التقويمي
-            return DateOnly.FromDateTime(scanTime);
-        }
+       
 
         /// <summary>
         /// يرجّع كل تواريخ العطلات الرسمية (موسّعة من Date لحد EndDate) في نطاق زمني معين، كـ HashSet للبحث السريع
@@ -814,58 +1116,127 @@ namespace Sho2on.Web.Services
             return dates;
         }
 
-        /// <summary>
-        /// تجميع البصمات حسب "يوم العمل الفعلي" مش اليوم التقويمي.
-        /// حالة 1: وردية معرّفة أصلاً كعابرة لمنتصف الليل (EndTime < StartTime)
-        /// حالة 2: وردية صباحية عادية لكن في يوم معين الموظف انصرف بعد منتصف الليل (استثناء)
-        /// </summary>
         private Dictionary<DateOnly, List<FingerPrint>> GroupScansByWorkDay(List<FingerPrint> scans, Shift shift)
+{
+    var sorted = scans.OrderBy(f => f.FingerPrintDate).ToList();
+    bool shiftCrossesMidnight = shift.EndTime < shift.StartTime;
+
+    Dictionary<DateOnly, List<FingerPrint>> byDay;
+
+    // ═══ ✅ حالة: شيفت بيبدأ منتصف الليل (12:00 AM) ═══
+    bool startsAtMidnight = shift.StartTime == TimeSpan.Zero;
+
+    if (shiftCrossesMidnight || startsAtMidnight)
+    {
+        // ✅ التجميع حسب "اليوم المنطقي" للشيفت
+        byDay = sorted.GroupBy(f => GetShiftLogicalDay(f.FingerPrintDate, shift))
+                      .ToDictionary(g => g.Key, g => g.OrderBy(f => f.FingerPrintDate).ToList());
+        return byDay;
+    }
+
+    // ═══ وردية عادية (مش منتصف الليل) ═══
+    byDay = sorted.GroupBy(f => DateOnly.FromDateTime(f.FingerPrintDate))
+                  .ToDictionary(g => g.Key, g => g.OrderBy(f => f.FingerPrintDate).ToList());
+
+    // نافذة الحضور المبكر
+    var shiftDuration = shift.EndTime - shift.StartTime;
+    if (shiftDuration < TimeSpan.Zero)
+        shiftDuration += TimeSpan.FromHours(24);
+
+    var earlyArrivalWindow = TimeSpan.FromHours(Math.Min(shiftDuration.TotalHours / 2, 4));
+
+    foreach (var day in byDay.Keys.OrderBy(d => d).ToList())
+    {
+        if (!byDay.TryGetValue(day, out var dayScans) || dayScans.Count == 0) continue;
+
+        var firstScan = dayScans.First();
+        var scanTime = firstScan.FingerPrintDate.TimeOfDay;
+
+        bool isEarlyArrival = IsEarlyArrivalForToday(scanTime, shift.StartTime, earlyArrivalWindow);
+        if (isEarlyArrival) continue;
+
+        bool isLateCheckout = IsLateCheckoutFromPreviousDay(scanTime);
+        if (!isLateCheckout) continue;
+
+        var prevDay = day.AddDays(-1);
+        if (!byDay.TryGetValue(prevDay, out var prevDayScans) || prevDayScans.Count == 0) continue;
+        if (prevDayScans.Count % 2 != 1) continue;
+
+        dayScans.Remove(firstScan);
+        prevDayScans.Add(firstScan);
+
+        if (dayScans.Count == 0)
+            byDay.Remove(day);
+    }
+
+    return byDay;
+}
+
+/// <summary>
+/// ✅ تحديد "اليوم المنطقي" للبصمة مع دعم شيفت منتصف الليل
+/// </summary>
+private DateOnly GetShiftLogicalDay(DateTime scanTime, Shift shift)
+{
+    // ✅ شيفت من 12 AM لـ 12 PM
+    if (shift.StartTime == TimeSpan.Zero)
+    {
+        var timeOfDay = scanTime.TimeOfDay;
+
+        // ✅ لو البصمة مساءً (6 PM - 11:59 PM) => دي حضور مبكر لليوم التالي
+        // ✅ لأن الموظف جاي بدري قبل شيفته اللي بيبدأ 12 AM
+        if (timeOfDay >= TimeSpan.FromHours(18))
         {
-            var sorted = scans.OrderBy(f => f.FingerPrintDate).ToList();
-            bool shiftCrossesMidnight = shift.EndTime < shift.StartTime;
+            return DateOnly.FromDateTime(scanTime).AddDays(1);
+        }
 
-            Dictionary<DateOnly, List<FingerPrint>> byDay;
+        // ✅ لو البصمة من 12 AM لـ 6 PM => نفس اليوم التقويمي
+        return DateOnly.FromDateTime(scanTime);
+    }
 
-            if (shiftCrossesMidnight)
-            {
-                // الوردية أصلاً عابرة لمنتصف الليل (اتعالجت في الرد اللي فات)
-                byDay = sorted.GroupBy(f => GetShiftLogicalDay(f.FingerPrintDate, shift))
-                              .ToDictionary(g => g.Key, g => g.OrderBy(f => f.FingerPrintDate).ToList());
-                return byDay;
-            }
+    // ✅ شيفت عابر لمنتصف الليل (مثلاً 10 PM - 6 AM)
+    if (shift.EndTime < shift.StartTime)
+    {
+        var timeOfDay = scanTime.TimeOfDay;
 
-            // ═══ وردية عادية: تجميع مبدئي حسب اليوم التقويمي ═══
-            byDay = sorted.GroupBy(f => DateOnly.FromDateTime(f.FingerPrintDate))
-                          .ToDictionary(g => g.Key, g => g.OrderBy(f => f.FingerPrintDate).ToList());
+        // ✅ البصمة بعد بداية الشيفت (10 PM أو بعدين) => نفس اليوم
+        if (timeOfDay >= shift.StartTime)
+            return DateOnly.FromDateTime(scanTime);
 
-            // سقف زمني: أي بصمة قبل الساعة دي بفترة كافية من بداية الوردية تعتبر مرشحة "انصراف متأخر"
-            // مثلاً وردية تبدأ 8 الصبح => أي بصمة قبل الساعة 6 الصبح تعتبر مشكوك فيها (مش حضور طبيعي)
-            var earlyMorningCutoff = shift.StartTime.Subtract(TimeSpan.FromHours(2));
-            if (earlyMorningCutoff < TimeSpan.Zero) earlyMorningCutoff = TimeSpan.FromHours(4); // حماية لو الوردية بتبدأ بدري جداً
+        // ✅ البصمة قبل نهاية الشيفت (6 AM أو قبله) => اليوم السابق
+        if (timeOfDay <= shift.EndTime)
+            return DateOnly.FromDateTime(scanTime).AddDays(-1);
 
-            foreach (var day in byDay.Keys.OrderBy(d => d).ToList())
-            {
-                if (!byDay.TryGetValue(day, out var dayScans) || dayScans.Count == 0) continue;
+        // ✅ خارج نطاق الشيفت
+        return DateOnly.FromDateTime(scanTime);
+    }
 
-                var firstScan = dayScans.First();
-                bool isSuspiciousLateCheckout = firstScan.FingerPrintDate.TimeOfDay < earlyMorningCutoff;
-                if (!isSuspiciousLateCheckout) continue;
+    // ✅ شيفت عادي (مثلاً 8 AM - 4 PM)
+    return DateOnly.FromDateTime(scanTime);
+}
 
-                var prevDay = day.AddDays(-1);
-                if (!byDay.TryGetValue(prevDay, out var prevDayScans) || prevDayScans.Count == 0) continue;
+    private bool IsEarlyArrivalForToday(TimeSpan scanTime, TimeSpan shiftStart, TimeSpan earlyArrivalWindow)
+    {
+        // ✅ لو البصمة قبل الشيفت في نفس اليوم
+        if (scanTime <= shiftStart)
+        {
+            var diff = shiftStart - scanTime;
+            return diff <= earlyArrivalWindow;
+        }
+        
+        // ✅ لو الشيفت بيبدأ بدري (مثلاً 1 صباحاً) والبصمة في آخر اليوم السابق (11 مساءً)
+        // ✅ نحسب الفرق من ناحية تانية
+        var diffFromPreviousDay = (scanTime + TimeSpan.FromHours(24)) - shiftStart;
+        return diffFromPreviousDay <= earlyArrivalWindow;
+    }
 
-                // اليوم السابق لازم يكون فيه عدد فردي من البصمات (بصمة حضور من غير انصراف يقابلها)
-                if (prevDayScans.Count % 2 != 1) continue;
-
-                // ننقل البصمة عشان تُحسب كانصراف اليوم السابق
-                dayScans.Remove(firstScan);
-                prevDayScans.Add(firstScan);
-
-                if (dayScans.Count == 0)
-                    byDay.Remove(day);
-            }
-
-            return byDay;
+        /// <summary>
+        /// ✅ التحقق: هل البصمة "انصراف متأخر" من اليوم السابق؟
+        /// البصمة تكون في الفترة الصباحية المبكرة (بعد منتصف الليل)
+        /// </summary>
+        private bool IsLateCheckoutFromPreviousDay(TimeSpan scanTime)
+        {
+            // ✅ لو البصمة بين 12:00 AM و 6:00 AM => انصراف متأخر
+            return scanTime >= TimeSpan.Zero && scanTime < TimeSpan.FromHours(6);
         }
     }
 }

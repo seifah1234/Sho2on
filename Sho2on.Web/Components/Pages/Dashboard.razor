@@ -12,41 +12,253 @@
 @inject DashboardService DashboardSvc
 @inject AnnouncementService AnnouncementSvc
 @inject LocalizationService Lang
+@inject CurrentUserService CurrentUserSvc
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @implements IDisposable
 
 <div class="dashboard">
-
-    @if (!isManagement)
+    @if (userRole == "Employee")
     {
-        <div class="stat-grid">
-            <div class="stat-card accent">
-                <span class="stat-label">@Lang.T("رصيد إجازاتك")</span>
-                <span class="stat-value">@personalStats?.LeaveBalance</span>
+        @* ══ Employee Dashboard ══ *@
+        <div class="employee-dashboard">
+            <!-- Welcome Header -->
+            <div class="welcome-card">
+                <div class="welcome-info">
+                    <h2>@Lang.T("مرحباً")، @personalStats?.UserName 👋</h2>
+                    <p>@personalStats?.UserJob - @personalStats?.UserDepartment</p>
+                </div>
+                <div class="welcome-date">
+                    <i class="bi bi-calendar3"></i>
+                    @DateTime.Now.ToString("dd MMMM yyyy")
+                </div>
             </div>
-            <div class="stat-card">
-                <span class="stat-label">@Lang.T("الوظيفة")</span>
-                <span class="stat-value small">@personalStats?.UserJob</span>
+
+            <!-- Personal Stats -->
+            <div class="personal-stats">
+                <div class="personal-stat-card accent">
+                    <i class="bi bi-calendar-check"></i>
+                    <div>
+                        <span>@Lang.T("رصيد الإجازات")</span>
+                        <strong>@personalStats?.LeaveBalance @Lang.T("يوم")</strong>
+                    </div>
+                </div>
+                <div class="personal-stat-card">
+                    <i class="bi bi-briefcase"></i>
+                    <div>
+                        <span>@Lang.T("الوظيفة")</span>
+                        <strong>@personalStats?.UserJob</strong>
+                    </div>
+                </div>
+                <div class="personal-stat-card">
+                    <i class="bi bi-building"></i>
+                    <div>
+                        <span>@Lang.T("الإدارة")</span>
+                        <strong>@personalStats?.UserDepartment</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions for Employee -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="bi bi-lightning-charge"></i>
+                    <h3>@Lang.T("إجراءات سريعة")</h3>
+                </div>
+                <div class="quick-actions">
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/leaves/request")'><span>@Lang.T("طلب إجازة")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/loans/request")'><span>@Lang.T("طلب سلفة")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/permissions/request")'><span>@Lang.T("طلب إذن")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/employee-report")'><span>@Lang.T("تقرير الحضور")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/profile")'><span>@Lang.T("ملفي الشخصي")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/chat")'><span>@Lang.T("المحادثات")</span></button>
+                </div>
+            </div>
+
+            <!-- Announcements for Employee -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="bi bi-megaphone"></i>
+                    <h3>@Lang.T("الإعلانات")</h3>
+                    <a href="/announcements" class="view-all-link">@Lang.T("عرض الكل") <i class="bi bi-arrow-left"></i></a>
+                </div>
+                <div class="announcements-list">
+                    @if (announcements != null && announcements.Count > 0)
+                    {
+                        @foreach (var announcement in announcements.Take(3))
+                        {
+                            <div class="announcement-item">
+                                <div class="announcement-icon" style="background-color: @announcement.AnnouncementType?.Color">
+                                    <i class="bi bi-megaphone"></i>
+                                </div>
+                                <div class="announcement-info">
+                                    <div class="announcement-top">
+                                        <span class="announcement-type" style="color: @announcement.AnnouncementType?.Color">
+                                            @announcement.AnnouncementType?.Name
+                                        </span>
+                                        <span class="announcement-date">@announcement.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <h4 class="announcement-title">@announcement.Title</h4>
+                                    <p class="announcement-description">@announcement.Description</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-announcements">
+                            <i class="bi bi-megaphone"></i>
+                            <p>@Lang.T("لا توجد إعلانات حالياً")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else if (userRole == "Manager")
+    {
+        @* ══ Manager Dashboard ══ *@
+        <div class="manager-dashboard">
+            <!-- Welcome Header -->
+            <div class="welcome-card manager">
+                <div class="welcome-info">
+                    <h2>@Lang.T("لوحة المدير")</h2>
+                    <p>@personalStats?.UserName - @personalStats?.UserDepartment</p>
+                </div>
+                <div class="welcome-date">
+                    <i class="bi bi-calendar3"></i>
+                    @DateTime.Now.ToString("dd MMMM yyyy")
+                </div>
+            </div>
+
+            <!-- Manager Stats -->
+            <div class="manager-stats-grid">
+                <div class="manager-stat-card">
+                    <i class="bi bi-people"></i>
+                    <div>
+                        <span>@Lang.T("فريقي")</span>
+                        <strong>@teamStats?.TotalEmployees</strong>
+                    </div>
+                </div>
+                <div class="manager-stat-card success">
+                    <i class="bi bi-check-circle"></i>
+                    <div>
+                        <span>@Lang.T("حاضرون اليوم")</span>
+                        <strong>@teamStats?.PresentToday</strong>
+                    </div>
+                </div>
+                <div class="manager-stat-card warning">
+                    <i class="bi bi-clock-history"></i>
+                    <div>
+                        <span>@Lang.T("طلبات معلقة")</span>
+                        <strong>@teamStats?.PendingApprovals</strong>
+                    </div>
+                </div>
+                <div class="manager-stat-card danger">
+                    <i class="bi bi-person-x"></i>
+                    <div>
+                        <span>@Lang.T("غياب اليوم")</span>
+                        <strong>@teamStats?.AbsentToday</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manager Quick Actions -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="bi bi-lightning-charge"></i>
+                    <h3>@Lang.T("إجراءات سريعة")</h3>
+                </div>
+                <div class="quick-actions">
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/leaves/approve")'><span>@Lang.T("اعتماد الإجازات")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/loans/approve")'><span>@Lang.T("اعتماد السلف")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/permissions/approve")'><span>@Lang.T("اعتماد الأذونات")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/team/reports")'><span>@Lang.T("تقارير الفريق")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/team")'><span>@Lang.T("حضور الفريق")</span></button>
+                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/employees")'><span>@Lang.T("الموظفين")</span></button>
+                </div>
+            </div>
+
+            <!-- Team Attendance Today -->
+            @if (todayCheckIns != null && todayCheckIns.Count > 0)
+            {
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="bi bi-person-check"></i>
+                        <h3>@Lang.T("حضور الفريق اليوم")</h3>
+                        <span class="count-badge">@todayCheckIns.Count</span>
+                    </div>
+                    <div class="team-attendance-list">
+                        @foreach (var checkIn in todayCheckIns.Take(5))
+                        {
+                            <div class="attendance-row">
+                                <div class="attendance-avatar">@checkIn.EmployeeName[0]</div>
+                                <div class="attendance-info">
+                                    <strong>@checkIn.EmployeeName</strong>
+                                    <span>@checkIn.DepartmentName</span>
+                                </div>
+                                <div class="attendance-time @(checkIn.IsLate ? "late" : "on-time")">
+                                    <i class="bi @(checkIn.IsLate ? "bi-clock-history" : "bi-check-circle")"></i>
+                                    @checkIn.CheckInTime?.ToString("HH:mm")
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Announcements -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="bi bi-megaphone"></i>
+                    <h3>@Lang.T("الإعلانات")</h3>
+                    <a href="/announcements" class="view-all-link">@Lang.T("عرض الكل") <i class="bi bi-arrow-left"></i></a>
+                </div>
+                <div class="announcements-list">
+                    @if (announcements != null && announcements.Count > 0)
+                    {
+                        @foreach (var announcement in announcements.Take(3))
+                        {
+                            <div class="announcement-item">
+                                <div class="announcement-icon" style="background-color: @announcement.AnnouncementType?.Color">
+                                    <i class="bi bi-megaphone"></i>
+                                </div>
+                                <div class="announcement-info">
+                                    <div class="announcement-top">
+                                        <span class="announcement-type" style="color: @announcement.AnnouncementType?.Color">
+                                            @announcement.AnnouncementType?.Name
+                                        </span>
+                                        <span class="announcement-date">@announcement.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <h4 class="announcement-title">@announcement.Title</h4>
+                                    <p class="announcement-description">@announcement.Description</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-announcements">
+                            <i class="bi bi-megaphone"></i>
+                            <p>@Lang.T("لا توجد إعلانات حالياً")</p>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     }
     else
     {
+        @* ══ Admin Dashboard ══ *@
         @if (tree != null)
         {
-            <!-- ══ الشجرة الهرمية - تصميم WPF ══ -->
+            <!-- Organization Tree -->
             <div class="org-tree">
-                <!-- Root Card -->
                 <div class="root-card">
                     <div class="root-header">
-                        <div class="root-icon">
-                            <i class="bi bi-building"></i>
-                        </div>
-                        <div class="root-info">
-                            <h2>@tree.Name</h2>
-                        </div>
+                        <div class="root-icon"><i class="bi bi-building"></i></div>
+                        <div class="root-info"><h2>@tree.Name</h2></div>
                     </div>
                     <div class="root-stats">
                         <div class="root-stat">
@@ -75,28 +287,21 @@
                     </div>
                 </div>
 
-                <!-- Level 1 Cards (Sectors) -->
                 <div class="sectors-grid">
                     @foreach (var sector in tree.Children)
                     {
                         <div class="sector-card @(sector.IsExpanded ? "expanded" : "")">
                             <div class="sector-header" @onclick="() => ToggleSector(sector)">
-                                <div class="sector-icon">
-                                    <i class="bi bi-pie-chart"></i>
-                                </div>
+                                <div class="sector-icon"><i class="bi bi-pie-chart"></i></div>
                                 <div class="sector-info">
                                     <h4>@sector.Name</h4>
                                     <span>@sector.Type</span>
                                 </div>
                                 <div class="sector-stats">
-                                    <span class="stat-badge employees">
-                                        <i class="bi bi-people"></i> @sector.TotalEmployees
-                                    </span>
+                                    <span class="stat-badge employees"><i class="bi bi-people"></i> @sector.TotalEmployees</span>
                                     @if (sector.TotalChildren > 0)
                                     {
-                                        <span class="stat-badge branches">
-                                            <i class="bi bi-geo-alt"></i> @sector.TotalChildren @sector.ChildrenType
-                                        </span>
+                                        <span class="stat-badge branches"><i class="bi bi-geo-alt"></i> @sector.TotalChildren @sector.ChildrenType</span>
                                     }
                                 </div>
                                 <i class="bi bi-chevron-down expand-icon"></i>
@@ -107,22 +312,16 @@
                                 {
                                     <div class="branch-card @(branch.IsExpanded ? "expanded" : "")">
                                         <div class="branch-header" @onclick="() => ToggleBranch(branch)">
-                                            <div class="branch-icon">
-                                                <i class="bi bi-geo-alt"></i>
-                                            </div>
+                                            <div class="branch-icon"><i class="bi bi-geo-alt"></i></div>
                                             <div class="branch-info">
                                                 <h5>@branch.Name</h5>
                                                 <span>@branch.Type</span>
                                             </div>
                                             <div class="branch-stats">
-                                                <span class="stat-badge employees">
-                                                    <i class="bi bi-people"></i> @branch.TotalEmployees
-                                                </span>
+                                                <span class="stat-badge employees"><i class="bi bi-people"></i> @branch.TotalEmployees</span>
                                                 @if (branch.TotalChildren > 0)
                                                 {
-                                                    <span class="stat-badge depts">
-                                                        <i class="bi bi-building"></i> @branch.TotalChildren @branch.ChildrenType
-                                                    </span>
+                                                    <span class="stat-badge depts"><i class="bi bi-building"></i> @branch.TotalChildren @branch.ChildrenType</span>
                                                 }
                                             </div>
                                             <i class="bi bi-chevron-down expand-icon"></i>
@@ -132,16 +331,12 @@
                                             @foreach (var dept in branch.Children)
                                             {
                                                 <div class="dept-item">
-                                                    <div class="dept-icon">
-                                                        <i class="bi bi-building"></i>
-                                                    </div>
+                                                    <div class="dept-icon"><i class="bi bi-building"></i></div>
                                                     <div class="dept-info">
                                                         <span>@dept.Name</span>
                                                         <small>@dept.Type</small>
                                                     </div>
-                                                    <div class="dept-employees">
-                                                        <i class="bi bi-people"></i> @dept.TotalEmployees
-                                                    </div>
+                                                    <div class="dept-employees"><i class="bi bi-people"></i> @dept.TotalEmployees</div>
                                                 </div>
                                             }
                                         </div>
@@ -154,20 +349,32 @@
             </div>
         }
 
-        <!-- ══ إجراءات سريعة + تنبيهات ══ -->
+        <!-- Alerts + Announcements -->
         <div class="two-col">
             <div class="panel">
                 <div class="panel-header">
-                    <i class="bi bi-lightning-charge"></i>
-                    <h3>@Lang.T("إجراءات سريعة")</h3>
+                    <i class="bi bi-bell"></i>
+                    <h3>@Lang.T("التنبيهات")</h3>
+                    @if (alerts != null && alerts.Count > 0)
+                    {
+                        <span class="count-badge danger">@alerts.Count</span>
+                    }
                 </div>
-                <div class="quick-actions">
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries")'><span>@Lang.T("تقرير المرتبات")</span></button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/employees")'><span>@Lang.T("إدارة الموظفين")</span></button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/attendance/monthly")'><span>@Lang.T("الحضور الشهري")</span></button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/salaries/pay")'><span>@Lang.T("صرف المرتبات")</span></button>
-                    <button class="qa-btn" @onclick='() => Nav.NavigateTo("/leaves")'><span>@Lang.T("الأذونات")</span></button>
-                    <button class="qa-btn"><span>@Lang.T("نسخة احتياطية")</span></button>
+                <div class="alerts-list">
+                    @if (alerts != null && alerts.Count > 0)
+                    {
+                        @foreach (var alert in alerts)
+                        {
+                            <div class="alert-item">
+                                <i class="bi @alert.Icon"></i>
+                                <span>@alert.Message</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="muted">@Lang.T("لا توجد تنبيهات")</p>
+                    }
                 </div>
             </div>
 
@@ -175,41 +382,26 @@
                 <div class="panel-header">
                     <i class="bi bi-megaphone"></i>
                     <h3>@Lang.T("الإعلانات")</h3>
-                    <a href="/announcements" class="view-all-link">
-                        @Lang.T("عرض الكل") <i class="bi bi-arrow-left"></i>
-                    </a>
+                    <a href="/announcements" class="view-all-link">@Lang.T("عرض الكل") <i class="bi bi-arrow-left"></i></a>
                 </div>
                 <div class="announcements-list">
                     @if (announcements != null && announcements.Count > 0)
                     {
                         @foreach (var announcement in announcements.Take(3))
                         {
-                            <div class="announcement-item @(announcement.IsDeleted ? "deleted" : "")">
-                                <div class="announcement-icon" style="background-color: @announcement.AnnouncementType.Color">
-                                    <i class="bi @GetTypeIcon(announcement.AnnouncementTypeId)"></i>
+                            <div class="announcement-item">
+                                <div class="announcement-icon" style="background-color: @announcement.AnnouncementType?.Color">
+                                    <i class="bi bi-megaphone"></i>
                                 </div>
                                 <div class="announcement-info">
                                     <div class="announcement-top">
-                                        <div>
-                                            <h4 class="announcement-title">@announcement.Title</h4>
-                                            <p class="announcement-description">@announcement.Description</p>
-
-                                        </div>
-                                        <div>
-
-                                            <span class="announcement-type" style="color: @announcement.AnnouncementType.Color">
-                                                @announcement.AnnouncementType.Name
-                                            </span>
-                                            @if (announcement.ExpireDate.HasValue)
-                                            {
-                                                <span class="announcement-date">
-                                                    @Lang.T("تاريخ الانتهاء") 
-                                                    @announcement.ExpireDate.Value.ToString("dd/MM/yyyy")
-                                                    <i class="bi bi-calendar3"></i>
-                                                </span>
-                                            }
-                                        </div>
+                                        <span class="announcement-type" style="color: @announcement.AnnouncementType?.Color">
+                                            @announcement.AnnouncementType?.Name
+                                        </span>
+                                        <span class="announcement-date">@announcement.CreatedAt.ToString("dd/MM/yyyy")</span>
                                     </div>
+                                    <h4 class="announcement-title">@announcement.Title</h4>
+                                    <p class="announcement-description">@announcement.Description</p>
                                 </div>
                             </div>
                         }
@@ -225,91 +417,78 @@
             </div>
         </div>
 
-        <!-- ══ الرسوم البيانية ══ -->
+        <!-- Charts -->
         <div class="charts-grid">
             <div class="panel chart-panel">
                 <div class="panel-header"><i class="bi bi-gender-ambiguous"></i><h3>@Lang.T("توزيع النوع")</h3></div>
-                <div class="chart-container">
-                    <canvas id="genderChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="genderChart"></canvas></div>
             </div>
             <div class="panel chart-panel">
                 <div class="panel-header"><i class="bi bi-diagram-2"></i><h3>@Lang.T("موظفين حسب الإدارة")</h3></div>
-                <div class="chart-container">
-                    <canvas id="deptChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="deptChart"></canvas></div>
             </div>
             <div class="panel chart-panel">
                 <div class="panel-header"><i class="bi bi-building"></i><h3>@Lang.T("موظفين حسب الفرع")</h3></div>
-                <div class="chart-container">
-                    <canvas id="branchChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="branchChart"></canvas></div>
             </div>
             <div class="panel chart-panel">
                 <div class="panel-header"><i class="bi bi-building-check"></i><h3>@Lang.T("موظفين حسب القطاع")</h3></div>
-                <div class="chart-container">
-                    <canvas id="sectorChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="sectorChart"></canvas></div>
             </div>
         </div>
     }
 </div>
 
 @code {
-    bool isManagement;
+    string userRole = "Employee";
     Sho2on.Web.Models.DashboardTreeNode? tree;
     List<Announcement>? announcements;
-    List<AnnouncementType>? announcementTypes;
+    List<DashboardAlert>? alerts;
     DashboardChartsData? charts;
     Sho2on.Web.Models.DashboardStats? personalStats;
+    ManagerDashboardStats? teamStats;
+    List<TeamCheckInItem>? todayCheckIns;
 
-    protected override void OnInitialized()
-    {
-        Lang.OnChange += StateHasChanged;
-    }
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        isManagement = user.IsInRole(RoleNames.Admin);
+        var userId = int.Parse(user.FindFirst("UserId")?.Value ?? "0");
+        var currentUser = await CurrentUserSvc.GetCurrentUserAsync();
 
-        if (isManagement)
+        if (user.IsInRole(RoleNames.Admin))
         {
+            userRole = "Admin";
             tree = await DashboardSvc.GetCompanyTreeAsync();
             announcements = await AnnouncementSvc.GetAnnouncementsAsync();
-            announcementTypes = await AnnouncementSvc.GetAnnouncementTypesAsync();
+            alerts = await DashboardSvc.GetAlertsAsync();
             charts = await DashboardSvc.GetChartsDataAsync();
+        }
+        else if (user.IsInRole(RoleNames.Manager) || currentUser?.JobTitle?.IsManager == true)
+        {
+            userRole = "Manager";
+            personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
+            teamStats = await DashboardSvc.GetManagerDashboardStatsAsync(userId);
+            todayCheckIns = await DashboardSvc.GetTeamCheckInsAsync(userId);
+            announcements = await AnnouncementSvc.GetAnnouncementsAsync();
         }
         else
         {
-            var userId = int.Parse(user.FindFirst("UserId")?.Value ?? "0");
+            userRole = "Employee";
             personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
+            announcements = await AnnouncementSvc.GetAnnouncementsAsync();
         }
     }
 
-
-    string GetTypeIcon(int typeId)
-    {
-        return "bi-megaphone";
-    }
-
-
-    void ToggleSector(Sho2on.Web.Models.DashboardTreeNode sector)
-    {
-        sector.IsExpanded = !sector.IsExpanded;
-    }
-
-    void ToggleBranch(Sho2on.Web.Models.DashboardTreeNode branch)
-    {
-        branch.IsExpanded = !branch.IsExpanded;
-    }
+    void ToggleSector(Sho2on.Web.Models.DashboardTreeNode sector) => sector.IsExpanded = !sector.IsExpanded;
+    void ToggleBranch(Sho2on.Web.Models.DashboardTreeNode branch) => branch.IsExpanded = !branch.IsExpanded;
 
     bool chartsRendered = false;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (isManagement && charts != null && !chartsRendered)
+        if (userRole == "Admin" && charts != null && !chartsRendered)
         {
             chartsRendered = true;
             await RenderChartsAsync();
@@ -333,8 +512,5 @@
             charts.SectorLabels, charts.SectorCounts, "#2D2466");
     }
 
-    public void Dispose()
-    {
-        Lang.OnChange -= StateHasChanged;
-    }
+    public void Dispose() => Lang.OnChange -= StateHasChanged;
 }

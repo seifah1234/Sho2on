@@ -9,7 +9,6 @@ namespace Sho2on.Web.Services
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
         public DashboardService(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
-        // ══ الشجرة الهرمية: الشركة → القطاعات (Degrees) → الفروع → الإدارات ══
 
         public async Task<DashboardStats> GetPersonalStatsAsync(int userId)
         {
@@ -80,6 +79,70 @@ namespace Sho2on.Web.Services
 
             return root;
         }
+
+        // Add these methods to DashboardService
+public async Task<ManagerDashboardStats> GetManagerDashboardStatsAsync(int managerId)
+{
+    using var _db = await _dbFactory.CreateDbContextAsync();
+    
+    var stats = new ManagerDashboardStats();
+    var today = DateTime.Today;
+    
+    var teamMembers = await _db.Users
+        .Where(u => u.ManagerId == managerId && !u.IsArchived)
+        .ToListAsync();
+    
+    stats.TotalEmployees = teamMembers.Count;
+    
+    var teamIds = teamMembers.Select(m => m.Id).ToList();
+    
+    var todayAttendance = await _db.Attendances
+        .Where(a => teamIds.Contains(a.UserId) && a.AttendanceDate.Date == today)
+        .ToListAsync();
+    
+    stats.PresentToday = todayAttendance.Count(a => a.CheckInTime.HasValue);
+    stats.AbsentToday = todayAttendance.Count(a => a.IsAbsence);
+    stats.LateToday = todayAttendance.Count(a => a.Late.HasValue && a.Late.Value > TimeSpan.Zero);
+    
+    var pendingApprovals = await _db.Leaves
+        .CountAsync(l => teamIds.Contains(l.UserId) && l.Status == 1);
+    
+    pendingApprovals += await _db.Loans
+        .CountAsync(l => teamIds.Contains(l.UserId) && l.Status == "Pending");
+    
+    pendingApprovals += await _db.EmployeePermissions
+        .CountAsync(p => teamIds.Contains(p.UserId) && p.Status == "Pending");
+    
+    stats.PendingApprovals = pendingApprovals;
+    
+    return stats;
+}
+
+public async Task<List<TeamCheckInItem>> GetTeamCheckInsAsync(int managerId)
+{
+    using var _db = await _dbFactory.CreateDbContextAsync();
+    var today = DateTime.Today;
+    
+    var teamMembers = await _db.Users
+        .Where(u => u.ManagerId == managerId && !u.IsArchived)
+        .ToListAsync();
+    
+    var teamIds = teamMembers.Select(m => m.Id).ToList();
+    
+    return await _db.Attendances
+        .Include(a => a.User)
+        .ThenInclude(u => u.Department)
+        .Where(a => teamIds.Contains(a.UserId) && a.AttendanceDate.Date == today && a.CheckInTime.HasValue)
+        .Select(a => new TeamCheckInItem
+        {
+            EmployeeName = a.User.FullName,
+            DepartmentName = a.User.Department != null ? a.User.Department.Name : "",
+            CheckInTime = a.CheckInTime,
+            IsLate = a.Late.HasValue && a.Late.Value > TimeSpan.Zero
+        })
+        .OrderBy(a => a.CheckInTime)
+        .ToListAsync();
+}
 
         // ══ بيانات الرسوم البيانية الأربعة ══
         public async Task<DashboardChartsData> GetChartsDataAsync()

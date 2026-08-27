@@ -868,3 +868,219 @@
         font-size: 11px;
     }
 }
+
+/* Manager Dashboard */
+.manager-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.welcome-card {
+    background: var(--gradient-primary);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+}
+
+.welcome-card.manager {
+    background: linear-gradient(135deg, #2D2466, #4A417F);
+}
+
+.welcome-card h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.welcome-card p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.welcome-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.manager-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.manager-stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all var(--transition);
+}
+
+.manager-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.manager-stat-card i {
+    font-size: 28px;
+    color: var(--primary);
+}
+
+.manager-stat-card.success i { color: var(--success); }
+.manager-stat-card.warning i { color: var(--warning); }
+.manager-stat-card.danger i { color: var(--danger); }
+
+.manager-stat-card div {
+    display: flex;
+    flex-direction: column;
+}
+
+.manager-stat-card span {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.manager-stat-card strong {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.count-badge {
+    margin-right: auto;
+    background: var(--info-bg);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.count-badge.danger {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.team-attendance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.attendance-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: var(--background);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+}
+
+.attendance-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.attendance-info {
+    flex: 1;
+}
+
+.attendance-info strong {
+    display: block;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.attendance-info span {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.attendance-time {
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.attendance-time.on-time {
+    color: var(--success);
+}
+
+.attendance-time.late {
+    color: var(--danger);
+}
+
+/* Personal Stats */
+.personal-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.personal-stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all var(--transition);
+}
+
+.personal-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.personal-stat-card i {
+    font-size: 28px;
+    color: var(--primary);
+}
+
+.personal-stat-card.accent i {
+    color: var(--accent);
+}
+
+.personal-stat-card div {
+    display: flex;
+    flex-direction: column;
+}
+
+.personal-stat-card span {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.personal-stat-card strong {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+}
