@@ -163,7 +163,7 @@ class AttendanceService {
   }
 
   // باقي الدوال كما هي...
-  Future<bool> checkIn({
+  Future<Map<String, dynamic>> checkIn({
     required int userId,
     required int branchId,
     double? lat,
@@ -180,7 +180,7 @@ class AttendanceService {
     );
   }
 
-  Future<bool> checkOut({
+  Future<Map<String, dynamic>> checkOut({
     required int userId,
     required int branchId,
     double? lat,
@@ -197,7 +197,7 @@ class AttendanceService {
     );
   }
 
-  Future<bool> _record({
+  Future<Map<String, dynamic>> _record({
   required int userId,
   required int branchId,
   required int status,
@@ -224,14 +224,31 @@ class AttendanceService {
   );
 
   if (res.statusCode == 200) {
-    return true;
+    final data = jsonDecode(res.body);
+    final message = data['message'] ?? 'فشل التسجيل';
+    return {
+      'success': true,
+      'message': message,
+    };
   } else {
     try {
       final data = jsonDecode(res.body);
       final message = data['message'] ?? 'فشل التسجيل';
+      return {
+        'success': false,
+        'message': message,
+      };
       print('Location error: $message');
-    } catch (e) {}
-    return false;
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'خطأ: $e',
+      };
+    }
+    return {
+      'success': false,
+      'message': 'خطأ',
+    };
   }
 }
 

@@ -6,24 +6,26 @@ namespace Sho2on.Web.Services
 {
     public class AnnouncementService
     {
-        private readonly AppDbContext appDbContext;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-        public AnnouncementService(AppDbContext appDbContext)
-        {
-            this.appDbContext = appDbContext;
-        }
+        public AnnouncementService(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         public async Task<List<Announcement>> GetAllAnnouncementsAsync()
         {
-            return await appDbContext.Announcements
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            return await db.Announcements
+                .Include(a => a.CreatedBy)
                 .Include(a => a.AnnouncementType)
                 .OrderByDescending(a => a.CreatedAt)
+                .OrderBy(a => a.IsDeleted)
                 .ToListAsync();
         }
 
         public async Task<List<Announcement>> GetAnnouncementsAsync()
         {
-            return await appDbContext.Announcements
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            return await db.Announcements
+                .Include(a => a.CreatedBy)
                 .Include(a => a.AnnouncementType)
                 .Where(a => !a.IsDeleted && (!a.ExpireDate.HasValue || a.ExpireDate.Value.Date >= DateTime.Now.Date))
                 .OrderByDescending(a => a.CreatedAt)
@@ -32,59 +34,69 @@ namespace Sho2on.Web.Services
 
         public async Task CreateAnnouncement(Announcement announcement)
         {
-            await appDbContext.Announcements.AddAsync(announcement);
-            await appDbContext.SaveChangesAsync();
+            using var db = await _dbFactory.CreateDbContextAsync(); 
+            await db.Announcements.AddAsync(announcement);
+            await db.SaveChangesAsync();
         }
 
         public async Task UpdateAnnouncement(Announcement announcement)
         {
-            appDbContext.Announcements.Update(announcement);
-            await appDbContext.SaveChangesAsync();
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            db.Announcements.Update(announcement);
+            await db.SaveChangesAsync();
         }
 
 
         public async Task<List<AnnouncementType>> GetAnnouncementTypesAsync()
         {
-            return await appDbContext.AnnouncementTypes.ToListAsync();
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            return await db.AnnouncementTypes.ToListAsync();
         }
 
         public async Task CreateAnnouncmentType(AnnouncementType announcementType)
         {
-            await appDbContext.AnnouncementTypes.AddAsync(announcementType);
-            await appDbContext.SaveChangesAsync();
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            await db.AnnouncementTypes.AddAsync(announcementType);
+            await db.SaveChangesAsync();
         }
 
         public async Task UpdateAnnouncmentType(AnnouncementType announcementType)
         {
-            appDbContext.AnnouncementTypes.Update(announcementType);
-            await appDbContext.SaveChangesAsync();
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            db.AnnouncementTypes.Update(announcementType);
+            await db.SaveChangesAsync();
         }
 
         public async Task DeleteAnnouncmentType(AnnouncementType announcementType)
         {
-            appDbContext.AnnouncementTypes.Remove(announcementType);
-            await appDbContext.SaveChangesAsync();
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            db.AnnouncementTypes.Remove(announcementType);
+            await db.SaveChangesAsync();
         }
 
         public async Task<AnnouncementType?> GetAnnouncementTypeByIdAsync(int id)
         {
-            return await appDbContext.AnnouncementTypes.FirstOrDefaultAsync(a => a.Id == id);
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            return await db.AnnouncementTypes.FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<Announcement?> GetAnnouncementByIdAsync(int id)
         {
-            return await appDbContext.Announcements.FirstOrDefaultAsync(a => a.Id == id);
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            return await db.Announcements.FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task DeleteAnnouncement(Announcement announcement)
         {
-            appDbContext.Announcements.Remove(announcement);
-            await appDbContext.SaveChangesAsync();
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            db.Announcements.Remove(announcement);
+            await db.SaveChangesAsync();
         }
 
         public async Task<List<Announcement>> GetAnnouncementsByTypeIdAsync(int typeId)
         {
-            return await appDbContext.Announcements
+        using var db = await _dbFactory.CreateDbContextAsync(); 
+            return await db.Announcements
                 .Where(a => a.AnnouncementTypeId == typeId && !a.IsDeleted)
                 .OrderByDescending(a => a.CreatedAt)
                 .ToListAsync();

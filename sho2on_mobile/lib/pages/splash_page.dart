@@ -21,10 +21,6 @@ class _SplashPageState extends State<SplashPage> {
   Future<void> checkLogin() async {
     final userJson = await LocalStorage.getUser();
     if (userJson != null) {
-      if (userJson['isManager'] ?? false) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ManagerDashboard(userJson)));
-        return;
-      }
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MainPage(userJson)));
     } else {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginPage()));

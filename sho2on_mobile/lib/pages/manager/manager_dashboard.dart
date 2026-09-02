@@ -236,7 +236,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'مدير الفريق',
+                      widget.user['jobTitle'] ?? '',
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.white.withValues(alpha: 0.6),
@@ -385,7 +385,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
             children: stats.map((stat) {
               final color = stat['color'] as Color;
               return Container(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(14),
@@ -395,7 +395,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
@@ -403,10 +403,10 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
                       child: Icon(
                         stat['icon'] as IconData,
                         color: color,
-                        size: 20,
+                        size: 18,
                       ),
                     ),
-                    SizedBox(height: 6),
+                    SizedBox(height: 3),
                     Text(
                       '${stat['value']}',
                       style: TextStyle(

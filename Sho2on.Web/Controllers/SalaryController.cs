@@ -8,12 +8,13 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class SalaryController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public SalaryController(AppDbContext db) => _db = db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public SalaryController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         [HttpGet("payslip/{userId}/{month}/{year}")]
         public async Task<IActionResult> GetPayslip(int userId, int month, int year)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var payment = await _db.SalaryPayments
                 .FirstOrDefaultAsync(s => s.UserId == userId && s.Month == month && s.Year == year);
 

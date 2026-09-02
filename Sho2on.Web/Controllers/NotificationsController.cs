@@ -8,13 +8,13 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class NotificationsController : ControllerBase
     {
-        private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-        public NotificationsController(AppDbContext db) => _db = db;
-
+        public NotificationsController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
         [HttpGet("unread-count/{userId}")]
         public async Task<IActionResult> GetUnreadCount(int userId)
         {
+            using var _db = await _dbFactory.CreateDbContextAsync(); 
             var count = await _db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
             return Ok(new { UnreadCount = count });
         }

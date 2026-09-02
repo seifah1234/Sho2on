@@ -14,12 +14,9 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class HolidayRequestsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-        public HolidayRequestsController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public HolidayRequestsController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         // GET: api/HolidayRequests/SearchEmployees
         [HttpGet("SearchEmployees")]
@@ -32,6 +29,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.Users
                     .Include(u => u.Department)
                     .Include(u => u.JobTitle)
@@ -104,6 +102,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var employee = await _context.Users
                     .Include(u => u.Department)
                     .Include(u => u.JobTitle)
@@ -158,6 +157,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var leaveTypes = await _context.LeaveTypes
                     .Where(lt => lt.IsActive)
                     .OrderBy(lt => lt.Name)
@@ -198,6 +198,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من وجود الموظف
                 var employeeExists = await _context.Users.AnyAsync(u => u.Id == employeeId);
                 if (!employeeExists)
@@ -273,6 +274,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.Users
                     .Include(u => u.JobTitle)
                     .Include(u => u.Department)
@@ -328,6 +330,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var conflicts = await _context.Leaves
                     .Include(l => l.LeaveType)
                     .Where(l => l.UserId == request.EmployeeId &&
@@ -377,6 +380,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من صحة البيانات
                 var validationResult = await ValidateHolidayRequest(request);
                 if (!validationResult.IsValid)
@@ -564,6 +568,7 @@ namespace Sho2on.API.Controllers
             int pageNumber,
             int pageSize)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             // التحقق من أن المستخدم مدير
             var manager = await _context.Users
                 .Include(u => u.JobTitle)
@@ -656,6 +661,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var leaveRequest = await _context.Leaves
                     .Include(l => l.User)
                     .Include(l => l.LeaveType)
@@ -737,6 +743,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var leaveRequest = await _context.Leaves
                     .FirstOrDefaultAsync(l => l.Id == requestId);
 
@@ -809,6 +816,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.Leaves
                     .Where(l => l.ApprovedBy == managerId);
 
@@ -900,6 +908,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.Leaves
                     .Include(l => l.LeaveType)
                     .Include(l => l.Approver)
@@ -1033,6 +1042,7 @@ namespace Sho2on.API.Controllers
                 result.Errors.Add("سبب الإجازة مطلوب");
             }
 
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             // التحقق من وجود الموظف
             var employeeExists = await _context.Users.AnyAsync(u => u.Id == request.EmployeeId);
             if (!employeeExists)
@@ -1070,6 +1080,7 @@ namespace Sho2on.API.Controllers
 
         private async Task<LeaveBalanceDto> GetLeaveBalanceHelper(int employeeId, int leaveTypeId)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var leaveBalance = await _context.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.UserId == employeeId && lb.LeaveTypeId == leaveTypeId);
 
@@ -1094,6 +1105,7 @@ namespace Sho2on.API.Controllers
 
         private async Task DeductLeaveBalance(int userId, int leaveTypeId, int days)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var leaveBalance = await _context.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.UserId == userId && lb.LeaveTypeId == leaveTypeId);
 
@@ -1124,6 +1136,7 @@ namespace Sho2on.API.Controllers
         {
             DateTime currentDate = leaveRequest.StartDate;
 
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             while (currentDate <= leaveRequest.EndDate)
             {
                 // تخطي أيام العطلات الأسبوعية
@@ -1190,6 +1203,7 @@ namespace Sho2on.API.Controllers
 
         private async Task<string> GetManagerName(int managerId)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var manager = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == managerId);
 

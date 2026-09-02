@@ -10,12 +10,13 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class TasksController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public TasksController(AppDbContext db) => _db = db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public TasksController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         [HttpGet("assigned-to/{userId}")]
         public async Task<IActionResult> GetAssignedToMe(int userId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var tasks = await _db.UserTasks
                 .Include(t => t.AssignedByUser)
                 .Where(t => t.AssignedToUserId == userId)
@@ -38,6 +39,7 @@ namespace Sho2on.API.Controllers
         [HttpGet("assigned-by/{userId}")]
         public async Task<IActionResult> GetAssignedbyMe(int userId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var tasks = await _db.UserTasks
                 .Include(t => t.AssignedToUser)
                 .Where(t => t.AssignedByUserId == userId)
@@ -60,6 +62,7 @@ namespace Sho2on.API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateTask(TaskDto taskDto)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var task = new UserTask
             {
                 AssignedByUserId = taskDto.AssignedByUserId,
@@ -84,6 +87,7 @@ namespace Sho2on.API.Controllers
         [HttpPut("{taskId}/status")]
         public async Task<IActionResult> UpdateStatus(int taskId, [FromBody] int newStatus)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var task = await _db.UserTasks.FindAsync(taskId);
             if (task == null) return NotFound("المهمة غير موجودة");
 
@@ -95,6 +99,7 @@ namespace Sho2on.API.Controllers
         [HttpDelete("{taskId}")]
         public async Task<IActionResult> DeleteTask(int taskId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var task = await _db.UserTasks.FindAsync(taskId);
             if (task == null) return NotFound("المهمة غير موجودة");
 

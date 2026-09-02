@@ -9,12 +9,13 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class BreakController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public BreakController(AppDbContext db) => _db = db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public BreakController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         [HttpGet("my-break-type/{userId}")]
         public async Task<IActionResult> GetMyBreakType(int userId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound("الموظف غير موجود");
             if (user.BreakId == null) return Ok(new { HasBreak = false });
@@ -37,6 +38,7 @@ namespace Sho2on.API.Controllers
         [HttpGet("active/{userId}")]
         public async Task<IActionResult> GetActiveBreak(int userId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var active = await _db.BreakLogs
                 .Where(b => b.UserId == userId && b.EndTime == null)
                 .OrderByDescending(b => b.StartTime)
@@ -55,6 +57,7 @@ namespace Sho2on.API.Controllers
         [HttpPost("start")]
         public async Task<IActionResult> StartBreak([FromBody] StartBreakRequest req)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var user = await _db.Users.FindAsync(req.UserId);
             if (user == null) return NotFound("الموظف غير موجود");
             if (user.BreakId == null) return BadRequest("لا يوجد نظام استراحة مربوط بهذا الموظف");
@@ -77,6 +80,7 @@ namespace Sho2on.API.Controllers
         [HttpPost("end/{userId}")]
         public async Task<IActionResult> EndBreak(int userId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var log = await _db.BreakLogs
                 .Include(b => b.Break)
                 .Where(b => b.UserId == userId && b.EndTime == null)
@@ -104,6 +108,7 @@ namespace Sho2on.API.Controllers
         [HttpGet("today/{userId}")]
         public async Task<IActionResult> GetTodayBreaks(int userId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var today = DateTime.Today;
             var logs = await _db.BreakLogs
                 .Where(b => b.UserId == userId && b.StartTime.Date == today)

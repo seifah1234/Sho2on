@@ -9,18 +9,20 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public UsersController(AppDbContext db) { _db = db; }
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public UsersController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             return Ok(await _db.Users.ToListAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var user = await _db.Users.FindAsync(id);
             return user == null ? NotFound() : Ok(user);
         }

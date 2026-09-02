@@ -9,12 +9,12 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class AnnouncementsController : ControllerBase
     {
-        private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
         private readonly ILogger<AnnouncementsController> _logger;
 
-        public AnnouncementsController(AppDbContext db, ILogger<AnnouncementsController> logger)
+        public AnnouncementsController(IDbContextFactory<AppDbContext> dbFactory, ILogger<AnnouncementsController> logger)
         {
-            _db = db;
+            _dbFactory = dbFactory;
             _logger = logger;
         }
 
@@ -24,6 +24,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من الإعلانات المنتهية
                 await CheckExpiredAnnouncements();
 
@@ -62,6 +63,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var announcement = await _db.Announcements
                     .Include(a => a.AnnouncementType)
                     .Include(a => a.CreatedBy)
@@ -99,6 +101,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var types = await _db.AnnouncementTypes
                     .OrderBy(t => t.Name)
                     .Select(t => new
@@ -123,6 +126,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 if (string.IsNullOrWhiteSpace(request.Title))
                     return BadRequest(new { success = false, message = "العنوان مطلوب" });
 
@@ -171,6 +175,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var announcement = await _db.Announcements.FindAsync(id);
                 if (announcement == null)
                     return NotFound(new { success = false, message = "الإعلان غير موجود" });
@@ -203,6 +208,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var announcement = await _db.Announcements.FindAsync(id);
                 if (announcement == null)
                     return NotFound(new { success = false, message = "الإعلان غير موجود" });
@@ -229,6 +235,7 @@ namespace Sho2on.API.Controllers
             {
                 await CheckExpiredAnnouncements();
 
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var announcements = await _db.Announcements
                     .Include(a => a.AnnouncementType)
                     .Where(a => !a.IsDeleted && (!a.ExpireDate.HasValue || a.ExpireDate.Value >= DateTime.Now))
@@ -262,6 +269,7 @@ namespace Sho2on.API.Controllers
             {
                 await CheckExpiredAnnouncements();
 
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var count = await _db.Announcements
                     .CountAsync(a => !a.IsDeleted && (!a.ExpireDate.HasValue || a.ExpireDate.Value >= DateTime.Now));
 
@@ -283,6 +291,7 @@ namespace Sho2on.API.Controllers
                 if (string.IsNullOrWhiteSpace(request.Name))
                     return BadRequest(new { success = false, message = "الاسم مطلوب" });
 
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من عدم وجود نفس الاسم
                 var exists = await _db.AnnouncementTypes.AnyAsync(t => t.Name == request.Name.Trim());
                 if (exists)
@@ -311,6 +320,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var type = await _db.AnnouncementTypes.FindAsync(id);
                 if (type == null)
                     return NotFound(new { success = false, message = "النوع غير موجود" });
@@ -332,6 +342,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
                 var expiredAnnouncements = await _db.Announcements
                     .Where(a => !a.IsDeleted && a.ExpireDate.HasValue && a.ExpireDate.Value < DateTime.Now)
                     .ToListAsync();

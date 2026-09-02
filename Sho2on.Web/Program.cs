@@ -5,7 +5,7 @@ using Sho2on.Web.Endpoints;
 using Sho2on.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var connStr = builder.Configuration.GetConnectionString("Sho2onDB2");
+var connStr = builder.Configuration.GetConnectionString("Sho2onDB");
 typeof(AppDbContext)
     .GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
     ?.SetValue(null, connStr);

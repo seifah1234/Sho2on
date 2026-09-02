@@ -14,12 +14,9 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class ManagerController : ControllerBase
     {
-        private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-        public ManagerController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public ManagerController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         // GET: api/Manager/GetTeamStats/{managerId}
         [HttpGet("GetTeamStats/{managerId}")]
@@ -29,6 +26,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var targetDate = date ?? DateTime.Today;
 
                 // التحقق من أن المستخدم مدير
@@ -146,6 +144,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var targetDate = date ?? DateTime.Today;
 
                 // التحقق من أن المستخدم مدير
@@ -282,6 +281,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var today = DateTime.Today;
 
                 // التحقق من أن المستخدم مدير
@@ -357,6 +357,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من أن المستخدم مدير
                 var manager = await _context.Users
                     .Include(u => u.JobTitle)

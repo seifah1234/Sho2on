@@ -48,7 +48,7 @@
         <div class="announcements-list">
             @foreach (var announcement in announcements)
             {
-                <div class="announcement-card @(announcement.IsDeleted ? "deleted" : "")">
+                <div class="announcement-card @((announcement.ExpireDate.HasValue && announcement.ExpireDate.Value.Date < DateTime.Now.Date) ? "deleted" : "")">
                     <div class="announcement-header">
                         <div class="announcement-type-badge" style="background-color: @announcement.AnnouncementType.Color">
                             <i class="bi bi-megaphone"></i>
@@ -60,7 +60,7 @@
                         </span>
                     </div>
 
-                    <h3 class="announcement-title">@announcement.Title</h3>
+                    <h3 class="announcement-title">@announcement.CreatedBy.FullName : @announcement.Title</h3>
                     <p class="announcement-content">@announcement.Description</p>
 
                     @if (announcement.ExpireDate.HasValue)

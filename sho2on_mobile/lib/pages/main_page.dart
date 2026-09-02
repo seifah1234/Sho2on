@@ -138,13 +138,15 @@ class _MainPageState extends State<MainPage> {
         lon: loc.longitude,
         locationName: loc.locationName,
       );
-      if (ok) {
+      if (ok['success']) {
         setState(() {
           checkIn = TimeOfDay.now().format(context);
           statusText = 'حاضر';
         });
         await LocalStorage.saveUser(widget.user);
         _showSuccess('تم تسجيل الحضور بنجاح');
+      }else{
+        _showError(ok['message']);
       }
     } catch (e) {
       _showError(e.toString().replaceAll('Exception: ', ''));
@@ -166,7 +168,7 @@ class _MainPageState extends State<MainPage> {
       lon: loc.longitude,
       locationName: loc.locationName,
     );
-    if (ok) {
+    if (ok['success']) {
       setState(() {
         checkOut = TimeOfDay.now().format(context);
         statusText = 'منصرف';
@@ -174,7 +176,7 @@ class _MainPageState extends State<MainPage> {
       await LocalStorage.saveUser(widget.user);
       _showSuccess('تم تسجيل الانصراف بنجاح');
     } else {
-      _showError('فشل تسجيل الانصراف');
+      _showError(ok['message']);
     }
   }
 
@@ -301,7 +303,7 @@ class _MainPageState extends State<MainPage> {
               SizedBox(width: 16),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       widget.user['fullName'] ?? '',
@@ -314,7 +316,7 @@ class _MainPageState extends State<MainPage> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '${widget.user['jobTitle']?['name'] ?? ''}',
+                      '${widget.user['jobTitle'] ?? ''}',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.white.withValues(alpha: 0.8),
@@ -324,15 +326,21 @@ class _MainPageState extends State<MainPage> {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () => _navigateToTasks(),
-                icon: Icon(
-                  Icons.check_box_outlined,
-                  color: Colors.white,
-                  size: 28,
-                ),
+            ],
+          ),
+          SizedBox(height: 16),
+          // أزرار الإجراءات في صف واحد مع توزيع متساوي
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildActionButton(
+                icon: Icons.check_box_outlined,
+                tooltip: 'المهام',
+                onPressed: _navigateToTasks,
               ),
-              IconButton(
+              _buildActionButton(
+                icon: Icons.chat_bubble_outline,
+                tooltip: 'المحادثات',
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -342,21 +350,16 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                 ),
-                icon: Icon(
-                  Icons.chat_bubble_outline,
-                  color: Colors.white,
-                  size: 28,
-                ),
               ),
-              IconButton(
+              _buildActionButton(
+                icon: Icons.campaign,
+                tooltip: 'الإعلانات',
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => AnnouncementsPage(user: widget.user),
                   ),
                 ),
-                icon: Icon(Icons.campaign, color: Colors.white, size: 28),
-                tooltip: 'الإعلانات',
               ),
               _buildManagerDashboardButton(),
             ],
@@ -373,6 +376,33 @@ class _MainPageState extends State<MainPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  // دالة مساعدة لإنشاء أزرار الإجراءات
+  Widget _buildActionButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 22,
+          ),
+        ),
       ),
     );
   }
@@ -998,12 +1028,16 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildManagerDashboardButton() {
     if (widget.user['isManager'] != true) return SizedBox.shrink();
-    return IconButton(
-      onPressed: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ManagerDashboard(widget.user)),
-      ),
-      icon: Icon(Icons.dashboard, color: Colors.white, size: 28),
-    );
+    return
+      _buildActionButton(
+        icon: Icons.dashboard,
+        tooltip: 'صفحة المدير',
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ManagerDashboard(widget.user),
+          ),
+        ),
+      );
   }
 }

@@ -8,12 +8,13 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class ChatController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public ChatController(AppDbContext db) => _db = db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        public ChatController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         [HttpGet("conversations/{userId}")]
         public async Task<IActionResult> GetConversations(int userId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var chats = await _db.Chats
                 .Include(c => c.FirstUser).Include(c => c.SecondUser)
                 .Where(c => c.FirstUserId == userId || c.SecondUserId == userId)
@@ -34,6 +35,7 @@ namespace Sho2on.API.Controllers
         [HttpGet("messages/{currentUserId}/{otherUserId}")]
         public async Task<IActionResult> GetMessages(int currentUserId, int otherUserId)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var messages = await _db.ChatMessages
                 .Where(m => (m.SenderId == currentUserId && m.ReceiverId == otherUserId) ||
                             (m.SenderId == otherUserId && m.ReceiverId == currentUserId))
@@ -54,6 +56,7 @@ namespace Sho2on.API.Controllers
         [HttpGet("SearchUsers")]
         public async Task<IActionResult> SearchUsers([FromQuery] string searchTerm)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var users = await _db.Users
                 .Where(u => u.FullName.Contains(searchTerm) || u.Code.Contains(searchTerm))
                 .Select(u => new { u.Id, u.FullName, u.Code, u.Department!.Name })
@@ -67,6 +70,7 @@ namespace Sho2on.API.Controllers
         [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var users = await _db.Users
                 .Select(u => new { u.Id, u.FullName, u.Code, u.Department!.Name })
                 .ToListAsync();

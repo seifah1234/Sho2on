@@ -14,12 +14,9 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class PermissionsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-        public PermissionsController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public PermissionsController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         // GET: api/Permissions/GetPermissionTypes
         [HttpGet("GetPermissionTypes")]
@@ -63,6 +60,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من تعارض الوقت مع الإجازات
                 var leaveConflicts = await _context.Leaves
                     .Where(l => l.UserId == employeeId &&
@@ -129,6 +127,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var employee = await _context.Users
                     .Include(u => u.Salaries)
                     .FirstOrDefaultAsync(u => u.Id == request.EmployeeId);
@@ -200,6 +199,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var managers = await _context.Users
                     .Include(u => u.JobTitle)
                     .Include(u => u.Department)
@@ -243,6 +243,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من صحة البيانات
                 var validationResult = await ValidatePermissionRequest(request);
                 if (!validationResult.IsValid)
@@ -374,6 +375,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.EmployeePermissions
                     .Include(p => p.ApprovedBy)
                     .Include(p => p.Branch)
@@ -528,6 +530,7 @@ namespace Sho2on.API.Controllers
             int pageNumber,
             int pageSize)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             // التحقق من أن المستخدم مدير
             var manager = await _context.Users
                 .Include(u => u.JobTitle)
@@ -618,6 +621,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var permission = await _context.EmployeePermissions
                     .Include(p => p.User)
                     .FirstOrDefaultAsync(p => p.Id == permissionId);
@@ -700,6 +704,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var permission = await _context.EmployeePermissions
                     .FirstOrDefaultAsync(p => p.Id == permissionId);
 
@@ -769,6 +774,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.EmployeePermissions
                     .Where(p => p.ApprovedByUserId == managerId);
 
@@ -855,6 +861,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var permission = await _context.EmployeePermissions
                     .Include(p => p.User)
                     .Include(p => p.ApprovedBy)
@@ -945,6 +952,7 @@ namespace Sho2on.API.Controllers
                 result.Errors.Add("الرجاء اختيار مدير للموافقة");
             }
 
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             // التحقق من وجود الموظف
             var employeeExists = await _context.Users.AnyAsync(u => u.Id == request.EmployeeId);
             if (!employeeExists)
@@ -965,6 +973,7 @@ namespace Sho2on.API.Controllers
 
         private async Task<TimeConflictDto> CheckTimeConflictHelper(int employeeId, DateTime startDateTime, DateTime endDateTime)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var leaveConflicts = await _context.Leaves
                 .Where(l => l.UserId == employeeId &&
                            l.Status == 2 &&
@@ -1032,6 +1041,7 @@ namespace Sho2on.API.Controllers
         {
             var attendanceDate = permission.StartDateTime.Date;
 
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var attendance = await _context.Attendances
                 .FirstOrDefaultAsync(a => a.UserId == permission.UserId &&
                                         a.AttendanceDate == attendanceDate);

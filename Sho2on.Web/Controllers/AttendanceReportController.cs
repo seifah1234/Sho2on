@@ -15,15 +15,13 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class AttendanceReportController : ControllerBase
     {
-        private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-        public AttendanceReportController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public AttendanceReportController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         private async Task<(int StartDay, int EndDay)> GetMonthSettingsAsync()
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var settings = await _context.Settings.FirstOrDefaultAsync();
             return (
                 settings?.StartOfMonth ?? 26,
@@ -34,6 +32,7 @@ namespace Sho2on.API.Controllers
 
         private async Task<(DateOnly Start, DateOnly End)> GetMonthRange(int month, int year)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var (startDay, endDay) = await GetMonthSettingsAsync();
 
             DateTime startDate = new DateTime(year, month, startDay);
@@ -55,6 +54,7 @@ namespace Sho2on.API.Controllers
         public async Task<ActionResult<ApiResponse<MonthlyReportDto>>> GetMonthlyReport(
             int userId, int year, int month)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             try
             {
                 // تحديد تاريخ البداية والنهاية للشهر

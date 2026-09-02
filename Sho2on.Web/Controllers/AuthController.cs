@@ -13,13 +13,14 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _db;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
         private readonly IConfiguration _config;
-        public AuthController(AppDbContext db, IConfiguration config) { _db = db; _config = config; }
+        public AuthController(IDbContextFactory<AppDbContext> dbFactory, IConfiguration config) { _dbFactory = dbFactory; _config = config; }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var user = await _db.Users
                 .Include(u => u.Branch)
                 .Include(u => u.JobTitle)
@@ -68,6 +69,7 @@ namespace Sho2on.API.Controllers
                 fullName = user.FullName,
                 mainSalary = user.MainSalary,
                 email = user.Email,
+                jobTitle = user.JobTitle.Name,
                 phone = user.PhoneNumber,
                 managerId = user.ManagerId,
                 profileImageData = user.ProfileImageData,
@@ -116,6 +118,7 @@ namespace Sho2on.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
+        using var _db = await _dbFactory.CreateDbContextAsync(); 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Code == dto.Id);
             if (user == null) return BadRequest("الموظف غير موجود");
             if (user.PasswordHash != null) return BadRequest("أنت مسجل بالفعل");

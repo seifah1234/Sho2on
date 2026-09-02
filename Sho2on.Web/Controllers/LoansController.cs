@@ -14,12 +14,9 @@ namespace Sho2on.API.Controllers
     [Route("api/[controller]")]
     public class LoansController : ControllerBase
     {
-        private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
-        public LoansController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public LoansController(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
 
         // GET: api/Loans/SearchEmployees
         [HttpGet("SearchEmployees")]
@@ -32,6 +29,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.Users
                     .Include(u => u.Department)
                     .Include(u => u.JobTitle)
@@ -108,6 +106,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var employee = await _context.Users
                     .Include(u => u.Department)
                     .Include(u => u.JobTitle)
@@ -170,6 +169,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var managers = await _context.Users
                     .Include(u => u.JobTitle)
                     .Include(u => u.Department)
@@ -213,6 +213,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من وجود الموظف
                 var employee = await _context.Users
                     .Include(u => u.Salaries)
@@ -306,6 +307,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 // التحقق من صحة البيانات
                 var validationResult = await ValidateLoanRequest(request);
                 if (!validationResult.IsValid)
@@ -397,6 +399,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.Loans
                     .Include(l => l.ApprovedByUser)
                     .Where(l => l.UserId == employeeId);
@@ -542,6 +545,7 @@ namespace Sho2on.API.Controllers
             int pageNumber,
             int pageSize)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             // التحقق من أن المستخدم مدير
             var manager = await _context.Users
                 .Include(u => u.JobTitle)
@@ -637,6 +641,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var query = _context.Loans
                     .Include(l => l.User)
                     .Where(l => l.ApprovedByUserId == managerId);
@@ -692,6 +697,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var loan = await _context.Loans
                     .Include(l => l.User)
                     .FirstOrDefaultAsync(l => l.Id == loanId);
@@ -760,6 +766,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var loan = await _context.Loans
                     .FirstOrDefaultAsync(l => l.Id == loanId);
 
@@ -822,6 +829,7 @@ namespace Sho2on.API.Controllers
         {
             try
             {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
                 var loan = await _context.Loans
                     .Include(l => l.User)
                     .Include(l => l.ApprovedByUser)
@@ -919,6 +927,7 @@ namespace Sho2on.API.Controllers
                 result.Errors.Add("الرجاء اختيار مدير للموافقة");
             }
 
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             // التحقق من وجود الموظف
             var employee = await _context.Users
                 .Include(u => u.Salaries)
@@ -960,6 +969,7 @@ namespace Sho2on.API.Controllers
 
         private async Task CreateInstallments(Loan loan)
         {
+        using var _context = await _dbFactory.CreateDbContextAsync(); 
             var installments = new List<LoanPayment>();
             decimal installmentAmount = loan.MonthlyInstallment;
 

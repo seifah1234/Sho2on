@@ -1,4 +1,5 @@
 ﻿@page "/employees"
+@page "/employees/{departmentId:int}"
 @using Sho2on.Web.Models
 @using static Sho2on.Web.Services.EmployeeService
 @rendermode InteractiveServer
@@ -78,7 +79,11 @@
                         {
                             @foreach (var d in lookups.Departments)
                             {
-                                <option value="@d.Id">@d.Name</option>
+                                if (departmentId.HasValue && departmentId.Value == d.Id){
+                                    <option selected value="@d.Id">@d.Name</option>
+                                }else{
+                                    <option value="@d.Id">@d.Name</option>
+                                }
                             }
                         }
                     </select>
@@ -275,7 +280,10 @@
                         <th>@Lang.T("الإدارة")</th>
                         <th>@Lang.T("الوظيفة")</th>
                         <th>@Lang.T("الموبايل")</th>
-                        <th>@Lang.T("إجراءات")</th>
+                            @if(!departmentId.HasValue){
+
+                                <th>@Lang.T("إجراءات")</th>
+                            }
                     </tr>
                 </thead>
                 <tbody>
@@ -302,16 +310,20 @@
                                     <i class="bi bi-phone"></i> @emp.PhoneNumber
                                 </span>
                             </td>
-                            <td class="row-actions">
-                                <button class="icon-action" title="@Lang.T("تعديل")" @onclick='() => Nav.NavigateTo($"/employees/edit/{emp.Id}")'>
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="icon-action @(emp.IsArchived ? "restore" : "danger")"
-                                        title="@(emp.IsArchived ? Lang.T("استعادة") : Lang.T("أرشفة"))"
-                                        @onclick='() => ConfirmToggleArchive(emp)'>
-                                    <i class="bi @(emp.IsArchived ? "bi-arrow-counterclockwise" : "bi-archive")"></i>
-                                </button>
-                            </td>
+                            @if (!departmentId.HasValue)
+                            {
+
+                                <td class="row-actions">
+                                    <button class="icon-action" title="@Lang.T("تعديل")" @onclick='() => Nav.NavigateTo($"/employees/edit/{emp.Id}")'>
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="icon-action @(emp.IsArchived ? "restore" : "danger")"
+                                    title="@(emp.IsArchived ? Lang.T("استعادة") : Lang.T("أرشفة"))"
+                                    @onclick='() => ConfirmToggleArchive(emp)'>
+                                        <i class="bi @(emp.IsArchived ? "bi-arrow-counterclockwise" : "bi-archive")"></i>
+                                    </button>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>
@@ -412,6 +424,8 @@
 
 @code {
     PagedResult<EmployeeListItem>? result;
+
+    [Parameter] public int? departmentId { get; set; }
     int currentPage = 1;
     int pageSize = 15;
     List<(int Id, string Name)>? branches;
@@ -498,6 +512,9 @@
         StateHasChanged();
         try
         {
+            if (departmentId.HasValue){
+                filter.DepartmentId = departmentId.Value;
+            }
             result = await EmployeeSvc.GetPagedListAsync(filter, currentPage, pageSize);
         }
         catch (Exception ex)

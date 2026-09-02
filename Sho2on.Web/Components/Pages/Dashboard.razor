@@ -9,6 +9,8 @@
 @using Sho2on.Web.Constants
 @using Sho2on.Web.Models
 @using Sho2on.Web.Services
+@inject ILogger<Announcements> Logger
+@inject NotificationService Notify
 @inject DashboardService DashboardSvc
 @inject AnnouncementService AnnouncementSvc
 @inject LocalizationService Lang
@@ -248,7 +250,7 @@
             </div>
         </div>
     }
-    else
+    else if (userRole == "Admin")
     {
         @* ══ Admin Dashboard ══ *@
         @if (tree != null)
@@ -330,14 +332,16 @@
                                         <div class="branch-body" style="@(branch.IsExpanded ? "" : "display:none")">
                                             @foreach (var dept in branch.Children)
                                             {
-                                                <div class="dept-item">
-                                                    <div class="dept-icon"><i class="bi bi-building"></i></div>
-                                                    <div class="dept-info">
-                                                        <span>@dept.Name</span>
-                                                        <small>@dept.Type</small>
+                                                <a href="/employees/@dept.Id">
+                                                    <div class="dept-item">
+                                                        <div class="dept-icon"><i class="bi bi-building"></i></div>
+                                                        <div class="dept-info">
+                                                            <span>@dept.Name</span>
+                                                            <small>@dept.Type</small>
+                                                        </div>
+                                                        <div class="dept-employees"><i class="bi bi-people"></i> @dept.TotalEmployees</div>
                                                     </div>
-                                                    <div class="dept-employees"><i class="bi bi-people"></i> @dept.TotalEmployees</div>
-                                                </div>
+                                                </a>
                                             }
                                         </div>
                                     </div>
@@ -400,7 +404,7 @@
                                         </span>
                                         <span class="announcement-date">@announcement.CreatedAt.ToString("dd/MM/yyyy")</span>
                                     </div>
-                                    <h4 class="announcement-title">@announcement.Title</h4>
+                                    <h4 class="announcement-title">@announcement.CreatedBy.FullName : @announcement.Title</h4>
                                     <p class="announcement-description">@announcement.Description</p>
                                 </div>
                             </div>
@@ -436,16 +440,23 @@
                 <div class="chart-container"><canvas id="sectorChart"></canvas></div>
             </div>
         </div>
+    }else{
+        @if (loading)
+        {
+            
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+        }
     }
 </div>
 
 @code {
-    string userRole = "Employee";
+    string userRole = "";
+    bool loading = true;
     Sho2on.Web.Models.DashboardTreeNode? tree;
     List<Announcement>? announcements;
     List<DashboardAlert>? alerts;
     DashboardChartsData? charts;
-    Sho2on.Web.Models.DashboardStats? personalStats;
+    DashboardStats? personalStats;
     ManagerDashboardStats? teamStats;
     List<TeamCheckInItem>? todayCheckIns;
 
@@ -453,32 +464,46 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        var userId = int.Parse(user.FindFirst("UserId")?.Value ?? "0");
-        var currentUser = await CurrentUserSvc.GetCurrentUserAsync();
+        loading = true;
+        try
+        {
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = int.Parse(user.FindFirst("UserId")?.Value ?? "0");
+            var currentUser = await CurrentUserSvc.GetCurrentUserAsync();
 
-        if (user.IsInRole(RoleNames.Admin))
-        {
-            userRole = "Admin";
-            tree = await DashboardSvc.GetCompanyTreeAsync();
-            announcements = await AnnouncementSvc.GetAnnouncementsAsync();
-            alerts = await DashboardSvc.GetAlertsAsync();
-            charts = await DashboardSvc.GetChartsDataAsync();
+            if (user.IsInRole(RoleNames.Admin))
+            {
+                userRole = "Admin";
+                tree = await DashboardSvc.GetCompanyTreeAsync();
+                announcements = await AnnouncementSvc.GetAnnouncementsAsync();
+                alerts = await DashboardSvc.GetAlertsAsync();
+                charts = await DashboardSvc.GetChartsDataAsync();
+            }
+            else if (user.IsInRole(RoleNames.Manager) || currentUser?.JobTitle?.IsManager == true)
+            {
+                userRole = "Manager";
+                personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
+                teamStats = await DashboardSvc.GetManagerDashboardStatsAsync(userId);
+                todayCheckIns = await DashboardSvc.GetTeamCheckInsAsync(userId);
+                announcements = await AnnouncementSvc.GetAnnouncementsAsync();
+            }
+            else
+            {
+                userRole = "Employee";
+                personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
+                announcements = await AnnouncementSvc.GetAnnouncementsAsync();
+            }
         }
-        else if (user.IsInRole(RoleNames.Manager) || currentUser?.JobTitle?.IsManager == true)
+        catch (Exception ex)
         {
-            userRole = "Manager";
-            personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
-            teamStats = await DashboardSvc.GetManagerDashboardStatsAsync(userId);
-            todayCheckIns = await DashboardSvc.GetTeamCheckInsAsync(userId);
-            announcements = await AnnouncementSvc.GetAnnouncementsAsync();
+            Logger.LogError(ex, "خطأ أثناء تحميل البيانات");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
         }
-        else
+        finally
         {
-            userRole = "Employee";
-            personalStats = await DashboardSvc.GetPersonalStatsAsync(userId);
-            announcements = await AnnouncementSvc.GetAnnouncementsAsync();
+            loading = false;
+            StateHasChanged();
         }
     }
 
