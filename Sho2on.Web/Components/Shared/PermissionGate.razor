@@ -1,0 +1,66 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using Sho2on.Web.Components.Layout
+@inject AuthenticationStateProvider AuthProvider
+@inject CurrentUserService CurrentUser
+@inject NavigationService NavService
+@inject NavigationManager Nav
+
+@if (state == GateState.Checking)
+{
+    <div class="gate-checking"><div class="spinner"></div></div>
+}
+else if (state == GateState.Denied)
+{
+    <LayoutView Layout="typeof(MainLayout)">
+        <div class="gate-denied">
+            <i class="bi bi-shield-lock"></i>
+            <h2>غير مصرح لك بالدخول لهذه الصفحة</h2>
+            <p>لو تعتقد إن ده خطأ، كلم الأدمن بتاعك يراجع صلاحياتك.</p>
+            <a class="btn-primary" href="/">الرجوع للرئيسية</a>
+        </div>
+    </LayoutView>
+}
+else if (state == GateState.Allowed)
+{
+    <RouteView RouteData="RouteData" DefaultLayout="DefaultLayout" />
+}
+
+@code {
+    [Parameter, EditorRequired] public RouteData RouteData { get; set; } = default!;
+    [Parameter] public Type? DefaultLayout { get; set; }
+
+    static readonly string[] PublicPaths = { "/login" };
+
+    enum GateState { Checking, Allowed, Denied }
+    GateState state = GateState.Checking;
+    string? lastCheckedPath;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var path = "/" + Nav.ToBaseRelativePath(Nav.Uri).Split('?')[0];
+
+        if (path == lastCheckedPath && state != GateState.Checking)
+            return;
+
+        lastCheckedPath = path;
+        state = GateState.Checking;
+
+        if (PublicPaths.Contains(path.TrimEnd('/')))
+        {
+            state = GateState.Allowed;
+            return;
+        }
+
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated != true)
+        {
+            Nav.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(path)}", forceLoad: false);
+            return;
+        }
+
+        var requiredPermission = NavService.ResolvePermissionForPath(path);
+        var allowed = requiredPermission == null || await CurrentUser.CanViewAsync(requiredPermission);
+
+        state = allowed ? GateState.Allowed : GateState.Denied;
+    }
+}

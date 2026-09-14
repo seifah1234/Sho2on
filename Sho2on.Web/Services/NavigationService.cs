@@ -4,11 +4,37 @@ namespace Sho2on.Web.Services
 {
     public class NavigationService
     {
+        public string? ResolvePermissionForPath(string path)
+{
+    var clean = (path ?? "").Split('?')[0].Split('#')[0].TrimEnd('/');
+    if (string.IsNullOrEmpty(clean)) return null;
+
+    var candidates = Flatten(GetMenu())
+        .Where(i => !string.IsNullOrEmpty(i.RequiredPermission) && !string.IsNullOrEmpty(i.Url))
+        .OrderByDescending(i => i.Url!.Length);
+
+    foreach (var item in candidates)
+    {
+        var itemPath = item.Url!.TrimEnd('/');
+        if (clean == itemPath || clean.StartsWith(itemPath + "/", StringComparison.OrdinalIgnoreCase))
+            return item.RequiredPermission;
+    }
+    return null;
+}
+
+private static List<NavigationItem> Flatten(List<NavigationItem> items)
+{
+    var result = new List<NavigationItem>();
+    foreach (var item in items)
+    {
+        if (item.Children is { Count: > 0 }) result.AddRange(Flatten(item.Children));
+        else result.Add(item);
+    }
+    return result;
+}
 
         public List<NavigationItem> GetMenu() => new()
         {
-            //new() { Title = "الرئيسية", Icon = "bi-speedometer2", Url = "/" }, // بدون صلاحية = ظاهرة للجميع
-
             new()
             {
                 Title = "الموظفين", Icon = "bi-people",
