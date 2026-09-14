@@ -1,4 +1,4 @@
-﻿@page "/profile"
+﻿@page "/profile/{Id:int?}"
 @rendermode InteractiveServer
 @layout MainLayout
 @attribute [Authorize]
@@ -13,7 +13,7 @@
 
 <div class="profile-page">
     <div class="page-header">
-        <h2><i class="bi bi-person-circle"></i> @Lang.T("الملف الشخصي")</h2>
+        <h2><i class="bi bi-person-circle"></i> @((!Id.HasValue) ? Lang.T("بياناتي") : Lang.T("ملف الموظف"))</h2>
     </div>
 
     @if (profile == null)
@@ -27,14 +27,17 @@
     {
         <div class="tabs">
             <button class="tab-btn @(activeTab == "info" ? "active" : "")" @onclick='() => activeTab = "info"'>
-                <i class="bi bi-person-lines-fill"></i> @Lang.T("بياناتي")
+                <i class="bi bi-person-lines-fill"></i> @((!Id.HasValue) ? Lang.T("بياناتي") : Lang.T("ملف الموظف"))
             </button>
-            <button class="tab-btn @(activeTab == "account" ? "active" : "")" @onclick='() => activeTab = "account"'>
-                <i class="bi bi-shield-lock"></i> @Lang.T("الحساب")
-            </button>
-            <button class="tab-btn @(activeTab == "requests" ? "active" : "")" @onclick='() => activeTab = "requests"'>
-                <i class="bi bi-list-check"></i> @Lang.T("طلباتي")
-            </button>
+            @if (!Id.HasValue)
+            {
+                <button class="tab-btn @(activeTab == "account" ? "active" : "")" @onclick='() => activeTab = "account"'>
+                    <i class="bi bi-shield-lock"></i> @Lang.T("الحساب")
+                </button>
+                <button class="tab-btn @(activeTab == "requests" ? "active" : "")" @onclick='() => activeTab = "requests"'>
+                    <i class="bi bi-list-check"></i> @Lang.T("طلباتي")
+                </button>
+            }
         </div>
 
         @if (activeTab == "info")
@@ -223,6 +226,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public int? Id { get; set; }
+
     int currentUserId;
     MyProfileInfo? profile;
     List<MyRequestItem>? myRequests;
@@ -245,7 +251,7 @@
         try
         {
             var authState = await AuthProvider.GetAuthenticationStateAsync();
-            currentUserId = int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
+            currentUserId = (Id.HasValue) ? Id.Value : int.Parse(authState.User.FindFirst("UserId")?.Value ?? "0");
 
             profile = await ProfileSvc.GetMyProfileAsync(currentUserId);
             if (profile != null) newUsername = profile.Username;

@@ -12,7 +12,7 @@ namespace Sho2on.Web.Services
             _dbFactory = dbFactory;
         }
 
-        public async Task<(bool Success, User? User, string? Error, List<string>? roles, List<string>? rolePermissions)> LoginAsync(string username, string password)
+        public async Task<(bool Success, User? User, string? Error, List<string>? roles, List<string>? rolePermissions, List<string>? editPermissions)> LoginAsync(string username, string password)
         {
             using var _db = await _dbFactory.CreateDbContextAsync();
             var user = await _db.Users
@@ -22,7 +22,7 @@ namespace Sho2on.Web.Services
 
             if (user == null)
             {
-                return (false, null, "اسم المستخدم او كلمة المرور غير صحيحة", null, null);
+                return (false, null, "اسم المستخدم او كلمة المرور غير صحيحة", null, null, null);
             }
 
             var roles = await _db.UserRoles
@@ -30,8 +30,17 @@ namespace Sho2on.Web.Services
     .Select(ur => ur.Role.RoleName)
     .ToListAsync();
 
+            // لو المستخدم عنده أكتر من Role وأي واحد منهم عنده View على الصفحة، يبقى شايفها (Union)
+            // بنستخدم & بدل HasFlag عشان تتترجم صح لـ SQL
             var permissions = await _db.RolePermissions
-                .Where(rp => roles.Contains(rp.Role.RoleName))
+                .Where(rp => roles.Contains(rp.Role.RoleName) && (rp.AccessLevel & AccessLevel.View) == AccessLevel.View)
+                .Select(rp => rp.Permission.PermissionName)
+                .Distinct()
+                .ToListAsync();
+
+            // نفس المنطق لصلاحية التعديل: لو أي Role من رولاته عنده Edit على الصفحة، يبقى يقدر يعدل فيها
+            var editPermissions = await _db.RolePermissions
+                .Where(rp => roles.Contains(rp.Role.RoleName) && (rp.AccessLevel & AccessLevel.Edit) == AccessLevel.Edit)
                 .Select(rp => rp.Permission.PermissionName)
                 .Distinct()
                 .ToListAsync();
@@ -59,10 +68,10 @@ namespace Sho2on.Web.Services
 
             if (!isValid)
             {
-                return (false, null, "اسم المستخدم او كلمة المرور غير صحيحة", null, null);
+                return (false, null, "اسم المستخدم او كلمة المرور غير صحيحة", null, null, null);
             }
 
-            return (true, user, null, roles, permissions);
+            return (true, user, null, roles, permissions, editPermissions);
         }
 
     }

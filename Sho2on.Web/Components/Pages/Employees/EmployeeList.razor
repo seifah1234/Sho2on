@@ -10,15 +10,19 @@
 @inject NotificationService Notify
 @inject NavigationManager Nav
 @inject AuthenticationStateProvider AuthProvider
+@inject CurrentUserService CurrentUser
 @inject ILogger<EmployeeList> Logger
 @implements IDisposable
 
 <div class="employees-page">
     <div class="page-header">
         <h2><i class="bi bi-people"></i> @Lang.T("الموظفون")</h2>
-        <button class="btn-primary" @onclick='() => Nav.NavigateTo("/employees/add")'>
-            <i class="bi bi-plus-lg"></i> @Lang.T("إضافة موظف")
-        </button>
+        @if (canAddEmployees)
+        {
+            <button class="btn-primary" @onclick='() => Nav.NavigateTo("/employees/add")'>
+                <i class="bi bi-plus-lg"></i> @Lang.T("إضافة موظف")
+            </button>
+        }
     </div>
 
     <div class="page-toolbar">
@@ -280,7 +284,7 @@
                         <th>@Lang.T("الإدارة")</th>
                         <th>@Lang.T("الوظيفة")</th>
                         <th>@Lang.T("الموبايل")</th>
-                            @if(!departmentId.HasValue){
+                            @if(!departmentId.HasValue && canEditEmployees){
 
                                 <th>@Lang.T("إجراءات")</th>
                             }
@@ -295,7 +299,7 @@
                             </td>
                             <td>
                                 <div class="employee-name-cell">
-                                    <span>@emp.FullName</span>
+                                    <a href="@($"/profile/{emp.Id}")">@emp.FullName</a>
                                     @if (emp.IsArchived)
                                     {
                                         <span class="archived-badge">@Lang.T("مؤرشف")</span>
@@ -310,7 +314,7 @@
                                     <i class="bi bi-phone"></i> @emp.PhoneNumber
                                 </span>
                             </td>
-                            @if (!departmentId.HasValue)
+                            @if (!departmentId.HasValue && canEditEmployees)
                             {
 
                                 <td class="row-actions">
@@ -462,10 +466,15 @@
         + (filter.HireDateTo.HasValue ? 1 : 0)
         + (!string.IsNullOrWhiteSpace(filter.PhoneNumber) ? 1 : 0);
 
+    bool canEditEmployees;
+    bool canAddEmployees;
+
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
     protected override async Task OnInitializedAsync()
     {
+        canEditEmployees = await CurrentUser.CanEditAsync("بيانات الموظفين");
+        canAddEmployees = await CurrentUser.CanEditAsync("اضافة موظف");
         lookups = await EmployeeSvc.GetLookupsAsync();
         branches = lookups.Branches;
         await LoadEmployees();
@@ -559,6 +568,10 @@
             await EmployeeSvc.ToggleArchiveAsync(employeeToToggle.Id);
             Notify.ShowSuccess(employeeToToggle.IsArchived ? Lang.T("تم استعادة الموظف بنجاح") : Lang.T("تم أرشفة الموظف بنجاح"));
             await LoadEmployees();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Notify.ShowError(Lang.T("لا تملك صلاحية تعديل بيانات الموظفين"));
         }
         catch (Exception ex)
         {

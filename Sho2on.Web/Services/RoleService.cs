@@ -40,7 +40,13 @@ namespace Sho2on.Web.Services
         public async Task<List<int>> GetRolePermissionIdsAsync(int roleId) =>
             await _db.RolePermissions.Where(rp => rp.RoleID == roleId).Select(rp => rp.PermissionID).ToListAsync();
 
-        public async Task<(bool Success, string Message)> SaveRoleAsync(int? roleId, string roleName, List<int> permissionIds)
+        // بيرجع مستوى الصلاحية (View / Edit) لكل Permission محدد للرول ده، عشان شاشة التعديل تعرض الحالة الصحيحة
+        public async Task<Dictionary<int, AccessLevel>> GetRolePermissionLevelsAsync(int roleId) =>
+            await _db.RolePermissions
+                .Where(rp => rp.RoleID == roleId)
+                .ToDictionaryAsync(rp => rp.PermissionID, rp => rp.AccessLevel);
+
+        public async Task<(bool Success, string Message)> SaveRoleAsync(int? roleId, string roleName, Dictionary<int, AccessLevel> permissionLevels)
         {
             // منع تكرار الاسم
             var nameExists = await _db.Roles.AnyAsync(r => r.RoleName == roleName && r.RoleID != (roleId ?? 0));
@@ -62,8 +68,14 @@ namespace Sho2on.Web.Services
                 await _db.SaveChangesAsync(); // عشان ناخد الـ Id قبل ما نضيف الصلاحيات
             }
 
-            foreach (var pid in permissionIds)
-                _db.RolePermissions.Add(new RolePermission { RoleID = role.RoleID, PermissionID = pid });
+            foreach (var (pid, level) in permissionLevels)
+            {
+                // "Edit" لازم يشمل "View" ضمنيًا (ملوش معنى تعدل حاجة من غير ما تشوفها)
+                var effectiveLevel = level.HasFlag(AccessLevel.Edit) ? level | AccessLevel.View : level;
+                if (effectiveLevel == AccessLevel.None) continue; // لو المستخدم شال الصلاحية بالكامل، متتضافش
+
+                _db.RolePermissions.Add(new RolePermission { RoleID = role.RoleID, PermissionID = pid, AccessLevel = effectiveLevel });
+            }
 
             await _db.SaveChangesAsync();
             return (true, "تم الحفظ بنجاح");

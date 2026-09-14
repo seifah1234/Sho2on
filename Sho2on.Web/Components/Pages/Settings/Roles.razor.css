@@ -54,3 +54,28 @@
     .perm-row:hover {
         background: var(--background);
     }
+
+.perm-name {
+    flex: 1;
+}
+
+.perm-col-toggle {
+    width: 56px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.perm-row-header {
+    cursor: default;
+    font-weight: 700;
+    color: var(--muted);
+    position: sticky;
+    top: 0;
+    background: var(--surface, #fff);
+}
+
+    .perm-row-header:hover {
+        background: var(--surface, #fff);
+    }

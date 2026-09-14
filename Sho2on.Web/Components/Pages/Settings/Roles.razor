@@ -78,22 +78,34 @@
                     <input class="search-input" placeholder="@Lang.T("ابحث في الصلاحيات...")" @bind="permSearchTerm" @bind:event="oninput" />
 
                     <div class="permissions-actions">
-                        <button type="button" class="link-btn" @onclick="SelectAllVisible">@Lang.T("تحديد الكل")</button>
+                        <button type="button" class="link-btn" @onclick="SelectAllVisible">@Lang.T("تحديد الكل (View)")</button>
                         <span>·</span>
                         <button type="button" class="link-btn" @onclick="ClearAllVisible">@Lang.T("إلغاء التحديد")</button>
-                        <span class="selected-count">@selectedPermissionIds.Count @Lang.T("محددة")</span>
+                        <span class="selected-count">@permissionLevels.Count(p => p.Value != AccessLevel.None) @Lang.T("محددة")</span>
                     </div>
 
                     <div class="permissions-checklist">
                         @if (allPermissions != null)
                         {
+                            <div class="perm-row perm-row-header">
+                                <span class="perm-name"></span>
+                                <span class="perm-col-toggle">@Lang.T("View")</span>
+                                <span class="perm-col-toggle">@Lang.T("Edit")</span>
+                            </div>
                             @foreach (var p in allPermissions.Where(p => string.IsNullOrEmpty(permSearchTerm) || p.PermissionName.Contains(permSearchTerm)))
                             {
-                                <label class="perm-row">
-                                    <input type="checkbox" checked="@selectedPermissionIds.Contains(p.PermissionID)"
-                                           @onchange="(e) => TogglePermission(p.PermissionID, (bool)e.Value!)" />
-                                    <span>@p.PermissionName</span>
-                                </label>
+                                var level = permissionLevels.TryGetValue(p.PermissionID, out var l) ? l : AccessLevel.None;
+                                <div class="perm-row">
+                                    <span class="perm-name">@p.PermissionName</span>
+                                    <label class="perm-col-toggle" title="@Lang.T("عرض بس، بدون تعديل")">
+                                        <input type="checkbox" checked="@level.HasFlag(AccessLevel.View)"
+                                               @onchange="(e) => ToggleView(p.PermissionID, (bool)e.Value!)" />
+                                    </label>
+                                    <label class="perm-col-toggle" title="@Lang.T("يقدر يعدل / يضيف / يحذف")">
+                                        <input type="checkbox" checked="@level.HasFlag(AccessLevel.Edit)"
+                                               @onchange="(e) => ToggleEdit(p.PermissionID, (bool)e.Value!)" />
+                                    </label>
+                                </div>
                             }
                         }
                     </div>
@@ -155,7 +167,7 @@
     int? editingId;
     string formName = "";
     string permSearchTerm = "";
-    HashSet<int> selectedPermissionIds = new();
+    Dictionary<int, AccessLevel> permissionLevels = new();
 
     RoleListItem? roleToDelete;
 
@@ -187,35 +199,51 @@
     void OpenAddModal()
     {
         isEdit = false; editingId = null; formName = ""; permSearchTerm = "";
-        selectedPermissionIds = new();
+        permissionLevels = new();
         showModal = true;
     }
 
     async Task OpenEditModal(RoleListItem r)
     {
         isEdit = true; editingId = r.Id; formName = r.RoleName; permSearchTerm = "";
-        var current = await RoleSvc.GetRolePermissionIdsAsync(r.Id);
-        selectedPermissionIds = new HashSet<int>(current);
+        permissionLevels = await RoleSvc.GetRolePermissionLevelsAsync(r.Id);
         showModal = true;
     }
 
     void CloseModal() => showModal = false;
 
-    void TogglePermission(int id, bool isChecked)
+    AccessLevel GetLevel(int id) => permissionLevels.TryGetValue(id, out var l) ? l : AccessLevel.None;
+
+    void SetLevel(int id, AccessLevel level)
     {
-        if (isChecked) selectedPermissionIds.Add(id); else selectedPermissionIds.Remove(id);
+        if (level == AccessLevel.None) permissionLevels.Remove(id);
+        else permissionLevels[id] = level;
+    }
+
+    void ToggleView(int id, bool isChecked)
+    {
+        var level = GetLevel(id);
+        // شيل View معناها تشيل Edit كمان، لأن Edit مستحيل من غير View
+        SetLevel(id, isChecked ? level | AccessLevel.View : AccessLevel.None);
+    }
+
+    void ToggleEdit(int id, bool isChecked)
+    {
+        var level = GetLevel(id);
+        // تفعيل Edit يفعّل View تلقائيًا، لأنه ملوش معنى إنك تعدل حاجة من غير ما تشوفها
+        SetLevel(id, isChecked ? (level | AccessLevel.Edit | AccessLevel.View) : (level & ~AccessLevel.Edit));
     }
 
     void SelectAllVisible()
     {
         var visible = allPermissions!.Where(p => string.IsNullOrEmpty(permSearchTerm) || p.PermissionName.Contains(permSearchTerm));
-        foreach (var p in visible) selectedPermissionIds.Add(p.PermissionID);
+        foreach (var p in visible) SetLevel(p.PermissionID, GetLevel(p.PermissionID) | AccessLevel.View);
     }
 
     void ClearAllVisible()
     {
         var visible = allPermissions!.Where(p => string.IsNullOrEmpty(permSearchTerm) || p.PermissionName.Contains(permSearchTerm));
-        foreach (var p in visible) selectedPermissionIds.Remove(p.PermissionID);
+        foreach (var p in visible) SetLevel(p.PermissionID, AccessLevel.None);
     }
 
     async Task SubmitSave()
@@ -223,7 +251,7 @@
         if (string.IsNullOrWhiteSpace(formName)) { Notify.ShowError(Lang.T("أدخل اسم الدور")); return; }
         try
         {
-            var (success, message) = await RoleSvc.SaveRoleAsync(editingId, formName, selectedPermissionIds.ToList());
+            var (success, message) = await RoleSvc.SaveRoleAsync(editingId, formName, permissionLevels);
             if (success) { Notify.ShowSuccess(message); showModal = false; await Load(); }
             else Notify.ShowError(message);
         }

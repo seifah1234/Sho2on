@@ -11,5 +11,7 @@ namespace Sho2on.Database.Models
         public int PermissionID { get; set; }
         [ForeignKey(nameof(PermissionID))]
         public Permission Permission { get; set; }
+
+        public AccessLevel AccessLevel { get; set; } = AccessLevel.Full;
     }
 }

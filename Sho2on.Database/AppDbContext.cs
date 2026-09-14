@@ -361,6 +361,10 @@ namespace Sho2on.Database
 
             modelBuilder.Entity<RolePermission>()
        .HasKey(rp => new { rp.RoleID, rp.PermissionID });
+       
+            modelBuilder.Entity<RolePermission>()
+       .Property(rp => rp.AccessLevel)
+       .HasDefaultValue(AccessLevel.Full);
 
             modelBuilder.Entity<UserRole>()
        .HasKey(rp => new { rp.UserId, rp.RoleId});

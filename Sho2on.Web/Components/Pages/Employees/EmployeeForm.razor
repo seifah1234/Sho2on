@@ -14,6 +14,7 @@
 @inject NavigationManager Nav
 @inject EmployeeDocumentService DocSvc
 @inject AuthenticationStateProvider AuthProvider
+@inject CurrentUserService CurrentUser
 @inject NotificationService Notify
 @implements IDisposable
 
@@ -711,6 +712,15 @@ else if (activeTab == "الحضور والإعفاءات")
 
     protected override async Task OnInitializedAsync()
     {
+        // حماية إضافية: لو دخل الصفحة مباشرة بالـ URL وهو عنده View بس، منرجعه لقائمة الموظفين
+        var requiredPermission = Id.HasValue ? "بيانات الموظفين" : "إضافة موظف";
+        if (!await CurrentUser.CanEditAsync(requiredPermission))
+        {
+            Notify.ShowError(Lang.T("لا تملك صلاحية تعديل بيانات الموظفين"));
+            Nav.NavigateTo("/employees");
+            return;
+        }
+
         lookups = await EmployeeSvc.GetLookupsAsync();
         model = Id.HasValue ? await EmployeeSvc.GetByIdAsync(Id.Value) : new EmployeeFormModel();
 
@@ -1066,6 +1076,10 @@ else if (activeTab == "الحضور والإعفاءات")
             
             Notify.ShowSuccess(Lang.T("تم حفظ بيانات الموظف بنجاح"));
             Nav.NavigateTo("/employees");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Notify.ShowError(Lang.T("لا تملك صلاحية تعديل بيانات الموظفين"));
         }
         catch (Exception ex)
         {

@@ -8,7 +8,12 @@ namespace Sho2on.Web.Services
     public class EmployeeService
     {
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
-        public EmployeeService(IDbContextFactory<AppDbContext> dbFactory) => _dbFactory = dbFactory;
+        private readonly CurrentUserService _currentUser;
+        public EmployeeService(IDbContextFactory<AppDbContext> dbFactory, CurrentUserService currentUser)
+        {
+            _dbFactory = dbFactory;
+            _currentUser = currentUser;
+        }
 
         public class EmployeeSearchItem
         {
@@ -217,6 +222,10 @@ namespace Sho2on.Web.Services
 
         public async Task SaveAsync(EmployeeFormModel m)
         {
+            // حماية على مستوى السيرفر: تعديل موظف موجود يحتاج "بيانات الموظفين"،
+            // وإضافة موظف جديد تحتاج "إضافة موظف". كده مش معتمدين بس على إخفاء الزراير في الواجهة.
+            await _currentUser.RequireEditAsync(m.Id.HasValue ? "بيانات الموظفين" : "إضافة موظف");
+
             User u;
             using var _db = await _dbFactory.CreateDbContextAsync();
             if (m.Id.HasValue)
@@ -360,6 +369,8 @@ namespace Sho2on.Web.Services
 
         public async Task ToggleArchiveAsync(int id)
         {
+            await _currentUser.RequireEditAsync("بيانات الموظفين");
+
             using var _db = await _dbFactory.CreateDbContextAsync();
             var u = await _db.Users.FindAsync(id) ?? throw new Exception("الموظف غير موجود");
             u.IsArchived = !u.IsArchived;

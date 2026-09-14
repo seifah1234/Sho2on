@@ -18,7 +18,7 @@ namespace Sho2on.Web.Endpoints
 
                 try
                 {
-                    var (success, user, error, roles, permissions) = await authService.LoginAsync(username, password);
+                    var (success, user, error, roles, permissions, editPermissions) = await authService.LoginAsync(username, password);
 
                     if (!success)
                         return Results.Redirect("/login?error=invalid");
@@ -31,7 +31,9 @@ namespace Sho2on.Web.Endpoints
                     };
                     
                     claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+                    // "perm" = يقدر يشوف الصفحة (View). "perm-edit" = يقدر كمان يعدل/يضيف/يحذف فيها.
                     claims.AddRange(permissions.Select(p => new Claim("perm", p)));
+                    claims.AddRange(editPermissions.Select(p => new Claim("perm-edit", p)));
 
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
