@@ -299,6 +299,7 @@ namespace Sho2on.Database
             public DbSet<MachineData> MachineData { get; set; }
             public DbSet<Salary> Salaries { get; set; }
             public DbSet<Attendance> Attendances { get; set; }
+            public DbSet<EmployeeLiveLocation> EmployeeLiveLocations { get; set; }
             public DbSet<Procedure> Procedures { get; set; }
             public DbSet<Leave> Leaves { get; set; }
             public DbSet<LeaveBalance> LeaveBalances { get; set; }

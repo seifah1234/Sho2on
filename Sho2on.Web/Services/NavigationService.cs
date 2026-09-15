@@ -58,6 +58,7 @@ private static List<NavigationItem> Flatten(List<NavigationItem> items)
                     new() { Title = "التقرير الشهري", Url = "/attendance/monthly", Icon = "bi-file-text", RequiredPermission = "التقرير الشهري" },
                     new() { Title = "تقرير شهر الموظف", Url = "/attendance/employee-report", Icon = "bi-person-badge", RequiredPermission = "تقرير شهر الموظف" },
                     new() { Title = "تغيير الوردية", Url = "/attendance/shift-change", Icon = "bi-arrow-repeat", RequiredPermission = "تغيير الوردية" },
+                    new() { Title = "تتبع مواقع الموظفين", Url = "/attendance/live-tracking", Icon = "bi-geo-alt", RequiredPermission = "تتبع مواقع الموظفين" },
                 }
             },
 

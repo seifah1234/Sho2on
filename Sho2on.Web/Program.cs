@@ -58,6 +58,7 @@ builder.Services.AddScoped<CompanyDocumentService>();
 builder.Services.AddScoped<EmployeeDocumentService>();
 builder.Services.AddScoped<EvaluationService>();
 builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<LocationTrackingService>();
 builder.Services.AddSingleton<ChatTokenService>();
 builder.Services.AddScoped<ChatConnectionService>();
 builder.Services.AddScoped<ChatService>();

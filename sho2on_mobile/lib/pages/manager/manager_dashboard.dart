@@ -6,6 +6,7 @@ import 'approve_loans_page.dart';
 import 'approve_leaves_page.dart';
 import 'approve_permissions_page.dart';
 import 'team_reports_page.dart';
+import 'team_location_page.dart';
 import '../main_page.dart'; // ✅ إضافة import للصفحة الرئيسية
 
 class ManagerDashboard extends StatefulWidget {
@@ -460,6 +461,13 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
         'badge': _pendingApprovals['pendingPermissions'] ?? 0,
         'onTap': _navigateToApprovePermissions,
       },
+      {
+        'title': 'تتبع الموظفين',
+        'icon': Icons.location_on,
+        'color': purpleColor,
+        'badge': 0,
+        'onTap': _navigateToTeamLocation,
+      },
     ];
 
     return Container(
@@ -502,80 +510,101 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
             ],
           ),
           SizedBox(height: 16),
-          Row(
-            children: actions.map((action) {
-              final color = action['color'] as Color;
-              final badge = action['badge'] as int;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: action['onTap'] as VoidCallback,
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: color.withValues(alpha: 0.15)),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                action['icon'] as IconData,
-                                color: color,
-                                size: 20,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Text(
-                              action['title']!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (badge > 0)
-                          Positioned(
-                            top: 2,
-                            right: 2,
-                            child: Container(
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: errorColor,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                '$badge',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
+          Column(
+            children: [
+              for (int i = 0; i < actions.length; i += 3)
+                Padding(
+                  padding: EdgeInsets.only(
+                    bottom: i + 3 < actions.length ? 10 : 0,
+                  ),
+                  child: Row(
+                    children: actions
+                        .sublist(
+                          i,
+                          i + 3 > actions.length ? actions.length : i + 3,
+                        )
+                        .map((action) => _buildQuickActionCard(action))
+                        .toList(),
                   ),
                 ),
-              );
-            }).toList(),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionCard(Map<String, dynamic> action) {
+    final color = action['color'] as Color;
+    final badge = action['badge'] as int;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: GestureDetector(
+          onTap: action['onTap'] as VoidCallback,
+          child: Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: color.withValues(alpha: 0.15)),
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        action['icon'] as IconData,
+                        color: color,
+                        size: 20,
+                      ),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      action['title']!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Tajawal',
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                ),
+                if (badge > 0)
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: errorColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$badge',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -912,6 +941,13 @@ class _ManagerDashboardState extends State<ManagerDashboard> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => TeamReportsPage(user: widget.user)),
+    );
+  }
+
+  void _navigateToTeamLocation() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => TeamLocationPage(user: widget.user)),
     );
   }
 

@@ -33,6 +33,12 @@
                 Title = "تغيير الوردية",
                 Url = "/attendance/shift-change",
                 Icon = "bi bi-arrow-repeat"
+            },
+            new()
+            {
+                Title = "تتبع مواقع الموظفين",
+                Url = "/attendance/live-tracking",
+                Icon = "bi bi-geo-alt"
             }
         ];
     }

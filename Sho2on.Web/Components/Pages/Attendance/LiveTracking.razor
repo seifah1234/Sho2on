@@ -1,0 +1,196 @@
+﻿@page "/attendance/live-tracking"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize]
+@using Sho2on.Web.Services
+@using Sho2on.Web.Models.Navigation
+@inject LocationTrackingService LocationSvc
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<ModuleTabs Tabs="AttendanceTabs.Items" />
+
+<div class="live-tracking-page">
+
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <input class="search-input" placeholder="@Lang.T("ابحث بالاسم أو الكود")"
+                   @bind="searchTerm" @bind:event="oninput" @bind:after="ApplyFilters" />
+
+            <select class="select-input" @bind="selectedBranchId" @bind:after="ApplyFilters">
+                <option value="">@Lang.T("كل الفروع")</option>
+                @if (branches != null)
+                {
+                    @foreach (var b in branches)
+                    {
+                        <option value="@b.Id">@b.Name</option>
+                    }
+                }
+            </select>
+
+            <button class="btn-secondary" @onclick="() => LoadLocations(true)">
+                <i class="bi bi-arrow-clockwise"></i> @Lang.T("تحديث")
+            </button>
+        </div>
+
+        <div class="live-status">
+            <span class="live-dot"></span>
+            @Lang.T("تحديث تلقائي كل 20 ثانية")
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else if (employees.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-geo-alt"></i>
+            <p>@Lang.T("لا توجد مواقع متاحة حالياً، هتظهر أول ما أي موظف يسجل حضور")</p>
+        </div>
+    }
+    else
+    {
+        <div class="tracking-layout">
+            <div class="map-container">
+                <div id="liveTrackingMapEl" class="live-tracking-map"></div>
+            </div>
+
+            <div class="employee-list">
+                @foreach (var emp in employees)
+                {
+                    <div class="employee-row @(emp.UserId == selectedUserId ? "active" : "")"
+                         @onclick="() => FocusOn(emp)">
+                        <span class="status-dot @(emp.IsRecentlyActive ? "online" : "offline")"></span>
+                        <div class="employee-info">
+                            <strong>@emp.FullName</strong>
+                            <small>@(emp.JobTitleName ?? emp.BranchName)</small>
+                        </div>
+                        <div class="employee-meta">
+                            <span class="@(emp.IsRecentlyActive ? "text-online" : "text-offline")">
+                                @(emp.IsRecentlyActive ? Lang.T("أونلاين") : Lang.T("غير نشط"))
+                            </span>
+                            <small>@TimeAgo(emp.UpdatedAtUtc)</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    List<(int Id, string Name)>? branches;
+    List<EmployeeLocationItem> employees = new();
+
+    string searchTerm = "";
+    string selectedBranchId = "";
+    int? selectedUserId;
+    bool loading = false;
+    bool mapInitialized = false;
+
+    DotNetObjectReference<LiveTracking>? dotNetRef;
+    System.Threading.Timer? refreshTimer;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lookups = await EmployeeSvc.GetLookupsAsync();
+        branches = lookups.Branches;
+        await LoadLocations(true);
+
+        // تحديث تلقائي كل 20 ثانية طول ما الصفحة مفتوحة
+        refreshTimer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(async () => await LoadLocations(false));
+        }, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!mapInitialized && employees.Count > 0)
+        {
+            dotNetRef ??= DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("liveTrackingMap.init", "liveTrackingMapEl", MapPayload(), dotNetRef);
+            mapInitialized = true;
+        }
+        else if (mapInitialized && firstRender == false)
+        {
+            await JS.InvokeVoidAsync("liveTrackingMap.updateMarkers", MapPayload());
+        }
+    }
+
+    object[] MapPayload() => employees.Select(e => (object)new
+    {
+        userId = e.UserId,
+        fullName = e.FullName,
+        jobTitleName = e.JobTitleName,
+        latitude = e.Latitude,
+        longitude = e.Longitude,
+        isRecentlyActive = e.IsRecentlyActive
+    }).ToArray();
+
+    async Task LoadLocations(bool showSpinner)
+    {
+        if (showSpinner)
+        {
+            loading = true;
+            StateHasChanged();
+        }
+        try
+        {
+            int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
+            employees = await LocationSvc.GetAllLocationsAsync(branchId, searchTerm);
+        }
+        catch
+        {
+            employees = new();
+        }
+        finally
+        {
+            if (showSpinner) loading = false;
+            StateHasChanged();
+
+            if (mapInitialized)
+            {
+                await JS.InvokeVoidAsync("liveTrackingMap.updateMarkers", MapPayload());
+            }
+        }
+    }
+
+    async Task ApplyFilters() => await LoadLocations(true);
+
+    async Task FocusOn(EmployeeLocationItem emp)
+    {
+        selectedUserId = emp.UserId;
+        await JS.InvokeVoidAsync("liveTrackingMap.focusOn", emp.UserId, emp.Latitude, emp.Longitude);
+    }
+
+    [JSInvokable]
+    public void OnMarkerClicked(int userId)
+    {
+        selectedUserId = userId;
+        StateHasChanged();
+    }
+
+    string TimeAgo(DateTime updatedAtUtc)
+    {
+        var diff = DateTime.UtcNow - updatedAtUtc;
+        if (diff.TotalSeconds < 60) return Lang.T("الآن");
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} {Lang.T("دقيقة")}";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} {Lang.T("ساعة")}";
+        return $"{(int)diff.TotalDays} {Lang.T("يوم")}";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Lang.OnChange -= StateHasChanged;
+        refreshTimer?.Dispose();
+        try { await JS.InvokeVoidAsync("liveTrackingMap.destroy"); } catch { }
+        dotNetRef?.Dispose();
+    }
+}

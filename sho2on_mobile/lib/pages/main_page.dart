@@ -5,6 +5,7 @@ import 'package:sho2on_mobile/pages/manager/manager_dashboard.dart';
 import '../services/attendance_service.dart';
 import '../utils/local_storage.dart';
 import '../services/location_service.dart';
+import '../services/background_location_service.dart';
 import '../services/holiday_service.dart';
 import '../services/loan_service.dart';
 import 'holiday_request_page.dart';
@@ -79,6 +80,13 @@ class _MainPageState extends State<MainPage> {
       checkIn = widget.user['today']['checkIn'] ?? '--:--';
       statusText = widget.user['today']['status'] ?? 'غير مسجل';
     });
+    // لو الموظف مسجل حضور فعلاً (فتح التطبيق تاني في نص الوردية)، نتأكد التتبع شغال
+    if (statusText == 'حاضر') {
+      final running = await BackgroundLocationService.isRunning();
+      if (!running) {
+        await BackgroundLocationService.start(widget.user['id']);
+      }
+    }
     await _loadLeaveStats();
     await _loadLoanStats();
   }
@@ -143,6 +151,9 @@ class _MainPageState extends State<MainPage> {
           checkIn = TimeOfDay.now().format(context);
           statusText = 'حاضر';
         });
+        // نطلب إذن الموقع الدائم (Always) ونبدأ سيرفس التتبع في الخلفية
+        await BackgroundLocationService.ensureBackgroundPermission(context);
+        await BackgroundLocationService.start(widget.user['id']);
         await LocalStorage.saveUser(widget.user);
         _showSuccess('تم تسجيل الحضور بنجاح');
       }else{
@@ -173,6 +184,7 @@ class _MainPageState extends State<MainPage> {
         checkOut = TimeOfDay.now().format(context);
         statusText = 'منصرف';
       });
+      await BackgroundLocationService.stop();
       await LocalStorage.saveUser(widget.user);
       _showSuccess('تم تسجيل الانصراف بنجاح');
     } else {
