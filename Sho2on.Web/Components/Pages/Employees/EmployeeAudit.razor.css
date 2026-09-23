@@ -1,0 +1,211 @@
+/* ===== صفحة سجل التعديلات ===== */
+.audit-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* الأزرار */
+.audit-page .btn-excel {
+    background: linear-gradient(135deg, #1D6F42 0%, #217346 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 2px 8px rgba(29, 111, 66, 0.25);
+    white-space: nowrap;
+}
+.audit-page .btn-excel:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(29, 111, 66, 0.35);
+}
+.audit-page .btn-excel:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.audit-page .btn-outline {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+.audit-page .btn-outline:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+.audit-page .spinner-sm {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+}
+
+/* بادجات العملية */
+.audit-page .action-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+.audit-page .action-badge.act-create { background: #D1FAE5; color: #065F46; border-color: #A7F3D0; }
+.audit-page .action-badge.act-update { background: #DBEAFE; color: #1E40AF; border-color: #BFDBFE; }
+.audit-page .action-badge.act-archive { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+.audit-page .action-badge.act-restore { background: #D1FAE5; color: #065F46; border-color: #A7F3D0; }
+.audit-page .action-badge.act-delete { background: #FEE2E2; color: #991B1B; border-color: #FECACA; }
+
+/* خلايا */
+.audit-page .date-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--text-light);
+}
+.audit-page .date-cell i { color: var(--primary); }
+
+.audit-page .emp-link {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+.audit-page .emp-link:hover { text-decoration: underline; }
+
+.audit-page .user-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--text-light);
+}
+.audit-page .user-cell i { color: var(--primary); font-size: 14px; }
+
+.audit-page .count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 24px;
+    padding: 0 8px;
+    background: var(--info-bg);
+    color: var(--primary);
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* المودال - meta grid */
+.audit-page .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.audit-page .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--background);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+}
+.audit-page .meta-item.full { grid-column: 1 / -1; }
+.audit-page .meta-item label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.audit-page .meta-item span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* جدول التغييرات */
+.audit-page .changes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+.audit-page .changes-table thead th {
+    padding: 10px 14px;
+    background: var(--background);
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: right;
+    border-bottom: 2px solid var(--border);
+}
+.audit-page .changes-table tbody td {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.audit-page .changes-table tbody tr:last-child td { border-bottom: none; }
+
+.audit-page .old-val {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #FEE2E2;
+    color: #991B1B;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    text-decoration: line-through;
+    text-decoration-color: rgba(153, 27, 27, 0.5);
+}
+.audit-page .new-val {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #D1FAE5;
+    color: #065F46;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .audit-page .search-filter { flex-direction: column; align-items: stretch; }
+    .audit-page .meta-grid { grid-template-columns: 1fr; }
+}

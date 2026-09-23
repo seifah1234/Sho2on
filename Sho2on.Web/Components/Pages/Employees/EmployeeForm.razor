@@ -229,6 +229,25 @@
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.UnderTraining" /><label>@Lang.T("تحت التدريب")</label></div>
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.UnderEmployment" /><label>@Lang.T("على رأس العمل")</label></div>
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.InDuty" /><label>@Lang.T("في الخدمة")</label></div>
+                        @if (!model!.InDuty)
+                        {
+                            <div class="field">
+                            <label>@Lang.T("سبب إنهاء الخدمة")</label>
+                            <select @bind="model!.EndDutyTypeId" class="select-input">
+                                @foreach (var a in lookups.EndDutyTypes)
+                                {
+                                    <option value="@a.Id">@a.Name</option>
+                                }
+                            </select>
+                        </div>
+                            <div class="field full"><label>@Lang.T("ملاحظات إنهاء الخدمة")</label><InputText @bind-Value="model!.EndDutyNotes" /></div>
+                        }
+                        <div class="field"><label>@Lang.T("تاريخ الانتهاء")</label><InputDate @bind-Value="model!.FinishJob" /></div>
+                            <div class="field checkbox danger"><InputCheckbox @bind-Value="model!.Blacklist" /><label>@Lang.T("قائمة سوداء")</label></div>
+                        @if (model!.Blacklist)
+                        {
+                            <div class="field full"><label>@Lang.T("سبب الإدراج بالقائمة السوداء")</label><InputText @bind-Value="model!.BlacklistReason" /></div>
+                        }
                     </div>
                 }
                 else if (activeTab == "الراتب والسلف")
@@ -332,7 +351,7 @@
         </div>
     </div>
 }
-else if (activeTab == "الحضور والإعفاءات")
+                else if (activeTab == "الحضور والإعفاءات")
                 {
                     <div class="form-grid">
                         <div class="field"><label>@Lang.T("رصيد الإجازات")</label><InputNumber @bind-Value="model!.HolidayBalance" /></div>
@@ -362,11 +381,6 @@ else if (activeTab == "الحضور والإعفاءات")
                         <div class="field"><label>@Lang.T("اسم المستخدم")</label><InputText @bind-Value="model!.Username" /></div>
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.IsUser" /><label>@Lang.T("له حساب دخول للنظام")</label></div>
                         <div class="field checkbox"><InputCheckbox @bind-Value="model!.IsMobileUser" /><label>@Lang.T("مستخدم تطبيق الموبايل")</label></div>
-                        <div class="field checkbox danger"><InputCheckbox @bind-Value="model!.Blacklist" /><label>@Lang.T("قائمة سوداء")</label></div>
-                        @if (model!.Blacklist)
-                        {
-                            <div class="field full"><label>@Lang.T("سبب الإدراج بالقائمة السوداء")</label><InputText @bind-Value="model!.BlacklistReason" /></div>
-                        }
                     </div>
                 }
                 else if (activeTab == "الاستحقاقات والاستقطاعات")

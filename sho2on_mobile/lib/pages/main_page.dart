@@ -83,8 +83,11 @@ class _MainPageState extends State<MainPage> {
     // لو الموظف مسجل حضور فعلاً (فتح التطبيق تاني في نص الوردية)، نتأكد التتبع شغال
     if (statusText == 'حاضر') {
       final running = await BackgroundLocationService.isRunning();
-      if (!running) {
-        await BackgroundLocationService.start(widget.user['id']);
+      if (running) {
+        await BackgroundLocationService.start(
+          widget.user['id'],
+          token: widget.user['token'] ?? widget.user['authToken'],
+        );
       }
     }
     await _loadLeaveStats();
@@ -130,9 +133,32 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> doCheckIn() async {
+    if (!mounted) return;
+
     final enabled = await LocationService.ensureLocationEnabled(context);
+    if (!mounted) return; // ✅ تأكد إن الـ widget لسه موجود
     if (!enabled) return;
-    final loc = await LocationService.getCurrent();
+
+    final bgGranted =
+        await BackgroundLocationService.ensureBackgroundPermission(context);
+    if (!mounted) return;
+    if (!bgGranted) {
+      _showError(
+        'لازم تسمح بإذن الموقع "دايماً" عشان نقدر نتتبع موقعك أثناء الوردية',
+      );
+      return;
+    }
+
+    LocationResult? loc;
+    try {
+      loc = await LocationService.getCurrent();
+    } catch (e) {
+      if (!mounted) return;
+      _showError('تعذر تحديد موقعك، حاول تاني');
+      return;
+    }
+
+    if (!mounted) return;
     if (loc == null) {
       _showError('تعذر تحديد موقعك');
       return;
@@ -146,49 +172,97 @@ class _MainPageState extends State<MainPage> {
         lon: loc.longitude,
         locationName: loc.locationName,
       );
+
+      if (!mounted) return; // ✅ قبل أي setState
+
       if (ok['success']) {
         setState(() {
           checkIn = TimeOfDay.now().format(context);
           statusText = 'حاضر';
         });
-        // نطلب إذن الموقع الدائم (Always) ونبدأ سيرفس التتبع في الخلفية
-        await BackgroundLocationService.ensureBackgroundPermission(context);
-        await BackgroundLocationService.start(widget.user['id']);
-        await LocalStorage.saveUser(widget.user);
+
+        if (!mounted) return;
         _showSuccess('تم تسجيل الحضور بنجاح');
-      }else{
+
+        await _startTrackingSafely();
+      } else {
         _showError(ok['message']);
       }
     } catch (e) {
+      if (!mounted) return;
       _showError(e.toString().replaceAll('Exception: ', ''));
     }
   }
 
+  Future<void> _startTrackingSafely() async {
+    try {
+      await BackgroundLocationService.start(
+        widget.user['id'],
+        token: widget.user['token'] ?? widget.user['authToken'],
+      );
+    } catch (e, st) {
+      debugPrint('tracking start failed: $e\n$st');
+      if (!mounted) return;
+      // ✅ بلّغ المستخدم إن التتبع مش شغال
+      _showError(
+        'تم تسجيل الحضور، لكن تعذّر تشغيل تتبع الموقع. '
+        'من فضلك أعد فتح التطبيق.',
+      );
+    }
+  }
+
   Future<void> doCheckOut() async {
+    if (!mounted) return;
+
     final enabled = await LocationService.ensureLocationEnabled(context);
+    if (!mounted) return;
     if (!enabled) return;
-    final loc = await LocationService.getCurrent();
+
+    LocationResult? loc;
+    try {
+      loc = await LocationService.getCurrent();
+    } catch (e) {
+      if (!mounted) return;
+      _showError('تعذر تحديد موقعك، حاول تاني');
+      return;
+    }
+
+    if (!mounted) return;
     if (loc == null) {
       _showError('تعذر تحديد موقعك');
       return;
     }
-    final ok = await _attendance.checkOut(
-      userId: widget.user['id'],
-      branchId: widget.user['branch']['id'] ?? 0,
-      lat: loc.latitude,
-      lon: loc.longitude,
-      locationName: loc.locationName,
-    );
-    if (ok['success']) {
-      setState(() {
-        checkOut = TimeOfDay.now().format(context);
-        statusText = 'منصرف';
-      });
-      await BackgroundLocationService.stop();
-      await LocalStorage.saveUser(widget.user);
-      _showSuccess('تم تسجيل الانصراف بنجاح');
-    } else {
-      _showError(ok['message']);
+
+    try {
+      final ok = await _attendance.checkOut(
+        userId: widget.user['id'],
+        branchId: widget.user['branch']['id'] ?? 0,
+        lat: loc.latitude,
+        lon: loc.longitude,
+        locationName: loc.locationName,
+      );
+
+      if (!mounted) return;
+
+      if (ok['success'] == true) {
+        // ✅ أوقف التتبع قبل أي setState
+        await BackgroundLocationService.stop();
+        await LocalStorage.saveUser(widget.user);
+
+        if (!mounted) return;
+
+        setState(() {
+          checkOut = TimeOfDay.now().format(context);
+          statusText = 'منصرف';
+        });
+
+        _showSuccess('تم تسجيل الانصراف بنجاح');
+      } else {
+        _showError(ok['message'] ?? 'فشل تسجيل الانصراف');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showError(e.toString().replaceAll('Exception: ', ''));
     }
   }
 
@@ -269,7 +343,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> logout() async {
+    // ✅ أوقف التتبع قبل ما تسجّل خروج
+    await BackgroundLocationService.stop();
     await LocalStorage.clearUser();
+    if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => LoginPage()),
@@ -409,11 +486,7 @@ class _MainPageState extends State<MainPage> {
             shape: BoxShape.circle,
             color: Colors.white.withValues(alpha: 0.1),
           ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 22,
-          ),
+          child: Icon(icon, color: Colors.white, size: 22),
         ),
       ),
     );
@@ -1040,16 +1113,13 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildManagerDashboardButton() {
     if (widget.user['isManager'] != true) return SizedBox.shrink();
-    return
-      _buildActionButton(
-        icon: Icons.dashboard,
-        tooltip: 'صفحة المدير',
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ManagerDashboard(widget.user),
-          ),
-        ),
-      );
+    return _buildActionButton(
+      icon: Icons.dashboard,
+      tooltip: 'صفحة المدير',
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ManagerDashboard(widget.user)),
+      ),
+    );
   }
 }

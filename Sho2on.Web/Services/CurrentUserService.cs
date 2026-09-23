@@ -33,6 +33,12 @@ namespace Sho2on.Web.Services
             return int.TryParse(userIdClaim.Value, out int id) ? id : null;
         }
 
+               public async Task<string> GetCurrentUserNameAsync()
+{
+    var state = await _authProvider.GetAuthenticationStateAsync();
+    return state.User?.Identity?.Name ?? "غير معروف";
+}
+
         public async Task<User?> GetCurrentUserAsync()
         {
             var userId = await GetCurrentUserIdAsync();

@@ -281,6 +281,7 @@ namespace Sho2on.Database
             public DbSet<JobTitle> JobTitles { get; set; }
             public DbSet<Shift> Shifts { get; set; }
             public DbSet<User> Users { get; set; }
+            public DbSet<Reason> Reasons { get; set; }
             public DbSet<Commission> Commissions { get; set; }
         public DbSet<OfficialHoliday> OfficialHolidays { get; set; }
         public DbSet<Penalty> Penalties { get; set; }
@@ -288,6 +289,7 @@ namespace Sho2on.Database
             public DbSet<Permission> Permissions { get; set; }
             public DbSet<RolePermission> RolePermissions { get; set; }
             public DbSet<UserRole> UserRoles { get; set; }
+            public DbSet<EmployeeAuditLog> EmployeeAuditLogs { get; set; }  
             public DbSet<UserBranch> UserBranches { get; set; }
             public DbSet<JobType> JobTypes { get; set; }
             public DbSet<HolidayType> HolidayTypes { get; set; }

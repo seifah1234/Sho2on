@@ -25,7 +25,7 @@ namespace Sho2on.API.Controllers
                 .Include(u => u.Branch)
                 .Include(u => u.JobTitle)
                 .Include(u => u.Attendances)
-                .FirstOrDefaultAsync(u => u.Username == dto.Username);
+                .FirstOrDefaultAsync(u => u.Username == dto.Username && u.InDuty);
 
             if (user == null)
                 return BadRequest("الموظف غير موجود");
@@ -118,10 +118,10 @@ namespace Sho2on.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-        using var _db = await _dbFactory.CreateDbContextAsync(); 
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Code == dto.Id);
+            using var _db = await _dbFactory.CreateDbContextAsync(); 
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Code == dto.Id && u.InDuty);
             if (user == null) return BadRequest("الموظف غير موجود");
-            if (user.PasswordHash != null) return BadRequest("أنت مسجل بالفعل");
+            if (user.PasswordHash != null && !string.IsNullOrEmpty(user.PasswordHash)) return BadRequest("أنت مسجل بالفعل");
 
             var settings = await _db.Settings.FirstAsync();
             int usedUsers = await _db.Users.CountAsync(x => x.IsMobileUser.HasValue && x.IsMobileUser.Value);

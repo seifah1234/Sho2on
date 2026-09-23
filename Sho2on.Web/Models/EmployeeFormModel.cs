@@ -106,7 +106,8 @@ namespace Sho2on.Web.Models
         public bool IsMobileUser { get; set; }
         public bool Blacklist { get; set; }
         public string? BlacklistReason { get; set; }
-
+        public string? EndDutyNotes { get; set; }
+        public int? EndDutyTypeId { get; set; }
         public int? MaritalId { get; set; }
         public int? RecidenceId { get; set; }
         public int InsuredId { get; set; } = 0;
@@ -117,6 +118,7 @@ namespace Sho2on.Web.Models
     public class EmployeeLookups
     {
         public List<(int Id, string Name)> Branches { get; set; } = new();
+        public List<(int Id, string Name)> EndDutyTypes { get; set; } = new();
         public List<(int Id, string Name)> Departments { get; set; } = new();
         public List<(int Id, string Name)> JobTitles { get; set; } = new();
         public List<(int Id, string Name)> Degrees { get; set; } = new();

@@ -1,6 +1,6 @@
 ﻿window.liveTrackingMap = {
     map: null,
-    markers: {}, // userId -> L.marker
+    markers: {},
     dotNetHelper: null,
 
     init: function (elementId, employees, dotNetHelper) {
@@ -13,7 +13,17 @@
             return;
         }
 
-        const defaultLat = 30.0444; // القاهرة كمركز افتراضي
+        if (typeof L === 'undefined') {
+            console.error('Leaflet library not loaded!');
+            return;
+        }
+
+         const rect = element.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn('Map container has zero size:', rect);
+        }
+
+        const defaultLat = 30.0444;
         const defaultLng = 31.2357;
 
         this.map = L.map(elementId, {
@@ -33,6 +43,12 @@
         setTimeout(() => {
             if (this.map) this.map.invalidateSize();
         }, 300);
+    },
+
+    _isValidLatLng: function (lat, lng) {
+        return typeof lat === 'number' && typeof lng === 'number' &&
+               isFinite(lat) && isFinite(lng) &&
+               !(lat === 0 && lng === 0); // 0,0 يعتبر "مفيش قراءة" مش إحداثي حقيقي
     },
 
     _iconFor: function (isActive) {
@@ -59,6 +75,16 @@
 
         employees.forEach(emp => {
             seenIds.add(emp.userId);
+
+            if (!this._isValidLatLng(emp.latitude, emp.longitude)) {
+                // ما نعملش marker لموظف من غير إحداثي حقيقي، وما نطيّحش الخريطة
+                if (this.markers[emp.userId]) {
+                    this.map.removeLayer(this.markers[emp.userId]);
+                    delete this.markers[emp.userId];
+                }
+                return;
+            }
+
             const latLng = [emp.latitude, emp.longitude];
             const icon = this._iconFor(emp.isRecentlyActive);
 
@@ -79,7 +105,6 @@
             }
         });
 
-        // شيل الموظفين اللي مش موجودين في التحديث الجديد
         Object.keys(this.markers).forEach(id => {
             if (!seenIds.has(Number(id))) {
                 this.map.removeLayer(this.markers[id]);
@@ -100,6 +125,10 @@
 
     focusOn: function (userId, lat, lng) {
         if (!this.map) return;
+        if (!this._isValidLatLng(lat, lng)) {
+            console.warn('focusOn: invalid coordinates for user', userId);
+            return;
+        }
         this.map.setView([lat, lng], 16);
         const marker = this.markers[userId];
         if (marker) marker.openPopup();

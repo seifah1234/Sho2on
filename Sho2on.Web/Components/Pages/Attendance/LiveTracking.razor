@@ -8,78 +8,85 @@
 @inject EmployeeService EmployeeSvc
 @inject LocalizationService Lang
 @inject IJSRuntime JS
+@inject ILogger<LiveTracking> Logger
 @implements IAsyncDisposable
 
 <ModuleTabs Tabs="AttendanceTabs.Items" />
 
-<div class="live-tracking-page">
+<div class="live-tracking-page fullscreen-map">
 
-    <div class="page-toolbar">
-        <div class="search-filter">
-            <input class="search-input" placeholder="@Lang.T("ابحث بالاسم أو الكود")"
-                   @bind="searchTerm" @bind:event="oninput" @bind:after="ApplyFilters" />
+    <div id="liveTrackingMapEl" class="live-tracking-map-full"></div>
 
-            <select class="select-input" @bind="selectedBranchId" @bind:after="ApplyFilters">
-                <option value="">@Lang.T("كل الفروع")</option>
-                @if (branches != null)
+    <div class="map-overlay-panel @(panelCollapsed ? "collapsed" : "")">
+        <div class="panel-header" @onclick="() => panelCollapsed = !panelCollapsed">
+            <span>@Lang.T("الموظفين") (@employees.Count)</span>
+            <i class="bi @(panelCollapsed ? "bi-chevron-down" : "bi-chevron-up")"></i>
+        </div>
+
+        @if (!panelCollapsed)
+        {
+            <div class="panel-body">
+                <div class="search-filter">
+                    <input class="search-input" placeholder="@Lang.T("الاسم أو الكود")"
+                           @bind="searchTerm" @bind:event="oninput" @bind:after="ApplyFilters" />
+
+                    <select class="select-input" @bind="selectedBranchId" @bind:after="ApplyFilters">
+                        <option value="">@Lang.T("كل الفروع")</option>
+                        @if (branches != null)
+                        {
+                            @foreach (var b in branches)
+                            {
+                                <option value="@b.Id">@b.Name</option>
+                            }
+                        }
+                    </select>
+
+                    <button class="btn-secondary" @onclick="() => LoadLocations(true)">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+
+                <div class="live-status">
+                    <span class="live-dot"></span>
+                    @Lang.T("تحديث تلقائي كل 20 ثانية")
+                </div>
+
+                @if (loading)
                 {
-                    @foreach (var b in branches)
-                    {
-                        <option value="@b.Id">@b.Name</option>
-                    }
+                    <p class="muted">@Lang.T("جاري التحميل...")</p>
                 }
-            </select>
-
-            <button class="btn-secondary" @onclick="() => LoadLocations(true)">
-                <i class="bi bi-arrow-clockwise"></i> @Lang.T("تحديث")
-            </button>
-        </div>
-
-        <div class="live-status">
-            <span class="live-dot"></span>
-            @Lang.T("تحديث تلقائي كل 20 ثانية")
-        </div>
-    </div>
-
-    @if (loading)
-    {
-        <p class="muted">@Lang.T("جاري التحميل...")</p>
-    }
-    else if (employees.Count == 0)
-    {
-        <div class="empty-state">
-            <i class="bi bi-geo-alt"></i>
-            <p>@Lang.T("لا توجد مواقع متاحة حالياً، هتظهر أول ما أي موظف يسجل حضور")</p>
-        </div>
-    }
-    else
-    {
-        <div class="tracking-layout">
-            <div class="map-container">
-                <div id="liveTrackingMapEl" class="live-tracking-map"></div>
-            </div>
-
-            <div class="employee-list">
-                @foreach (var emp in employees)
+                else if (employees.Count == 0)
                 {
-                    <div class="employee-row @(emp.UserId == selectedUserId ? "active" : "")"
-                         @onclick="() => FocusOn(emp)">
-                        <span class="status-dot @(emp.IsRecentlyActive ? "online" : "offline")"></span>
-                        <div class="employee-info">
-                            <strong>@emp.FullName</strong>
-                            <small>@(emp.JobTitleName ?? emp.BranchName)</small>
-                        </div>
-                        <div class="employee-meta">
-                            <span class="@(emp.IsRecentlyActive ? "text-online" : "text-offline")">
-                                @(emp.IsRecentlyActive ? Lang.T("أونلاين") : Lang.T("غير نشط"))
-                            </span>
-                            <small>@TimeAgo(emp.UpdatedAtUtc)</small>
-                        </div>
+                    <div class="empty-state">
+                        <i class="bi bi-geo-alt"></i>
+                        <p>@Lang.T("لا توجد مواقع متاحة حالياً")</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="employee-list">
+                        @foreach (var emp in employees)
+                        {
+                            <div class="employee-row @(emp.UserId == selectedUserId ? "active" : "")"
+                                 @onclick="() => FocusOn(emp)">
+                                <span class="status-dot @(emp.IsRecentlyActive ? "online" : "offline")"></span>
+                                <div class="employee-info">
+                                    <strong>@emp.FullName</strong>
+                                    <small>@(emp.JobTitleName ?? emp.BranchName)</small>
+                                </div>
+                                <div class="employee-meta">
+                                    <span class="@(emp.IsRecentlyActive ? "text-online" : "text-offline")">
+                                        @(emp.IsRecentlyActive ? Lang.T("أونلاين") : Lang.T("غير نشط"))
+                                    </span>
+                                    <small>@TimeAgo(emp.UpdatedAtUtc)</small>
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @code {
@@ -90,7 +97,11 @@
     string selectedBranchId = "";
     int? selectedUserId;
     bool loading = false;
+    bool panelCollapsed = false;
+
     bool mapInitialized = false;
+    bool mapInitializing = false;
+    bool disposed = false;
 
     DotNetObjectReference<LiveTracking>? dotNetRef;
     System.Threading.Timer? refreshTimer;
@@ -103,24 +114,55 @@
         branches = lookups.Branches;
         await LoadLocations(true);
 
-        // تحديث تلقائي كل 20 ثانية طول ما الصفحة مفتوحة
         refreshTimer = new System.Threading.Timer(async _ =>
         {
+            if (disposed) return;
             await InvokeAsync(async () => await LoadLocations(false));
         }, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!mapInitialized && employees.Count > 0)
+        // init مرة واحدة بس، مفيش أي JS calls تانية من هنا خالص
+        if (firstRender && !mapInitialized && !mapInitializing)
+        {
+            await Task.Delay(150);
+            await InitMapSafely();
+        }
+    }
+
+    async Task InitMapSafely()
+    {
+        if (mapInitializing || mapInitialized) return;
+        mapInitializing = true;
+        try
         {
             dotNetRef ??= DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("liveTrackingMap.init", "liveTrackingMapEl", MapPayload(), dotNetRef);
             mapInitialized = true;
         }
-        else if (mapInitialized && firstRender == false)
+        catch (JSDisconnectedException) { }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "فشل تهيئة الخريطة في LiveTracking");
+        }
+        finally
+        {
+            mapInitializing = false;
+        }
+    }
+
+    async Task UpdateMarkersSafely()
+    {
+        if (!mapInitialized) return;
+        try
         {
             await JS.InvokeVoidAsync("liveTrackingMap.updateMarkers", MapPayload());
+        }
+        catch (JSDisconnectedException) { }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "فشل تحديث الماركرز في LiveTracking");
         }
     }
 
@@ -146,19 +188,16 @@
             int? branchId = string.IsNullOrEmpty(selectedBranchId) ? null : int.Parse(selectedBranchId);
             employees = await LocationSvc.GetAllLocationsAsync(branchId, searchTerm);
         }
-        catch
+        catch (Exception ex)
         {
+            Logger.LogError(ex, "فشل تحميل مواقع الموظفين");
             employees = new();
         }
         finally
         {
             if (showSpinner) loading = false;
             StateHasChanged();
-
-            if (mapInitialized)
-            {
-                await JS.InvokeVoidAsync("liveTrackingMap.updateMarkers", MapPayload());
-            }
+            await UpdateMarkersSafely();
         }
     }
 
@@ -167,7 +206,17 @@
     async Task FocusOn(EmployeeLocationItem emp)
     {
         selectedUserId = emp.UserId;
-        await JS.InvokeVoidAsync("liveTrackingMap.focusOn", emp.UserId, emp.Latitude, emp.Longitude);
+        if (!mapInitialized) return;
+
+        try
+        {
+            await JS.InvokeVoidAsync("liveTrackingMap.focusOn", emp.UserId, emp.Latitude, emp.Longitude);
+        }
+        catch (JSDisconnectedException) { }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "فشل التركيز على موظف {UserId} في الخريطة", emp.UserId);
+        }
     }
 
     [JSInvokable]
@@ -188,9 +237,17 @@
 
     public async ValueTask DisposeAsync()
     {
+        disposed = true;
         Lang.OnChange -= StateHasChanged;
         refreshTimer?.Dispose();
-        try { await JS.InvokeVoidAsync("liveTrackingMap.destroy"); } catch { }
+
+        if (mapInitialized)
+        {
+            try { await JS.InvokeVoidAsync("liveTrackingMap.destroy"); }
+            catch { }
+        }
+
         dotNetRef?.Dispose();
+        dotNetRef = null;
     }
 }

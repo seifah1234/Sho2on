@@ -908,3 +908,52 @@
             justify-content: center;
         }
 }
+
+/* ===== زر تصدير Excel ===== */
+.employees-page .btn-excel {
+    background: linear-gradient(135deg, #1D6F42 0%, #217346 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 2px 8px rgba(29, 111, 66, 0.25);
+    white-space: nowrap;
+}
+
+.employees-page .btn-excel:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(29, 111, 66, 0.35);
+    background: linear-gradient(135deg, #217346 0%, #1D6F42 100%);
+}
+
+.employees-page .btn-excel:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.employees-page .btn-excel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.employees-page .btn-excel i {
+    font-size: 16px;
+}
+
+/* سبينر صغير جوه الزر */
+.employees-page .spinner-sm {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+}

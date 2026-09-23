@@ -26,6 +26,7 @@ namespace Sho2on.Web.Endpoints
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Username),
+                        new Claim("Username", user.Username),
                         new Claim("FullName", user.FullName),
                         new Claim("UserId", user.Id.ToString())
                     };

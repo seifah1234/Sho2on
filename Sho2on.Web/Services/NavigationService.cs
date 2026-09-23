@@ -44,6 +44,7 @@ private static List<NavigationItem> Flatten(List<NavigationItem> items)
                     new() { Title = "إضافة موظف", Url = "/employees/add", Icon = "bi-person-plus", RequiredPermission = "إضافة موظف" },
                     new() { Title = "مستندات الموظفين", Url = "/employees/documents", Icon = "bi-file-earmark-person", RequiredPermission = "مستندات الموظفين" },
                     new() { Title = "تقييم موظف", Url = "/employees/evaluation", Icon = "bi-clipboard-check", RequiredPermission = "تقييم موظف" },
+                    new() { Title = "سجل التعديلات", Url = "/employees/audit", Icon = "bi-file-earmark-person", RequiredPermission = "سجل التعديلات" },
                 }
             },
 
@@ -108,6 +109,7 @@ private static List<NavigationItem> Flatten(List<NavigationItem> items)
                 {
                     new() { Title = "الاعدادات العامة", Url = "/settings/general", Icon = "bi-sliders", RequiredPermission = "الاعدادات العامة" },
                     new() { Title = "الفروع", Url = "/settings/branches", Icon = "bi-building", RequiredPermission = "الفروع" },
+                    new() { Title = "القطاعات", Url = "/settings/sectors", Icon = "bi-geo-alt", RequiredPermission = "القطاعات" },
                     new() { Title = "الإدارات", Url = "/settings/departments", Icon = "bi-diagram-3", RequiredPermission = "الادارات" },
                     new() { Title = "المناطق", Url = "/settings/areas", Icon = "bi-geo-alt", RequiredPermission = "المناطق" },
                     new() { Title = "المسؤولون", Url = "/settings/officials", Icon = "bi-person", RequiredPermission = "المسؤولون" },
@@ -116,6 +118,7 @@ private static List<NavigationItem> Flatten(List<NavigationItem> items)
                     new() { Title = "الاجازات الرسمية", Url = "/settings/official-holidays", Icon = "bi-calendar-check", RequiredPermission = "الاجازات الرسمية" },
                     new() { Title = "الراحة الأسبوعية", Url = "/settings/week-holidays", Icon = "bi-calendar-check", RequiredPermission = "الراحة الأسبوعية" },
                     new() { Title = "الوظائف", Url = "/settings/job-titles", Icon = "bi-briefcase", RequiredPermission = "الوظائف" },
+                    new() { Title = "الاسباب", Url = "/settings/reasons", Icon = "bi-cup-hot", RequiredPermission = "الاسباب" },
                     new() { Title = "فترات الراحة", Url = "/settings/breaks", Icon = "bi-cup-hot", RequiredPermission = "فترات الراحة" },
                     new() { Title = "مستندات الشركة", Url = "/settings/company-documents", Icon = "bi-building", RequiredPermission = "مستندات الشركة" },
                     new() { Title = "أنواع الإجازات", Url = "/settings/leave-types", Icon = "bi-calendar-range", RequiredPermission = "أنواع الاجازات" },

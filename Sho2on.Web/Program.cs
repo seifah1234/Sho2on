@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Sho2on.Database.Models;
 using Sho2on.Database;
+using Sho2on.Web.Components.Pages.Settings;
 using Sho2on.Web.Endpoints;
 using Sho2on.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var connStr = builder.Configuration.GetConnectionString("Sho2onDB");
+var connStr = builder.Configuration.GetConnectionString("Sho2onDB2");
 typeof(AppDbContext)
     .GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
     ?.SetValue(null, connStr);
@@ -83,6 +85,9 @@ builder.Services.AddScoped<DepartmentTransferService>();
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<AppVersionService>();
 builder.Services.AddScoped<AnnouncementService>();
+builder.Services.AddScoped<ReasonService>();
+builder.Services.AddScoped<SectorService>();
+
 
 builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
 builder.Logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);

@@ -17,20 +17,18 @@ class LocationResult {
 
 class LocationService {
   static Future<LocationResult?> getCurrent() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return null;
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return null;
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return null;
-    }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
 
     final position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best,
@@ -66,37 +64,42 @@ class LocationService {
       longitude: position.longitude,
       locationName: locationName,
     );
+    } catch (_) {
+      return null;
+    }
   }
 
   static Future<bool> ensureLocationEnabled(BuildContext context) async {
-  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    await showDialog(
-      context: context,
-      builder: (_) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          title: const Text('تشغيل الموقع'),
-          content: const Text('من فضلك فعّل خدمة الموقع قبل تسجيل الحضور'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Geolocator.openLocationSettings();
-                Navigator.pop(context);
-              },
-              child: const Text('فتح الإعدادات'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('إلغاء'),
-            ),
-          ],
-        ),
-      ),
-    );
-    return false;
-  }
-  return true;
-}
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // ✅ تأكد إن الـ context لسه valid قبل showDialog
+      if (!context.mounted) return false;
 
+      await showDialog(
+        context: context,
+        builder: (dialogContext) => Directionality(  // ✅ استخدم dialogContext جوه الـ builder
+          textDirection: TextDirection.rtl,
+          child: AlertDialog(
+            title: const Text('تشغيل الموقع'),
+            content: const Text('من فضلك فعّل خدمة الموقع قبل تسجيل الحضور'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Geolocator.openLocationSettings();
+                  Navigator.pop(dialogContext);  // ✅
+                },
+                child: const Text('فتح الإعدادات'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),  // ✅
+                child: const Text('إلغاء'),
+              ),
+            ],
+          ),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
 }

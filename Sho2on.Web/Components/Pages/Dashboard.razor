@@ -15,6 +15,7 @@
 @inject AnnouncementService AnnouncementSvc
 @inject LocalizationService Lang
 @inject CurrentUserService CurrentUserSvc
+@inject ReasonService ReasonSvc
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Nav
 @inject IJSRuntime JS
@@ -353,6 +354,175 @@
             </div>
         }
 
+
+        
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-gender-ambiguous"></i><h3>@Lang.T("توزيع النوع")</h3></div>
+                <div class="chart-container"><canvas id="genderChart"></canvas></div>
+            </div>
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-diagram-2"></i><h3>@Lang.T("موظفين حسب الإدارة")</h3></div>
+                <div class="chart-container"><canvas id="deptChart"></canvas></div>
+            </div>
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-building"></i><h3>@Lang.T("موظفين حسب الفرع")</h3></div>
+                <div class="chart-container"><canvas id="branchChart"></canvas></div>
+            </div>
+            <div class="panel chart-panel">
+                <div class="panel-header"><i class="bi bi-building-check"></i><h3>@Lang.T("موظفين حسب القطاع")</h3></div>
+                <div class="chart-container"><canvas id="sectorChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- ══ إحصائيات التعيين والمغادرة ══ -->
+<div class="panel hiring-stats-panel">
+    <div class="panel-header">
+        <i class="bi bi-people-fill"></i>
+        <h3>@Lang.T("إحصائيات التعيين والمغادرة")</h3>
+        
+        <!-- اختيار الفترة -->
+        <div class="period-selector">
+            <span style="margin: 5px;font-size: 12px;">@Lang.T("المدة")</span>
+            <select @bind="selectedPeriod" @bind:after="LoadHiringStats">
+                <option value="30">@Lang.T("آخر 30 يوم")</option>
+                <option value="90">@Lang.T("آخر 3 شهور")</option>
+                <option value="180">@Lang.T("آخر 6 شهور")</option>
+                <option value="365">@Lang.T("آخر سنة")</option>
+                <option value="ytd">@Lang.T("من بداية السنة")</option>
+            </select>
+        </div>
+
+        <div class="period-selector">
+            <span style="margin: 5px;font-size: 12px;">@Lang.T("سبب انهاء الخدمه")</span>
+            <select @bind="selectedReason" @bind:after="LoadHiringStats">
+                <option value="0" selected>@Lang.T("الكل")</option>
+                    @foreach (var reason in Reasons)
+                    {
+                        <option value="@reason.Id">@Lang.T(reason.Name)</option>
+                    }
+            </select>
+        </div>
+
+
+    </div>
+
+    @if (hiringStats == null)
+    {
+        <p class="muted">@Lang.T("جاري التحميل...")</p>
+    }
+    else
+    {
+        <!-- كروت الإحصائيات -->
+        <div class="hiring-cards">
+            <div class="hiring-card success">
+                <i class="bi bi-person-plus"></i>
+                <div>
+                    <span>@Lang.T("تم تعيينهم")</span>
+                    <strong>@hiringStats.HiredInPeriod</strong>
+                </div>
+            </div>
+
+            <div class="hiring-card danger">
+                <i class="bi bi-person-dash"></i>
+                <div>
+                    <span>@Lang.T("غادروا")</span>
+                    <strong>@hiringStats.LeftInPeriod</strong>
+                </div>
+            </div>
+
+            <div class="hiring-card @(hiringStats.NetChange >= 0 ? "info" : "warning")">
+                <i class="bi bi-graph-up-arrow"></i>
+                <div>
+                    <span>@Lang.T("صافي التغيير")</span>
+                    <strong>
+                        @(hiringStats.NetChange >= 0 ? "+" : "")@hiringStats.NetChange
+                    </strong>
+                </div>
+            </div>
+
+            <div class="hiring-card">
+                <i class="bi bi-people"></i>
+                <div>
+                    <span>@Lang.T("الموظفين النشطين")</span>
+                    <strong>@hiringStats.ActiveEmployees</strong>
+                </div>
+            </div>
+
+            <div class="hiring-card">
+                <i class="bi bi-bar-chart"></i>
+                <div>
+                    <span>@Lang.T("معدل التعيين/شهر")</span>
+                    <strong>@hiringStats.MonthlyHiringRate</strong>
+                </div>
+            </div>
+
+            <div class="hiring-card warning">
+                <i class="bi bi-percent"></i>
+                <div>
+                    <span>@Lang.T("معدل الدوران/شهر")</span>
+                    <strong>@hiringStats.MonthlyTurnoverRate%</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- رسم بياني للاتجاه -->
+        <div class="hiring-chart-wrapper">
+            <canvas id="hiringTrendChart"></canvas>
+        </div>
+
+        <!-- تفاصيل -->
+        <div class="hiring-details">
+            @if (hiredEmployees.Count > 0)
+            {
+                <div class="hiring-detail-list">
+                    <h4>
+                        <i class="bi bi-person-plus"></i>
+                        @Lang.T("آخر المعينين") (@hiredEmployees.Count)
+                    </h4>
+                    @foreach (var emp in hiredEmployees.Take(5))
+                    {
+                        <div class="hired-row">
+                            <div class="hired-avatar">@emp.FullName[0]</div>
+                            <div class="hired-info">
+                                <strong>@emp.FullName</strong>
+                                <small>@emp.JobTitle - @emp.Department</small>
+                            </div>
+                            <div class="hired-date">
+                                @emp.HireDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (terminatedEmployees.Count > 0)
+            {
+                <div class="hiring-detail-list">
+                    <h4>
+                        <i class="bi bi-person-dash"></i>
+                        @Lang.T("آخر المغادرين") (@terminatedEmployees.Count)
+                    </h4>
+                    @foreach (var emp in terminatedEmployees.Take(5))
+                    {
+                        <div class="hired-row">
+                            <div class="hired-avatar danger">@emp.FullName[0]</div>
+                            <div class="hired-info">
+                                <strong>@emp.FullName</strong>
+                                <small>@emp.JobTitle - @emp.Department</small>
+                            </div>
+                            <div class="hired-date">
+                                @emp.HireDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
         <!-- Alerts + Announcements -->
         <div class="two-col">
             <div class="panel">
@@ -421,25 +591,6 @@
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="charts-grid">
-            <div class="panel chart-panel">
-                <div class="panel-header"><i class="bi bi-gender-ambiguous"></i><h3>@Lang.T("توزيع النوع")</h3></div>
-                <div class="chart-container"><canvas id="genderChart"></canvas></div>
-            </div>
-            <div class="panel chart-panel">
-                <div class="panel-header"><i class="bi bi-diagram-2"></i><h3>@Lang.T("موظفين حسب الإدارة")</h3></div>
-                <div class="chart-container"><canvas id="deptChart"></canvas></div>
-            </div>
-            <div class="panel chart-panel">
-                <div class="panel-header"><i class="bi bi-building"></i><h3>@Lang.T("موظفين حسب الفرع")</h3></div>
-                <div class="chart-container"><canvas id="branchChart"></canvas></div>
-            </div>
-            <div class="panel chart-panel">
-                <div class="panel-header"><i class="bi bi-building-check"></i><h3>@Lang.T("موظفين حسب القطاع")</h3></div>
-                <div class="chart-container"><canvas id="sectorChart"></canvas></div>
-            </div>
-        </div>
     }else{
         @if (loading)
         {
@@ -452,8 +603,16 @@
 @code {
     string userRole = "";
     bool loading = true;
+    HiringStats? hiringStats;
+    List<HiringTrendPoint> hiringTrend = new();
+    List<HiredEmployeeItem> hiredEmployees = new();
+    List<HiredEmployeeItem> terminatedEmployees = new();
+    string selectedPeriod = "90"; // 90 يوم افتراضي
+    bool hiringChartRendered = false;
+    string selectedReason = "0";
     Sho2on.Web.Models.DashboardTreeNode? tree;
     List<Announcement>? announcements;
+    List<ReasonDto> Reasons;
     List<DashboardAlert>? alerts;
     DashboardChartsData? charts;
     DashboardStats? personalStats;
@@ -471,7 +630,8 @@
             var user = authState.User;
             var userId = int.Parse(user.FindFirst("UserId")?.Value ?? "0");
             var currentUser = await CurrentUserSvc.GetCurrentUserAsync();
-
+            Reasons = await ReasonSvc.GetAllAsync();
+            Reasons = Reasons.Where(r => r.ReasonType == ReasonType.EndDuty).ToList();
             if (user.IsInRole(RoleNames.Admin))
             {
                 userRole = "Admin";
@@ -479,6 +639,7 @@
                 announcements = await AnnouncementSvc.GetAnnouncementsAsync();
                 alerts = await DashboardSvc.GetAlertsAsync();
                 charts = await DashboardSvc.GetChartsDataAsync();
+                await LoadHiringStats();
             }
             else if (user.IsInRole(RoleNames.Manager) || currentUser?.JobTitle?.IsManager == true)
             {
@@ -507,6 +668,58 @@
         }
     }
 
+    async Task LoadHiringStats()
+{
+    try
+    {
+        var (from, to) = GetPeriodRange(selectedPeriod);
+        
+        hiringStats = await DashboardSvc.GetHiringStatsAsync(from, to, selectedReason);
+        hiringTrend = await DashboardSvc.GetHiringTrendAsync(12);
+        hiredEmployees = await DashboardSvc.GetHiredEmployeesAsync(from, to);
+        terminatedEmployees = await DashboardSvc.GetTerminatedEmployeesAsync(from, to);
+        
+        StateHasChanged();
+        await RenderHiringChartAsync();
+    }
+    catch (Exception ex)
+    {
+        Logger.LogError(ex, "فشل تحميل إحصائيات التعيين");
+    }
+}
+
+static (DateOnly from, DateOnly to) GetPeriodRange(string period)
+{
+    var to = DateOnly.FromDateTime(DateTime.UtcNow);
+    DateOnly from = period switch
+    {
+        "30"  => to.AddDays(-30),
+        "90"  => to.AddDays(-90),
+        "180" => to.AddDays(-180),
+        "365" => to.AddDays(-365),
+        "ytd" => new DateOnly(to.Year, 1, 1),
+        _     => to.AddDays(-90),
+    };
+    return (from, to);
+}
+
+async Task RenderHiringChartAsync()
+{
+    if (hiringTrend == null || hiringTrend.Count == 0) return;
+    try
+    {
+        await JS.InvokeVoidAsync("renderHiringTrendChart", "hiringTrendChart",
+            hiringTrend.Select(p => p.MonthLabel).ToArray(),
+            hiringTrend.Select(p => p.Hired).ToArray(),
+            hiringTrend.Select(p => p.Left).ToArray());
+    }
+    catch (JSDisconnectedException) { }
+    catch (Exception ex)
+    {
+        Logger.LogError(ex, "فشل رسم مخطط التعيين");
+    }
+}
+
     void ToggleSector(Sho2on.Web.Models.DashboardTreeNode sector) => sector.IsExpanded = !sector.IsExpanded;
     void ToggleBranch(Sho2on.Web.Models.DashboardTreeNode branch) => branch.IsExpanded = !branch.IsExpanded;
 
@@ -517,6 +730,11 @@
         {
             chartsRendered = true;
             await RenderChartsAsync();
+        }
+        if (userRole == "Admin" && hiringStats != null && !hiringChartRendered)
+        {
+            hiringChartRendered = true;
+            await RenderHiringChartAsync();
         }
     }
 

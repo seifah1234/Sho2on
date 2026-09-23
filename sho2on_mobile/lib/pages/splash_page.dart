@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'login_page.dart';
 import 'main_page.dart';
-import 'manager/manager_dashboard.dart';
 import '../utils/local_storage.dart';
 
 class SplashPage extends StatefulWidget {
@@ -21,16 +20,20 @@ class _SplashPageState extends State<SplashPage> {
   Future<void> checkLogin() async {
     final userJson = await LocalStorage.getUser();
     if (userJson != null) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MainPage(userJson)));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => MainPage(userJson)),
+      );
     } else {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginPage()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

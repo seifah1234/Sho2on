@@ -1,3 +1,8 @@
+/* ============================================================
+   Live Tracking Page Styles
+   ============================================================ */
+
+/* ---------- Toolbar ---------- */
 .page-toolbar {
     display: flex;
     justify-content: space-between;
@@ -7,6 +12,7 @@
     margin-bottom: 16px;
 }
 
+/* ---------- Live Status Indicator ---------- */
 .live-status {
     display: flex;
     align-items: center;
@@ -25,11 +31,12 @@
 }
 
 @keyframes live-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
-    70% { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+    0%   { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+    70%  { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
     100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
 }
 
+/* ---------- Tracking Layout (side-by-side grid) ---------- */
 .tracking-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -49,6 +56,9 @@
     height: 520px;
 }
 
+/* ============================================================
+   Employee List Panel
+   ============================================================ */
 .employee-list {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -88,13 +98,8 @@
     flex-shrink: 0;
 }
 
-.status-dot.online {
-    background: var(--success);
-}
-
-.status-dot.offline {
-    background: var(--text-muted);
-}
+.status-dot.online  { background: var(--success); }
+.status-dot.offline { background: var(--text-muted); }
 
 .employee-info {
     flex: 1;
@@ -124,16 +129,151 @@
     gap: 2px;
 }
 
-.text-online {
-    color: var(--success);
-    font-weight: 600;
+.text-online  { color: var(--success);    font-weight: 600; }
+.text-offline { color: var(--text-muted); font-weight: 600; }
+
+/* ============================================================
+   Fullscreen Map Layout
+   ============================================================ */
+.fullscreen-map {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 60px);   /* عدّل 60px حسب ارتفاع الـ topbar */
+    min-height: 500px;            /* ضمان حد أدنى */
+    overflow: hidden;
 }
 
-.text-offline {
-    color: var(--text-muted);
-    font-weight: 600;
+.live-tracking-map-full {
+    position: absolute;
+    inset: 0;                     /* top/right/bottom/left = 0 */
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: #e5e7eb;          /* لون مؤقت للتشخيص — شيله لاحقاً */
 }
 
+/* ============================================================
+   Leaflet Overrides (مهم جداً)
+   ============================================================ */
+.leaflet-container {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: #ddd;
+    font-family: inherit;
+}
+
+.live-tracking-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* ============================================================
+   Overlay Panel (Employee List on top of the map)
+   ============================================================ */
+.map-overlay-panel {
+    position: absolute;
+    top: 16px;
+    inset-inline-start: 16px;     /* RTL-friendly */
+    width: 320px;
+    max-height: calc(100% - 32px);
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 2;                   /* فوق الخريطة */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.map-overlay-panel.collapsed .panel-body {
+    display: none;
+}
+
+.panel-header {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    user-select: none;
+}
+
+.panel-body {
+    padding: 12px 16px 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ---------- Panel inner elements ---------- */
+.search-filter {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.search-input,
+.select-input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border, #d1d5db);
+    border-radius: 8px;
+    font-size: 13px;
+    background: #fff;
+    min-width: 0;
+}
+
+.search-input:focus,
+.select-input:focus {
+    outline: none;
+    border-color: var(--primary, #2563eb);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-secondary {
+    padding: 8px 12px;
+    border: 1px solid var(--border, #d1d5db);
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text, #111827);
+    transition: background 0.15s;
+}
+
+.btn-secondary:hover {
+    background: var(--surface-hover, #f3f4f6);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-muted, #6b7280);
+}
+
+.empty-state i {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.5;
+}
+
+.muted {
+    color: var(--text-muted, #6b7280);
+    text-align: center;
+    padding: 16px;
+    font-size: 13px;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
 @media (max-width: 900px) {
     .tracking-layout {
         grid-template-columns: 1fr;
@@ -141,5 +281,15 @@
 
     .employee-list {
         max-height: 300px;
+    }
+
+    .fullscreen-map {
+        height: calc(100vh - 120px); /* مساحة أكبر للـ topbar في الموبايل */
+        min-height: 400px;
+    }
+
+    .map-overlay-panel {
+        width: calc(100% - 32px);    /* ياخد العرض كامل تقريباً */
+        max-width: 320px;
     }
 }

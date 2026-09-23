@@ -1,0 +1,450 @@
+@page "/employees/audit"
+@rendermode InteractiveServer
+@layout MainLayout
+@attribute [Authorize(Roles = "Admin")]
+@using Sho2on.Database.Models
+@using Sho2on.Web.Models
+@using Sho2on.Web.Services
+@using static Sho2on.Web.Services.EmployeeService
+@inject EmployeeService EmployeeSvc
+@inject LocalizationService Lang
+@inject NotificationService Notify
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject ILogger<EmployeeAudit> Logger
+@implements IDisposable
+
+<div class="audit-page">
+    <div class="page-header">
+        <div>
+            <h2><i class="bi bi-clock-history"></i> @Lang.T("سجل تعديلات الموظفين")</h2>
+            <p class="page-subtitle">@Lang.T("تتبع كل التعديلات على بيانات الموظفين")</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-excel" @onclick="ExportToExcel" disabled="@exporting">
+                @if (exporting)
+                {
+                    <span class="spinner-sm"></span>
+                    <span>@Lang.T("جاري التصدير...")</span>
+                }
+                else
+                {
+                    <i class="bi bi-file-earmark-excel"></i>
+                    <span>@Lang.T("تصدير Excel")</span>
+                }
+            </button>
+        </div>
+    </div>
+
+    @* ===== الفلاتر ===== *@
+    <div class="page-toolbar">
+        <div class="search-filter">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input class="search-input"
+                       placeholder="@Lang.T("ابحث باسم الموظف / الكود / المستخدم")"
+                       @bind="filter.Search" @bind:event="oninput"
+                       @onkeyup="HandleSearchKeyUp" />
+            </div>
+
+            <select class="select-input" @bind="actionStr">
+                <option value="">@Lang.T("كل العمليات")</option>
+                <option value="1">@Lang.T("إضافة")</option>
+                <option value="2">@Lang.T("تعديل")</option>
+                <option value="3">@Lang.T("أرشفة")</option>
+                <option value="4">@Lang.T("استعادة")</option>
+                <option value="5">@Lang.T("حذف")</option>
+            </select>
+
+            <input type="date" class="search-input" @bind="fromDate" style="max-width:180px;" />
+            <input type="date" class="search-input" @bind="toDate" style="max-width:180px;" />
+
+            <button class="btn-secondary" @onclick="ApplyFilters">
+                <i class="bi bi-funnel"></i> @Lang.T("بحث")
+            </button>
+
+            <button class="btn-outline" @onclick="ClearFilters">
+                <i class="bi bi-x-circle"></i> @Lang.T("مسح")
+            </button>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>@Lang.T("جاري التحميل...")</p>
+        </div>
+    }
+    else if (result == null || result.TotalCount == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-clock-history"></i>
+            <p>@Lang.T("لا توجد تعديلات مطابقة")</p>
+        </div>
+    }
+    else
+    {
+        <div class="results-info">
+            <span class="results-count">
+                <i class="bi bi-list-ol"></i>
+                @Lang.T("عدد النتائج") : @result.TotalCount
+            </span>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>@Lang.T("التاريخ")</th>
+                        <th>@Lang.T("الموظف")</th>
+                        <th>@Lang.T("العملية")</th>
+                        <th>@Lang.T("بواسطة")</th>
+                        <th>@Lang.T("عدد التغييرات")</th>
+                        <th>@Lang.T("تفاصيل")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in result.Items)
+                    {
+                        <tr>
+                            <td>@log.Id</td>
+                            <td>
+                                <span class="date-cell">
+                                    <i class="bi bi-calendar-event"></i>
+                                    @log.ChangedAt.ToString("yyyy/MM/dd HH:mm")
+                                </span>
+                            </td>
+                            <td>
+                                <a href="@($"/profile/{log.EmployeeId}")" class="emp-link">
+                                    @log.EmployeeName
+                                </a>
+                                @if (!string.IsNullOrEmpty(log.EmployeeCode))
+                                {
+                                    <span class="code-badge">@log.EmployeeCode</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="action-badge @ActionCss(log.Action)">
+                                    <i class="bi @ActionIcon(log.Action)"></i>
+                                    @log.ActionLabel
+                                </span>
+                            </td>
+                            <td>
+                                <span class="user-cell">
+                                    <i class="bi bi-person-circle"></i>
+                                    @log.ChangedByName
+                                </span>
+                            </td>
+                            <td>
+                                <span class="count-badge">@log.ChangesCount</span>
+                            </td>
+                            <td>
+                                <button class="icon-action" title="@Lang.T("عرض التفاصيل")"
+                                        @onclick="() => OpenDetails(log)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (result.TotalPages > 1)
+        {
+            <div class="pagination">
+                <span class="pagination-info">
+                    <i class="bi bi-list-ol"></i>
+                    @Lang.T("عرض") @((result.Page - 1) * result.PageSize + 1)-@(Math.Min(result.Page * result.PageSize, result.TotalCount))
+                    @Lang.T("من") @result.TotalCount
+                </span>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled="@(currentPage == 1)"
+                            @onclick="() => GoToPage(currentPage - 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    @for (int p = 1; p <= result.TotalPages; p++)
+                    {
+                        var pageNum = p;
+                        if (pageNum == 1 || pageNum == result.TotalPages || Math.Abs(pageNum - currentPage) <= 1)
+                        {
+                            <button class="page-btn @(pageNum == currentPage ? "active" : "")"
+                                    @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                        }
+                        else if (pageNum == currentPage - 2 || pageNum == currentPage + 2)
+                        {
+                            <span class="page-dots">…</span>
+                        }
+                    }
+                    <button class="page-btn" disabled="@(currentPage == result.TotalPages)"
+                            @onclick="() => GoToPage(currentPage + 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@* ===== مودال التفاصيل ===== *@
+@if (showDetails && selectedLog != null)
+{
+    <div class="modal-overlay" @onclick="CloseDetails">
+        <div class="modal-box" @onclick:stopPropagation="true" style="max-width:640px;">
+            <div class="modal-header">
+                <h3>
+                    <i class="bi bi-info-circle"></i>
+                    @Lang.T("تفاصيل التعديل")
+                </h3>
+                <button class="icon-action" @onclick="CloseDetails">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="meta-grid">
+                    <div class="meta-item">
+                        <label>@Lang.T("الموظف")</label>
+                        <span>@selectedLog.EmployeeName</span>
+                    </div>
+                    <div class="meta-item">
+                        <label>@Lang.T("العملية")</label>
+                        <span class="action-badge @ActionCss(selectedLog.Action)">
+                            <i class="bi @ActionIcon(selectedLog.Action)"></i>
+                            @selectedLog.ActionLabel
+                        </span>
+                    </div>
+                    <div class="meta-item">
+                        <label>@Lang.T("بواسطة")</label>
+                        <span>@selectedLog.ChangedByName</span>
+                    </div>
+                    <div class="meta-item">
+                        <label>@Lang.T("التاريخ")</label>
+                        <span>@selectedLog.ChangedAt.ToString("yyyy/MM/dd HH:mm:ss")</span>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(selectedLog.Notes))
+                {
+                    <div class="meta-item full">
+                        <label>@Lang.T("ملاحظات")</label>
+                        <span>@selectedLog.Notes</span>
+                    </div>
+                }
+
+                @if (detailsLoading)
+                {
+                    <div class="loading-state" style="padding:30px;">
+                        <div class="spinner"></div>
+                    </div>
+                }
+                else if (selectedChanges == null || selectedChanges.Count == 0)
+                {
+                    <div class="empty-state" style="padding:30px;">
+                        <i class="bi bi-info-circle"></i>
+                        <p>@Lang.T("لا توجد تفاصيل حقول محفوظة")</p>
+                    </div>
+                }
+                else
+                {
+                    <table class="changes-table">
+                        <thead>
+                            <tr>
+                                <th>@Lang.T("الحقل")</th>
+                                <th>@Lang.T("القيمة القديمة")</th>
+                                <th>@Lang.T("القيمة الجديدة")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in selectedChanges)
+                            {
+                                <tr>
+                                    <td><strong>@c.FieldLabel</strong></td>
+                                    <td><span class="old-val">@(string.IsNullOrEmpty(c.OldValue) ? "—" : c.OldValue)</span></td>
+                                    <td><span class="new-val">@(string.IsNullOrEmpty(c.NewValue) ? "—" : c.NewValue)</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseDetails">
+                    <i class="bi bi-x-circle"></i> @Lang.T("إغلاق")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    PagedResult<EmployeeAuditListItem>? result;
+    EmployeeAuditFilter filter = new();
+
+    int currentPage = 1;
+    int pageSize = 20;
+    bool loading = true;
+    bool exporting = false;
+    bool showDetails = false;
+    bool detailsLoading = false;
+    EmployeeAuditListItem? selectedLog;
+    List<FieldChange>? selectedChanges;
+
+    string actionStr = "";
+    DateTime? fromDate;
+    DateTime? toDate;
+
+    System.Timers.Timer? debounceTimer;
+
+    protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
+
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    void SyncFilter()
+    {
+        filter.Action = string.IsNullOrEmpty(actionStr) ? null : (AuditAction?)int.Parse(actionStr);
+        filter.FromDate = fromDate;
+        filter.ToDate = toDate;
+    }
+
+    async Task ApplyFilters()
+    {
+        SyncFilter();
+        currentPage = 1;
+        await LoadData();
+    }
+
+    async Task ClearFilters()
+    {
+        filter = new();
+        actionStr = "";
+        fromDate = null;
+        toDate = null;
+        currentPage = 1;
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        loading = true;
+        StateHasChanged();
+        try
+        {
+            result = await EmployeeSvc.GetAuditLogPagedAsync(filter, currentPage, pageSize);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تحميل سجل التعديلات");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+            result = new();
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task GoToPage(int page)
+    {
+        if (page < 1 || (result != null && page > result.TotalPages)) return;
+        currentPage = page;
+        await LoadData();
+    }
+
+    void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        currentPage = 1;
+        debounceTimer?.Stop();
+        debounceTimer = new System.Timers.Timer(400) { AutoReset = false };
+        debounceTimer.Elapsed += async (s, args) =>
+        {
+            SyncFilter();
+            await InvokeAsync(LoadData);
+        };
+        debounceTimer.Start();
+    }
+
+    async Task OpenDetails(EmployeeAuditListItem log)
+    {
+        selectedLog = log;
+        showDetails = true;
+        detailsLoading = true;
+        selectedChanges = null;
+        StateHasChanged();
+        try
+        {
+            selectedChanges = await EmployeeSvc.GetAuditChangesAsync(log.Id);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تحميل تفاصيل التعديل");
+        }
+        finally
+        {
+            detailsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    void CloseDetails()
+    {
+        showDetails = false;
+        selectedLog = null;
+        selectedChanges = null;
+    }
+
+    async Task ExportToExcel()
+    {
+        if (exporting) return;
+        exporting = true;
+        StateHasChanged();
+        try
+        {
+            SyncFilter();
+            var bytes = await EmployeeSvc.ExportAuditToExcelAsync(filter);
+            var fileName = $"EmployeeAudit_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+            var base64 = Convert.ToBase64String(bytes);
+            await JS.InvokeVoidAsync("downloadFileFromBase64", fileName,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", base64);
+            Notify.ShowSuccess(Lang.T("تم تصدير الملف بنجاح"));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ في تصدير سجل التعديلات");
+            Notify.ShowError(Lang.T("حدث خطأ أثناء التصدير"));
+        }
+        finally
+        {
+            exporting = false;
+            StateHasChanged();
+        }
+    }
+
+    string ActionCss(AuditAction a) => a switch
+    {
+        AuditAction.Create => "act-create",
+        AuditAction.Update => "act-update",
+        AuditAction.Archive => "act-archive",
+        AuditAction.Restore => "act-restore",
+        AuditAction.Delete => "act-delete",
+        _ => ""
+    };
+
+    string ActionIcon(AuditAction a) => a switch
+    {
+        AuditAction.Create => "bi-plus-circle",
+        AuditAction.Update => "bi-pencil-square",
+        AuditAction.Archive => "bi-archive",
+        AuditAction.Restore => "bi-arrow-counterclockwise",
+        AuditAction.Delete => "bi-trash",
+        _ => "bi-info-circle"
+    };
+
+    public void Dispose()
+    {
+        Lang.OnChange -= StateHasChanged;
+        debounceTimer?.Dispose();
+    }
+}

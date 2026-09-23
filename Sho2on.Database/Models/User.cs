@@ -113,7 +113,10 @@ namespace Sho2on.Database.Models
         public int? QualificationId { get; set; }
         public int? RecidenceId { get; set; }
         public int? MaritalId { get; set; }
-
+        [ForeignKey(nameof(UpdatedBy))]
+        public int? UpdatedById { get; set; }
+        [ForeignKey(nameof(CreatedBy))]
+        public int? CreatedById { get; set; }
         public bool ExemptLate { get; set; }
         public bool ExemptEarlyLeave { get; set; }
         public bool ExemptOvertime { get; set; }
@@ -130,6 +133,9 @@ namespace Sho2on.Database.Models
         // Sensitive / Administrative
         public bool Blacklist { get; set; }
         public string? BlacklistReason { get; set; }
+        public string? EndDutyNotes { get; set; }
+        
+        public int? EndDutyTypeId { get; set; }
 
         public bool UnderTraining { get; set; }
         public bool UnderEmployment { get; set; }
@@ -164,6 +170,8 @@ namespace Sho2on.Database.Models
         public Area? Area { get; set; } = null!;
         public Branch? Branch { get; set; } = null!;
         public User? Manager { get; set; } = null!;
+        public User? CreatedBy { get; set; } = null!;
+        public User? UpdatedBy { get; set; } = null!;
         public Department? Department { get; set; } = null!;
         public JobTitle? JobTitle { get; set; } = null!;
         public Degree? Degree { get; set; } = null!;

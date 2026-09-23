@@ -14,6 +14,42 @@
         public bool IsExpanded { get; set; } = false;
     }
 
+    public class HiringStats
+{
+    // عدد الموظفين المعيّنين في الفترة
+    public int HiredInPeriod { get; set; }
+
+    // عدد الموظفين اللي مشيوا في الفترة
+    public int LeftInPeriod { get; set; }
+
+    // صافي التغيير
+    public int NetChange => HiredInPeriod - LeftInPeriod;
+
+    // عدد الموظفين النشطين حالياً
+    public int ActiveEmployees { get; set; }
+
+    // عدد الموظفين المؤرشفين (مشيوا)
+    public int ArchivedEmployees { get; set; }
+
+    // إجمالي الموظفين (نشطين + مؤرشفين)
+    public int TotalEverEmployed { get; set; }
+
+    // المعدل الشهري للتعيين
+    public double MonthlyHiringRate { get; set; }
+
+    // المعدل الشهري للمغادرة
+    public double MonthlyTurnoverRate { get; set; }
+}
+
+public class HiringTrendPoint
+{
+    public string MonthLabel { get; set; } = "";  // "يناير 2025"
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public int Hired { get; set; }
+    public int Left { get; set; }
+}
+
     public class DashboardAlert
     {
         public string Icon { get; set; } = "";

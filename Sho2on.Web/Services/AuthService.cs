@@ -18,7 +18,7 @@ namespace Sho2on.Web.Services
             var user = await _db.Users
                 .Include(u => u.JobTitle)
                 .Include(u => u.Department)
-                .FirstOrDefaultAsync(u => u.Username == username);
+                .FirstOrDefaultAsync(u => u.Username == username && u.InDuty);
 
             if (user == null)
             {

@@ -1111,3 +1111,185 @@
         transform: rotate(360deg);
     }
 }
+
+/* ══ Hiring Stats Panel ══ */
+.hiring-stats-panel {
+    margin-bottom: 20px;
+}
+
+.period-selector select {
+    padding: 6px 12px;
+    border: 1px solid var(--border, #d1d5db);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+    font-family: 'Tajawal';
+    cursor: pointer;
+}
+
+.hiring-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.hiring-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border, #e5e7eb);
+    transition: transform 0.15s;
+}
+
+.hiring-card:hover {
+    transform: translateY(-2px);
+}
+
+.hiring-card > i {
+    font-size: 26px;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(45, 36, 102, 0.08);
+    color: var(--primary, #2D2466);
+    flex-shrink: 0;
+}
+
+.hiring-card > div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.hiring-card span {
+    font-size: 12px;
+    color: var(--text-muted, #6b7280);
+    font-family: 'Tajawal';
+}
+
+.hiring-card strong {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text, #111827);
+    font-family: 'Tajawal';
+    line-height: 1.2;
+}
+
+/* ألوان */
+.hiring-card.success > i {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10B981;
+}
+.hiring-card.danger > i {
+    background: rgba(239, 68, 68, 0.12);
+    color: #EF4444;
+}
+.hiring-card.info > i {
+    background: rgba(37, 99, 235, 0.12);
+    color: #2563EB;
+}
+.hiring-card.warning > i {
+    background: rgba(245, 158, 11, 0.12);
+    color: #F59E0B;
+}
+
+/* الرسم البياني */
+.hiring-chart-wrapper {
+    position: relative;
+    height: 280px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: var(--surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--border, #e5e7eb);
+}
+
+/* التفاصيل */
+.hiring-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 900px) {
+    .hiring-details {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hiring-detail-list h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--text, #111827);
+    font-family: 'Tajawal';
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hired-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+
+.hired-row:hover {
+    background: var(--surface-hover, #f3f4f6);
+}
+
+.hired-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Tajawal';
+    flex-shrink: 0;
+}
+
+.hired-avatar.danger {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+}
+
+.hired-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.hired-info strong {
+    font-size: 13px;
+    color: var(--text, #111827);
+    font-family: 'Tajawal';
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hired-info small {
+    font-size: 11px;
+    color: var(--text-muted, #6b7280);
+    font-family: 'Tajawal';
+}
+
+.hired-date {
+    font-size: 11px;
+    color: var(--text-muted, #6b7280);
+    font-family: 'Tajawal';
+    flex-shrink: 0;
+}
