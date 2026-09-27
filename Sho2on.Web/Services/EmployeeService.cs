@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ClosedXML.Excel;
+using Microsoft.EntityFrameworkCore;
 using Sho2on.Database;
 using Sho2on.Database.Models;
 using Sho2on.Web.Components.Pages.Settings;
 using Sho2on.Web.Models;
-using ClosedXML.Excel;
 using static ClosedXML.Excel.XLColor;
 
 namespace Sho2on.Web.Services
@@ -833,6 +833,20 @@ private static async Task LogAuditAsync(
                 EndDutyTypeId = u.EndDutyTypeId
             };
         }
+
+        public async Task<EmployeeFormModel?> GetByCodeAsync(string code)
+{
+            var _db = await _dbFactory.CreateDbContextAsync();
+            // لو عندك DbContext
+            var employee = await _db.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(e => e.Code == code);
+
+    if (employee == null) return null;
+
+    // حولها لـ EmployeeFormModel بنفس طريقة GetByIdAsync
+    return await GetByIdAsync(employee.Id);
+}
 
         public async Task SaveAsync(EmployeeFormModel m)
         {

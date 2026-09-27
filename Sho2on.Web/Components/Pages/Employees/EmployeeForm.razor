@@ -8,6 +8,7 @@
 @using Sho2on.Web.Models
 @using Sho2on.Web.Services
 @using Sho2on.Web.Components.Layout
+@using Microsoft.AspNetCore.Components.Web
 @inject EmployeeService EmployeeSvc
 @inject BenefitTypeService BenefitTypeSvc
 @inject LocalizationService Lang
@@ -19,7 +20,18 @@
 @implements IDisposable
 
 <div class="employee-form-page">
+    <div class="page-header">
     <h2>@(Id.HasValue ? Lang.T("تعديل بيانات موظف") : Lang.T("إضافة موظف جديد"))</h2>
+
+    <div class="header-actions">
+        <button type="button" class="btn-search" @onclick="OpenSearchModal">
+            <i class="bi bi-search"></i> @Lang.T("بحث")
+        </button>
+        <button type="button" class="btn-clear" @onclick="HandleClear">
+            <i class="bi bi-eraser"></i> @Lang.T("مسح")
+        </button>
+    </div>
+</div>
 
     @if (model == null || lookups == null)
     {
@@ -692,6 +704,49 @@
     </div>
 }
 
+@if (showSearchModal)
+{
+    <div class="modal-overlay" @onclick="CloseSearchModal">
+        <div class="modal-box small" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>
+                    <i class="bi bi-search"></i>
+                    @Lang.T("البحث عن موظف")
+                </h3>
+                <button type="button" class="icon-action" @onclick="CloseSearchModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>@Lang.T("كود الموظف")</label>
+                    <input class="search-input"
+                           @bind="searchCode"
+                           @bind:event="oninput"
+                           @onkeydown="HandleSearchKeyDown"
+                           placeholder="@Lang.T("أدخل كود الموظف...")"
+                           autofocus />
+                    @if (!string.IsNullOrWhiteSpace(searchError))
+                    {
+                        <small class="search-error">
+                            <i class="bi bi-exclamation-circle"></i>
+                            @searchError
+                        </small>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" @onclick="CloseSearchModal">
+                    @Lang.T("إلغاء")
+                </button>
+                <button type="button" class="btn-primary" @onclick="ExecuteSearch" disabled="@searching">
+                    @(searching ? Lang.T("جاري البحث...") : Lang.T("بحث"))
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public int? Id { get; set; }
 
@@ -721,31 +776,133 @@
     "بيانات شخصية", "بيانات الوظيفة", "الراتب والسلف",
     "الحضور والإعفاءات", "الاستحقاقات والاستقطاعات", "المستندات", "إعدادات الحساب", "اخرى"
 };
+// ===== البحث بالكود =====
+bool showSearchModal = false;
+string searchCode = "";
+string? searchError = null;
+bool searching = false;
 
+void OpenSearchModal()
+{
+    searchCode = "";
+    searchError = null;
+    showSearchModal = true;
+}
+
+void CloseSearchModal()
+{
+    if (searching) return; // مينفعش يقفل وهو بيبحث
+    showSearchModal = false;
+    searchError = null;
+}
+
+async Task HandleSearchKeyDown(KeyboardEventArgs e)
+{
+    if (e.Key == "Enter")
+    {
+        await ExecuteSearch();
+    }
+    else if (e.Key == "Escape")
+    {
+        CloseSearchModal();
+    }
+}
+
+async Task ExecuteSearch()
+{
+    searchError = null;
+
+    if (string.IsNullOrWhiteSpace(searchCode))
+    {
+        searchError = Lang.T("من فضلك أدخل كود الموظف");
+        return;
+    }
+
+    searching = true;
+    StateHasChanged();
+
+    try
+    {
+        var employee = await EmployeeSvc.GetByCodeAsync(searchCode.Trim());
+
+        if (employee == null)
+        {
+            searchError = Lang.T("لا يوجد موظف بهذا الكود");
+            return;
+        }
+
+        // نقفل المودال ونعمل reset
+        showSearchModal = false;
+        searchCode = "";  // ← ضيف دي
+        Nav.NavigateTo($"/employees/edit/{employee.Id}");
+        // مش محتاج StateHasChanged هنا لأن NavigateTo هيعمل re-render
+    }
+    catch (Exception)
+    {
+        searchError = Lang.T("حدث خطأ أثناء البحث، حاول مرة أخرى");
+    }
+    finally
+    {
+        searching = false;
+        StateHasChanged();
+    }
+}
     protected override void OnInitialized() => Lang.OnChange += StateHasChanged;
 
     protected override async Task OnInitializedAsync()
     {
-        // حماية إضافية: لو دخل الصفحة مباشرة بالـ URL وهو عنده View بس، منرجعه لقائمة الموظفين
-        var requiredPermission = Id.HasValue ? "بيانات الموظفين" : "إضافة موظف";
-        if (!await CurrentUser.CanEditAsync(requiredPermission))
+        await LoadPageDataAsync();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        // لو الـ Id اتغير بعد ما الصفحة اتحملت، نعيد التحميل
+        // (OnInitializedAsync بتتنادى لوحدها أول مرة، فمش محتاج نكرر)
+        if (Id.HasValue && model != null && model.Id != Id.Value)
         {
-            Notify.ShowError(Lang.T("لا تملك صلاحية تعديل بيانات الموظفين"));
-            Nav.NavigateTo("/employees");
-            return;
-        }
-
-        lookups = await EmployeeSvc.GetLookupsAsync();
-        model = Id.HasValue ? await EmployeeSvc.GetByIdAsync(Id.Value) : new EmployeeFormModel();
-
-        await LoadMonthlyBenefitTypes();
-
-        if (Id.HasValue)
-        {
-            await LoadDocuments();
-            await LoadEmployeeBenefits();
+            await LoadPageDataAsync();
         }
     }
+
+    private async Task LoadPageDataAsync()
+{
+    // حماية إضافية: لو دخل الصفحة مباشرة بالـ URL وهو عنده View بس، منرجعه لقائمة الموظفين
+    var requiredPermission = Id.HasValue ? "بيانات الموظفين" : "إضافة موظف";
+    if (!await CurrentUser.CanEditAsync(requiredPermission))
+    {
+        Notify.ShowError(Lang.T("لا تملك صلاحية تعديل بيانات الموظفين"));
+        Nav.NavigateTo("/employees");
+        return;
+    }
+
+    // ⚠️ مهم جداً: نعمل reset لكل البيانات القديمة الأول
+    model = null;
+    docsSummary = null;
+    selectedBenefitTypeIds.Clear();
+    savedBenefitTypeIds.Clear();
+    activeTab = "بيانات شخصية";
+    StateHasChanged();
+
+    // تحميل الـ lookups (ممكن نعملها مرة واحدة بس للأداء، بس للتبسيط نخليها هنا)
+    if (lookups == null)
+    {
+        lookups = await EmployeeSvc.GetLookupsAsync();
+    }
+
+    // تحميل بيانات الموظف
+    model = Id.HasValue
+        ? await EmployeeSvc.GetByIdAsync(Id.Value)
+        : new EmployeeFormModel();
+
+    await LoadMonthlyBenefitTypes();
+
+    if (Id.HasValue)
+    {
+        await LoadDocuments();
+        await LoadEmployeeBenefits();
+    }
+
+    StateHasChanged();
+}
 
     async Task OnProfileImageSelected(InputFileChangeEventArgs e)
     {
@@ -865,6 +1022,53 @@
         }
         return total;
     }
+
+    async Task HandleSearch()
+{
+    // لو انت في وضع التعديل، نعيد تحميل بيانات الموظف من السيرفر
+    if (Id.HasValue)
+    {
+        try
+        {
+            model = await EmployeeSvc.GetByIdAsync(Id.Value);
+            await LoadDocuments();
+            await LoadEmployeeBenefits();
+            Notify.ShowSuccess(Lang.T("تم تحديث البيانات"));
+        }
+        catch
+        {
+            Notify.ShowError(Lang.T("حدث خطأ أثناء تحميل البيانات"));
+        }
+    }
+    else
+    {
+        // في وضع الإضافة: مفيش حاجة نبحث عنها، ممكن نعمل focus على أول حقل
+        // أو نعرض رسالة
+        Notify.ShowInfo(Lang.T("في وضع الإضافة لا يوجد بحث"));
+    }
+
+    StateHasChanged();
+}
+
+async Task HandleClear()
+{
+    if (Id.HasValue)
+    {
+        // في وضع التعديل: نرجع البيانات الأصلية من السيرفر (بدون حفظ)
+        model = await EmployeeSvc.GetByIdAsync(Id.Value);
+        await LoadEmployeeBenefits();
+    }
+    else
+    {
+        // في وضع الإضافة: نعمل reset لكل الفورم
+        model = new EmployeeFormModel();
+        selectedBenefitTypeIds.Clear();
+        savedBenefitTypeIds.Clear();
+    }
+
+    activeTab = "بيانات شخصية";
+    StateHasChanged();
+}
 
     string GetTargetDisplay(string target) => target switch
     {
@@ -1077,19 +1281,16 @@
     {
         try
         {
-            // حفظ الاستحقاقات المرتبطة بالموظف
             model!.SelectedBenefitTypeIds = selectedBenefitTypeIds.ToList();
             
             await EmployeeSvc.SaveAsync(model!);
             
-            // حفظ علاقة الموظف بالاستحقاقات
             if (Id.HasValue)
             {
                 await EmployeeSvc.SaveEmployeeBenefitsAsync(Id.Value, selectedBenefitTypeIds.ToList());
             }
             
             Notify.ShowSuccess(Lang.T("تم حفظ بيانات الموظف بنجاح"));
-            Nav.NavigateTo("/employees");
         }
         catch (UnauthorizedAccessException)
         {

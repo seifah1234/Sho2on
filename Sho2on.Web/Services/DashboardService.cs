@@ -71,7 +71,7 @@ public async Task<HiringStats> GetHiringStatsAsync(DateOnly from, DateOnly to, s
                 leftInPeriod = leftInPeriod.Where(u => u.EndDutyTypeId.ToString() == selectedReason).ToList();
         }
 
-    var activeEmployees = await _db.Users.CountAsync(u => !u.IsArchived);
+    var activeEmployees = await _db.Users.CountAsync(u => !u.IsArchived && u.InDuty);
     var archivedEmployees = await _db.Users.CountAsync(u => u.IsArchived);
             var leftInPeriodCount = leftInPeriod.Count;
     // حساب المعدل الشهري
